@@ -31,6 +31,33 @@ export const CdfState = {
 } as const;
 export type CdfState = (typeof CdfState)[keyof typeof CdfState] | (string & {});
 
+/** The day of the week on which a weekly snapshot is taken. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DayOfWeek = {
+  /**
+   * Default value; a WeeklySchedule with this value is rejected with
+   * INVALID_PARAMETER_VALUE.
+   */
+  DAY_OF_WEEK_UNSPECIFIED: 'DAY_OF_WEEK_UNSPECIFIED',
+  /** Monday. */
+  MONDAY: 'MONDAY',
+  /** Tuesday. */
+  TUESDAY: 'TUESDAY',
+  /** Wednesday. */
+  WEDNESDAY: 'WEDNESDAY',
+  /** Thursday. */
+  THURSDAY: 'THURSDAY',
+  /** Friday. */
+  FRIDAY: 'FRIDAY',
+  /** Saturday. */
+  SATURDAY: 'SATURDAY',
+  /** Sunday. */
+  SUNDAY: 'SUNDAY',
+} as const;
+export type DayOfWeek =
+  | (typeof DayOfWeek)[keyof typeof DayOfWeek]
+  | (string & {});
+
 /** The compute endpoint type. Either `read_write` or `read_only`. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EndpointType = {
@@ -920,6 +947,14 @@ export interface BranchSpec {
         noExpiry: boolean;
       }
     | undefined;
+  /**
+   * The snapshot this branch was created from. When set, the branch's data
+   * comes from the snapshot rather than a source branch, so source_branch,
+   * source_branch_lsn, and source_branch_time must be empty. The snapshot must
+   * be AVAILABLE and belong to this branch's project.
+   * Format: projects/{project_id}/snapshots/{snapshot_id}
+   */
+  sourceSnapshot?: string | undefined;
 }
 
 export interface BranchStatus {
@@ -958,6 +993,12 @@ export interface BranchStatus {
    * Empty if the branch is not deleted, otherwise set to a timestamp in the future.
    */
   purgeTime?: Temporal.Instant | undefined;
+  /**
+   * The snapshot this branch was restored from. Set only for branches created by
+   * restoring a snapshot; unset for all other branches.
+   * Format: projects/{project_id}/snapshots/{snapshot_id}
+   */
+  sourceSnapshot?: string | undefined;
 }
 
 export interface Catalog {
@@ -1000,7 +1041,7 @@ export interface Catalog_CatalogSpec {
    * Doing Point In Time Restore (PITR) prior to the moment before the Postgres DB was registered
    * in the Catalog drops the fact of registration of the database. So the user should avoid doing so.
    */
-  postgresDatabase?: string | undefined;
+  postgresDatabase: string;
   /**
    * If set to true, the specified postgres_database is created on behalf of the calling user
    * if it does not already exist. In this case, the calling user has a role created for
@@ -1054,12 +1095,12 @@ export interface CdfConfig {
    * The Unity Catalog catalog that replicated tables are written into.
    * Set at creation; the CdfConfig is immutable.
    */
-  catalog?: string | undefined;
+  catalog: string;
   /**
    * The Unity Catalog schema that replicated tables are written into.
    * Set at creation; the CdfConfig is immutable.
    */
-  schema?: string | undefined;
+  schema: string;
   /** When the CdfConfig was created. */
   createTime?: Temporal.Instant | undefined;
   /**
@@ -1071,7 +1112,7 @@ export interface CdfConfig {
    * The Postgres schema this CdfConfig replicates from. Unique within the
    * parent database. Set at creation; the CdfConfig is immutable.
    */
-  postgresSchema?: string | undefined;
+  postgresSchema: string;
 }
 
 /**
@@ -1117,13 +1158,13 @@ export interface CreateBranchRequest {
    * The Project where this Branch will be created.
    * Format: projects/{project_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /**
    * The ID to use for the Branch. This becomes the final component of the branch's resource name.
    * The ID is required and must be 1-63 characters long, start with a lowercase letter, and contain only lowercase letters, numbers, and hyphens.
    * For example, `development` becomes `projects/my-app/branches/development`.
    */
-  branchId?: string | undefined;
+  branchId: string;
   /** The Branch to create. */
   branch?: Branch | undefined;
   /** If true, update the branch if it already exists instead of returning an error. */
@@ -1135,8 +1176,8 @@ export interface CreateCatalogRequest {
    * The ID in the Unity Catalog.
    * It becomes the full resource name, for example "my_catalog" becomes "catalogs/my_catalog".
    */
-  catalogId?: string | undefined;
-  catalog?: Catalog | undefined;
+  catalogId: string;
+  catalog: Catalog;
 }
 
 /** Request to create a Lakebase CDF configuration (CdfConfig). */
@@ -1145,12 +1186,12 @@ export interface CreateCdfConfigRequest {
    * The parent database under which to create the CdfConfig.
    * Format: projects/{project}/branches/{branch}/databases/{database}
    */
-  parent?: string | undefined;
+  parent: string;
   /**
    * The CdfConfig to create. The catalog, schema, and postgres_schema fields are
    * required; all other fields are output only and ignored on input.
    */
-  cdfConfig?: CdfConfig | undefined;
+  cdfConfig: CdfConfig;
   /**
    * The user-specified id for the CdfConfig, forming the final segment of its
    * resource name. Must match the pattern `[a-z][a-z0-9_]{0,62}`. Defaults to
@@ -1162,9 +1203,9 @@ export interface CreateCdfConfigRequest {
 /** Enable Data API for a database. */
 export interface CreateDataApiRequest {
   /** Parent database: projects/{project_id}/branches/{branch_id}/databases/{database_id} */
-  parent?: string | undefined;
+  parent: string;
   /** The Data API configuration to create. */
-  dataApi?: DataApi | undefined;
+  dataApi: DataApi;
 }
 
 export interface CreateDatabaseRequest {
@@ -1172,7 +1213,7 @@ export interface CreateDatabaseRequest {
    * The Branch where this Database will be created.
    * Format: projects/{project_id}/branches/{branch_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /**
    * The ID to use for the Database, which will become the final component of
    * the database's resource name.
@@ -1185,7 +1226,7 @@ export interface CreateDatabaseRequest {
    */
   databaseId?: string | undefined;
   /** The desired specification of a Database. */
-  database?: Database | undefined;
+  database: Database;
   /**
    * If true, update the database if it already exists instead of returning an
    * error.
@@ -1198,15 +1239,15 @@ export interface CreateEndpointRequest {
    * The Branch where this Endpoint will be created.
    * Format: projects/{project_id}/branches/{branch_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /**
    * The ID to use for the Endpoint. This becomes the final component of the endpoint's resource name.
    * The ID is required and must be 1-63 characters long, start with a lowercase letter, and contain only lowercase letters, numbers, and hyphens.
    * For example, `primary` becomes `projects/my-app/branches/development/endpoints/primary`.
    */
-  endpointId?: string | undefined;
+  endpointId: string;
   /** The Endpoint to create. */
-  endpoint?: Endpoint | undefined;
+  endpoint: Endpoint;
   /** If true, update the endpoint if it already exists instead of returning an error. */
   replaceExisting?: boolean | undefined;
 }
@@ -1217,7 +1258,7 @@ export interface CreateProjectRequest {
    * The ID is required and must be 1-63 characters long, start with a lowercase letter, and contain only lowercase letters, numbers, and hyphens.
    * For example, `my-app` becomes `projects/my-app`.
    */
-  projectId?: string | undefined;
+  projectId: string;
   /** The Project to create. */
   project?: Project | undefined;
 }
@@ -1227,7 +1268,7 @@ export interface CreateRoleRequest {
    * The Branch where this Role is created.
    * Format: projects/{project_id}/branches/{branch_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /**
    * The ID to use for the Role, which will become the final component of
    * the role's resource name.
@@ -1240,7 +1281,7 @@ export interface CreateRoleRequest {
    */
   roleId?: string | undefined;
   /** The desired specification of a Role. */
-  role?: Role | undefined;
+  role: Role;
   /**
    * If true, update the role if it already exists instead of returning an
    * error.
@@ -1259,14 +1300,14 @@ export interface CreateSnapshotRequest {
    * The project in which to create the snapshot.
    * Format: projects/{project_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /** The snapshot to create. */
-  snapshot?: Snapshot | undefined;
+  snapshot: Snapshot;
   /**
    * Client-chosen ID for the snapshot. It becomes the final segment of the
    * snapshot resource name and cannot be changed after creation.
    */
-  snapshotId?: string | undefined;
+  snapshotId: string;
 }
 
 /** Establish a synchronisation to the Postgres database for Reverse ETL for the source table selected from the Unity Catalog. */
@@ -1283,8 +1324,14 @@ export interface CreateSyncedTableRequest {
    * 1. An online VIEW virtual table in the Unity Catalog accessible via the Lakehouse Federation.
    * 2. Postgres table named "{table}" in schema "{schema}" in the connected Postgres database
    */
-  syncedTableId?: string | undefined;
-  syncedTable?: SyncedTable | undefined;
+  syncedTableId: string;
+  syncedTable: SyncedTable;
+}
+
+/** Take a snapshot once per day, at the configured hour. */
+export interface DailySchedule {
+  /** The hour of the day, in UTC, at which to take the snapshot, in [0, 23]. */
+  hour?: number | undefined;
 }
 
 /**
@@ -1415,7 +1462,7 @@ export interface Database_DatabaseSpec {
    *
    * A database always has an owner.
    */
-  role?: string | undefined;
+  role: string;
   /**
    * The name of the Postgres database.
    *
@@ -1456,7 +1503,7 @@ export interface DeleteBranchRequest {
    * The full resource path of the branch to delete.
    * Format: projects/{project_id}/branches/{branch_id}
    */
-  name?: string | undefined;
+  name: string;
   /** If true, permanently delete the branch; if false, soft delete. */
   purge?: boolean | undefined;
 }
@@ -1467,7 +1514,7 @@ export interface DeleteCatalogRequest {
    *
    * Format: "catalogs/{catalog_id}".
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Request to delete a Lakebase CDF configuration (CdfConfig). */
@@ -1476,7 +1523,7 @@ export interface DeleteCdfConfigRequest {
    * The resource name of the CdfConfig to delete.
    * Format: projects/{project}/branches/{branch}/databases/{database}/cdf-configs/{cdf_config}
    */
-  name?: string | undefined;
+  name: string;
   /**
    * When true, also drops the replicated Delta tables in Unity Catalog. When
    * false (the default), the replicated tables are preserved at their last
@@ -1488,7 +1535,7 @@ export interface DeleteCdfConfigRequest {
 /** Disable Data API for a database. */
 export interface DeleteDataApiRequest {
   /** Resource name: projects/{project_id}/branches/{branch_id}/databases/{database_id}/data-api */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeleteDatabaseRequest {
@@ -1496,7 +1543,7 @@ export interface DeleteDatabaseRequest {
    * The resource name of the postgres database.
    * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeleteEndpointRequest {
@@ -1504,7 +1551,7 @@ export interface DeleteEndpointRequest {
    * The full resource path of the endpoint to delete.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeleteProjectRequest {
@@ -1525,7 +1572,7 @@ export interface DeleteRoleRequest {
    * The full resource path of the role to delete.
    * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
    */
-  name?: string | undefined;
+  name: string;
   /**
    * Reassign objects. If this is set, all objects owned by the role are
    * reassigned to the role specified in this parameter.
@@ -1541,7 +1588,7 @@ export interface DeleteSnapshotRequest {
    * The resource name of the snapshot to delete.
    * Format: projects/{project_id}/snapshots/{snapshot_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeleteSyncedTableRequest {
@@ -1549,7 +1596,7 @@ export interface DeleteSyncedTableRequest {
    * The Full resource name of the synced table, of the format "synced_tables/{catalog}.{schema}.{table}",
    * where (catalog, schema, table) are the UC entity names.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeltaTableSyncInfo {
@@ -1592,13 +1639,13 @@ export interface EndpointGroupSpec {
    * The minimum number of computes in the endpoint group. Currently, this must be equal to max. This must be greater
    * than or equal to 1.
    */
-  min?: number | undefined;
+  min: number;
   /**
    * The maximum number of computes in the endpoint group. Currently, this must be equal to min. Set to 1 for single
    * compute endpoints, to disable HA. To manually suspend all computes in an endpoint group, set disabled to
    * true on the EndpointSpec.
    */
-  max?: number | undefined;
+  max: number;
   /**
    * Whether to allow read-only connections to read-write endpoints. Only relevant for read-write endpoints where
    * size.max > 1.
@@ -1611,13 +1658,13 @@ export interface EndpointGroupStatus {
    * The minimum number of computes in the endpoint group. Currently, this must be equal to max. This must be greater
    * than or equal to 1.
    */
-  min?: number | undefined;
+  min: number;
   /**
    * The maximum number of computes in the endpoint group. Currently, this must be equal to min. Set to 1 for single
    * compute endpoints, to disable HA. To manually suspend all computes in an endpoint group, set disabled to
    * true on the EndpointSpec.
    */
-  max?: number | undefined;
+  max: number;
   /**
    * Whether read-only connections to read-write endpoints are allowed. Only relevant if read replicas are configured
    * by specifying size.max > 1.
@@ -1658,7 +1705,7 @@ export interface EndpointSettings {
 
 export interface EndpointSpec {
   /** The endpoint type. A branch can only have one READ_WRITE endpoint. */
-  endpointType?: EndpointType | undefined;
+  endpointType: EndpointType;
   /** The minimum number of Compute Units. Minimum value is 0.5. */
   autoscalingLimitMinCu?: number | undefined;
   /**
@@ -1747,7 +1794,7 @@ export interface GenerateDatabaseCredentialRequest {
    * The endpoint resource name for which this credential will be generated.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
-  endpoint?: string | undefined;
+  endpoint: string;
   /**
    * Expiration information for the credential.
    * Users can specify either expire_time or ttl.
@@ -1778,7 +1825,7 @@ export interface GetBranchRequest {
    * The full resource path of the branch to retrieve.
    * Format: projects/{project_id}/branches/{branch_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetCatalogRequest {
@@ -1787,7 +1834,7 @@ export interface GetCatalogRequest {
    *
    * Format: "catalogs/{catalog_id}".
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Request to retrieve a single CdfConfig. */
@@ -1796,7 +1843,7 @@ export interface GetCdfConfigRequest {
    * The resource name of the CdfConfig to retrieve.
    * Format: projects/{project}/branches/{branch}/databases/{database}/cdf-configs/{cdf_config}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Request to retrieve the status of a single replicated table (CdfStatus). */
@@ -1805,13 +1852,13 @@ export interface GetCdfStatusRequest {
    * The resource name of the CdfStatus to retrieve.
    * Format: projects/{project}/branches/{branch}/databases/{database}/cdf-configs/{cdf_config}/cdf-statuses/{cdf_status}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Get Data API configuration for a database. */
 export interface GetDataApiRequest {
   /** Resource name: projects/{project_id}/branches/{branch_id}/databases/{database_id}/data-api */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetDatabaseRequest {
@@ -1819,7 +1866,7 @@ export interface GetDatabaseRequest {
    * The name of the Database to retrieve.
    * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetEndpointRequest {
@@ -1827,7 +1874,7 @@ export interface GetEndpointRequest {
    * The full resource path of the endpoint to retrieve.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** The request message for `GetOperation` method. */
@@ -1849,7 +1896,7 @@ export interface GetRoleRequest {
    * The full resource path of the role to retrieve.
    * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetSnapshotRequest {
@@ -1857,7 +1904,16 @@ export interface GetSnapshotRequest {
    * The resource name of the snapshot to retrieve.
    * Format: projects/{project_id}/snapshots/{snapshot_id}
    */
-  name?: string | undefined;
+  name: string;
+}
+
+/** Request to retrieve the snapshot schedule for a branch. */
+export interface GetSnapshotScheduleRequest {
+  /**
+   * The resource name of the branch's snapshot schedule.
+   * Format: projects/{project_id}/branches/{branch_id}/snapshot-schedule
+   */
+  name: string;
 }
 
 export interface GetSyncedTableRequest {
@@ -1866,7 +1922,7 @@ export interface GetSyncedTableRequest {
    * Format: "synced_tables/{catalog}.{schema}.{table}",
    * where (catalog, schema, table) are the entity names in the Unity Catalog.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Configuration for the initial default branch created during project creation. */
@@ -1910,7 +1966,7 @@ export interface ListBranchesRequest {
    * The Project that owns this collection of branches.
    * Format: projects/{project_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /** Page token from a previous response. If not provided, returns the first page. */
   pageToken?: string | undefined;
   /** Upper bound for items returned. Cannot be negative. */
@@ -1936,7 +1992,7 @@ export interface ListCdfConfigsRequest {
    * The parent database to list CdfConfigs for.
    * Format: projects/{project}/branches/{branch}/databases/{database}
    */
-  parent?: string | undefined;
+  parent: string;
   /** Maximum number of CdfConfigs to return. */
   pageSize?: number | undefined;
   /**
@@ -1966,7 +2022,7 @@ export interface ListCdfStatusesRequest {
    * The parent CdfConfig to list CdfStatuses for.
    * Format: projects/{project}/branches/{branch}/databases/{database}/cdf-configs/{cdf_config}
    */
-  parent?: string | undefined;
+  parent: string;
   /** Maximum number of CdfStatuses to return. */
   pageSize?: number | undefined;
   /**
@@ -1993,7 +2049,7 @@ export interface ListDatabasesRequest {
    * The Branch that owns this collection of databases.
    * Format: projects/{project_id}/branches/{branch_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /** Pagination token to go to the next page of Databases. Requests first page if absent. */
   pageToken?: string | undefined;
   /** Upper bound for items returned. */
@@ -2012,7 +2068,7 @@ export interface ListEndpointsRequest {
    * The Branch that owns this collection of endpoints.
    * Format: projects/{project_id}/branches/{branch_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /** Page token from a previous response. If not provided, returns the first page. */
   pageToken?: string | undefined;
   /** Upper bound for items returned. Cannot be negative. */
@@ -2051,7 +2107,7 @@ export interface ListRolesRequest {
    * The Branch that owns this collection of roles.
    * Format: projects/{project_id}/branches/{branch_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /** Page token from a previous response. If not provided, returns the first page. */
   pageToken?: string | undefined;
   /** Upper bound for items returned. Cannot be negative. */
@@ -2070,7 +2126,7 @@ export interface ListSnapshotsRequest {
    * The project that owns the snapshots.
    * Format: projects/{project_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /** Page token from a previous response; omit for the first page. */
   pageToken?: string | undefined;
   /** Maximum number of snapshots to return per page. */
@@ -2082,6 +2138,18 @@ export interface ListSnapshotsResponse {
   snapshots?: Snapshot[] | undefined;
   /** Token to retrieve the next page; empty if there are no more pages. */
   nextPageToken?: string | undefined;
+}
+
+/** Take a snapshot once per month, on the configured day at the configured hour. */
+export interface MonthlySchedule {
+  /**
+   * The day of the month on which to take the snapshot, in [1, 31]. In shorter
+   * months the snapshot is taken on the last day instead (day 31 runs on Feb 28
+   * or 29, and on Apr 30), so every month gets exactly one snapshot.
+   */
+  day: number;
+  /** The hour of the day, in UTC, at which to take the snapshot, in [0, 23]. */
+  hour?: number | undefined;
 }
 
 export interface NewPipelineSpec {
@@ -2417,6 +2485,37 @@ export interface Role_RoleStatus {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RoleOperationMetadata {}
 
+/** One cadence at which automatic snapshots are taken. */
+export interface ScheduleCadence {
+  /**
+   * The recurrence pattern. Exactly one arm must be set; an unset cadence is
+   * rejected with INVALID_PARAMETER_VALUE.
+   */
+  schedule?:
+    | {
+        $case: 'dailySchedule';
+        /** Take a snapshot once per day. */
+        dailySchedule: DailySchedule;
+      }
+    | {
+        $case: 'weeklySchedule';
+        /** Take a snapshot once per week. */
+        weeklySchedule: WeeklySchedule;
+      }
+    | {
+        $case: 'monthlySchedule';
+        /** Take a snapshot once per month. */
+        monthlySchedule: MonthlySchedule;
+      }
+    | undefined;
+  /**
+   * How long snapshots from this cadence are kept before automatic deletion.
+   * Must be at least 1 hour. Applied when a snapshot is taken; not retroactive,
+   * so changing it affects only later snapshots.
+   */
+  retention: Temporal.Duration;
+}
+
 /**
  * An immutable, point-in-time copy of a branch's data within a project. It
  * remains available after the source branch is deleted.
@@ -2443,13 +2542,38 @@ export interface Snapshot {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SnapshotOperationMetadata {}
 
+/**
+ * The automatic snapshot cadences for a branch. There is exactly one schedule
+ * per branch (singleton); it is configured in place, not created or deleted.
+ *
+ * Name: projects/{project_id}/branches/{branch_id}/snapshot-schedule
+ */
+export interface SnapshotSchedule {
+  /**
+   * The resource name of the branch's snapshot schedule.
+   * Format: projects/{project_id}/branches/{branch_id}/snapshot-schedule
+   */
+  name?: string | undefined;
+  /**
+   * The cadences at which automatic snapshots are taken. Update replaces the
+   * whole set; an empty set disables automatic snapshots. Order is not
+   * significant. When several cadences fire together, one snapshot is taken,
+   * retained for the longest of their retentions.
+   */
+  schedule?: ScheduleCadence[] | undefined;
+}
+
+/** Metadata for the long-running snapshot schedule Update operation. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface SnapshotScheduleOperationMetadata {}
+
 /** Client-provided configuration of the snapshot. */
 export interface SnapshotSpec {
   /**
    * The source branch to snapshot.
    * Format: projects/{project_id}/branches/{branch_id}
    */
-  sourceBranch?: string | undefined;
+  sourceBranch: string;
   /**
    * The point in time to snapshot from. If unset, the current head of the
    * source branch is used. The chosen LSN or timestamp must fall within the
@@ -2632,9 +2756,9 @@ export interface SyncedTable_SyncedTableSpec {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SyncedTable_SyncedTableSpec_ExtraColumn {
   /** Name of the column. */
-  columnName?: string | undefined;
+  columnName: string;
   /** PostgreSQL type of the column, for example "tsvector" or "vector(1024)". */
-  columnType?: string | undefined;
+  columnType: string;
   maintenance?: SyncedTable_SyncedTableSpec_ExtraColumn_Maintenance | undefined;
   /**
    * SQL expression used to compute the column's value, for example
@@ -2647,9 +2771,9 @@ export interface SyncedTable_SyncedTableSpec_ExtraColumn {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SyncedTable_SyncedTableSpec_TypeOverride {
   /** Name of the source column whose target PostgreSQL type should be overridden. */
-  columnName?: string | undefined;
+  columnName: string;
   /** PostgreSQL-specific target type to use for the column. */
-  pgType?: SyncedTable_SyncedTableSpec_PgSpecificType | undefined;
+  pgType: SyncedTable_SyncedTableSpec_PgSpecificType;
   /**
    * Size parameter for the target type, for types that take one (e.g. vector
    * dimension, varchar length). Required when the chosen pg_type needs a size.
@@ -2732,7 +2856,7 @@ export interface UndeleteBranchRequest {
    * The full resource path of the branch to undelete.
    * Format: projects/{project_id}/branches/{branch_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Request to restore a soft-deleted project within its retention period. */
@@ -2741,7 +2865,7 @@ export interface UndeleteProjectRequest {
    * The full resource path of the project to undelete.
    * Format: projects/{project_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface UpdateBranchRequest {
@@ -2751,9 +2875,9 @@ export interface UpdateBranchRequest {
    * The branch's `name` field is used to identify the branch to update.
    * Format: projects/{project_id}/branches/{branch_id}
    */
-  branch?: Branch | undefined;
+  branch: Branch;
   /** The list of fields to update. */
-  updateMask?: FieldMask<Branch> | undefined;
+  updateMask: FieldMask<Branch>;
 }
 
 /** Update Data API configuration for a database. */
@@ -2762,9 +2886,9 @@ export interface UpdateDataApiRequest {
    * The Data API configuration to update.
    * The data_api's `name` field identifies the resource.
    */
-  dataApi?: DataApi | undefined;
+  dataApi: DataApi;
   /** The list of fields to update. */
-  updateMask?: FieldMask<DataApi> | undefined;
+  updateMask: FieldMask<DataApi>;
 }
 
 export interface UpdateDatabaseRequest {
@@ -2774,9 +2898,9 @@ export interface UpdateDatabaseRequest {
    * The database's `name` field is used to identify the database to update.
    * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
    */
-  database?: Database | undefined;
+  database: Database;
   /** The list of fields to update. */
-  updateMask?: FieldMask<Database> | undefined;
+  updateMask: FieldMask<Database>;
 }
 
 export interface UpdateEndpointRequest {
@@ -2786,9 +2910,9 @@ export interface UpdateEndpointRequest {
    * The endpoint's `name` field is used to identify the endpoint to update.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
-  endpoint?: Endpoint | undefined;
+  endpoint: Endpoint;
   /** The list of fields to update. */
-  updateMask?: FieldMask<Endpoint> | undefined;
+  updateMask: FieldMask<Endpoint>;
 }
 
 export interface UpdateProjectRequest {
@@ -2798,9 +2922,9 @@ export interface UpdateProjectRequest {
    * The project's `name` field is used to identify the project to update.
    * Format: projects/{project_id}
    */
-  project?: Project | undefined;
+  project: Project;
   /** The list of fields to update. */
-  updateMask?: FieldMask<Project> | undefined;
+  updateMask: FieldMask<Project>;
 }
 
 export interface UpdateRoleRequest {
@@ -2810,9 +2934,34 @@ export interface UpdateRoleRequest {
    * The role's `name` field is used to identify the role to update.
    * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
    */
-  role?: Role | undefined;
+  role: Role;
   /** The list of fields to update. */
-  updateMask?: FieldMask<Role> | undefined;
+  updateMask: FieldMask<Role>;
+}
+
+/**
+ * Request to set the snapshot schedule for a branch. Returns a completed
+ * long-running operation whose response is the persisted snapshot schedule.
+ */
+export interface UpdateSnapshotScheduleRequest {
+  /**
+   * The snapshot schedule to set. Its `name` identifies the branch.
+   * Format: projects/{project_id}/branches/{branch_id}/snapshot-schedule
+   */
+  snapshotSchedule: SnapshotSchedule;
+  /**
+   * Fields to update. The only updatable path is `schedule`, which replaces the
+   * entire set of cadences.
+   */
+  updateMask: FieldMask<SnapshotSchedule>;
+}
+
+/** Take a snapshot once per week, on the configured day at the configured hour. */
+export interface WeeklySchedule {
+  /** The day of the week on which to take the snapshot. */
+  dayOfWeek: DayOfWeek;
+  /** The hour of the day, in UTC, at which to take the snapshot, in [0, 23]. */
+  hour?: number | undefined;
 }
 
 export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
@@ -2878,6 +3027,7 @@ export const unmarshalBranchSpecSchema: z.ZodType<BranchSpec> = z
       .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
       .optional(),
     no_expiry: z.boolean().optional(),
+    source_snapshot: z.string().optional(),
   })
   .transform(d => ({
     sourceBranch: d.source_branch,
@@ -2892,6 +3042,7 @@ export const unmarshalBranchSpecSchema: z.ZodType<BranchSpec> = z
           : d.no_expiry !== undefined
             ? {$case: 'noExpiry' as const, noExpiry: d.no_expiry}
             : undefined,
+    sourceSnapshot: d.source_snapshot,
   }));
 
 export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
@@ -2927,6 +3078,7 @@ export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
+    source_snapshot: z.string().optional(),
   })
   .transform(d => ({
     sourceBranch: d.source_branch,
@@ -2942,6 +3094,7 @@ export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
     branchId: d.branch_id,
     deleteTime: d.delete_time,
     purgeTime: d.purge_time,
+    sourceSnapshot: d.source_snapshot,
   }));
 
 export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
@@ -2974,7 +3127,7 @@ export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
 export const unmarshalCatalog_CatalogSpecSchema: z.ZodType<Catalog_CatalogSpec> =
   z
     .object({
-      postgres_database: z.string().optional(),
+      postgres_database: z.string(),
       create_database_if_missing: z.boolean().optional(),
       branch: z.string().optional(),
     })
@@ -3004,14 +3157,14 @@ export const unmarshalCatalogOperationMetadataSchema: z.ZodType<CatalogOperation
 export const unmarshalCdfConfigSchema: z.ZodType<CdfConfig> = z
   .object({
     name: z.string().optional(),
-    catalog: z.string().optional(),
-    schema: z.string().optional(),
+    catalog: z.string(),
+    schema: z.string(),
     create_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
     cdf_config_id: z.string().optional(),
-    postgres_schema: z.string().optional(),
+    postgres_schema: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -3051,6 +3204,14 @@ export const unmarshalCdfStatusSchema: z.ZodType<CdfStatus> = z
     lastSyncTime: d.last_sync_time,
     createTime: d.create_time,
     statusDetail: d.status_detail,
+  }));
+
+export const unmarshalDailyScheduleSchema: z.ZodType<DailySchedule> = z
+  .object({
+    hour: z.number().optional(),
+  })
+  .transform(d => ({
+    hour: d.hour,
   }));
 
 export const unmarshalDataApiSchema: z.ZodType<DataApi> = z
@@ -3172,7 +3333,7 @@ export const unmarshalDatabaseSchema: z.ZodType<Database> = z
 export const unmarshalDatabase_DatabaseSpecSchema: z.ZodType<Database_DatabaseSpec> =
   z
     .object({
-      role: z.string().optional(),
+      role: z.string(),
       postgres_database: z.string().optional(),
     })
     .transform(d => ({
@@ -3258,8 +3419,8 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
 
 export const unmarshalEndpointGroupSpecSchema: z.ZodType<EndpointGroupSpec> = z
   .object({
-    min: z.number().optional(),
-    max: z.number().optional(),
+    min: z.number(),
+    max: z.number(),
     enable_readable_secondaries: z.boolean().optional(),
   })
   .transform(d => ({
@@ -3271,8 +3432,8 @@ export const unmarshalEndpointGroupSpecSchema: z.ZodType<EndpointGroupSpec> = z
 export const unmarshalEndpointGroupStatusSchema: z.ZodType<EndpointGroupStatus> =
   z
     .object({
-      min: z.number().optional(),
-      max: z.number().optional(),
+      min: z.number(),
+      max: z.number(),
       enable_readable_secondaries: z.boolean().optional(),
     })
     .transform(d => ({
@@ -3308,7 +3469,7 @@ export const unmarshalEndpointSettingsSchema: z.ZodType<EndpointSettings> = z
 
 export const unmarshalEndpointSpecSchema: z.ZodType<EndpointSpec> = z
   .object({
-    endpoint_type: z.string().optional(),
+    endpoint_type: z.string(),
     autoscaling_limit_min_cu: z.number().optional(),
     autoscaling_limit_max_cu: z.number().optional(),
     disabled: z.boolean().optional(),
@@ -3495,6 +3656,16 @@ export const unmarshalListSnapshotsResponseSchema: z.ZodType<ListSnapshotsRespon
       snapshots: d.snapshots,
       nextPageToken: d.next_page_token,
     }));
+
+export const unmarshalMonthlyScheduleSchema: z.ZodType<MonthlySchedule> = z
+  .object({
+    day: z.number(),
+    hour: z.number().optional(),
+  })
+  .transform(d => ({
+    day: d.day,
+    hour: d.hour,
+  }));
 
 export const unmarshalNewPipelineSpecSchema: z.ZodType<NewPipelineSpec> = z
   .object({
@@ -3769,6 +3940,33 @@ export const unmarshalRole_RoleStatusSchema: z.ZodType<Role_RoleStatus> = z
 export const unmarshalRoleOperationMetadataSchema: z.ZodType<RoleOperationMetadata> =
   z.object({});
 
+export const unmarshalScheduleCadenceSchema: z.ZodType<ScheduleCadence> = z
+  .object({
+    daily_schedule: z.lazy(() => unmarshalDailyScheduleSchema).optional(),
+    weekly_schedule: z.lazy(() => unmarshalWeeklyScheduleSchema).optional(),
+    monthly_schedule: z.lazy(() => unmarshalMonthlyScheduleSchema).optional(),
+    retention: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase())),
+  })
+  .transform(d => ({
+    schedule:
+      d.daily_schedule !== undefined
+        ? {$case: 'dailySchedule' as const, dailySchedule: d.daily_schedule}
+        : d.weekly_schedule !== undefined
+          ? {
+              $case: 'weeklySchedule' as const,
+              weeklySchedule: d.weekly_schedule,
+            }
+          : d.monthly_schedule !== undefined
+            ? {
+                $case: 'monthlySchedule' as const,
+                monthlySchedule: d.monthly_schedule,
+              }
+            : undefined,
+    retention: d.retention,
+  }));
+
 export const unmarshalSnapshotSchema: z.ZodType<Snapshot> = z
   .object({
     name: z.string().optional(),
@@ -3793,9 +3991,22 @@ export const unmarshalSnapshotSchema: z.ZodType<Snapshot> = z
 export const unmarshalSnapshotOperationMetadataSchema: z.ZodType<SnapshotOperationMetadata> =
   z.object({});
 
+export const unmarshalSnapshotScheduleSchema: z.ZodType<SnapshotSchedule> = z
+  .object({
+    name: z.string().optional(),
+    schedule: z.array(z.lazy(() => unmarshalScheduleCadenceSchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    schedule: d.schedule,
+  }));
+
+export const unmarshalSnapshotScheduleOperationMetadataSchema: z.ZodType<SnapshotScheduleOperationMetadata> =
+  z.object({});
+
 export const unmarshalSnapshotSpecSchema: z.ZodType<SnapshotSpec> = z
   .object({
-    source_branch: z.string().optional(),
+    source_branch: z.string(),
     source_branch_lsn: z.string().optional(),
     source_branch_time: z
       .string()
@@ -3933,8 +4144,8 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
 export const unmarshalSyncedTable_SyncedTableSpec_ExtraColumnSchema: z.ZodType<SyncedTable_SyncedTableSpec_ExtraColumn> =
   z
     .object({
-      column_name: z.string().optional(),
-      column_type: z.string().optional(),
+      column_name: z.string(),
+      column_type: z.string(),
       maintenance: z.string().optional(),
       compute: z.string().optional(),
     })
@@ -3949,8 +4160,8 @@ export const unmarshalSyncedTable_SyncedTableSpec_ExtraColumnSchema: z.ZodType<S
 export const unmarshalSyncedTable_SyncedTableSpec_TypeOverrideSchema: z.ZodType<SyncedTable_SyncedTableSpec_TypeOverride> =
   z
     .object({
-      column_name: z.string().optional(),
-      pg_type: z.string().optional(),
+      column_name: z.string(),
+      pg_type: z.string(),
       size: z.number().optional(),
     })
     .transform(d => ({
@@ -4051,6 +4262,16 @@ export const unmarshalSyncedTablePositionSchema: z.ZodType<SyncedTablePosition> 
           : undefined,
     }));
 
+export const unmarshalWeeklyScheduleSchema: z.ZodType<WeeklySchedule> = z
+  .object({
+    day_of_week: z.string(),
+    hour: z.number().optional(),
+  })
+  .transform(d => ({
+    dayOfWeek: d.day_of_week,
+    hour: d.hour,
+  }));
+
 export const marshalBranchSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -4105,6 +4326,7 @@ export const marshalBranchSpecSchema: z.ZodType = z
         z.object({$case: z.literal('noExpiry'), noExpiry: z.boolean()}),
       ])
       .optional(),
+    sourceSnapshot: z.string().optional(),
   })
   .transform(d => ({
     source_branch: d.sourceBranch,
@@ -4118,6 +4340,7 @@ export const marshalBranchSpecSchema: z.ZodType = z
     ...(d.expiration?.$case === 'noExpiry' && {
       no_expiry: d.expiration.noExpiry,
     }),
+    source_snapshot: d.sourceSnapshot,
   }));
 
 export const marshalBranchStatusSchema: z.ZodType = z
@@ -4150,6 +4373,7 @@ export const marshalBranchStatusSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
+    sourceSnapshot: z.string().optional(),
   })
   .transform(d => ({
     source_branch: d.sourceBranch,
@@ -4165,6 +4389,7 @@ export const marshalBranchStatusSchema: z.ZodType = z
     branch_id: d.branchId,
     delete_time: d.deleteTime,
     purge_time: d.purgeTime,
+    source_snapshot: d.sourceSnapshot,
   }));
 
 export const marshalCatalogSchema: z.ZodType = z
@@ -4196,7 +4421,7 @@ export const marshalCatalogSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalCatalog_CatalogSpecSchema: z.ZodType = z
   .object({
-    postgresDatabase: z.string().optional(),
+    postgresDatabase: z.string(),
     createDatabaseIfMissing: z.boolean().optional(),
     branch: z.string().optional(),
   })
@@ -4222,14 +4447,14 @@ export const marshalCatalog_CatalogStatusSchema: z.ZodType = z
 export const marshalCdfConfigSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    catalog: z.string().optional(),
-    schema: z.string().optional(),
+    catalog: z.string(),
+    schema: z.string(),
     createTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     cdfConfigId: z.string().optional(),
-    postgresSchema: z.string().optional(),
+    postgresSchema: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -4238,6 +4463,14 @@ export const marshalCdfConfigSchema: z.ZodType = z
     create_time: d.createTime,
     cdf_config_id: d.cdfConfigId,
     postgres_schema: d.postgresSchema,
+  }));
+
+export const marshalDailyScheduleSchema: z.ZodType = z
+  .object({
+    hour: z.number().optional(),
+  })
+  .transform(d => ({
+    hour: d.hour,
   }));
 
 export const marshalDataApiSchema: z.ZodType = z
@@ -4353,7 +4586,7 @@ export const marshalDatabaseSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDatabase_DatabaseSpecSchema: z.ZodType = z
   .object({
-    role: z.string().optional(),
+    role: z.string(),
     postgresDatabase: z.string().optional(),
   })
   .transform(d => ({
@@ -4417,8 +4650,8 @@ export const marshalEndpointSchema: z.ZodType = z
 
 export const marshalEndpointGroupSpecSchema: z.ZodType = z
   .object({
-    min: z.number().optional(),
-    max: z.number().optional(),
+    min: z.number(),
+    max: z.number(),
     enableReadableSecondaries: z.boolean().optional(),
   })
   .transform(d => ({
@@ -4429,8 +4662,8 @@ export const marshalEndpointGroupSpecSchema: z.ZodType = z
 
 export const marshalEndpointGroupStatusSchema: z.ZodType = z
   .object({
-    min: z.number().optional(),
-    max: z.number().optional(),
+    min: z.number(),
+    max: z.number(),
     enableReadableSecondaries: z.boolean().optional(),
   })
   .transform(d => ({
@@ -4463,7 +4696,7 @@ export const marshalEndpointSettingsSchema: z.ZodType = z
 
 export const marshalEndpointSpecSchema: z.ZodType = z
   .object({
-    endpointType: z.string().optional(),
+    endpointType: z.string(),
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
     disabled: z.boolean().optional(),
@@ -4537,7 +4770,7 @@ export const marshalEndpointStatusSchema: z.ZodType = z
 export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
   .object({
     claims: z.array(z.lazy(() => marshalRequestedClaimsSchema)).optional(),
-    endpoint: z.string().optional(),
+    endpoint: z.string(),
     expiration: z
       .discriminatedUnion('$case', [
         z.object({
@@ -4601,6 +4834,16 @@ export const marshalInitialEndpointSpecSchema: z.ZodType = z
     ...(d.suspension?.$case === 'noSuspension' && {
       no_suspension: d.suspension.noSuspension,
     }),
+  }));
+
+export const marshalMonthlyScheduleSchema: z.ZodType = z
+  .object({
+    day: z.number(),
+    hour: z.number().optional(),
+  })
+  .transform(d => ({
+    day: d.day,
+    hour: d.hour,
   }));
 
 export const marshalNewPipelineSpecSchema: z.ZodType = z
@@ -4866,6 +5109,41 @@ export const marshalRole_RoleStatusSchema: z.ZodType = z
     role_id: d.roleId,
   }));
 
+export const marshalScheduleCadenceSchema: z.ZodType = z
+  .object({
+    schedule: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('dailySchedule'),
+          dailySchedule: z.lazy(() => marshalDailyScheduleSchema),
+        }),
+        z.object({
+          $case: z.literal('weeklySchedule'),
+          weeklySchedule: z.lazy(() => marshalWeeklyScheduleSchema),
+        }),
+        z.object({
+          $case: z.literal('monthlySchedule'),
+          monthlySchedule: z.lazy(() => marshalMonthlyScheduleSchema),
+        }),
+      ])
+      .optional(),
+    retention: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()),
+  })
+  .transform(d => ({
+    ...(d.schedule?.$case === 'dailySchedule' && {
+      daily_schedule: d.schedule.dailySchedule,
+    }),
+    ...(d.schedule?.$case === 'weeklySchedule' && {
+      weekly_schedule: d.schedule.weeklySchedule,
+    }),
+    ...(d.schedule?.$case === 'monthlySchedule' && {
+      monthly_schedule: d.schedule.monthlySchedule,
+    }),
+    retention: d.retention,
+  }));
+
 export const marshalSnapshotSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -4887,9 +5165,19 @@ export const marshalSnapshotSchema: z.ZodType = z
     snapshot_id: d.snapshotId,
   }));
 
+export const marshalSnapshotScheduleSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    schedule: z.array(z.lazy(() => marshalScheduleCadenceSchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    schedule: d.schedule,
+  }));
+
 export const marshalSnapshotSpecSchema: z.ZodType = z
   .object({
-    sourceBranch: z.string().optional(),
+    sourceBranch: z.string(),
     pointInTime: z
       .discriminatedUnion('$case', [
         z.object({
@@ -5027,8 +5315,8 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalSyncedTable_SyncedTableSpec_ExtraColumnSchema: z.ZodType = z
   .object({
-    columnName: z.string().optional(),
-    columnType: z.string().optional(),
+    columnName: z.string(),
+    columnType: z.string(),
     maintenance: z.string().optional(),
     compute: z.string().optional(),
   })
@@ -5043,8 +5331,8 @@ export const marshalSyncedTable_SyncedTableSpec_ExtraColumnSchema: z.ZodType = z
 export const marshalSyncedTable_SyncedTableSpec_TypeOverrideSchema: z.ZodType =
   z
     .object({
-      columnName: z.string().optional(),
-      pgType: z.string().optional(),
+      columnName: z.string(),
+      pgType: z.string(),
       size: z.number().optional(),
     })
     .transform(d => ({
@@ -5130,7 +5418,7 @@ export const marshalSyncedTablePositionSchema: z.ZodType = z
 
 export const marshalUndeleteBranchRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -5138,10 +5426,20 @@ export const marshalUndeleteBranchRequestSchema: z.ZodType = z
 
 export const marshalUndeleteProjectRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalWeeklyScheduleSchema: z.ZodType = z
+  .object({
+    dayOfWeek: z.string(),
+    hour: z.number().optional(),
+  })
+  .transform(d => ({
+    day_of_week: d.dayOfWeek,
+    hour: d.hour,
   }));
 
 const branchFieldMaskSchema: FieldMaskSchema = {
@@ -5166,6 +5464,7 @@ const branchSpecFieldMaskSchema: FieldMaskSchema = {
   sourceBranch: {wire: 'source_branch'},
   sourceBranchLsn: {wire: 'source_branch_lsn'},
   sourceBranchTime: {wire: 'source_branch_time'},
+  sourceSnapshot: {wire: 'source_snapshot'},
   ttl: {wire: 'ttl'},
 };
 
@@ -5182,6 +5481,7 @@ const branchStatusFieldMaskSchema: FieldMaskSchema = {
   sourceBranch: {wire: 'source_branch'},
   sourceBranchLsn: {wire: 'source_branch_lsn'},
   sourceBranchTime: {wire: 'source_branch_time'},
+  sourceSnapshot: {wire: 'source_snapshot'},
   stateChangeTime: {wire: 'state_change_time'},
 };
 
@@ -5445,3 +5745,17 @@ const role_RoleStatusFieldMaskSchema: FieldMaskSchema = {
   postgresRole: {wire: 'postgres_role'},
   roleId: {wire: 'role_id'},
 };
+
+const snapshotScheduleFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+  schedule: {wire: 'schedule'},
+};
+
+export function snapshotScheduleFieldMask(
+  ...paths: string[]
+): FieldMask<SnapshotSchedule> {
+  return FieldMask.build<SnapshotSchedule>(
+    paths,
+    snapshotScheduleFieldMaskSchema
+  );
+}

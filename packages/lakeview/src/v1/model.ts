@@ -64,7 +64,7 @@ export interface AuthorizationDetails_GrantRule {
 }
 
 export interface CreateDashboardRequest {
-  dashboard?: Dashboard | undefined;
+  dashboard: Dashboard;
   /**
    * Sets the default catalog for all datasets in this dashboard.
    * Does not impact table references that use fully qualified catalog names (ex: samples.nyctaxi.trips).
@@ -81,12 +81,12 @@ export interface CreateDashboardRequest {
 
 export interface CreateScheduleRequest {
   /** The schedule to create. A dashboard is limited to 10 schedules. */
-  schedule?: Schedule | undefined;
+  schedule: Schedule;
 }
 
 export interface CreateSubscriptionRequest {
   /** The subscription to create. A schedule is limited to 100 subscriptions. */
-  subscription?: Subscription | undefined;
+  subscription: Subscription;
 }
 
 export interface CronSchedule {
@@ -94,12 +94,12 @@ export interface CronSchedule {
    * A cron expression using quartz syntax. EX: `0 0 8 * * ?` represents everyday at 8am.
    * See [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for details.
    */
-  quartzCronExpression?: string | undefined;
+  quartzCronExpression: string;
   /**
    * A Java timezone id. The schedule will be resolved with respect to this timezone.
    * See [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details.
    */
-  timezoneId?: string | undefined;
+  timezoneId: string;
 }
 
 export interface Dashboard {
@@ -149,9 +149,9 @@ export interface Dashboard {
 
 export interface DeleteScheduleRequest {
   /** UUID identifying the schedule. */
-  scheduleId?: string | undefined;
+  scheduleId: string;
   /** UUID identifying the dashboard to which the schedule belongs. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
   /**
    * The etag for the schedule. Optionally, it can be provided to verify that the schedule has not
    * been modified from its last retrieval.
@@ -161,11 +161,11 @@ export interface DeleteScheduleRequest {
 
 export interface DeleteSubscriptionRequest {
   /** UUID identifying the subscription. */
-  subscriptionId?: string | undefined;
+  subscriptionId: string;
   /** UUID identifying the schedule which the subscription belongs. */
-  scheduleId?: string | undefined;
+  scheduleId: string;
   /** UUID identifying the dashboard which the subscription belongs. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
   /**
    * The etag for the subscription. Can be optionally provided to ensure that the subscription has not been
    * modified since the last read.
@@ -175,17 +175,17 @@ export interface DeleteSubscriptionRequest {
 
 export interface GetDashboardRequest {
   /** UUID identifying the dashboard. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
 }
 
 export interface GetPublishedDashboardRequest {
   /** UUID identifying the published dashboard. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
 }
 
 export interface GetPublishedDashboardTokenInfoRequest {
   /** UUID identifying the published dashboard. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
   /** Provided external value to be included in the custom claim. */
   externalValue?: string | undefined;
   /** Provided external viewer id to be included in the custom claim. */
@@ -210,18 +210,18 @@ export interface GetPublishedDashboardTokenInfoResponse {
 
 export interface GetScheduleRequest {
   /** UUID identifying the schedule. */
-  scheduleId?: string | undefined;
+  scheduleId: string;
   /** UUID identifying the dashboard to which the schedule belongs. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
 }
 
 export interface GetSubscriptionRequest {
   /** UUID identifying the subscription. */
-  subscriptionId?: string | undefined;
+  subscriptionId: string;
   /** UUID identifying the schedule which the subscription belongs. */
-  scheduleId?: string | undefined;
+  scheduleId: string;
   /** UUID identifying the dashboard which the subscription belongs. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
 }
 
 export interface ListDashboardsRequest {
@@ -252,7 +252,7 @@ export interface ListDashboardsResponse {
 
 export interface ListSchedulesRequest {
   /** UUID identifying the dashboard to which the schedules belongs. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
   /** The number of schedules to return per page. */
   pageSize?: number | undefined;
   /**
@@ -273,9 +273,9 @@ export interface ListSchedulesResponse {
 
 export interface ListSubscriptionsRequest {
   /** UUID identifying the dashboard which the subscriptions belongs. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
   /** UUID identifying the schedule which the subscriptions belongs. */
-  scheduleId?: string | undefined;
+  scheduleId: string;
   /** The number of subscriptions to return per page. */
   pageSize?: number | undefined;
   /**
@@ -296,7 +296,7 @@ export interface ListSubscriptionsResponse {
 
 export interface MigrateDashboardRequest {
   /** UUID of the dashboard to be migrated. */
-  sourceDashboardId?: string | undefined;
+  sourceDashboardId: string;
   /** Display name for the new Lakeview dashboard. */
   displayName?: string | undefined;
   /** The workspace path of the folder to contain the migrated Lakeview dashboard. */
@@ -310,7 +310,7 @@ export interface MigrateDashboardRequest {
 
 export interface PublishDashboardRequest {
   /** UUID identifying the dashboard to be published. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
   /**
    * Flag to indicate if the publisher's credentials should be embedded in the
    * published dashboard. These embedded credentials will be used to execute the
@@ -338,7 +338,7 @@ export interface PublishedDashboard {
 /** Request to revert a dashboard draft to its last published state. */
 export interface RevertDashboardRequest {
   /** UUID identifying the dashboard. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
   /**
    * The etag for the dashboard. Optionally, it can be provided to verify that the dashboard
    * has not been modified from its last retrieval.
@@ -358,7 +358,7 @@ export interface Schedule {
   /** UUID identifying the dashboard to which the schedule belongs. */
   dashboardId?: string | undefined;
   /** The cron expression describing the frequency of the periodic refresh for this schedule. */
-  cronSchedule?: CronSchedule | undefined;
+  cronSchedule: CronSchedule;
   /** The status indicates whether this schedule is paused or not. */
   pauseStatus?: SchedulePauseStatus | undefined;
   /** The display name for schedule. */
@@ -384,7 +384,7 @@ export interface Subscription {
   /** UUID identifying the dashboard to which the subscription belongs. */
   dashboardId?: string | undefined;
   /** Subscriber details for users and destinations to be added as subscribers to the schedule. */
-  subscriber?: Subscription_Subscriber | undefined;
+  subscriber: Subscription_Subscriber;
   /** UserId of the user who adds subscribers (users or notification destinations) to the dashboard's schedule. */
   createdByUserId?: bigint | undefined;
   /**
@@ -420,18 +420,18 @@ export interface Subscription_Subscriber {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Subscription_Subscriber_Destination {
   /** The canonical identifier of the destination to receive email notification. */
-  destinationId?: string | undefined;
+  destinationId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Subscription_Subscriber_User {
   /** UserId of the subscriber. */
-  userId?: bigint | undefined;
+  userId: bigint;
 }
 
 export interface TrashDashboardRequest {
   /** UUID identifying the dashboard. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -439,14 +439,14 @@ export interface TrashDashboardResponse {}
 
 export interface UnpublishDashboardRequest {
   /** UUID identifying the published dashboard. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface UnpublishDashboardResponse {}
 
 export interface UpdateDashboardRequest {
-  dashboard?: Dashboard | undefined;
+  dashboard: Dashboard;
   /**
    * Sets the default catalog for all datasets in this dashboard.
    * Does not impact table references that use fully qualified catalog names (ex: samples.nyctaxi.trips).
@@ -463,7 +463,7 @@ export interface UpdateDashboardRequest {
 
 export interface UpdateScheduleRequest {
   /** The schedule to update. */
-  schedule?: Schedule | undefined;
+  schedule: Schedule;
 }
 
 export const unmarshalAuthorizationDetailsSchema: z.ZodType<AuthorizationDetails> =
@@ -495,8 +495,8 @@ export const unmarshalAuthorizationDetails_GrantRuleSchema: z.ZodType<Authorizat
 
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
-    quartz_cron_expression: z.string().optional(),
-    timezone_id: z.string().optional(),
+    quartz_cron_expression: z.string(),
+    timezone_id: z.string(),
   })
   .transform(d => ({
     quartzCronExpression: d.quartz_cron_expression,
@@ -616,7 +616,7 @@ export const unmarshalScheduleSchema: z.ZodType<Schedule> = z
   .object({
     schedule_id: z.string().optional(),
     dashboard_id: z.string().optional(),
-    cron_schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
+    cron_schedule: z.lazy(() => unmarshalCronScheduleSchema),
     pause_status: z.string().optional(),
     display_name: z.string().optional(),
     etag: z.string().optional(),
@@ -647,7 +647,7 @@ export const unmarshalSubscriptionSchema: z.ZodType<Subscription> = z
     subscription_id: z.string().optional(),
     schedule_id: z.string().optional(),
     dashboard_id: z.string().optional(),
-    subscriber: z.lazy(() => unmarshalSubscription_SubscriberSchema).optional(),
+    subscriber: z.lazy(() => unmarshalSubscription_SubscriberSchema),
     created_by_user_id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -695,7 +695,7 @@ export const unmarshalSubscription_SubscriberSchema: z.ZodType<Subscription_Subs
 export const unmarshalSubscription_Subscriber_DestinationSchema: z.ZodType<Subscription_Subscriber_Destination> =
   z
     .object({
-      destination_id: z.string().optional(),
+      destination_id: z.string(),
     })
     .transform(d => ({
       destinationId: d.destination_id,
@@ -707,8 +707,7 @@ export const unmarshalSubscription_Subscriber_UserSchema: z.ZodType<Subscription
     .object({
       user_id: z
         .union([z.number(), z.bigint(), z.string()])
-        .transform(v => BigInt(v))
-        .optional(),
+        .transform(v => BigInt(v)),
     })
     .transform(d => ({
       userId: d.user_id,
@@ -722,8 +721,8 @@ export const unmarshalUnpublishDashboardResponseSchema: z.ZodType<UnpublishDashb
 
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
-    quartzCronExpression: z.string().optional(),
-    timezoneId: z.string().optional(),
+    quartzCronExpression: z.string(),
+    timezoneId: z.string(),
   })
   .transform(d => ({
     quartz_cron_expression: d.quartzCronExpression,
@@ -764,7 +763,7 @@ export const marshalDashboardSchema: z.ZodType = z
 
 export const marshalMigrateDashboardRequestSchema: z.ZodType = z
   .object({
-    sourceDashboardId: z.string().optional(),
+    sourceDashboardId: z.string(),
     displayName: z.string().optional(),
     parentPath: z.string().optional(),
     updateParameterSyntax: z.boolean().optional(),
@@ -778,7 +777,7 @@ export const marshalMigrateDashboardRequestSchema: z.ZodType = z
 
 export const marshalPublishDashboardRequestSchema: z.ZodType = z
   .object({
-    dashboardId: z.string().optional(),
+    dashboardId: z.string(),
     embedCredentials: z.boolean().optional(),
     warehouseId: z.string().optional(),
   })
@@ -790,7 +789,7 @@ export const marshalPublishDashboardRequestSchema: z.ZodType = z
 
 export const marshalRevertDashboardRequestSchema: z.ZodType = z
   .object({
-    dashboardId: z.string().optional(),
+    dashboardId: z.string(),
     etag: z.string().optional(),
   })
   .transform(d => ({
@@ -802,7 +801,7 @@ export const marshalScheduleSchema: z.ZodType = z
   .object({
     scheduleId: z.string().optional(),
     dashboardId: z.string().optional(),
-    cronSchedule: z.lazy(() => marshalCronScheduleSchema).optional(),
+    cronSchedule: z.lazy(() => marshalCronScheduleSchema),
     pauseStatus: z.string().optional(),
     displayName: z.string().optional(),
     etag: z.string().optional(),
@@ -833,7 +832,7 @@ export const marshalSubscriptionSchema: z.ZodType = z
     subscriptionId: z.string().optional(),
     scheduleId: z.string().optional(),
     dashboardId: z.string().optional(),
-    subscriber: z.lazy(() => marshalSubscription_SubscriberSchema).optional(),
+    subscriber: z.lazy(() => marshalSubscription_SubscriberSchema),
     createdByUserId: z.bigint().optional(),
     etag: z.string().optional(),
     createTime: z
@@ -876,7 +875,7 @@ export const marshalSubscription_SubscriberSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalSubscription_Subscriber_DestinationSchema: z.ZodType = z
   .object({
-    destinationId: z.string().optional(),
+    destinationId: z.string(),
   })
   .transform(d => ({
     destination_id: d.destinationId,
@@ -885,7 +884,7 @@ export const marshalSubscription_Subscriber_DestinationSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalSubscription_Subscriber_UserSchema: z.ZodType = z
   .object({
-    userId: z.bigint().optional(),
+    userId: z.bigint(),
   })
   .transform(d => ({
     user_id: d.userId,

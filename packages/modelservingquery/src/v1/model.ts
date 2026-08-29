@@ -89,7 +89,7 @@ export interface ExternalModelUsageElement {
 
 export interface QueryEndpointRequest {
   /** The name of the serving endpoint. This field is required and is provided via the path parameter. */
-  name?: string | undefined;
+  name: string;
   /**
    * The prompt string (or array of strings) field used ONLY for __completions external & foundation model__
    * serving endpoints and should only be used with other completions query fields.
@@ -310,7 +310,7 @@ export const marshalDataframeSplitInputSchema: z.ZodType = z
 
 export const marshalQueryEndpointRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     prompt: jsonValueSchema.optional(),
     input: jsonValueSchema.optional(),
     messages: z.array(z.lazy(() => marshalChatMessageSchema)).optional(),

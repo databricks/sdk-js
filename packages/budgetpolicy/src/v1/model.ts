@@ -59,7 +59,7 @@ export interface CustomPolicyTag {
    * - Cannot be “budget-policy-name”, “budget-policy-id” or "budget-policy-resolution-result" -
    * these tags are preserved.
    */
-  key?: string | undefined;
+  key: string;
   /** The value of the tag. */
   value?: string | undefined;
 }
@@ -67,7 +67,7 @@ export interface CustomPolicyTag {
 /** Deletes a policy */
 export interface DeleteBudgetPolicyRequest {
   /** The Id of the policy. */
-  policyId?: string | undefined;
+  policyId: string;
   /** The account Id of the customer */
   accountId?: string | undefined;
 }
@@ -98,7 +98,7 @@ export interface Filter {
 
 export interface GetBudgetPolicyRequest {
   /** The Id of the policy. */
-  policyId?: string | undefined;
+  policyId: string;
   /** The account Id of the customer */
   accountId?: string | undefined;
 }
@@ -164,7 +164,7 @@ export interface UpdateBudgetPolicyRequest {
    * must be specified even if not changed. The `policy_id` is used to identify the policy to
    * update.
    */
-  policy?: BudgetPolicy | undefined;
+  policy: BudgetPolicy;
   /** The account Id of the customer */
   accountId?: string | undefined;
   /** DEPRECATED. This is redundant field as LimitConfig is part of the BudgetPolicy */
@@ -193,7 +193,7 @@ export const unmarshalBudgetPolicySchema: z.ZodType<BudgetPolicy> = z
 
 export const unmarshalCustomPolicyTagSchema: z.ZodType<CustomPolicyTag> = z
   .object({
-    key: z.string().optional(),
+    key: z.string(),
     value: z.string().optional(),
   })
   .transform(d => ({
@@ -242,7 +242,7 @@ export const marshalCreateBudgetPolicyRequestSchema: z.ZodType = z
 
 export const marshalCustomPolicyTagSchema: z.ZodType = z
   .object({
-    key: z.string().optional(),
+    key: z.string(),
     value: z.string().optional(),
   })
   .transform(d => ({

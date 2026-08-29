@@ -834,7 +834,7 @@ export interface App {
    * The name of the app. The name must contain only lowercase alphanumeric characters and hyphens.
    * It must be unique within the workspace.
    */
-  name?: string | undefined;
+  name: string;
   /** The description of the app. */
   description?: string | undefined;
   computeStatus?: ComputeStatus | undefined;
@@ -962,9 +962,9 @@ export interface AppDeploymentStatus {
 /** App manifest definition */
 export interface AppManifest {
   /** The manifest schema version, for now only 1 is allowed */
-  version?: number | undefined;
+  version: number;
   /** Name of the app defined by manifest author / publisher */
-  name?: string | undefined;
+  name: string;
   /** Description of the app defined by manifest author / publisher */
   description?: string | undefined;
   resourceSpecs?: AppManifest_AppResourceSpec[] | undefined;
@@ -972,36 +972,32 @@ export interface AppManifest {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceExperimentSpec {
-  permission?:
-    | AppManifest_AppResourceExperimentSpec_ExperimentPermission
-    | undefined;
+  permission: AppManifest_AppResourceExperimentSpec_ExperimentPermission;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceJobSpec {
   /** Permissions to grant on the Job. Supported permissions are: "CAN_MANAGE", "IS_OWNER", "CAN_MANAGE_RUN", "CAN_VIEW". */
-  permission?: AppManifest_AppResourceJobSpec_JobPermission | undefined;
+  permission: AppManifest_AppResourceJobSpec_JobPermission;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceSecretSpec {
   /** Permission to grant on the secret scope. For secrets, only one permission is allowed. Permission must be one of: "READ", "WRITE", "MANAGE". */
-  permission?: AppManifest_AppResourceSecretSpec_SecretPermission | undefined;
+  permission: AppManifest_AppResourceSecretSpec_SecretPermission;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceServingEndpointSpec {
   /** Permission to grant on the serving endpoint. Supported permissions are: "CAN_MANAGE", "CAN_QUERY", "CAN_VIEW". */
-  permission?:
-    | AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission
-    | undefined;
+  permission: AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission;
 }
 
 /** AppResource related fields are copied from app.proto but excludes resource identifiers (e.g. name, id, key, scope, etc.) */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceSpec {
   /** Name of the App Resource. */
-  name?: string | undefined;
+  name: string;
   /** Description of the App Resource. */
   description?: string | undefined;
   resource?:
@@ -1029,24 +1025,18 @@ export interface AppManifest_AppResourceSpec {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceSqlWarehouseSpec {
   /** Permission to grant on the SQL warehouse. Supported permissions are: "CAN_MANAGE", "CAN_USE", "IS_OWNER". */
-  permission?:
-    | AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission
-    | undefined;
+  permission: AppManifest_AppResourceSqlWarehouseSpec_SqlWarehousePermission;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceUcSecurableSpec {
-  securableType?:
-    | AppManifest_AppResourceUcSecurableSpec_UcSecurableType
-    | undefined;
-  permission?:
-    | AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission
-    | undefined;
+  securableType: AppManifest_AppResourceUcSecurableSpec_UcSecurableType;
+  permission: AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission;
 }
 
 export interface AppResource {
   /** Name of the App Resource. */
-  name?: string | undefined;
+  name: string;
   /** Description of the App Resource. */
   description?: string | undefined;
   resource?:
@@ -1069,27 +1059,27 @@ export interface AppResourceApp {
 }
 
 export interface AppResourceDatabase {
-  instanceName?: string | undefined;
-  databaseName?: string | undefined;
-  permission?: AppResourceDatabase_DatabasePermission | undefined;
+  instanceName: string;
+  databaseName: string;
+  permission: AppResourceDatabase_DatabasePermission;
 }
 
 export interface AppResourceExperiment {
-  experimentId?: string | undefined;
-  permission?: AppResourceExperiment_ExperimentPermission | undefined;
+  experimentId: string;
+  permission: AppResourceExperiment_ExperimentPermission;
 }
 
 export interface AppResourceGenieSpace {
-  name?: string | undefined;
-  spaceId?: string | undefined;
-  permission?: AppResourceGenieSpace_GenieSpacePermission | undefined;
+  name: string;
+  spaceId: string;
+  permission: AppResourceGenieSpace_GenieSpacePermission;
 }
 
 export interface AppResourceJob {
   /** Id of the job to grant permission on. */
-  id?: string | undefined;
+  id: string;
   /** Permissions to grant on the Job. Supported permissions are: "CAN_MANAGE", "IS_OWNER", "CAN_MANAGE_RUN", "CAN_VIEW". */
-  permission?: AppResourceJob_JobPermission | undefined;
+  permission: AppResourceJob_JobPermission;
 }
 
 export interface AppResourcePostgres {
@@ -1100,31 +1090,31 @@ export interface AppResourcePostgres {
 
 export interface AppResourceSecret {
   /** Scope of the secret to grant permission on. */
-  scope?: string | undefined;
+  scope: string;
   /** Key of the secret to grant permission on. */
-  key?: string | undefined;
+  key: string;
   /** Permission to grant on the secret scope. For secrets, only one permission is allowed. Permission must be one of: "READ", "WRITE", "MANAGE". */
-  permission?: AppResourceSecret_SecretPermission | undefined;
+  permission: AppResourceSecret_SecretPermission;
 }
 
 export interface AppResourceServingEndpoint {
   /** Name of the serving endpoint to grant permission on. */
-  name?: string | undefined;
+  name: string;
   /** Permission to grant on the serving endpoint. Supported permissions are: "CAN_MANAGE", "CAN_QUERY", "CAN_VIEW". */
-  permission?: AppResourceServingEndpoint_ServingEndpointPermission | undefined;
+  permission: AppResourceServingEndpoint_ServingEndpointPermission;
 }
 
 export interface AppResourceSqlWarehouse {
   /** Id of the SQL warehouse to grant permission on. */
-  id?: string | undefined;
+  id: string;
   /** Permission to grant on the SQL warehouse. Supported permissions are: "CAN_MANAGE", "CAN_USE", "IS_OWNER". */
-  permission?: AppResourceSqlWarehouse_SqlWarehousePermission | undefined;
+  permission: AppResourceSqlWarehouse_SqlWarehousePermission;
 }
 
 export interface AppResourceUcSecurable {
-  securableFullName?: string | undefined;
-  securableType?: AppResourceUcSecurable_UcSecurableType | undefined;
-  permission?: AppResourceUcSecurable_UcSecurablePermission | undefined;
+  securableFullName: string;
+  securableType: AppResourceUcSecurable_UcSecurableType;
+  permission: AppResourceUcSecurable_UcSecurablePermission;
   /**
    * The securable kind from Unity Catalog.
    * See https://docs.databricks.com/api/workspace/tables/get#securable_kind_manifest-securable_kind.
@@ -1172,7 +1162,7 @@ export interface ApplicationStatus {
 
 export interface AsyncUpdateAppRequest {
   app?: App | undefined;
-  updateMask?: FieldMask<App> | undefined;
+  updateMask: FieldMask<App>;
   appName?: string | undefined;
 }
 
@@ -1207,7 +1197,7 @@ export interface CreateCustomTemplateRequest {
 }
 
 export interface CreateSpaceRequest {
-  space?: Space | undefined;
+  space: Space;
 }
 
 export interface CustomTemplate {
@@ -1215,17 +1205,17 @@ export interface CustomTemplate {
    * The name of the template. It must contain only alphanumeric characters, hyphens, underscores, and whitespaces.
    * It must be unique within the workspace.
    */
-  name?: string | undefined;
+  name: string;
   /** The description of the template. */
   description?: string | undefined;
   /** The Git repository URL that the template resides in. */
-  gitRepo?: string | undefined;
+  gitRepo: string;
   /** The path to the template within the Git repository. */
-  path?: string | undefined;
+  path: string;
   /** The manifest of the template. It defines fields and default values when installing the template. */
-  manifest?: AppManifest | undefined;
+  manifest: AppManifest;
   /** The Git provider of the template. */
-  gitProvider?: string | undefined;
+  gitProvider: string;
   creator?: string | undefined;
 }
 
@@ -1241,12 +1231,12 @@ export interface DeleteAppThumbnailRequest {
 
 export interface DeleteCustomTemplateRequest {
   /** The name of the custom template. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeleteSpaceRequest {
   /** The name of the app space. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface EnvVar {
@@ -1285,7 +1275,7 @@ export interface GetAppUpdateRequest {
 
 export interface GetCustomTemplateRequest {
   /** The name of the custom template. */
-  name?: string | undefined;
+  name: string;
 }
 
 /** The request message for `GetOperation` method. */
@@ -1302,12 +1292,12 @@ export interface GetSpaceRequest {
 /** Git repository configuration specifying the location of the repository. */
 export interface GitRepository {
   /** URL of the Git repository. */
-  url?: string | undefined;
+  url: string;
   /**
    * Git provider. Case insensitive. Supported values: gitHub, gitHubEnterprise, bitbucketCloud,
    * bitbucketServer, azureDevOpsServices, gitLab, gitLabEnterpriseEdition, awsCodeCommit.
    */
-  provider?: string | undefined;
+  provider: string;
   /**
    * When true, automatically deploys the app on push events to the branch configured in
    * the app's deployment_source.git_source.
@@ -1462,7 +1452,7 @@ export interface Space {
    * The name of the app space. The name must contain only lowercase alphanumeric characters and hyphens.
    * It must be unique within the workspace.
    */
-  name?: string | undefined;
+  name: string;
   /** The description of the app space. */
   description?: string | undefined;
   /** The status of the app space. */
@@ -1493,6 +1483,12 @@ export interface Space {
   usagePolicyId?: string | undefined;
   /** The effective usage policy ID used by apps in the space. */
   effectiveUsagePolicyId?: string | undefined;
+  /**
+   * The group whose permissions users assume via Role Authorization for apps in this space. When
+   * set, user tokens assume the role of this group instead of doing regular obo token downscoping.
+   * Set only at space creation.
+   */
+  assumeGroupId?: string | undefined;
 }
 
 export interface SpaceStatus {
@@ -1536,11 +1532,11 @@ export interface TelemetryExportDestination {
 /** Unity Catalog Destinations for OTEL telemetry export. */
 export interface UnityCatalog {
   /** Unity Catalog table for OTEL logs. */
-  logsTable?: string | undefined;
+  logsTable: string;
   /** Unity Catalog table for OTEL metrics. */
-  metricsTable?: string | undefined;
+  metricsTable: string;
   /** Unity Catalog table for OTEL traces (spans). */
-  tracesTable?: string | undefined;
+  tracesTable: string;
 }
 
 export interface UpdateAppRequest {
@@ -1559,8 +1555,8 @@ export interface UpdateCustomTemplateRequest {
 }
 
 export interface UpdateSpaceRequest {
-  space?: Space | undefined;
-  updateMask?: FieldMask<Space> | undefined;
+  space: Space;
+  updateMask: FieldMask<Space>;
 }
 
 export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
@@ -1579,7 +1575,7 @@ export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
 
 export const unmarshalAppSchema: z.ZodType<App> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
     compute_status: z.lazy(() => unmarshalComputeStatusSchema).optional(),
     app_status: z.lazy(() => unmarshalApplicationStatusSchema).optional(),
@@ -1728,8 +1724,8 @@ export const unmarshalAppDeploymentStatusSchema: z.ZodType<AppDeploymentStatus> 
 
 export const unmarshalAppManifestSchema: z.ZodType<AppManifest> = z
   .object({
-    version: z.number().optional(),
-    name: z.string().optional(),
+    version: z.number(),
+    name: z.string(),
     description: z.string().optional(),
     resource_specs: z
       .array(z.lazy(() => unmarshalAppManifest_AppResourceSpecSchema))
@@ -1746,7 +1742,7 @@ export const unmarshalAppManifestSchema: z.ZodType<AppManifest> = z
 export const unmarshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType<AppManifest_AppResourceExperimentSpec> =
   z
     .object({
-      permission: z.string().optional(),
+      permission: z.string(),
     })
     .transform(d => ({
       permission: d.permission,
@@ -1756,7 +1752,7 @@ export const unmarshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType<App
 export const unmarshalAppManifest_AppResourceJobSpecSchema: z.ZodType<AppManifest_AppResourceJobSpec> =
   z
     .object({
-      permission: z.string().optional(),
+      permission: z.string(),
     })
     .transform(d => ({
       permission: d.permission,
@@ -1766,7 +1762,7 @@ export const unmarshalAppManifest_AppResourceJobSpecSchema: z.ZodType<AppManifes
 export const unmarshalAppManifest_AppResourceSecretSpecSchema: z.ZodType<AppManifest_AppResourceSecretSpec> =
   z
     .object({
-      permission: z.string().optional(),
+      permission: z.string(),
     })
     .transform(d => ({
       permission: d.permission,
@@ -1776,7 +1772,7 @@ export const unmarshalAppManifest_AppResourceSecretSpecSchema: z.ZodType<AppMani
 export const unmarshalAppManifest_AppResourceServingEndpointSpecSchema: z.ZodType<AppManifest_AppResourceServingEndpointSpec> =
   z
     .object({
-      permission: z.string().optional(),
+      permission: z.string(),
     })
     .transform(d => ({
       permission: d.permission,
@@ -1786,7 +1782,7 @@ export const unmarshalAppManifest_AppResourceServingEndpointSpecSchema: z.ZodTyp
 export const unmarshalAppManifest_AppResourceSpecSchema: z.ZodType<AppManifest_AppResourceSpec> =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
       description: z.string().optional(),
       secret_spec: z
         .lazy(() => unmarshalAppManifest_AppResourceSecretSpecSchema)
@@ -1842,7 +1838,7 @@ export const unmarshalAppManifest_AppResourceSpecSchema: z.ZodType<AppManifest_A
 export const unmarshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType<AppManifest_AppResourceSqlWarehouseSpec> =
   z
     .object({
-      permission: z.string().optional(),
+      permission: z.string(),
     })
     .transform(d => ({
       permission: d.permission,
@@ -1852,8 +1848,8 @@ export const unmarshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType<A
 export const unmarshalAppManifest_AppResourceUcSecurableSpecSchema: z.ZodType<AppManifest_AppResourceUcSecurableSpec> =
   z
     .object({
-      securable_type: z.string().optional(),
-      permission: z.string().optional(),
+      securable_type: z.string(),
+      permission: z.string(),
     })
     .transform(d => ({
       securableType: d.securable_type,
@@ -1862,7 +1858,7 @@ export const unmarshalAppManifest_AppResourceUcSecurableSpecSchema: z.ZodType<Ap
 
 export const unmarshalAppResourceSchema: z.ZodType<AppResource> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
     secret: z.lazy(() => unmarshalAppResourceSecretSchema).optional(),
     sql_warehouse: z
@@ -1924,9 +1920,9 @@ export const unmarshalAppResourceAppSchema: z.ZodType<AppResourceApp> = z
 export const unmarshalAppResourceDatabaseSchema: z.ZodType<AppResourceDatabase> =
   z
     .object({
-      instance_name: z.string().optional(),
-      database_name: z.string().optional(),
-      permission: z.string().optional(),
+      instance_name: z.string(),
+      database_name: z.string(),
+      permission: z.string(),
     })
     .transform(d => ({
       instanceName: d.instance_name,
@@ -1937,8 +1933,8 @@ export const unmarshalAppResourceDatabaseSchema: z.ZodType<AppResourceDatabase> 
 export const unmarshalAppResourceExperimentSchema: z.ZodType<AppResourceExperiment> =
   z
     .object({
-      experiment_id: z.string().optional(),
-      permission: z.string().optional(),
+      experiment_id: z.string(),
+      permission: z.string(),
     })
     .transform(d => ({
       experimentId: d.experiment_id,
@@ -1948,9 +1944,9 @@ export const unmarshalAppResourceExperimentSchema: z.ZodType<AppResourceExperime
 export const unmarshalAppResourceGenieSpaceSchema: z.ZodType<AppResourceGenieSpace> =
   z
     .object({
-      name: z.string().optional(),
-      space_id: z.string().optional(),
-      permission: z.string().optional(),
+      name: z.string(),
+      space_id: z.string(),
+      permission: z.string(),
     })
     .transform(d => ({
       name: d.name,
@@ -1960,8 +1956,8 @@ export const unmarshalAppResourceGenieSpaceSchema: z.ZodType<AppResourceGenieSpa
 
 export const unmarshalAppResourceJobSchema: z.ZodType<AppResourceJob> = z
   .object({
-    id: z.string().optional(),
-    permission: z.string().optional(),
+    id: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -1983,9 +1979,9 @@ export const unmarshalAppResourcePostgresSchema: z.ZodType<AppResourcePostgres> 
 
 export const unmarshalAppResourceSecretSchema: z.ZodType<AppResourceSecret> = z
   .object({
-    scope: z.string().optional(),
-    key: z.string().optional(),
-    permission: z.string().optional(),
+    scope: z.string(),
+    key: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     scope: d.scope,
@@ -1996,8 +1992,8 @@ export const unmarshalAppResourceSecretSchema: z.ZodType<AppResourceSecret> = z
 export const unmarshalAppResourceServingEndpointSchema: z.ZodType<AppResourceServingEndpoint> =
   z
     .object({
-      name: z.string().optional(),
-      permission: z.string().optional(),
+      name: z.string(),
+      permission: z.string(),
     })
     .transform(d => ({
       name: d.name,
@@ -2007,8 +2003,8 @@ export const unmarshalAppResourceServingEndpointSchema: z.ZodType<AppResourceSer
 export const unmarshalAppResourceSqlWarehouseSchema: z.ZodType<AppResourceSqlWarehouse> =
   z
     .object({
-      id: z.string().optional(),
-      permission: z.string().optional(),
+      id: z.string(),
+      permission: z.string(),
     })
     .transform(d => ({
       id: d.id,
@@ -2018,9 +2014,9 @@ export const unmarshalAppResourceSqlWarehouseSchema: z.ZodType<AppResourceSqlWar
 export const unmarshalAppResourceUcSecurableSchema: z.ZodType<AppResourceUcSecurable> =
   z
     .object({
-      securable_full_name: z.string().optional(),
-      securable_type: z.string().optional(),
-      permission: z.string().optional(),
+      securable_full_name: z.string(),
+      securable_type: z.string(),
+      permission: z.string(),
       securable_kind: z.string().optional(),
     })
     .transform(d => ({
@@ -2107,12 +2103,12 @@ export const unmarshalComputeStatusSchema: z.ZodType<ComputeStatus> = z
 
 export const unmarshalCustomTemplateSchema: z.ZodType<CustomTemplate> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
-    git_repo: z.string().optional(),
-    path: z.string().optional(),
-    manifest: z.lazy(() => unmarshalAppManifestSchema).optional(),
-    git_provider: z.string().optional(),
+    git_repo: z.string(),
+    path: z.string(),
+    manifest: z.lazy(() => unmarshalAppManifestSchema),
+    git_provider: z.string(),
     creator: z.string().optional(),
   })
   .transform(d => ({
@@ -2143,8 +2139,8 @@ export const unmarshalEnvVarSchema: z.ZodType<EnvVar> = z
 
 export const unmarshalGitRepositorySchema: z.ZodType<GitRepository> = z
   .object({
-    url: z.string().optional(),
-    provider: z.string().optional(),
+    url: z.string(),
+    provider: z.string(),
     auto_deploy: z.boolean().optional(),
     caller_credential_id: z
       .union([z.number(), z.bigint(), z.string()])
@@ -2250,7 +2246,7 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
 
 export const unmarshalSpaceSchema: z.ZodType<Space> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
     status: z.lazy(() => unmarshalSpaceStatusSchema).optional(),
     id: z.string().optional(),
@@ -2275,6 +2271,7 @@ export const unmarshalSpaceSchema: z.ZodType<Space> = z
     service_principal_client_id: z.string().optional(),
     usage_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    assume_group_id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2293,6 +2290,7 @@ export const unmarshalSpaceSchema: z.ZodType<Space> = z
     servicePrincipalClientId: d.service_principal_client_id,
     usagePolicyId: d.usage_policy_id,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    assumeGroupId: d.assume_group_id,
   }));
 
 export const unmarshalSpaceStatusSchema: z.ZodType<SpaceStatus> = z
@@ -2345,9 +2343,9 @@ export const unmarshalTelemetryExportDestinationSchema: z.ZodType<TelemetryExpor
 
 export const unmarshalUnityCatalogSchema: z.ZodType<UnityCatalog> = z
   .object({
-    logs_table: z.string().optional(),
-    metrics_table: z.string().optional(),
-    traces_table: z.string().optional(),
+    logs_table: z.string(),
+    metrics_table: z.string(),
+    traces_table: z.string(),
   })
   .transform(d => ({
     logsTable: d.logs_table,
@@ -2357,7 +2355,7 @@ export const unmarshalUnityCatalogSchema: z.ZodType<UnityCatalog> = z
 
 export const marshalAppSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
     computeStatus: z.lazy(() => marshalComputeStatusSchema).optional(),
     appStatus: z.lazy(() => marshalApplicationStatusSchema).optional(),
@@ -2511,8 +2509,8 @@ export const marshalAppDeploymentStatusSchema: z.ZodType = z
 
 export const marshalAppManifestSchema: z.ZodType = z
   .object({
-    version: z.number().optional(),
-    name: z.string().optional(),
+    version: z.number(),
+    name: z.string(),
     description: z.string().optional(),
     resourceSpecs: z
       .array(z.lazy(() => marshalAppManifest_AppResourceSpecSchema))
@@ -2528,7 +2526,7 @@ export const marshalAppManifestSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType = z
   .object({
-    permission: z.string().optional(),
+    permission: z.string(),
   })
   .transform(d => ({
     permission: d.permission,
@@ -2537,7 +2535,7 @@ export const marshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceJobSpecSchema: z.ZodType = z
   .object({
-    permission: z.string().optional(),
+    permission: z.string(),
   })
   .transform(d => ({
     permission: d.permission,
@@ -2546,7 +2544,7 @@ export const marshalAppManifest_AppResourceJobSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceSecretSpecSchema: z.ZodType = z
   .object({
-    permission: z.string().optional(),
+    permission: z.string(),
   })
   .transform(d => ({
     permission: d.permission,
@@ -2556,7 +2554,7 @@ export const marshalAppManifest_AppResourceSecretSpecSchema: z.ZodType = z
 export const marshalAppManifest_AppResourceServingEndpointSpecSchema: z.ZodType =
   z
     .object({
-      permission: z.string().optional(),
+      permission: z.string(),
     })
     .transform(d => ({
       permission: d.permission,
@@ -2565,7 +2563,7 @@ export const marshalAppManifest_AppResourceServingEndpointSpecSchema: z.ZodType 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceSpecSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
     resource: z
       .discriminatedUnion('$case', [
@@ -2630,7 +2628,7 @@ export const marshalAppManifest_AppResourceSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType = z
   .object({
-    permission: z.string().optional(),
+    permission: z.string(),
   })
   .transform(d => ({
     permission: d.permission,
@@ -2639,8 +2637,8 @@ export const marshalAppManifest_AppResourceSqlWarehouseSpecSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceUcSecurableSpecSchema: z.ZodType = z
   .object({
-    securableType: z.string().optional(),
-    permission: z.string().optional(),
+    securableType: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     securable_type: d.securableType,
@@ -2649,7 +2647,7 @@ export const marshalAppManifest_AppResourceUcSecurableSpecSchema: z.ZodType = z
 
 export const marshalAppResourceSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
     resource: z
       .discriminatedUnion('$case', [
@@ -2735,9 +2733,9 @@ export const marshalAppResourceAppSchema: z.ZodType = z
 
 export const marshalAppResourceDatabaseSchema: z.ZodType = z
   .object({
-    instanceName: z.string().optional(),
-    databaseName: z.string().optional(),
-    permission: z.string().optional(),
+    instanceName: z.string(),
+    databaseName: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     instance_name: d.instanceName,
@@ -2747,8 +2745,8 @@ export const marshalAppResourceDatabaseSchema: z.ZodType = z
 
 export const marshalAppResourceExperimentSchema: z.ZodType = z
   .object({
-    experimentId: z.string().optional(),
-    permission: z.string().optional(),
+    experimentId: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     experiment_id: d.experimentId,
@@ -2757,9 +2755,9 @@ export const marshalAppResourceExperimentSchema: z.ZodType = z
 
 export const marshalAppResourceGenieSpaceSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    spaceId: z.string().optional(),
-    permission: z.string().optional(),
+    name: z.string(),
+    spaceId: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -2769,8 +2767,8 @@ export const marshalAppResourceGenieSpaceSchema: z.ZodType = z
 
 export const marshalAppResourceJobSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
-    permission: z.string().optional(),
+    id: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -2791,9 +2789,9 @@ export const marshalAppResourcePostgresSchema: z.ZodType = z
 
 export const marshalAppResourceSecretSchema: z.ZodType = z
   .object({
-    scope: z.string().optional(),
-    key: z.string().optional(),
-    permission: z.string().optional(),
+    scope: z.string(),
+    key: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     scope: d.scope,
@@ -2803,8 +2801,8 @@ export const marshalAppResourceSecretSchema: z.ZodType = z
 
 export const marshalAppResourceServingEndpointSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    permission: z.string().optional(),
+    name: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -2813,8 +2811,8 @@ export const marshalAppResourceServingEndpointSchema: z.ZodType = z
 
 export const marshalAppResourceSqlWarehouseSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
-    permission: z.string().optional(),
+    id: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -2823,9 +2821,9 @@ export const marshalAppResourceSqlWarehouseSchema: z.ZodType = z
 
 export const marshalAppResourceUcSecurableSchema: z.ZodType = z
   .object({
-    securableFullName: z.string().optional(),
-    securableType: z.string().optional(),
-    permission: z.string().optional(),
+    securableFullName: z.string(),
+    securableType: z.string(),
+    permission: z.string(),
     securableKind: z.string().optional(),
   })
   .transform(d => ({
@@ -2863,10 +2861,7 @@ export const marshalApplicationStatusSchema: z.ZodType = z
 export const marshalAsyncUpdateAppRequestSchema: z.ZodType = z
   .object({
     app: z.lazy(() => marshalAppSchema).optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
+    updateMask: z.any().transform((m: FieldMask) => m.toString()),
     appName: z.string().optional(),
   })
   .transform(d => ({
@@ -2889,12 +2884,12 @@ export const marshalComputeStatusSchema: z.ZodType = z
 
 export const marshalCustomTemplateSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
-    gitRepo: z.string().optional(),
-    path: z.string().optional(),
-    manifest: z.lazy(() => marshalAppManifestSchema).optional(),
-    gitProvider: z.string().optional(),
+    gitRepo: z.string(),
+    path: z.string(),
+    manifest: z.lazy(() => marshalAppManifestSchema),
+    gitProvider: z.string(),
     creator: z.string().optional(),
   })
   .transform(d => ({
@@ -2925,8 +2920,8 @@ export const marshalEnvVarSchema: z.ZodType = z
 
 export const marshalGitRepositorySchema: z.ZodType = z
   .object({
-    url: z.string().optional(),
-    provider: z.string().optional(),
+    url: z.string(),
+    provider: z.string(),
     autoDeploy: z.boolean().optional(),
     callerCredentialId: z.bigint().optional(),
   })
@@ -2961,7 +2956,7 @@ export const marshalGitSourceSchema: z.ZodType = z
 
 export const marshalSpaceSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
     status: z.lazy(() => marshalSpaceStatusSchema).optional(),
     id: z.string().optional(),
@@ -2983,6 +2978,7 @@ export const marshalSpaceSchema: z.ZodType = z
     servicePrincipalClientId: z.string().optional(),
     usagePolicyId: z.string().optional(),
     effectiveUsagePolicyId: z.string().optional(),
+    assumeGroupId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3001,6 +2997,7 @@ export const marshalSpaceSchema: z.ZodType = z
     service_principal_client_id: d.servicePrincipalClientId,
     usage_policy_id: d.usagePolicyId,
     effective_usage_policy_id: d.effectiveUsagePolicyId,
+    assume_group_id: d.assumeGroupId,
   }));
 
 export const marshalSpaceStatusSchema: z.ZodType = z
@@ -3048,9 +3045,9 @@ export const marshalTelemetryExportDestinationSchema: z.ZodType = z
 
 export const marshalUnityCatalogSchema: z.ZodType = z
   .object({
-    logsTable: z.string().optional(),
-    metricsTable: z.string().optional(),
-    tracesTable: z.string().optional(),
+    logsTable: z.string(),
+    metricsTable: z.string(),
+    tracesTable: z.string(),
   })
   .transform(d => ({
     logs_table: d.logsTable,
@@ -3187,6 +3184,7 @@ const gitSourceFieldMaskSchema: FieldMaskSchema = {
 };
 
 const spaceFieldMaskSchema: FieldMaskSchema = {
+  assumeGroupId: {wire: 'assume_group_id'},
   createTime: {wire: 'create_time'},
   creator: {wire: 'creator'},
   description: {wire: 'description'},
