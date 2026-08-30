@@ -21,29 +21,29 @@ export type TagAssignmentSourceType =
 
 /** Request to create a new entity tag assignment */
 export interface CreateEntityTagAssignmentRequest {
-  tagAssignment?: EntityTagAssignment | undefined;
+  tagAssignment: EntityTagAssignment;
 }
 
 /** Request to delete an entity tag assignment */
 export interface DeleteEntityTagAssignmentRequest {
   /** The fully qualified name of the entity to which the tag is assigned */
-  entityName?: string | undefined;
+  entityName: string;
   /** Required. The key of the tag to delete */
-  tagKey?: string | undefined;
+  tagKey: string;
   /** The type of the entity to which the tag is assigned. */
-  entityType?: string | undefined;
+  entityType: string;
 }
 
 /** Represents a tag assignment to an entity */
 export interface EntityTagAssignment {
   /** The fully qualified name of the entity to which the tag is assigned */
-  entityName?: string | undefined;
+  entityName: string;
   /** The key of the tag */
-  tagKey?: string | undefined;
+  tagKey: string;
   /** The value of the tag */
   tagValue?: string | undefined;
   /** The type of the entity to which the tag is assigned. */
-  entityType?: string | undefined;
+  entityType: string;
   /** The timestamp when the tag assignment was last updated */
   updateTime?: Temporal.Instant | undefined;
   /** The user or principal who updated the tag assignment */
@@ -55,23 +55,23 @@ export interface EntityTagAssignment {
 /** Request to get an entity tag assignment */
 export interface GetEntityTagAssignmentRequest {
   /** The fully qualified name of the entity to which the tag is assigned */
-  entityName?: string | undefined;
+  entityName: string;
   /** Required. The key of the tag */
-  tagKey?: string | undefined;
+  tagKey: string;
   /** The type of the entity to which the tag is assigned. */
-  entityType?: string | undefined;
+  entityType: string;
 }
 
 /** Request to list entity tag assignments */
 export interface ListEntityTagAssignmentsRequest {
   /** The fully qualified name of the entity to which the tag is assigned */
-  entityName?: string | undefined;
+  entityName: string;
   /** Optional. Maximum number of tag assignments to return in a single page */
   maxResults?: number | undefined;
   /** Optional. Pagination token to retrieve the next page of results */
   pageToken?: string | undefined;
   /** The type of the entity to which the tag is assigned. */
-  entityType?: string | undefined;
+  entityType: string;
 }
 
 export interface ListEntityTagAssignmentsResponse {
@@ -83,17 +83,17 @@ export interface ListEntityTagAssignmentsResponse {
 
 /** Request to update an entity tag assignment */
 export interface UpdateEntityTagAssignmentRequest {
-  tagAssignment?: EntityTagAssignment | undefined;
-  updateMask?: FieldMask<EntityTagAssignment> | undefined;
+  tagAssignment: EntityTagAssignment;
+  updateMask: FieldMask<EntityTagAssignment>;
 }
 
 export const unmarshalEntityTagAssignmentSchema: z.ZodType<EntityTagAssignment> =
   z
     .object({
-      entity_name: z.string().optional(),
-      tag_key: z.string().optional(),
+      entity_name: z.string(),
+      tag_key: z.string(),
       tag_value: z.string().optional(),
-      entity_type: z.string().optional(),
+      entity_type: z.string(),
       update_time: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -126,10 +126,10 @@ export const unmarshalListEntityTagAssignmentsResponseSchema: z.ZodType<ListEnti
 
 export const marshalEntityTagAssignmentSchema: z.ZodType = z
   .object({
-    entityName: z.string().optional(),
-    tagKey: z.string().optional(),
+    entityName: z.string(),
+    tagKey: z.string(),
     tagValue: z.string().optional(),
-    entityType: z.string().optional(),
+    entityType: z.string(),
     updateTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())

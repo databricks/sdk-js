@@ -124,9 +124,9 @@ export interface ColumnInfo {
 
 export interface CreateEndpointRequest {
   /** Name of the AI Search endpoint */
-  name?: string | undefined;
+  name: string;
   /** Type of endpoint */
-  endpointType?: EndpointType | undefined;
+  endpointType: EndpointType;
   /** The budget policy id to be applied */
   budgetPolicyId?: string | undefined;
   /** The usage policy id to be applied once we've migrated to usage policies */
@@ -141,12 +141,12 @@ export interface CreateEndpointRequest {
 
 export interface CreateVectorIndexRequest {
   /** Name of the index */
-  name?: string | undefined;
+  name: string;
   /** Name of the endpoint to be used for serving the index */
-  endpointName?: string | undefined;
+  endpointName: string;
   /** Primary key of the index */
-  primaryKey?: string | undefined;
-  indexType?: VectorIndexType | undefined;
+  primaryKey: string;
+  indexType: VectorIndexType;
   indexSpec?:
     | {
         $case: 'directAccessIndexSpec';
@@ -165,7 +165,7 @@ export interface CreateVectorIndexRequest {
 
 export interface CustomTag {
   /** Key field for an AI Search endpoint tag. */
-  key?: string | undefined;
+  key: string;
   /** [Optional] Value field for an AI Search endpoint tag. */
   value?: string | undefined;
 }
@@ -173,9 +173,9 @@ export interface CustomTag {
 /** Request payload for deleting data from a vector index. */
 export interface DeleteDataVectorIndexRequest {
   /** Name of the vector index where data is to be deleted. Must be a Direct Vector Access Index. */
-  name?: string | undefined;
+  name: string;
   /** List of primary keys for the data to be deleted. */
-  primaryKeys?: string[] | undefined;
+  primaryKeys: string[];
 }
 
 export interface DeleteDataVectorIndexResponse {
@@ -187,7 +187,7 @@ export interface DeleteDataVectorIndexResponse {
 
 export interface DeleteEndpointRequest {
   /** Name of the AI Search endpoint */
-  name?: string | undefined;
+  name: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -195,7 +195,7 @@ export interface DeleteEndpointResponse {}
 
 export interface DeleteVectorIndexRequest {
   /** Name of the index */
-  name?: string | undefined;
+  name: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -357,12 +357,12 @@ export interface FacetResultData {
 
 export interface GetEndpointRequest {
   /** Name of the endpoint */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetVectorIndexRequest {
   /** Name of the index */
-  name?: string | undefined;
+  name: string;
   /**
    * If true, the URL returned for the index is guaranteed to be compatible with the reranker.
    * Currently this means we return the CP URL regardless of how the index is being accessed.
@@ -391,7 +391,7 @@ export interface ListValue {
 
 export interface ListVectorIndexRequest {
   /** Name of the endpoint */
-  endpointName?: string | undefined;
+  endpointName: string;
   /** Token for pagination */
   pageToken?: string | undefined;
 }
@@ -473,9 +473,9 @@ export interface MiniVectorIndex {
 
 export interface PatchEndpointBudgetPolicyRequest {
   /** Name of the AI Search endpoint */
-  name?: string | undefined;
+  name: string;
   /** The budget policy id to be applied */
-  budgetPolicyId?: string | undefined;
+  budgetPolicyId: string;
 }
 
 export interface PatchEndpointBudgetPolicyResponse {
@@ -486,7 +486,7 @@ export interface PatchEndpointBudgetPolicyResponse {
 
 export interface PatchEndpointRequest {
   /** Name of the AI Search endpoint */
-  name?: string | undefined;
+  name: string;
   /**
    * Target QPS for the endpoint. Best-effort; the system does not guarantee this QPS
    * will be achieved.
@@ -497,7 +497,7 @@ export interface PatchEndpointRequest {
 /** Request payload for getting next page of results. */
 export interface QueryVectorIndexNextPageRequest {
   /** Name of the vector index to query. */
-  name?: string | undefined;
+  name: string;
   /** Name of the endpoint. */
   endpointName?: string | undefined;
   /** Page token returned from previous `QueryVectorIndex` or `QueryVectorIndexNextPage` API. */
@@ -506,11 +506,11 @@ export interface QueryVectorIndexNextPageRequest {
 
 export interface QueryVectorIndexRequest {
   /** Name of the vector index to query. */
-  name?: string | undefined;
+  name: string;
   /** Number of results to return. Defaults to 10. */
   numResults?: number | undefined;
   /** List of column names to include in the response. */
-  columns?: string[] | undefined;
+  columns: string[];
   /**
    * JSON string representing query filters.
    *
@@ -611,7 +611,7 @@ export interface ResultManifest {
 /** Request to retrieve user-visible metrics */
 export interface RetrieveUserVisibleMetricsRequest {
   /** AI Search endpoint name */
-  name?: string | undefined;
+  name: string;
   /** Start time for metrics query */
   startTime?: Temporal.Instant | undefined;
   /** End time for metrics query */
@@ -634,7 +634,7 @@ export interface RetrieveUserVisibleMetricsResponse {
 
 export interface ScanVectorIndexRequest {
   /** Name of the vector index to scan. */
-  name?: string | undefined;
+  name: string;
   /** Number of results to return. Defaults to 10. */
   numResults?: number | undefined;
   /** Primary key of the last entry returned in the previous scan. */
@@ -656,7 +656,7 @@ export interface Struct {
 
 export interface SyncVectorIndexRequest {
   /** Name of the vector index to synchronize. Must be a Delta Sync Index. */
-  name?: string | undefined;
+  name: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -664,9 +664,9 @@ export interface SyncVectorIndexResponse {}
 
 export interface UpdateEndpointCustomTagsRequest {
   /** Name of the AI Search endpoint */
-  name?: string | undefined;
+  name: string;
   /** The new custom tags for the AI Search endpoint */
-  customTags?: CustomTag[] | undefined;
+  customTags: CustomTag[];
 }
 
 export interface UpdateEndpointCustomTagsResponse {
@@ -678,9 +678,9 @@ export interface UpdateEndpointCustomTagsResponse {
 
 export interface UpsertDataVectorIndexRequest {
   /** Name of the vector index where data is to be upserted. Must be a Direct Vector Access Index. */
-  name?: string | undefined;
+  name: string;
   /** JSON string representing the data to be upserted. */
-  inputsJson?: string | undefined;
+  inputsJson: string;
 }
 
 export interface UpsertDataVectorIndexResponse {
@@ -758,7 +758,7 @@ export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
 
 export const unmarshalCustomTagSchema: z.ZodType<CustomTag> = z
   .object({
-    key: z.string().optional(),
+    key: z.string(),
     value: z.string().optional(),
   })
   .transform(d => ({
@@ -1262,8 +1262,8 @@ export const unmarshalVectorIndexStatusSchema: z.ZodType<VectorIndexStatus> = z
 
 export const marshalCreateEndpointRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    endpointType: z.string().optional(),
+    name: z.string(),
+    endpointType: z.string(),
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
     targetQps: z.bigint().optional(),
@@ -1278,10 +1278,10 @@ export const marshalCreateEndpointRequestSchema: z.ZodType = z
 
 export const marshalCreateVectorIndexRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    endpointName: z.string().optional(),
-    primaryKey: z.string().optional(),
-    indexType: z.string().optional(),
+    name: z.string(),
+    endpointName: z.string(),
+    primaryKey: z.string(),
+    indexType: z.string(),
     indexSpec: z
       .discriminatedUnion('$case', [
         z.object({
@@ -1316,7 +1316,7 @@ export const marshalCreateVectorIndexRequestSchema: z.ZodType = z
 
 export const marshalCustomTagSchema: z.ZodType = z
   .object({
-    key: z.string().optional(),
+    key: z.string(),
     value: z.string().optional(),
   })
   .transform(d => ({
@@ -1422,8 +1422,8 @@ export const marshalMetricLabelSchema: z.ZodType = z
 
 export const marshalPatchEndpointBudgetPolicyRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    budgetPolicyId: z.string().optional(),
+    name: z.string(),
+    budgetPolicyId: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -1432,7 +1432,7 @@ export const marshalPatchEndpointBudgetPolicyRequestSchema: z.ZodType = z
 
 export const marshalPatchEndpointRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     targetQps: z.bigint().optional(),
   })
   .transform(d => ({
@@ -1442,7 +1442,7 @@ export const marshalPatchEndpointRequestSchema: z.ZodType = z
 
 export const marshalQueryVectorIndexNextPageRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     endpointName: z.string().optional(),
     pageToken: z.string().optional(),
   })
@@ -1454,9 +1454,9 @@ export const marshalQueryVectorIndexNextPageRequestSchema: z.ZodType = z
 
 export const marshalQueryVectorIndexRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     numResults: z.number().optional(),
-    columns: z.array(z.string()).optional(),
+    columns: z.array(z.string()),
     filtersJson: z.string().optional(),
     queryVector: z.array(z.number()).optional(),
     queryText: z.string().optional(),
@@ -1507,7 +1507,7 @@ export const marshalRerankerConfig_RerankerParametersSchema: z.ZodType = z
 
 export const marshalRetrieveUserVisibleMetricsRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     startTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -1531,7 +1531,7 @@ export const marshalRetrieveUserVisibleMetricsRequestSchema: z.ZodType = z
 
 export const marshalScanVectorIndexRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     numResults: z.number().optional(),
     lastPrimaryKey: z.string().optional(),
   })
@@ -1543,7 +1543,7 @@ export const marshalScanVectorIndexRequestSchema: z.ZodType = z
 
 export const marshalSyncVectorIndexRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -1551,8 +1551,8 @@ export const marshalSyncVectorIndexRequestSchema: z.ZodType = z
 
 export const marshalUpdateEndpointCustomTagsRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    customTags: z.array(z.lazy(() => marshalCustomTagSchema)).optional(),
+    name: z.string(),
+    customTags: z.array(z.lazy(() => marshalCustomTagSchema)),
   })
   .transform(d => ({
     name: d.name,
@@ -1561,8 +1561,8 @@ export const marshalUpdateEndpointCustomTagsRequestSchema: z.ZodType = z
 
 export const marshalUpsertDataVectorIndexRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    inputsJson: z.string().optional(),
+    name: z.string(),
+    inputsJson: z.string(),
   })
   .transform(d => ({
     name: d.name,

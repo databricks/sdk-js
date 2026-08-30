@@ -137,7 +137,7 @@ export interface AnomalyDetectionConfig {
 /** Request to cancel a refresh. */
 export interface CancelRefreshRequest {
   /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
-  objectType?: string | undefined;
+  objectType: string;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
    *
@@ -149,9 +149,9 @@ export interface CancelRefreshRequest {
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
    */
-  objectId?: string | undefined;
+  objectId: string;
   /** Unique id of the refresh operation. */
-  refreshId?: bigint | undefined;
+  refreshId: bigint;
 }
 
 /** Response to cancelling a refresh. */
@@ -175,13 +175,13 @@ export interface CreateRefreshRequest {
 /** The data quality monitoring workflow cron schedule. */
 export interface CronSchedule {
   /** The expression that determines when to run the monitor. See [examples](https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html). */
-  quartzCronExpression?: string | undefined;
+  quartzCronExpression: string;
   /**
    * A Java timezone id. The schedule for a job will be resolved with respect to this timezone.
    * See `Java TimeZone <http://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html>`_ for details.
    * The timezone id (e.g., ``America/Los_Angeles``) in which to evaluate the quartz expression.
    */
-  timezoneId?: string | undefined;
+  timezoneId: string;
   /** Read only field that indicates whether the schedule is paused or not. */
   pauseStatus?: CronSchedulePauseStatus | undefined;
 }
@@ -189,7 +189,7 @@ export interface CronSchedule {
 /** Data Profiling Configurations. */
 export interface DataProfilingConfig {
   /** ID of the schema where output tables are created. */
-  outputSchemaId?: string | undefined;
+  outputSchemaId: string;
   /**
    * Field for specifying the absolute path to a custom directory to store data-monitoring
    * assets. Normally prepopulated to a default user location via UI and Python APIs.
@@ -269,24 +269,24 @@ export interface DataProfilingConfig {
 /** Custom metric definition. */
 export interface DataProfilingCustomMetric {
   /** Name of the metric in the output tables. */
-  name?: string | undefined;
+  name: string;
   /** Jinja template for a SQL expression that specifies how to compute the metric. See [create metric definition](https://docs.databricks.com/en/lakehouse-monitoring/custom-metrics.html#create-definition). */
-  definition?: string | undefined;
+  definition: string;
   /**
    * A list of column names in the input table the metric should be computed for.
    * Can use ``":table"`` to indicate that the metric needs information from multiple columns.
    */
-  inputColumns?: string[] | undefined;
+  inputColumns: string[];
   /** The output type of the custom metric. */
-  outputDataType?: string | undefined;
+  outputDataType: string;
   /** The type of the custom metric. */
-  type?: DataProfilingCustomMetricType | undefined;
+  type: DataProfilingCustomMetricType;
 }
 
 /** Request to delete a Monitor. */
 export interface DeleteMonitorRequest {
   /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
-  objectType?: string | undefined;
+  objectType: string;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
    *
@@ -298,13 +298,13 @@ export interface DeleteMonitorRequest {
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
    */
-  objectId?: string | undefined;
+  objectId: string;
 }
 
 /** Request to delete a ronitor. */
 export interface DeleteRefreshRequest {
   /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
-  objectType?: string | undefined;
+  objectType: string;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
    *
@@ -316,15 +316,15 @@ export interface DeleteRefreshRequest {
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
    */
-  objectId?: string | undefined;
+  objectId: string;
   /** Unique id of the refresh operation. */
-  refreshId?: bigint | undefined;
+  refreshId: bigint;
 }
 
 /** Request to get a Monitor. */
 export interface GetMonitorRequest {
   /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
-  objectType?: string | undefined;
+  objectType: string;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
    *
@@ -336,13 +336,13 @@ export interface GetMonitorRequest {
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
    */
-  objectId?: string | undefined;
+  objectId: string;
 }
 
 /** Request to get a refresh. */
 export interface GetRefreshRequest {
   /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
-  objectType?: string | undefined;
+  objectType: string;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
    *
@@ -354,25 +354,25 @@ export interface GetRefreshRequest {
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
    */
-  objectId?: string | undefined;
+  objectId: string;
   /** Unique id of the refresh operation. */
-  refreshId?: bigint | undefined;
+  refreshId: bigint;
 }
 
 /** Inference log configuration. */
 export interface InferenceLogConfig {
   /** Problem type the model aims to solve. */
-  problemType?: InferenceProblemType | undefined;
+  problemType: InferenceProblemType;
   /** Column for the timestamp. */
-  timestampColumn?: string | undefined;
+  timestampColumn: string;
   /** List of granularities to use when aggregating data into time windows based on their timestamp. */
-  granularities?: AggregationGranularity[] | undefined;
+  granularities: AggregationGranularity[];
   /** Column for the prediction. */
-  predictionColumn?: string | undefined;
+  predictionColumn: string;
   /** Column for the label. */
   labelColumn?: string | undefined;
   /** Column for the model identifier. */
-  modelIdColumn?: string | undefined;
+  modelIdColumn: string;
 }
 
 /** Request to list Monitors. */
@@ -390,7 +390,7 @@ export interface ListMonitorResponse {
 /** Request to list refreshes. */
 export interface ListRefreshRequest {
   /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
-  objectType?: string | undefined;
+  objectType: string;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
    *
@@ -402,7 +402,7 @@ export interface ListRefreshRequest {
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
    */
-  objectId?: string | undefined;
+  objectId: string;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
@@ -416,7 +416,7 @@ export interface ListRefreshResponse {
 /** Monitor for the data quality of unity catalog entities such as schema or table. */
 export interface Monitor {
   /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
-  objectType?: string | undefined;
+  objectType: string;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
    *
@@ -428,7 +428,7 @@ export interface Monitor {
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
    */
-  objectId?: string | undefined;
+  objectId: string;
   /** Anomaly Detection Configuration, applicable to `schema` object types. */
   anomalyDetectionConfig?: AnomalyDetectionConfig | undefined;
   /**
@@ -453,7 +453,7 @@ export interface NotificationSettings {
 /** The Refresh object gives information on a refresh of the data quality monitoring pipeline. */
 export interface Refresh {
   /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
-  objectType?: string | undefined;
+  objectType: string;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
    *
@@ -465,7 +465,7 @@ export interface Refresh {
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
    */
-  objectId?: string | undefined;
+  objectId: string;
   /** Unique id of the refresh operation. */
   refreshId?: bigint | undefined;
   /** The current state of the refresh. */
@@ -487,15 +487,15 @@ export interface SnapshotConfig {}
 /** Time series analysis configuration. */
 export interface TimeSeriesConfig {
   /** Column for the timestamp. */
-  timestampColumn?: string | undefined;
+  timestampColumn: string;
   /** List of granularities to use when aggregating data into time windows based on their timestamp. */
-  granularities?: AggregationGranularity[] | undefined;
+  granularities: AggregationGranularity[];
 }
 
 /** Request to update a Monitor. */
 export interface UpdateMonitorRequest {
   /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
-  objectType?: string | undefined;
+  objectType: string;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
    *
@@ -507,20 +507,20 @@ export interface UpdateMonitorRequest {
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
    */
-  objectId?: string | undefined;
+  objectId: string;
   /** The monitor to update. */
   monitor?: Monitor | undefined;
   /**
    * The field mask to specify which fields to update as a comma-separated list.
    * Example value: `data_profiling_config.custom_metrics,data_profiling_config.schedule.quartz_cron_expression`
    */
-  updateMask?: FieldMask<Monitor> | undefined;
+  updateMask: FieldMask<Monitor>;
 }
 
 /** Request to update a refresh. */
 export interface UpdateRefreshRequest {
   /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
-  objectType?: string | undefined;
+  objectType: string;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
    *
@@ -532,13 +532,13 @@ export interface UpdateRefreshRequest {
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
    */
-  objectId?: string | undefined;
+  objectId: string;
   /** Unique id of the refresh operation. */
-  refreshId?: bigint | undefined;
+  refreshId: bigint;
   /** The refresh to update. */
   refresh?: Refresh | undefined;
   /** The field mask to specify which fields to update. */
-  updateMask?: FieldMask<Refresh> | undefined;
+  updateMask: FieldMask<Refresh>;
 }
 
 export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionConfig> =
@@ -561,8 +561,8 @@ export const unmarshalCancelRefreshResponseSchema: z.ZodType<CancelRefreshRespon
 
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
-    quartz_cron_expression: z.string().optional(),
-    timezone_id: z.string().optional(),
+    quartz_cron_expression: z.string(),
+    timezone_id: z.string(),
     pause_status: z.string().optional(),
   })
   .transform(d => ({
@@ -574,7 +574,7 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
 export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> =
   z
     .object({
-      output_schema_id: z.string().optional(),
+      output_schema_id: z.string(),
       assets_dir: z.string().optional(),
       inference_log: z.lazy(() => unmarshalInferenceLogConfigSchema).optional(),
       time_series: z.lazy(() => unmarshalTimeSeriesConfigSchema).optional(),
@@ -633,11 +633,11 @@ export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> 
 export const unmarshalDataProfilingCustomMetricSchema: z.ZodType<DataProfilingCustomMetric> =
   z
     .object({
-      name: z.string().optional(),
-      definition: z.string().optional(),
-      input_columns: z.array(z.string()).optional(),
-      output_data_type: z.string().optional(),
-      type: z.string().optional(),
+      name: z.string(),
+      definition: z.string(),
+      input_columns: z.array(z.string()),
+      output_data_type: z.string(),
+      type: z.string(),
     })
     .transform(d => ({
       name: d.name,
@@ -650,12 +650,12 @@ export const unmarshalDataProfilingCustomMetricSchema: z.ZodType<DataProfilingCu
 export const unmarshalInferenceLogConfigSchema: z.ZodType<InferenceLogConfig> =
   z
     .object({
-      problem_type: z.string().optional(),
-      timestamp_column: z.string().optional(),
-      granularities: z.array(z.string()).optional(),
-      prediction_column: z.string().optional(),
+      problem_type: z.string(),
+      timestamp_column: z.string(),
+      granularities: z.array(z.string()),
+      prediction_column: z.string(),
       label_column: z.string().optional(),
-      model_id_column: z.string().optional(),
+      model_id_column: z.string(),
     })
     .transform(d => ({
       problemType: d.problem_type,
@@ -690,8 +690,8 @@ export const unmarshalListRefreshResponseSchema: z.ZodType<ListRefreshResponse> 
 
 export const unmarshalMonitorSchema: z.ZodType<Monitor> = z
   .object({
-    object_type: z.string().optional(),
-    object_id: z.string().optional(),
+    object_type: z.string(),
+    object_id: z.string(),
     anomaly_detection_config: z
       .lazy(() => unmarshalAnomalyDetectionConfigSchema)
       .optional(),
@@ -728,8 +728,8 @@ export const unmarshalNotificationSettingsSchema: z.ZodType<NotificationSettings
 
 export const unmarshalRefreshSchema: z.ZodType<Refresh> = z
   .object({
-    object_type: z.string().optional(),
-    object_id: z.string().optional(),
+    object_type: z.string(),
+    object_id: z.string(),
     refresh_id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -762,8 +762,8 @@ export const unmarshalSnapshotConfigSchema: z.ZodType<SnapshotConfig> =
 
 export const unmarshalTimeSeriesConfigSchema: z.ZodType<TimeSeriesConfig> = z
   .object({
-    timestamp_column: z.string().optional(),
-    granularities: z.array(z.string()).optional(),
+    timestamp_column: z.string(),
+    granularities: z.array(z.string()),
   })
   .transform(d => ({
     timestampColumn: d.timestamp_column,
@@ -780,9 +780,9 @@ export const marshalAnomalyDetectionConfigSchema: z.ZodType = z
 
 export const marshalCancelRefreshRequestSchema: z.ZodType = z
   .object({
-    objectType: z.string().optional(),
-    objectId: z.string().optional(),
-    refreshId: z.bigint().optional(),
+    objectType: z.string(),
+    objectId: z.string(),
+    refreshId: z.bigint(),
   })
   .transform(d => ({
     object_type: d.objectType,
@@ -792,8 +792,8 @@ export const marshalCancelRefreshRequestSchema: z.ZodType = z
 
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
-    quartzCronExpression: z.string().optional(),
-    timezoneId: z.string().optional(),
+    quartzCronExpression: z.string(),
+    timezoneId: z.string(),
     pauseStatus: z.string().optional(),
   })
   .transform(d => ({
@@ -804,7 +804,7 @@ export const marshalCronScheduleSchema: z.ZodType = z
 
 export const marshalDataProfilingConfigSchema: z.ZodType = z
   .object({
-    outputSchemaId: z.string().optional(),
+    outputSchemaId: z.string(),
     assetsDir: z.string().optional(),
     analysisConfig: z
       .discriminatedUnion('$case', [
@@ -873,11 +873,11 @@ export const marshalDataProfilingConfigSchema: z.ZodType = z
 
 export const marshalDataProfilingCustomMetricSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    definition: z.string().optional(),
-    inputColumns: z.array(z.string()).optional(),
-    outputDataType: z.string().optional(),
-    type: z.string().optional(),
+    name: z.string(),
+    definition: z.string(),
+    inputColumns: z.array(z.string()),
+    outputDataType: z.string(),
+    type: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -889,12 +889,12 @@ export const marshalDataProfilingCustomMetricSchema: z.ZodType = z
 
 export const marshalInferenceLogConfigSchema: z.ZodType = z
   .object({
-    problemType: z.string().optional(),
-    timestampColumn: z.string().optional(),
-    granularities: z.array(z.string()).optional(),
-    predictionColumn: z.string().optional(),
+    problemType: z.string(),
+    timestampColumn: z.string(),
+    granularities: z.array(z.string()),
+    predictionColumn: z.string(),
     labelColumn: z.string().optional(),
-    modelIdColumn: z.string().optional(),
+    modelIdColumn: z.string(),
   })
   .transform(d => ({
     problem_type: d.problemType,
@@ -907,8 +907,8 @@ export const marshalInferenceLogConfigSchema: z.ZodType = z
 
 export const marshalMonitorSchema: z.ZodType = z
   .object({
-    objectType: z.string().optional(),
-    objectId: z.string().optional(),
+    objectType: z.string(),
+    objectId: z.string(),
     anomalyDetectionConfig: z
       .lazy(() => marshalAnomalyDetectionConfigSchema)
       .optional(),
@@ -941,8 +941,8 @@ export const marshalNotificationSettingsSchema: z.ZodType = z
 
 export const marshalRefreshSchema: z.ZodType = z
   .object({
-    objectType: z.string().optional(),
-    objectId: z.string().optional(),
+    objectType: z.string(),
+    objectId: z.string(),
     refreshId: z.bigint().optional(),
     state: z.string().optional(),
     message: z.string().optional(),
@@ -965,8 +965,8 @@ export const marshalSnapshotConfigSchema: z.ZodType = z.object({});
 
 export const marshalTimeSeriesConfigSchema: z.ZodType = z
   .object({
-    timestampColumn: z.string().optional(),
-    granularities: z.array(z.string()).optional(),
+    timestampColumn: z.string(),
+    granularities: z.array(z.string()),
   })
   .transform(d => ({
     timestamp_column: d.timestampColumn,

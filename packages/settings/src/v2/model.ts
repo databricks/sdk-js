@@ -124,9 +124,7 @@ export type RestrictWorkspaceAdminsMessage_Status =
   | (string & {});
 
 export interface AibiDashboardEmbeddingAccessPolicy {
-  accessPolicyType?:
-    | AibiDashboardEmbeddingAccessPolicy_AccessPolicyType
-    | undefined;
+  accessPolicyType: AibiDashboardEmbeddingAccessPolicy_AccessPolicyType;
 }
 
 export interface AibiDashboardEmbeddingApprovedDomains {
@@ -196,28 +194,26 @@ export interface ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime {
  * to a workspace. Defaults to ALLOW_ALL.
  */
 export interface CollaborationPlatformConnectivityMessage {
-  connectivity?:
-    | CollaborationPlatformConnectivityMessage_Connectivity
-    | undefined;
+  connectivity: CollaborationPlatformConnectivityMessage_Connectivity;
 }
 
 export interface GetPublicAccountSettingRequest {
-  accountId?: string | undefined;
-  name?: string | undefined;
+  accountId: string;
+  name: string;
 }
 
 export interface GetPublicAccountUserPreferenceRequest {
   /** <Databricks> account ID of the account being managed. */
-  accountId?: string | undefined;
+  accountId: string;
   /** User ID of the user whose setting is being retrieved. */
-  userId?: string | undefined;
+  userId: string;
   /** User Setting name. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetPublicWorkspaceSettingRequest {
   /** Name of the setting */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface IntegerMessage {
@@ -226,7 +222,7 @@ export interface IntegerMessage {
 
 export interface ListAccountSettingsMetadataRequest {
   /** <Databricks> account ID of the account being managed. */
-  accountId?: string | undefined;
+  accountId: string;
   /**
    * The maximum number of settings to return. The service may return fewer than this value.
    * If unspecified, at most 200 settings will be returned.
@@ -255,9 +251,9 @@ export interface ListAccountSettingsMetadataResponse {
 
 export interface ListAccountUserPreferencesMetadataRequest {
   /** <Databricks> account ID of the account being managed. */
-  accountId?: string | undefined;
+  accountId: string;
   /** User ID of the user whose settings metadata is being retrieved. */
-  userId?: string | undefined;
+  userId: string;
   /**
    * The maximum number of settings to return. The service may return fewer than this value.
    * If unspecified, at most 200 settings will be returned.
@@ -317,24 +313,24 @@ export interface OperationalEmailCustomRecipientMessage {
 
 export interface PatchPublicAccountSettingRequest {
   /** <Databricks> account ID of the account being managed. */
-  accountId?: string | undefined;
-  name?: string | undefined;
-  setting?: Setting | undefined;
+  accountId: string;
+  name: string;
+  setting: Setting;
 }
 
 export interface PatchPublicAccountUserPreferenceRequest {
   /** <Databricks> account ID of the account being managed. */
-  accountId?: string | undefined;
+  accountId: string;
   /** User ID of the user whose setting is being updated. */
-  userId?: string | undefined;
-  name?: string | undefined;
-  setting?: UserPreference | undefined;
+  userId: string;
+  name: string;
+  setting: UserPreference;
 }
 
 export interface PatchPublicWorkspaceSettingRequest {
   /** Name of the setting */
-  name?: string | undefined;
-  setting?: Setting | undefined;
+  name: string;
+  setting: Setting;
 }
 
 export interface PersonalComputeMessage {
@@ -342,7 +338,7 @@ export interface PersonalComputeMessage {
 }
 
 export interface RestrictWorkspaceAdminsMessage {
-  status?: RestrictWorkspaceAdminsMessage_Status | undefined;
+  status: RestrictWorkspaceAdminsMessage_Status;
   /**
    * When true, workspace admins cannot create governance tags.
    * ALLOW_ALL status does not override this; they are independent.
@@ -535,7 +531,7 @@ export interface UserPreference {
 export const unmarshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType<AibiDashboardEmbeddingAccessPolicy> =
   z
     .object({
-      access_policy_type: z.string().optional(),
+      access_policy_type: z.string(),
     })
     .transform(d => ({
       accessPolicyType: d.access_policy_type,
@@ -651,7 +647,7 @@ export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTim
 export const unmarshalCollaborationPlatformConnectivityMessageSchema: z.ZodType<CollaborationPlatformConnectivityMessage> =
   z
     .object({
-      connectivity: z.string().optional(),
+      connectivity: z.string(),
     })
     .transform(d => ({
       connectivity: d.connectivity,
@@ -725,7 +721,7 @@ export const unmarshalPersonalComputeMessageSchema: z.ZodType<PersonalComputeMes
 export const unmarshalRestrictWorkspaceAdminsMessageSchema: z.ZodType<RestrictWorkspaceAdminsMessage> =
   z
     .object({
-      status: z.string().optional(),
+      status: z.string(),
       disable_gov_tag_creation: z.boolean().optional(),
     })
     .transform(d => ({
@@ -989,7 +985,7 @@ export const unmarshalUserPreferenceSchema: z.ZodType<UserPreference> = z
 
 export const marshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType = z
   .object({
-    accessPolicyType: z.string().optional(),
+    accessPolicyType: z.string(),
   })
   .transform(d => ({
     access_policy_type: d.accessPolicyType,
@@ -1102,7 +1098,7 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeS
 export const marshalCollaborationPlatformConnectivityMessageSchema: z.ZodType =
   z
     .object({
-      connectivity: z.string().optional(),
+      connectivity: z.string(),
     })
     .transform(d => ({
       connectivity: d.connectivity,
@@ -1134,7 +1130,7 @@ export const marshalPersonalComputeMessageSchema: z.ZodType = z
 
 export const marshalRestrictWorkspaceAdminsMessageSchema: z.ZodType = z
   .object({
-    status: z.string().optional(),
+    status: z.string(),
     disableGovTagCreation: z.boolean().optional(),
   })
   .transform(d => ({

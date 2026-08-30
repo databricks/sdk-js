@@ -515,7 +515,7 @@ export interface ApplyEnvironmentResponse {}
 /** Policy for auto full refresh. */
 export interface AutoFullRefreshPolicy {
   /** (Required, Mutable) Whether to enable auto full refresh or not. */
-  enabled?: boolean | undefined;
+  enabled: boolean;
   /**
    * (Optional, Mutable) Specify the minimum interval in hours between the timestamp
    * at which a table was last full refreshed and the current timestamp for triggering auto full
@@ -770,9 +770,9 @@ export interface DataPlaneId {
 /** Location of staged data storage */
 export interface DataStagingOptions {
   /** (Required, Immutable) The name of the catalog for the connector's staging storage location. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /** (Required, Immutable) The name of the schema for the connector's staging storage location. */
-  schemaName?: string | undefined;
+  schemaName: string;
   /**
    * (Optional) The Unity Catalog-compatible name for the storage location.
    * This is the volume to use for the data that is extracted by the connector.
@@ -784,7 +784,7 @@ export interface DataStagingOptions {
 }
 
 export interface DeletePipelineRequest {
-  pipelineId?: string | undefined;
+  pipelineId: string;
   /**
    * If true, deletion will proceed even if resource cleanup fails.
    * By default, deletion will fail if resources cleanup is required but fails.
@@ -802,7 +802,7 @@ export interface DeletePipelineResponse {}
 
 export interface EditPipelineRequest {
   /** Unique identifier for this pipeline. */
-  pipelineId?: string | undefined;
+  pipelineId: string;
   /** If false, deployment will fail if name has changed and conflicts the name of another pipeline. */
   allowDuplicateNames?: boolean | undefined;
   /**
@@ -978,7 +978,7 @@ export interface Filters {
 }
 
 export interface GetPipelineRequest {
-  pipelineId?: string | undefined;
+  pipelineId: string;
 }
 
 export interface GetPipelineResponse {
@@ -1025,9 +1025,9 @@ export interface GetPipelineResponse {
 
 export interface GetUpdateRequest {
   /** The ID of the pipeline. */
-  pipelineId?: string | undefined;
+  pipelineId: string;
   /** The ID of the update. */
-  updateId?: string | undefined;
+  updateId: string;
 }
 
 export interface GetUpdateResponse {
@@ -1063,7 +1063,7 @@ export interface GoogleAdsCustomReportOptions {
    * metrics. Values are validated against Google Ads' field-service
    * catalog at pipeline plan time.
    */
-  resource?: string | undefined;
+  resource: string;
   /**
    * (Optional) Resource fields to select, in fully-qualified GAQL form
    * (e.g. "ad_group_ad.ad.id", "ad_group_ad.status"). Multiple values are
@@ -1096,7 +1096,7 @@ export interface GoogleAdsOptions {
    * and access customer accounts under this manager account.
    * Overrides GoogleAdsConfig.manager_account_id from source_configurations when set.
    */
-  managerAccountId?: string | undefined;
+  managerAccountId: string;
   /**
    * (Optional) Number of days to look back for report tables to capture late-arriving data.
    * If not specified, defaults to 30 days.
@@ -1126,13 +1126,13 @@ export interface GoogleDriveOptions {
 
 export interface IngestionGatewayPipelineDefinition {
   /** Immutable. The Unity Catalog connection that this gateway pipeline uses to communicate with the source. */
-  connectionName?: string | undefined;
+  connectionName: string;
   /** [Deprecated, use connection_name instead] Immutable. The Unity Catalog connection that this gateway pipeline uses to communicate with the source. */
   connectionId?: string | undefined;
   /** Required, Immutable. The name of the catalog for the gateway pipeline's storage location. */
-  gatewayStorageCatalog?: string | undefined;
+  gatewayStorageCatalog: string;
   /** Required, Immutable. The name of the schema for the gateway pipelines's storage location. */
-  gatewayStorageSchema?: string | undefined;
+  gatewayStorageSchema: string;
   /**
    * Optional. The Unity Catalog-compatible name for the gateway storage location.
    * This is the destination to use for the data that is extracted by the gateway.
@@ -1262,11 +1262,11 @@ export interface IngestionPipelineDefinition_IngestionConfig {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngestionPipelineDefinition_ReportSpec {
   /** Required. Report URL in the source system. */
-  sourceUrl?: string | undefined;
+  sourceUrl: string;
   /** Required. Destination catalog to store table. */
-  destinationCatalog?: string | undefined;
+  destinationCatalog: string;
   /** Required. Destination schema to store table. */
-  destinationSchema?: string | undefined;
+  destinationSchema: string;
   /** Required. Destination table name. The pipeline fails if a table with that name already exists. */
   destinationTable?: string | undefined;
   /** Configuration settings to control the ingestion of tables. These settings override the table_configuration defined in the IngestionPipelineDefinition object. */
@@ -1280,17 +1280,15 @@ export interface IngestionPipelineDefinition_SchemaSpec {
   /** The source catalog name. Might be optional depending on the type of source. */
   sourceCatalog?: string | undefined;
   /**
-   * Schema name in the source database. Currently required; this field will become optional in
-   * an upcoming release, since some source types (for example streaming / message-bus connectors)
-   * do not use it. When that change ships, this field's type in the generated SDKs and CLI will
-   * change from required to optional (nullable); clients that assume it is always present should
-   * handle its absence.
+   * Schema name in the source database. Optional: some source types (for example streaming or
+   * message-bus connectors) do not use it, so it may be absent from a pipeline's definition.
+   * Clients that assume it is always present should handle its absence.
    */
   sourceSchema?: string | undefined;
   /** Required. Destination catalog to store tables. */
-  destinationCatalog?: string | undefined;
+  destinationCatalog: string;
   /** Required. Destination schema to store tables in. Tables with the same name as the source tables are created in this destination schema. The pipeline fails If a table with the same name already exists. */
-  destinationSchema?: string | undefined;
+  destinationSchema: string;
   /** Configuration settings to control the ingestion of tables. These settings are applied to all tables in this schema and override the table_configuration defined in the IngestionPipelineDefinition object. */
   tableConfiguration?:
     | IngestionPipelineDefinition_TableSpecificConfig
@@ -1313,17 +1311,15 @@ export interface IngestionPipelineDefinition_TableSpec {
   /** Schema name in the source database. Might be optional depending on the type of source. */
   sourceSchema?: string | undefined;
   /**
-   * Table name in the source database. Currently required; this field will become optional in
-   * an upcoming release, since some source types (for example streaming / message-bus connectors)
-   * do not use it. When that change ships, this field's type in the generated SDKs and CLI will
-   * change from required to optional (nullable); clients that assume it is always present should
-   * handle its absence.
+   * Table name in the source database. Optional: some source types (for example streaming or
+   * message-bus connectors) do not use it, so it may be absent from a pipeline's definition.
+   * Clients that assume it is always present should handle its absence.
    */
   sourceTable?: string | undefined;
   /** Required. Destination catalog to store table. */
-  destinationCatalog?: string | undefined;
+  destinationCatalog: string;
   /** Required. Destination schema to store table. */
-  destinationSchema?: string | undefined;
+  destinationSchema: string;
   /** Optional. Destination table name. The pipeline fails if a table with that name already exists. If not set, the source table name is used. */
   destinationTable?: string | undefined;
   /** Configuration settings to control the ingestion of tables. These settings override the table_configuration defined in the IngestionPipelineDefinition object and the SchemaSpec. */
@@ -1588,9 +1584,7 @@ export interface LinkedInAdsOptions {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface LinkedInAdsOptions_LinkedInAdsCustomReportOptions {
   /** (Required) adAnalytics finder. See LinkedInAdsFinder. */
-  finder?:
-    | LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsFinder
-    | undefined;
+  finder: LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsFinder;
   /** (Required) Entity pivots to group by; count/constraints depend on finder. */
   entityGranularity?:
     | LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsEntityGranularity[]
@@ -1710,7 +1704,7 @@ export interface ListPipelinesResponse {
  */
 export interface ListUpdatesRequest {
   /** The pipeline to return updates for. */
-  pipelineId?: string | undefined;
+  pipelineId: string;
   /** Page token returned by previous call */
   pageToken?: string | undefined;
   /** Max number of entries to return in a single page. */
@@ -1833,7 +1827,7 @@ export interface Notifications {
 /** Proto representing a window */
 export interface OperationTimeWindow {
   /** An integer between 0 and 23 denoting the start hour for the window in the 24-hour day. */
-  startHour?: number | undefined;
+  startHour: number;
   /**
    * Days of week in which the window is allowed to happen
    * If not specified all days of the week will be used.
@@ -1958,7 +1952,7 @@ export interface PathPattern {
 }
 
 export interface PipelineCluster {
-  /** A label for the cluster specification, either `default` to configure the default cluster, or `maintenance` to configure the maintenance cluster. This field is optional. The default value is `default`. */
+  /** A label for the cluster specification, either `default` to configure the default cluster settings applied to both the update and maintenance clusters, `updates` to configure the update cluster, or `maintenance` to configure the maintenance cluster. This field is optional. The default value is `default`. */
   label?: string | undefined;
   /** Note: This field won't be persisted. Only API users will check this field. */
   applyPolicyDefaultValues?: boolean | undefined;
@@ -2074,7 +2068,7 @@ export interface PipelineCluster {
 
 export interface PipelineDeployment {
   /** The deployment method that manages the pipeline. */
-  kind?: DeploymentKind | undefined;
+  kind: DeploymentKind;
   /** The path to the file containing metadata about the deployment. */
   metadataFilePath?: string | undefined;
   /**
@@ -2266,9 +2260,9 @@ export interface PipelinesAutoScale {
    * The minimum number of workers the cluster can scale down to when underutilized.
    * It is also the initial number of workers the cluster will have after creation.
    */
-  minWorkers?: number | undefined;
+  minWorkers: number;
   /** The maximum number of workers to which the cluster can scale up when overloaded. `max_workers` must be strictly greater than `min_workers`. */
-  maxWorkers?: number | undefined;
+  maxWorkers: number;
   /**
    * Databricks Enhanced Autoscaling optimizes cluster utilization by automatically
    * allocating cluster resources based on workload volume, with minimal impact to
@@ -2528,7 +2522,7 @@ export interface PipelinesJobRunAs {
 
 export interface PipelinesMavenLibrary {
   /** Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2". */
-  coordinates?: string | undefined;
+  coordinates: string;
   /**
    * Maven repo to install the Maven package from. If omitted, both Maven Central Repository
    * and Spark Packages are searched.
@@ -2604,7 +2598,7 @@ export interface PostgresSlotConfig {
  */
 export interface RabbitmqOptions {
   /** (Required) RabbitMQ queue name to consume from. */
-  queue?: string | undefined;
+  queue: string;
 }
 
 /** Reddit Ads specific options for ingestion */
@@ -2666,7 +2660,7 @@ export interface RestartWindow {
    * An integer between 0 and 23 denoting the start hour for the restart window in the 24-hour day.
    * Continuous pipeline restart is triggered only within a five-hour window starting at this hour.
    */
-  startHour?: number | undefined;
+  startHour: number;
   /**
    * Days of week in which the restart is allowed to happen (within a five-hour window starting at start_hour).
    * If not specified all days of the week will be used.
@@ -2791,7 +2785,7 @@ export interface StackFrame {
 }
 
 export interface StartUpdateRequest {
-  pipelineId?: string | undefined;
+  pipelineId: string;
   /** If true, this update will reset all tables before running. */
   fullRefresh?: boolean | undefined;
   cause?: UpdateCause | undefined;
@@ -2833,7 +2827,7 @@ export interface StartUpdateResponse {
 }
 
 export interface StopPipelineRequest {
-  pipelineId?: string | undefined;
+  pipelineId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -3032,7 +3026,7 @@ export const unmarshalApplyEnvironmentResponseSchema: z.ZodType<ApplyEnvironment
 export const unmarshalAutoFullRefreshPolicySchema: z.ZodType<AutoFullRefreshPolicy> =
   z
     .object({
-      enabled: z.boolean().optional(),
+      enabled: z.boolean(),
       min_interval_hours: z.number().optional(),
     })
     .transform(d => ({
@@ -3232,8 +3226,8 @@ export const unmarshalDataPlaneIdSchema: z.ZodType<DataPlaneId> = z
 export const unmarshalDataStagingOptionsSchema: z.ZodType<DataStagingOptions> =
   z
     .object({
-      catalog_name: z.string().optional(),
-      schema_name: z.string().optional(),
+      catalog_name: z.string(),
+      schema_name: z.string(),
       volume_name: z.string().optional(),
     })
     .transform(d => ({
@@ -3394,7 +3388,7 @@ export const unmarshalGoogleAdsConfigSchema: z.ZodType<GoogleAdsConfig> = z
 export const unmarshalGoogleAdsCustomReportOptionsSchema: z.ZodType<GoogleAdsCustomReportOptions> =
   z
     .object({
-      resource: z.string().optional(),
+      resource: z.string(),
       resource_fields: z.array(z.string()).optional(),
       segments: z.array(z.string()).optional(),
       metrics: z.array(z.string()).optional(),
@@ -3408,7 +3402,7 @@ export const unmarshalGoogleAdsCustomReportOptionsSchema: z.ZodType<GoogleAdsCus
 
 export const unmarshalGoogleAdsOptionsSchema: z.ZodType<GoogleAdsOptions> = z
   .object({
-    manager_account_id: z.string().optional(),
+    manager_account_id: z.string(),
     lookback_window_days: z.number().optional(),
     sync_start_date: z.string().optional(),
     custom_report_options: z
@@ -3440,10 +3434,10 @@ export const unmarshalGoogleDriveOptionsSchema: z.ZodType<GoogleDriveOptions> =
 export const unmarshalIngestionGatewayPipelineDefinitionSchema: z.ZodType<IngestionGatewayPipelineDefinition> =
   z
     .object({
-      connection_name: z.string().optional(),
+      connection_name: z.string(),
       connection_id: z.string().optional(),
-      gateway_storage_catalog: z.string().optional(),
-      gateway_storage_schema: z.string().optional(),
+      gateway_storage_catalog: z.string(),
+      gateway_storage_schema: z.string(),
       gateway_storage_name: z.string().optional(),
       connection_parameters: z
         .lazy(() => unmarshalConnectionParametersSchema)
@@ -3558,9 +3552,9 @@ export const unmarshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodTy
 export const unmarshalIngestionPipelineDefinition_ReportSpecSchema: z.ZodType<IngestionPipelineDefinition_ReportSpec> =
   z
     .object({
-      source_url: z.string().optional(),
-      destination_catalog: z.string().optional(),
-      destination_schema: z.string().optional(),
+      source_url: z.string(),
+      destination_catalog: z.string(),
+      destination_schema: z.string(),
       destination_table: z.string().optional(),
       table_configuration: z
         .lazy(
@@ -3582,8 +3576,8 @@ export const unmarshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType<In
     .object({
       source_catalog: z.string().optional(),
       source_schema: z.string().optional(),
-      destination_catalog: z.string().optional(),
-      destination_schema: z.string().optional(),
+      destination_catalog: z.string(),
+      destination_schema: z.string(),
       table_configuration: z
         .lazy(
           () => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema
@@ -3613,8 +3607,8 @@ export const unmarshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType<Ing
       source_catalog: z.string().optional(),
       source_schema: z.string().optional(),
       source_table: z.string().optional(),
-      destination_catalog: z.string().optional(),
-      destination_schema: z.string().optional(),
+      destination_catalog: z.string(),
+      destination_schema: z.string(),
       destination_table: z.string().optional(),
       table_configuration: z
         .lazy(
@@ -3805,7 +3799,7 @@ export const unmarshalLinkedInAdsOptionsSchema: z.ZodType<LinkedInAdsOptions> =
 export const unmarshalLinkedInAdsOptions_LinkedInAdsCustomReportOptionsSchema: z.ZodType<LinkedInAdsOptions_LinkedInAdsCustomReportOptions> =
   z
     .object({
-      finder: z.string().optional(),
+      finder: z.string(),
       entity_granularity: z.array(z.string()).optional(),
       time_granularity: z.string().optional(),
       metrics: z.array(z.string()).optional(),
@@ -3939,7 +3933,7 @@ export const unmarshalNotificationsSchema: z.ZodType<Notifications> = z
 export const unmarshalOperationTimeWindowSchema: z.ZodType<OperationTimeWindow> =
   z
     .object({
-      start_hour: z.number().optional(),
+      start_hour: z.number(),
       days_of_week: z.array(z.string()).optional(),
       time_zone_id: z.string().optional(),
     })
@@ -4100,7 +4094,7 @@ export const unmarshalPipelineClusterSchema: z.ZodType<PipelineCluster> = z
 export const unmarshalPipelineDeploymentSchema: z.ZodType<PipelineDeployment> =
   z
     .object({
-      kind: z.string().optional(),
+      kind: z.string(),
       metadata_file_path: z.string().optional(),
       deployment_id: z.string().optional(),
       version_id: z.string().optional(),
@@ -4275,8 +4269,8 @@ export const unmarshalPipelineTriggerSchema: z.ZodType<PipelineTrigger> = z
 export const unmarshalPipelinesAutoScaleSchema: z.ZodType<PipelinesAutoScale> =
   z
     .object({
-      min_workers: z.number().optional(),
-      max_workers: z.number().optional(),
+      min_workers: z.number(),
+      max_workers: z.number(),
       mode: z.string().optional(),
     })
     .transform(d => ({
@@ -4409,7 +4403,7 @@ export const unmarshalPipelinesJobRunAsSchema: z.ZodType<PipelinesJobRunAs> = z
 export const unmarshalPipelinesMavenLibrarySchema: z.ZodType<PipelinesMavenLibrary> =
   z
     .object({
-      coordinates: z.string().optional(),
+      coordinates: z.string(),
       repo: z.string().optional(),
       exclusions: z.array(z.string()).optional(),
     })
@@ -4462,7 +4456,7 @@ export const unmarshalPostgresSlotConfigSchema: z.ZodType<PostgresSlotConfig> =
 
 export const unmarshalRabbitmqOptionsSchema: z.ZodType<RabbitmqOptions> = z
   .object({
-    queue: z.string().optional(),
+    queue: z.string(),
   })
   .transform(d => ({
     queue: d.queue,
@@ -4496,7 +4490,7 @@ export const unmarshalRedditAdsOptions_RedditAdsCustomReportOptionsSchema: z.Zod
 
 export const unmarshalRestartWindowSchema: z.ZodType<RestartWindow> = z
   .object({
-    start_hour: z.number().optional(),
+    start_hour: z.number(),
     days_of_week: z.array(z.string()).optional(),
     time_zone_id: z.string().optional(),
   })
@@ -4781,7 +4775,7 @@ export const marshalApplyEnvironmentRequestSchema: z.ZodType = z
 
 export const marshalAutoFullRefreshPolicySchema: z.ZodType = z
   .object({
-    enabled: z.boolean().optional(),
+    enabled: z.boolean(),
     minIntervalHours: z.number().optional(),
   })
   .transform(d => ({
@@ -5098,8 +5092,8 @@ export const marshalCronTriggerSchema: z.ZodType = z
 
 export const marshalDataStagingOptionsSchema: z.ZodType = z
   .object({
-    catalogName: z.string().optional(),
-    schemaName: z.string().optional(),
+    catalogName: z.string(),
+    schemaName: z.string(),
     volumeName: z.string().optional(),
   })
   .transform(d => ({
@@ -5110,7 +5104,7 @@ export const marshalDataStagingOptionsSchema: z.ZodType = z
 
 export const marshalEditPipelineRequestSchema: z.ZodType = z
   .object({
-    pipelineId: z.string().optional(),
+    pipelineId: z.string(),
     allowDuplicateNames: z.boolean().optional(),
     expectedLastModified: z.bigint().optional(),
     runAs: z.lazy(() => marshalPipelinesJobRunAsSchema).optional(),
@@ -5272,7 +5266,7 @@ export const marshalGoogleAdsConfigSchema: z.ZodType = z
 
 export const marshalGoogleAdsCustomReportOptionsSchema: z.ZodType = z
   .object({
-    resource: z.string().optional(),
+    resource: z.string(),
     resourceFields: z.array(z.string()).optional(),
     segments: z.array(z.string()).optional(),
     metrics: z.array(z.string()).optional(),
@@ -5286,7 +5280,7 @@ export const marshalGoogleAdsCustomReportOptionsSchema: z.ZodType = z
 
 export const marshalGoogleAdsOptionsSchema: z.ZodType = z
   .object({
-    managerAccountId: z.string().optional(),
+    managerAccountId: z.string(),
     lookbackWindowDays: z.number().optional(),
     syncStartDate: z.string().optional(),
     customReportOptions: z
@@ -5316,10 +5310,10 @@ export const marshalGoogleDriveOptionsSchema: z.ZodType = z
 
 export const marshalIngestionGatewayPipelineDefinitionSchema: z.ZodType = z
   .object({
-    connectionName: z.string().optional(),
+    connectionName: z.string(),
     connectionId: z.string().optional(),
-    gatewayStorageCatalog: z.string().optional(),
-    gatewayStorageSchema: z.string().optional(),
+    gatewayStorageCatalog: z.string(),
+    gatewayStorageSchema: z.string(),
     gatewayStorageName: z.string().optional(),
     connectionParameters: z
       .lazy(() => marshalConnectionParametersSchema)
@@ -5445,9 +5439,9 @@ export const marshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalIngestionPipelineDefinition_ReportSpecSchema: z.ZodType = z
   .object({
-    sourceUrl: z.string().optional(),
-    destinationCatalog: z.string().optional(),
-    destinationSchema: z.string().optional(),
+    sourceUrl: z.string(),
+    destinationCatalog: z.string(),
+    destinationSchema: z.string(),
     destinationTable: z.string().optional(),
     tableConfiguration: z
       .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
@@ -5466,8 +5460,8 @@ export const marshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType = z
   .object({
     sourceCatalog: z.string().optional(),
     sourceSchema: z.string().optional(),
-    destinationCatalog: z.string().optional(),
-    destinationSchema: z.string().optional(),
+    destinationCatalog: z.string(),
+    destinationSchema: z.string(),
     tableConfiguration: z
       .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
       .optional(),
@@ -5492,8 +5486,8 @@ export const marshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType = z
     sourceCatalog: z.string().optional(),
     sourceSchema: z.string().optional(),
     sourceTable: z.string().optional(),
-    destinationCatalog: z.string().optional(),
-    destinationSchema: z.string().optional(),
+    destinationCatalog: z.string(),
+    destinationSchema: z.string(),
     destinationTable: z.string().optional(),
     tableConfiguration: z
       .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
@@ -5670,7 +5664,7 @@ export const marshalLinkedInAdsOptionsSchema: z.ZodType = z
 export const marshalLinkedInAdsOptions_LinkedInAdsCustomReportOptionsSchema: z.ZodType =
   z
     .object({
-      finder: z.string().optional(),
+      finder: z.string(),
       entityGranularity: z.array(z.string()).optional(),
       timeGranularity: z.string().optional(),
       metrics: z.array(z.string()).optional(),
@@ -5760,7 +5754,7 @@ export const marshalNotificationsSchema: z.ZodType = z
 
 export const marshalOperationTimeWindowSchema: z.ZodType = z
   .object({
-    startHour: z.number().optional(),
+    startHour: z.number(),
     daysOfWeek: z.array(z.string()).optional(),
     timeZoneId: z.string().optional(),
   })
@@ -5863,7 +5857,7 @@ export const marshalPipelineClusterSchema: z.ZodType = z
 
 export const marshalPipelineDeploymentSchema: z.ZodType = z
   .object({
-    kind: z.string().optional(),
+    kind: z.string(),
     metadataFilePath: z.string().optional(),
     deploymentId: z.string().optional(),
     versionId: z.string().optional(),
@@ -5931,8 +5925,8 @@ export const marshalPipelineTriggerSchema: z.ZodType = z
 
 export const marshalPipelinesAutoScaleSchema: z.ZodType = z
   .object({
-    minWorkers: z.number().optional(),
-    maxWorkers: z.number().optional(),
+    minWorkers: z.number(),
+    maxWorkers: z.number(),
     mode: z.string().optional(),
   })
   .transform(d => ({
@@ -6069,7 +6063,7 @@ export const marshalPipelinesJobRunAsSchema: z.ZodType = z
 
 export const marshalPipelinesMavenLibrarySchema: z.ZodType = z
   .object({
-    coordinates: z.string().optional(),
+    coordinates: z.string(),
     repo: z.string().optional(),
     exclusions: z.array(z.string()).optional(),
   })
@@ -6119,7 +6113,7 @@ export const marshalPostgresSlotConfigSchema: z.ZodType = z
 
 export const marshalRabbitmqOptionsSchema: z.ZodType = z
   .object({
-    queue: z.string().optional(),
+    queue: z.string(),
   })
   .transform(d => ({
     queue: d.queue,
@@ -6163,7 +6157,7 @@ export const marshalReplaceWhereOverrideSchema: z.ZodType = z
 
 export const marshalRestartWindowSchema: z.ZodType = z
   .object({
-    startHour: z.number().optional(),
+    startHour: z.number(),
     daysOfWeek: z.array(z.string()).optional(),
     timeZoneId: z.string().optional(),
   })
@@ -6266,7 +6260,7 @@ export const marshalSourceConfigSchema: z.ZodType = z
 
 export const marshalStartUpdateRequestSchema: z.ZodType = z
   .object({
-    pipelineId: z.string().optional(),
+    pipelineId: z.string(),
     fullRefresh: z.boolean().optional(),
     cause: z.string().optional(),
     refreshSelection: z.array(z.string()).optional(),
@@ -6294,7 +6288,7 @@ export const marshalStartUpdateRequestSchema: z.ZodType = z
 
 export const marshalStopPipelineRequestSchema: z.ZodType = z
   .object({
-    pipelineId: z.string().optional(),
+    pipelineId: z.string(),
   })
   .transform(d => ({
     pipeline_id: d.pipelineId,

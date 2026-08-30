@@ -102,7 +102,11 @@ export class LakeviewClient {
     return this.config;
   }
 
-  /** Create a draft dashboard. */
+  /**
+   * Create a draft dashboard.
+   *
+   * Requires the Databricks SQL access entitlement.
+   */
   async createDashboard(
     req: CreateDashboardRequest,
     options?: CallOptions
@@ -265,7 +269,11 @@ export class LakeviewClient {
     await executeCall(call, options);
   }
 
-  /** Get a draft dashboard. */
+  /**
+   * Get a draft dashboard.
+   *
+   * Requires the Databricks SQL access entitlement.
+   */
   async getDashboard(
     req: GetDashboardRequest,
     options?: CallOptions
@@ -294,7 +302,12 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Get the current published dashboard. */
+  /**
+   * Get the current published dashboard.
+   *
+   * Requires one of the following entitlements: Workspace access,
+   * Databricks SQL access, or Consumer access.
+   */
   async getPublishedDashboard(
     req: GetPublishedDashboardRequest,
     options?: CallOptions
@@ -323,7 +336,12 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Get a required authorization details and scopes of a published dashboard to mint an OAuth token. */
+  /**
+   * Get a required authorization details and scopes of a published dashboard to mint an OAuth token.
+   *
+   * Requires one of the following entitlements: Workspace access,
+   * Databricks SQL access, or Consumer access.
+   */
   async getPublishedDashboardTokenInfo(
     req: GetPublishedDashboardTokenInfoRequest,
     options?: CallOptions
@@ -422,7 +440,11 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** List dashboards. */
+  /**
+   * List dashboards.
+   *
+   * Requires the Databricks SQL access entitlement.
+   */
   async listDashboards(
     req: ListDashboardsRequest,
     options?: CallOptions
@@ -623,7 +645,11 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Publish the current draft dashboard. */
+  /**
+   * Publish the current draft dashboard.
+   *
+   * Requires the Databricks SQL access entitlement.
+   */
   async publishDashboard(
     req: PublishDashboardRequest,
     options?: CallOptions
@@ -653,7 +679,11 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Revert a dashboard's definition in draft mode to the last published version. */
+  /**
+   * Revert a dashboard's definition in draft mode to the last published version.
+   *
+   * Requires the Databricks SQL access entitlement.
+   */
   async revertDashboard(
     req: RevertDashboardRequest,
     options?: CallOptions
@@ -683,7 +713,11 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Trash a dashboard. */
+  /**
+   * Trash a dashboard.
+   *
+   * Requires the Databricks SQL access entitlement.
+   */
   async trashDashboard(
     req: TrashDashboardRequest,
     options?: CallOptions
@@ -712,7 +746,11 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Unpublish the dashboard. */
+  /**
+   * Unpublish the dashboard.
+   *
+   * Requires the Databricks SQL access entitlement.
+   */
   async unpublishDashboard(
     req: UnpublishDashboardRequest,
     options?: CallOptions
@@ -741,7 +779,11 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Update a draft dashboard. */
+  /**
+   * Update a draft dashboard.
+   *
+   * Requires the Databricks SQL access entitlement.
+   */
   async updateDashboard(
     req: UpdateDashboardRequest,
     options?: CallOptions

@@ -46,11 +46,11 @@ export interface DeleteExternalMetadataRequest {
 
 export interface ExternalMetadata {
   /** Name of the external metadata object. */
-  name?: string | undefined;
+  name: string;
   /** Type of external system. */
-  systemType?: SystemType | undefined;
+  systemType: SystemType;
   /** Type of entity within the external system. */
-  entityType?: string | undefined;
+  entityType: string;
   /** URL associated with the external metadata object. */
   url?: string | undefined;
   /** User-provided free-form text description. */
@@ -96,14 +96,14 @@ export interface ListExternalMetadataResponseV2 {
 
 export interface UpdateExternalMetadataRequest {
   externalMetadata?: ExternalMetadata | undefined;
-  updateMask?: FieldMask<ExternalMetadata> | undefined;
+  updateMask: FieldMask<ExternalMetadata>;
 }
 
 export const unmarshalExternalMetadataSchema: z.ZodType<ExternalMetadata> = z
   .object({
-    name: z.string().optional(),
-    system_type: z.string().optional(),
-    entity_type: z.string().optional(),
+    name: z.string(),
+    system_type: z.string(),
+    entity_type: z.string(),
     url: z.string().optional(),
     description: z.string().optional(),
     columns: z.array(z.string()).optional(),
@@ -154,9 +154,9 @@ export const unmarshalListExternalMetadataResponseV2Schema: z.ZodType<ListExtern
 
 export const marshalExternalMetadataSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    systemType: z.string().optional(),
-    entityType: z.string().optional(),
+    name: z.string(),
+    systemType: z.string(),
+    entityType: z.string(),
     url: z.string().optional(),
     description: z.string().optional(),
     columns: z.array(z.string()).optional(),

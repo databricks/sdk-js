@@ -23,6 +23,10 @@ export const SecurableType = {
   EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
   STAGING_TABLE: 'STAGING_TABLE',
+  MODEL: 'MODEL',
+  MODEL_SERVICE: 'MODEL_SERVICE',
+  MCP_SERVICE: 'MCP_SERVICE',
+  MODEL_PROVIDER_SERVICE: 'MODEL_PROVIDER_SERVICE',
 } as const;
 export type SecurableType =
   | (typeof SecurableType)[keyof typeof SecurableType]
@@ -30,11 +34,11 @@ export type SecurableType =
 
 export interface GetQuotaRequest {
   /** Securable type of the quota parent. */
-  parentSecurableType?: string | undefined;
+  parentSecurableType: string;
   /** Full name of the parent resource. Provide the metastore ID if the parent is a metastore. */
-  parentFullName?: string | undefined;
+  parentFullName: string;
   /** Name of the quota. Follows the pattern of the quota type, with "-quota" added as a suffix. */
-  quotaName?: string | undefined;
+  quotaName: string;
 }
 
 export interface GetQuotaResponse {
