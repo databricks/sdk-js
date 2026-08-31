@@ -356,7 +356,7 @@ export interface QueryMetrics {
  * QueryTag is the user-facing representation.
  */
 export interface QueryTag {
-  key?: string | undefined;
+  key: string;
   value?: string | undefined;
 }
 
@@ -672,7 +672,7 @@ export const unmarshalQueryMetricsSchema: z.ZodType<QueryMetrics> = z
 
 export const unmarshalQueryTagSchema: z.ZodType<QueryTag> = z
   .object({
-    key: z.string().optional(),
+    key: z.string(),
     value: z.string().optional(),
   })
   .transform(d => ({

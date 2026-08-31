@@ -151,6 +151,30 @@ export type DataSecurityMode =
   | (typeof DataSecurityMode)[keyof typeof DataSecurityMode]
   | (string & {});
 
+/** Days of week that can be referenced by Jobs scheduling settings. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DayOfWeek = {
+  /** No specific day of week is specified. */
+  DAY_OF_WEEK_UNSPECIFIED: 'DAY_OF_WEEK_UNSPECIFIED',
+  /** The day of week is Monday. */
+  MONDAY: 'MONDAY',
+  /** The day of week is Tuesday. */
+  TUESDAY: 'TUESDAY',
+  /** The day of week is Wednesday. */
+  WEDNESDAY: 'WEDNESDAY',
+  /** The day of week is Thursday. */
+  THURSDAY: 'THURSDAY',
+  /** The day of week is Friday. */
+  FRIDAY: 'FRIDAY',
+  /** The day of week is Saturday. */
+  SATURDAY: 'SATURDAY',
+  /** The day of week is Sunday. */
+  SUNDAY: 'SUNDAY',
+} as const;
+export type DayOfWeek =
+  | (typeof DayOfWeek)[keyof typeof DayOfWeek]
+  | (string & {});
+
 /** Response enumeration from calling the dbt platform API, for inclusion in output */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DbtPlatformRunStatus = {
@@ -231,6 +255,8 @@ export const HardwareAcceleratorType = {
   GPU_1X_A10: 'GPU_1xA10',
   /** GPU_8xH100: 8x H100 GPU configuration. */
   GPU_8X_H100: 'GPU_8xH100',
+  /** GPU_1xH100: Single H100 GPU configuration. */
+  GPU_1X_H100: 'GPU_1xH100',
 } as const;
 export type HardwareAcceleratorType =
   | (typeof HardwareAcceleratorType)[keyof typeof HardwareAcceleratorType]
@@ -936,7 +962,7 @@ export interface AccessControlRequest {
 /** A storage location in Adls Gen2 */
 export interface Adlsgen2Info {
   /** abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`. */
-  destination?: string | undefined;
+  destination: string;
 }
 
 /**
@@ -957,7 +983,7 @@ export interface AiRuntimeTask {
    * storage location (for example, when running as a service principal), set
    * `mlflow_experiment_directory`.
    */
-  experiment?: string | undefined;
+  experiment: string;
   /**
    * Deployment specs for this task. Exactly one deployment is currently
    * supported (a single entry where every node runs the same command); this
@@ -965,7 +991,7 @@ export interface AiRuntimeTask {
    * parameter server, separate eval node, etc.) with multiple entries are the
    * eventual intent but not yet supported.
    */
-  deployments?: DeploymentSpec[] | undefined;
+  deployments: DeploymentSpec[];
   /**
    * Workspace or UC volume path of the code-source archive, unpacked on
    * each node and exposed through `$CODE_SOURCE`. Set by first-party
@@ -1048,6 +1074,15 @@ export interface AlertTask {
    * The number of subscriptions is limited to 100.
    */
   subscribers?: AlertTaskSubscriber[] | undefined;
+  /**
+   * Per-run parameter overrides, keyed by parameter name, applied onto the alert's stored
+   * query parameters before the query is executed. Only scalar values are supported. Values
+   * may reference job parameters with `{{job.parameters.*}}`, which are resolved before the
+   * task runs. An override whose key does not match a stored parameter fails the task run.
+   * Limited to 10000 characters when serialized as JSON; keys must be 1-100 characters and
+   * contain only letters, digits, underscores, dashes, and periods.
+   */
+  parameters?: Record<string, string> | undefined;
 }
 
 export interface AlertTaskOutput {
@@ -1362,7 +1397,7 @@ export interface CancelAllRunsResponse {}
 
 export interface CancelRunRequest {
   /** This field is required. */
-  runId?: bigint | undefined;
+  runId: bigint;
 }
 
 /** Run was cancelled successfully. */
@@ -1393,9 +1428,9 @@ export interface CleanRoomTaskRunState {
  */
 export interface CleanRoomsNotebookTask {
   /** The clean room that the notebook belongs to. */
-  cleanRoomName?: string | undefined;
+  cleanRoomName: string;
   /** Name of the notebook being run. */
-  notebookName?: string | undefined;
+  notebookName: string;
   /**
    * Checksum to validate the freshness of the notebook resource (i.e. the notebook being run is the latest version).
    * It can be fetched by calling the :method:cleanroomassets/get API.
@@ -1683,7 +1718,7 @@ export interface Compute {
 
 export interface ComputeConfig {
   /** Number of GPUs. */
-  numGpus?: number | undefined;
+  numGpus: number;
   /** IDof the GPU pool to use. */
   gpuNodePoolId?: string | undefined;
   /** GPU type. */
@@ -1700,14 +1735,14 @@ export interface ComputeSpec {
    * The number of accelerators per node is encoded in the enum value —
    * `GPU_8xH100` means 8 H100 GPUs per node.
    */
-  acceleratorType?: ComputeSpec_AcceleratorType | undefined;
+  acceleratorType: ComputeSpec_AcceleratorType;
   /**
    * Total number of accelerators across all nodes. Must be a positive
    * multiple of the per-node accelerator count encoded in `accelerator_type`.
    * For example, `GPU_8xH100` with `accelerator_count: 16` allocates 2 nodes
    * (8 GPUs per node).
    */
-  acceleratorCount?: number | undefined;
+  acceleratorCount: number;
 }
 
 export interface ConditionTask {
@@ -1717,11 +1752,11 @@ export interface ConditionTask {
    *
    * The boolean comparison to task values can be implemented with operators `EQUAL_TO`, `NOT_EQUAL`. If a task value was set to a boolean value, it will be serialized to `“true”` or `“false”` for the comparison.
    */
-  op?: ConditionTask_ConditionTaskOperator | undefined;
+  op: ConditionTask_ConditionTaskOperator;
   /** The left operand of the condition task. Can be either a string value or a job state or parameter reference. */
-  left?: string | undefined;
+  left: string;
   /** The right operand of the condition task. Can be either a string value or a job state or parameter reference. */
-  right?: string | undefined;
+  right: string;
   /** The condition expression evaluation result. Filled in if the task was successfully completed. Can be `"true"` or `"false"` */
   outcome?: string | undefined;
 }
@@ -1731,6 +1766,8 @@ export interface ContinuousSettings {
   pauseStatus?: SchedulePauseStatus | undefined;
   /** Indicate whether the continuous job is applying task level retries or not. Defaults to NEVER. */
   taskRetryMode?: TaskRetryMode | undefined;
+  /** Defines when platform-initiated maintenance may run for this job. If unspecified, maintenance may run at any time. */
+  maintenanceWindow?: MaintenanceWindow | undefined;
 }
 
 /**
@@ -1740,6 +1777,11 @@ export interface ContinuousSettings {
 export interface ContinuousTriggerConfiguration {
   /** Whether the continuous job applies task-level retries. Defaults to NEVER. */
   taskRetryMode?: TaskRetryMode | undefined;
+  /**
+   * Defines when platform-initiated maintenance may run for this trigger. If unspecified,
+   * maintenance may run at any time.
+   */
+  maintenanceWindow?: MaintenanceWindow | undefined;
 }
 
 export interface ContinuousTriggerState {
@@ -1876,9 +1918,9 @@ export interface CreateJobResponse {
 
 export interface CronSchedule {
   /** A Cron expression using Quartz syntax that describes the schedule for a job. See [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for details. This field is required. */
-  quartzCronExpression?: string | undefined;
+  quartzCronExpression: string;
   /** A Java timezone ID. The schedule for a job is resolved with respect to this timezone. See [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details. This field is required. */
-  timezoneId?: string | undefined;
+  timezoneId: string;
   /** Indicate whether this schedule is paused or not. */
   pauseStatus?: SchedulePauseStatus | undefined;
   /**
@@ -1897,12 +1939,12 @@ export interface CronTriggerConfiguration {
    * A Cron expression using Quartz syntax that describes the schedule for this trigger. See
    * [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for details.
    */
-  quartzCronExpression?: string | undefined;
+  quartzCronExpression: string;
   /**
    * A Java timezone ID. The schedule is resolved with respect to this timezone. See
    * [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details.
    */
-  timezoneId?: string | undefined;
+  timezoneId: string;
 }
 
 export interface DashboardPageSnapshot {
@@ -1940,7 +1982,7 @@ export interface DashboardTaskOutput {
 /** A storage location in DBFS */
 export interface DbfsStorageInfo {
   /** dbfs destination, e.g. `dbfs:/my/path` */
-  destination?: string | undefined;
+  destination: string;
 }
 
 /**
@@ -2017,7 +2059,7 @@ export interface DbtTask {
    */
   projectDirectory?: string | undefined;
   /** A list of dbt commands to execute. All commands must start with `dbt`. This parameter must not be empty. A maximum of up to 10 commands can be provided. */
-  commands?: string[] | undefined;
+  commands: string[];
   /** Optional schema to write to. This parameter is only used when a warehouse_id is also provided. If not provided, the `default` schema is used. */
   schema?: string | undefined;
   /** ID of the SQL warehouse to connect to. If provided, we automatically generate and provide the profile and connection details to dbt. It can be overridden on a per-command basis by using the `--profiles-dir` command line argument. */
@@ -2047,7 +2089,7 @@ export interface DbtTask_DbtTaskOutput {
 
 export interface DeleteJobRequest {
   /** The canonical identifier of the job to delete. This field is required. */
-  jobId?: bigint | undefined;
+  jobId: bigint;
 }
 
 /** Job was deleted successfully. */
@@ -2056,7 +2098,7 @@ export interface DeleteJobResponse {}
 
 export interface DeleteRunRequest {
   /** ID of the run to delete. */
-  runId?: bigint | undefined;
+  runId: bigint;
 }
 
 /** Run was deleted successfully. */
@@ -2089,9 +2131,9 @@ export interface DeploymentSpec {
    * # Distributed via torchrun:
    * torchrun --nproc_per_node=8 train.py
    */
-  commandPath?: string | undefined;
+  commandPath: string;
   /** Compute resources allocated to each node in this deployment. */
-  compute?: ComputeSpec | undefined;
+  compute: ComputeSpec;
   /**
    * Optional human-readable name for this deployment (for example, `driver`,
    * `worker`, `param_server`). Used for log and UI display. Distinct names
@@ -2122,7 +2164,7 @@ export interface DockerImage {
 
 export interface EnforcePolicyComplianceForJob {
   /** The ID of the job you want to enforce policy compliance on. */
-  jobId?: bigint | undefined;
+  jobId: bigint;
   /**
    * If set, previews changes made to the job to comply with its policy, but
    * does not update the job.
@@ -2216,7 +2258,7 @@ export interface Environment {
 /** Retrieves the export of a job run task. */
 export interface ExportRunRequest {
   /** The canonical identifier for the run. This field is required. */
-  runId?: bigint | undefined;
+  runId: bigint;
   /** Which views to export (CODE, DASHBOARDS, or ALL). Defaults to CODE. */
   viewsToExport?: ViewsToExport | undefined;
 }
@@ -2229,7 +2271,7 @@ export interface ExportRunResponse {
 
 export interface FileArrivalTriggerConfiguration {
   /** URL to be monitored for file arrivals. The path must point to the root or a subpath of the external location. */
-  url?: string | undefined;
+  url: string;
   /**
    * If set, the trigger starts a run only after the specified amount of time passed since
    * the last time the trigger fired. The minimum allowed value is 60 seconds
@@ -2253,14 +2295,14 @@ export interface ForEachTask {
    * Array for task to iterate on. This can be a JSON string or a reference to
    * an array parameter.
    */
-  inputs?: string | undefined;
+  inputs: string;
   /**
    * An optional maximum allowed number of concurrent runs of the task.
    * Set this value if you want to be able to execute multiple runs of the task concurrently.
    */
   concurrency?: number | undefined;
   /** Configuration for the task that will be run for each element in the array */
-  task?: TaskSettings | undefined;
+  task: TaskSettings;
 }
 
 /** Attributes set during cluster creation which are related to GCP. */
@@ -2323,7 +2365,7 @@ export interface GcpAttributes {
 /** A storage location in Google Cloud Platform's GCS */
 export interface GcsStorageInfo {
   /** GCS destination/URI, e.g. `gs://my-bucket/some-prefix` */
-  destination?: string | undefined;
+  destination: string;
 }
 
 /**
@@ -2336,7 +2378,7 @@ export interface GcsStorageInfo {
  */
 export interface GenAiComputeTask {
   /** Runtime image */
-  dlRuntimeImage?: string | undefined;
+  dlRuntimeImage: string;
   compute?: ComputeConfig | undefined;
   /** Command launcher to run the actual script, e.g. bash, python etc. */
   command?: string | undefined;
@@ -2366,7 +2408,7 @@ export interface GenAiComputeTask {
 /** Retrieves information about a single job. */
 export interface GetJobRequest {
   /** The canonical identifier of the job to retrieve information about. This field is required. */
-  jobId?: bigint | undefined;
+  jobId: bigint;
   /** Flag that indicates that trigger state should be included in the response. */
   includeTriggerState?: boolean | undefined;
   /** Use `next_page_token` returned from the previous GetJob response to request the next page of the job's array properties. */
@@ -2419,7 +2461,7 @@ export interface GetJobResponse {
 
 export interface GetPolicyComplianceForJobRequest {
   /** The ID of the job whose compliance status you are requesting. */
-  jobId?: bigint | undefined;
+  jobId: bigint;
 }
 
 export interface GetPolicyComplianceForJobResponse {
@@ -2443,7 +2485,7 @@ export interface GetPolicyComplianceForJobResponse {
 /** Retrieves both the output and the metadata of a run. */
 export interface GetRunOutputRequest {
   /** The canonical identifier for the run. */
-  runId?: bigint | undefined;
+  runId: bigint;
 }
 
 /** Run output was retrieved successfully. */
@@ -2533,7 +2575,7 @@ export interface GetRunRequest {
    * The canonical identifier of the run for which to retrieve the metadata.
    * This field is required.
    */
-  runId?: bigint | undefined;
+  runId: bigint;
   /** Whether to include the repair history in the response. */
   includeHistory?: boolean | undefined;
   /** Whether to include resolved parameter values in the response. */
@@ -2663,9 +2705,9 @@ export interface GitMetadataSnapshot {
  */
 export interface GitSource {
   /** URL of the repository to be cloned by this job. */
-  gitUrl?: string | undefined;
+  gitUrl: string;
   /** Unique identifier of the service used to host the Git repository. The value is case insensitive. */
-  gitProvider?: string | undefined;
+  gitProvider: string;
   gitReference?:
     | {
         $case: 'gitBranch';
@@ -2758,7 +2800,7 @@ export interface JobCluster {
    * A unique name for the job cluster. This field is required and must be unique within the job.
    * `JobTaskSettings` may refer to this field to determine which cluster to launch for the task execution.
    */
-  jobClusterKey?: string | undefined;
+  jobClusterKey: string;
   /** If new_cluster, a description of a cluster that is created for each task. */
   newCluster?: ClusterSpec_NewCluster | undefined;
   /**
@@ -2776,7 +2818,7 @@ export interface JobDeployment {
    * * `BUNDLE`: The job is managed by Databricks Asset Bundle.
    * * `SYSTEM_MANAGED`: The job is managed by <Databricks> and is read-only.
    */
-  kind?: JobDeployment_DeploymentKind | undefined;
+  kind: JobDeployment_DeploymentKind;
   /** Path of the file that contains deployment metadata. */
   metadataFilePath?: string | undefined;
   /**
@@ -2817,15 +2859,15 @@ export interface JobEmailNotifications {
 
 export interface JobEnvironment {
   /** The key of an environment. It has to be unique within a job. */
-  environmentKey?: string | undefined;
+  environmentKey: string;
   spec?: Environment | undefined;
 }
 
 export interface JobLevelParameter {
   /** The name of the defined parameter. May only contain alphanumeric characters, `_`, `-`, and `.` */
-  name?: string | undefined;
+  name: string;
   /** Default value of the parameter. */
-  default?: string | undefined;
+  default: string;
 }
 
 /**
@@ -2974,7 +3016,7 @@ export interface JobSettings {
 /** The source of the job specification in the remote repository when the job is source controlled. */
 export interface JobSource {
   /** Path of the job YAML file that contains the job specification. */
-  jobConfigPath?: string | undefined;
+  jobConfigPath: string;
   importFromGitReference?:
     | {
         $case: 'importFromGitBranch';
@@ -2993,10 +3035,10 @@ export interface JobSource {
 }
 
 export interface JobsHealthRule {
-  metric?: JobsHealthMetric | undefined;
-  op?: JobsHealthOperator | undefined;
+  metric: JobsHealthMetric;
+  op: JobsHealthOperator;
   /** Specifies the threshold value that the health metric should obey to satisfy the health rule. */
-  value?: bigint | undefined;
+  value: bigint;
 }
 
 /** An optional set of health rules that can be defined for this job. */
@@ -3067,7 +3109,7 @@ export interface Library {
 
 export interface ListJobComplianceForPolicy {
   /** Canonical unique identifier for the cluster policy. */
-  policyId?: string | undefined;
+  policyId: string;
   /**
    * A page token that can be used to navigate to the next page or previous page as
    * returned by `next_page_token` or `prev_page_token`.
@@ -3084,7 +3126,7 @@ export interface ListJobComplianceForPolicy {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ListJobComplianceForPolicy_JobCompliance {
   /** Canonical unique identifier for a job. */
-  jobId?: bigint | undefined;
+  jobId: bigint;
   /** Whether this job is in compliance with the latest version of its policy. */
   isCompliant?: boolean | undefined;
   /**
@@ -3214,7 +3256,7 @@ export interface ListRunsResponse {
 
 export interface LocalFileInfo {
   /** local file destination, e.g. `file:/my/local/file.sh` */
-  destination?: string | undefined;
+  destination: string;
 }
 
 export interface LogAnalyticsInfo {
@@ -3222,9 +3264,26 @@ export interface LogAnalyticsInfo {
   logAnalyticsPrimaryKey?: string | undefined;
 }
 
+/**
+ * A recurring weekly time window during which platform-initiated maintenance is
+ * allowed to run for a continuous job.
+ */
+export interface MaintenanceWindow {
+  /**
+   * An integer between 0 and 23 denoting the start hour for the maintenance window in the 24-hour day.
+   * Platform-initiated maintenance is triggered only within a one-hour window starting at this hour.
+   * This field is required.
+   */
+  startHour: number;
+  /** The day of week on which maintenance is allowed to happen. This field is required. */
+  dayOfWeek: DayOfWeek;
+  /** A Java timezone ID. The maintenance window is resolved with respect to this timezone. See [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details. This field is required. */
+  timezoneId: string;
+}
+
 export interface MavenLibrary {
   /** Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2". */
-  coordinates?: string | undefined;
+  coordinates: string;
   /**
    * Maven repo to install the Maven package from. If omitted, both Maven Central Repository
    * and Spark Packages are searched.
@@ -3248,7 +3307,7 @@ export interface ModelTriggerConfiguration {
   /** Aliases of the model versions to monitor. Can only be used in conjunction with condition MODEL_ALIAS_SET. */
   aliases?: string[] | undefined;
   /** The condition based on which to trigger a job run. */
-  condition?: ModelTriggerConfiguration_ModelTriggerCondition | undefined;
+  condition: ModelTriggerConfiguration_ModelTriggerCondition;
   /**
    * If set, the trigger starts a run only after the specified amount of time has passed since
    * the last time the trigger fired. The minimum allowed value is 60 seconds.
@@ -3273,6 +3332,11 @@ export interface ModelTriggerState {}
 export interface NodeTypeFlexibility {
   /** A list of node type IDs to use as fallbacks when the primary node type is unavailable. */
   alternateNodeTypeIds?: string[] | undefined;
+  /**
+   * The AWS Context ID for EC2 Fleet.
+   * When set (non-empty), the value is passed to AWS CreateFleet API to create the EC2 Fleet.
+   */
+  awsContextId?: string | undefined;
 }
 
 export interface NotebookTask {
@@ -3281,7 +3345,7 @@ export interface NotebookTask {
    * For notebooks stored in the <Databricks> workspace, the path must be absolute and begin with a slash.
    * For notebooks stored in a remote repository, the path must be relative. This field is required.
    */
-  notebookPath?: string | undefined;
+  notebookPath: string;
   /**
    * Base parameters to be used for each run of this job. If the run is initiated by a call to :method:jobs/run
    * Now with parameters specified, the two parameters maps are merged. If the same key is specified in
@@ -3348,7 +3412,7 @@ export interface OutputSchemaInfo {
  */
 export interface PerTriggerState {
   /**
-   * (-- Next ID: 9. --)
+   * (-- Next ID: 10. --)
    * Runtime-state variant for the corresponding trigger; exactly one field is set,
    * matching the trigger's type in `TriggerConfiguration`.
    */
@@ -3371,9 +3435,9 @@ export interface PerformanceTarget {}
 
 export interface PeriodicTriggerConfiguration {
   /** The interval at which the trigger should run. */
-  interval?: number | undefined;
+  interval: number;
   /** The unit of time for the interval. */
-  unit?: PeriodicTriggerConfiguration_TimeUnit | undefined;
+  unit: PeriodicTriggerConfiguration_TimeUnit;
 }
 
 export interface PeriodicTriggerState {
@@ -3398,7 +3462,7 @@ export interface PipelineParameters {
 
 export interface PipelineTask {
   /** The full name of the pipeline task to execute. */
-  pipelineId?: string | undefined;
+  pipelineId: string;
   /**
    * Key/value-map of parameters passed to the pipeline execution.
    * Limited to 10k characters in total.
@@ -3480,7 +3544,7 @@ export interface PythonPyPiLibrary {
    * The name of the pypi package to install. An optional exact version specification is also
    * supported. Examples: "simplejson" and "simplejson==3.8.0".
    */
-  package?: string | undefined;
+  package: string;
   /**
    * The repository where the package can be found. If not specified, the default pip index is
    * used.
@@ -3490,9 +3554,9 @@ export interface PythonPyPiLibrary {
 
 export interface PythonWheelTask {
   /** Name of the package to execute */
-  packageName?: string | undefined;
+  packageName: string;
   /** Named entry point to use, if it does not exist in the metadata of the package it executes the function from the package directly using `$packageName.$entryPoint()` */
-  entryPoint?: string | undefined;
+  entryPoint: string;
   /** Command-line parameters passed to Python wheel task. Leave it empty if `named_parameters` is not null. */
   parameters?: string[] | undefined;
   /** Command-line parameters passed to Python wheel task in the form of `["--name=task", "--data=dbfs:/path/to/data.json"]`. Leave it empty if `parameters` is not null. */
@@ -3513,12 +3577,12 @@ export interface QueueDetailsCode {}
 
 export interface QueueSettings {
   /** If true, enable queueing for the job. This is a required field. */
-  enabled?: boolean | undefined;
+  enabled: boolean;
 }
 
 export interface RCranLibrary {
   /** The name of the CRAN package to install. */
-  package?: string | undefined;
+  package: string;
   /** The repository where the package can be found. If not specified, the default CRAN repo is used. */
   repo?: string | undefined;
 }
@@ -3548,7 +3612,7 @@ export interface Repair {
 
 export interface RepairRunRequest {
   /** The job run ID of the run to repair. The run must not be in progress. */
-  runId?: bigint | undefined;
+  runId: bigint;
   /** The ID of the latest repair. This parameter is not required when repairing a run for the first time, but must be provided on subsequent requests to repair the same run. */
   latestRepairId?: bigint | undefined;
   /** The task keys of the task runs to repair. */
@@ -3642,13 +3706,13 @@ export interface RepairRunResponse {
 
 export interface ResetJobRequest {
   /** The canonical identifier of the job to reset. This field is required. */
-  jobId?: bigint | undefined;
+  jobId: bigint;
   /**
    * The new settings of the job. These settings completely replace the old settings.
    *
    * Changes to the field `JobBaseSettings.timeout_seconds` are applied to active runs. Changes to other fields are applied to future runs only.
    */
-  newSettings?: JobSettings | undefined;
+  newSettings: JobSettings;
 }
 
 /** Job was overwritten successfully. */
@@ -3885,7 +3949,7 @@ export interface Run_JobLevelParameters {
 
 export interface RunJobTask {
   /** ID of the job to trigger. */
-  jobId?: bigint | undefined;
+  jobId: bigint;
   /** Job-level parameters used to trigger the job. */
   jobParameters?: Record<string, string> | undefined;
   /** Controls whether the pipeline should perform a full refresh */
@@ -3970,7 +4034,7 @@ export interface RunLifecycleStateV2 {}
 
 export interface RunNowRequest {
   /** The ID of the job to be executed */
-  jobId?: bigint | undefined;
+  jobId: bigint;
   /** Job-level parameters used in the run. for example `"param": "overriding_val"` */
   jobParameters?: Record<string, string> | undefined;
   /**
@@ -4205,7 +4269,7 @@ export interface RunTask {
    * This field is required and must be unique within its parent job.
    * On Update or Reset, this field is used to reference the tasks to be updated or reset.
    */
-  taskKey?: string | undefined;
+  taskKey: string;
   /** An optional description for this task. */
   description?: string | undefined;
   /**
@@ -4403,7 +4467,7 @@ export interface RunTaskSettings {
    * This field is required and must be unique within its parent job.
    * On Update or Reset, this field is used to reference the tasks to be updated or reset.
    */
-  taskKey?: string | undefined;
+  taskKey: string;
   /** An optional description for this task. */
   description?: string | undefined;
   /**
@@ -4596,7 +4660,7 @@ export interface S3StorageInfo {
    * cluster iam role, please make sure you set cluster iam role and the role has write access to the
    * destination. Please also note that you cannot use AWS keys to deliver logs.
    */
-  destination?: string | undefined;
+  destination: string;
   /**
    * S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,
    * endpoint will be used.
@@ -4660,7 +4724,7 @@ export interface SparkJarTask {
 
 export interface SparkPythonTask {
   /** The Python file to be executed. Cloud file URIs (such as dbfs:/, s3:/, adls:/, gcs:/) and workspace paths are supported. For python files stored in the <Databricks> workspace, the path must be absolute and begin with `/`. For files stored in a remote repository, the path must be relative. This field is required. */
-  pythonFile?: string | undefined;
+  pythonFile: string;
   /**
    * Command line parameters passed to the Python file.
    *
@@ -4697,9 +4761,9 @@ export interface SqlAlertState {}
 
 export interface SqlConditionConfiguration {
   /** The ID of the SQL query to evaluate as the trigger condition. */
-  sqlQueryId?: string | undefined;
+  sqlQueryId: string;
   /** The canonical identifier of the SQL warehouse to run the condition query against. */
-  warehouseId?: string | undefined;
+  warehouseId: string;
   /**
    * Determines how the SQL query result is interpreted to decide whether the condition fires.
    * Must be set to a recognized value when provided.
@@ -4768,7 +4832,7 @@ export interface SqlTask {
       }
     | undefined;
   /** The canonical identifier of the SQL warehouse. Recommended to use with serverless or pro SQL warehouses. Classic SQL warehouses are only supported for SQL alert, dashboard and query tasks and are limited to scheduled single-task jobs. */
-  warehouseId?: string | undefined;
+  warehouseId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -4858,7 +4922,7 @@ export interface SqlTask_SqlStatementOutput {
 
 export interface SqlTaskAlert {
   /** The canonical identifier of the SQL alert. */
-  alertId?: string | undefined;
+  alertId: string;
   /** If specified, alert notifications are sent to subscribers. */
   subscriptions?: SqlTaskSubscription[] | undefined;
   /** If true, the alert notifications are not sent to subscribers. */
@@ -4867,7 +4931,7 @@ export interface SqlTaskAlert {
 
 export interface SqlTaskDashboard {
   /** The canonical identifier of the SQL dashboard. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
   /** If specified, dashboard snapshots are sent to subscriptions. */
   subscriptions?: SqlTaskSubscription[] | undefined;
   /** Subject of the email sent to subscribers of this task. */
@@ -4878,7 +4942,7 @@ export interface SqlTaskDashboard {
 
 export interface SqlTaskFile {
   /** Path of the SQL file. Must be relative if the source is a remote Git repository and absolute for workspace paths. */
-  path?: string | undefined;
+  path: string;
   /**
    * Optional location type of the SQL file. When set to `WORKSPACE`, the SQL file will be retrieved
    * from the local <Databricks> workspace. When set to `GIT`, the SQL file will be retrieved from a Git repository
@@ -5021,7 +5085,7 @@ export interface TableState {
 
 export interface TableTriggerConfiguration {
   /** A list of tables to monitor for changes. The table name must be in the format `catalog_name.schema_name.table_name`. */
-  tableNames?: string[] | undefined;
+  tableNames: string[];
   /**
    * If set, the trigger starts a run only after the specified amount of time has passed since
    * the last time the trigger fired. The minimum allowed value is 60 seconds.
@@ -5045,7 +5109,7 @@ export interface TableTriggerState {
 
 export interface TaskDependency {
   /** The name of the task this task depends on. */
-  taskKey?: string | undefined;
+  taskKey: string;
   /** Can only be specified on condition task dependencies. The outcome of the dependent task that must be met for this task to run. */
   outcome?: string | undefined;
 }
@@ -5056,7 +5120,7 @@ export interface TaskSettings {
    * This field is required and must be unique within its parent job.
    * On Update or Reset, this field is used to reference the tasks to be updated or reset.
    */
-  taskKey?: string | undefined;
+  taskKey: string;
   /**
    * An optional array of objects specifying the dependency graph of the task. All tasks specified in this field must complete before executing this task. The task will run only if the `run_if` condition is true.
    * The key is `task_key`, and the value is the name assigned to the dependent task.
@@ -5258,9 +5322,9 @@ export interface TerminationType {}
 
 /**
  * A single trigger attached to a job via `JobSettings.triggers`. Exactly one of the trigger-type fields
- * (`periodic`, `schedule`, `continuous`, `file_arrival`, `table_update`, `model`) must be set; mutual exclusivity
- * is enforced in the API handler rather than via `oneof` so that codegen, validation, and JSON serialization
- * across SDKs and Terraform behave consistently.
+ * (`periodic`, `schedule`, `continuous`, `file_arrival`, `table_update`, `model`, `job_completion`) must be set;
+ * mutual exclusivity is enforced in the API handler rather than via `oneof` so that codegen, validation, and JSON
+ * serialization across SDKs and Terraform behave consistently.
  */
 export interface TriggerConfiguration {
   /** Whether this trigger is paused. Defaults to UNPAUSED when unset; the server always returns an explicit value on read. */
@@ -5339,7 +5403,7 @@ export interface TriggerSettings {
 }
 
 export interface TriggerState {
-  /** (-- Next ID: 7. --) */
+  /** (-- Next ID: 8. --) */
   triggerType?:
     | {$case: 'table'; table: TableTriggerState}
     | {$case: 'fileArrival'; fileArrival: FileArrivalTriggerState}
@@ -5356,7 +5420,7 @@ export interface TriggerState {
 
 export interface UpdateJobRequest {
   /** The canonical identifier of the job to update. This field is required. */
-  jobId?: bigint | undefined;
+  jobId: bigint;
   /**
    * The new settings for the job.
    *
@@ -5390,11 +5454,11 @@ export interface VolumesStorageInfo {
    * UC Volumes destination, e.g. `/Volumes/catalog/schema/vol1/init-scripts/setup-datadog.sh`
    * or `dbfs:/Volumes/catalog/schema/vol1/init-scripts/setup-datadog.sh`
    */
-  destination?: string | undefined;
+  destination: string;
 }
 
 export interface Webhook {
-  id?: string | undefined;
+  id: string;
 }
 
 export interface WebhookNotifications {
@@ -5422,7 +5486,7 @@ export interface WidgetErrorDetail {
 /** Cluster Attributes showing for clusters workload types. */
 export interface WorkloadType {
   /** defined what type of clients can use the cluster. E.g. Notebooks, Jobs */
-  clients?: WorkloadType_ClientsTypes | undefined;
+  clients: WorkloadType_ClientsTypes;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -5436,12 +5500,12 @@ export interface WorkloadType_ClientsTypes {
 /** A storage location in Workspace Filesystem (WSFS) */
 export interface WorkspaceStorageInfo {
   /** wsfs destination, e.g. `workspace:/cluster-init-scripts/setup-datadog.sh` */
-  destination?: string | undefined;
+  destination: string;
 }
 
 export const unmarshalAdlsgen2InfoSchema: z.ZodType<Adlsgen2Info> = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -5449,10 +5513,8 @@ export const unmarshalAdlsgen2InfoSchema: z.ZodType<Adlsgen2Info> = z
 
 export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
   .object({
-    experiment: z.string().optional(),
-    deployments: z
-      .array(z.lazy(() => unmarshalDeploymentSpecSchema))
-      .optional(),
+    experiment: z.string(),
+    deployments: z.array(z.lazy(() => unmarshalDeploymentSpecSchema)),
     code_source_path: z.string().optional(),
     mlflow_run: z.string().optional(),
     mlflow_experiment_directory: z.string().optional(),
@@ -5490,12 +5552,14 @@ export const unmarshalAlertTaskSchema: z.ZodType<AlertTask> = z
     subscribers: z
       .array(z.lazy(() => unmarshalAlertTaskSubscriberSchema))
       .optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
     alertId: d.alert_id,
     warehouseId: d.warehouse_id,
     workspacePath: d.workspace_path,
     subscribers: d.subscribers,
+    parameters: d.parameters,
   }));
 
 export const unmarshalAlertTaskOutputSchema: z.ZodType<AlertTaskOutput> = z
@@ -5747,8 +5811,8 @@ export const unmarshalCleanRoomTaskRunStateSchema: z.ZodType<CleanRoomTaskRunSta
 export const unmarshalCleanRoomsNotebookTaskSchema: z.ZodType<CleanRoomsNotebookTask> =
   z
     .object({
-      clean_room_name: z.string().optional(),
-      notebook_name: z.string().optional(),
+      clean_room_name: z.string(),
+      notebook_name: z.string(),
       etag: z.string().optional(),
       notebook_base_parameters: z.record(z.string(), z.string()).optional(),
     })
@@ -5929,7 +5993,7 @@ export const unmarshalComputeSchema: z.ZodType<Compute> = z
 
 export const unmarshalComputeConfigSchema: z.ZodType<ComputeConfig> = z
   .object({
-    num_gpus: z.number().optional(),
+    num_gpus: z.number(),
     gpu_node_pool_id: z.string().optional(),
     gpu_type: z.string().optional(),
   })
@@ -5941,8 +6005,8 @@ export const unmarshalComputeConfigSchema: z.ZodType<ComputeConfig> = z
 
 export const unmarshalComputeSpecSchema: z.ZodType<ComputeSpec> = z
   .object({
-    accelerator_type: z.string().optional(),
-    accelerator_count: z.number().optional(),
+    accelerator_type: z.string(),
+    accelerator_count: z.number(),
   })
   .transform(d => ({
     acceleratorType: d.accelerator_type,
@@ -5951,9 +6015,9 @@ export const unmarshalComputeSpecSchema: z.ZodType<ComputeSpec> = z
 
 export const unmarshalConditionTaskSchema: z.ZodType<ConditionTask> = z
   .object({
-    op: z.string().optional(),
-    left: z.string().optional(),
-    right: z.string().optional(),
+    op: z.string(),
+    left: z.string(),
+    right: z.string(),
     outcome: z.string().optional(),
   })
   .transform(d => ({
@@ -5968,19 +6032,27 @@ export const unmarshalContinuousSettingsSchema: z.ZodType<ContinuousSettings> =
     .object({
       pause_status: z.string().optional(),
       task_retry_mode: z.string().optional(),
+      maintenance_window: z
+        .lazy(() => unmarshalMaintenanceWindowSchema)
+        .optional(),
     })
     .transform(d => ({
       pauseStatus: d.pause_status,
       taskRetryMode: d.task_retry_mode,
+      maintenanceWindow: d.maintenance_window,
     }));
 
 export const unmarshalContinuousTriggerConfigurationSchema: z.ZodType<ContinuousTriggerConfiguration> =
   z
     .object({
       task_retry_mode: z.string().optional(),
+      maintenance_window: z
+        .lazy(() => unmarshalMaintenanceWindowSchema)
+        .optional(),
     })
     .transform(d => ({
       taskRetryMode: d.task_retry_mode,
+      maintenanceWindow: d.maintenance_window,
     }));
 
 export const unmarshalContinuousTriggerStateSchema: z.ZodType<ContinuousTriggerState> =
@@ -6012,8 +6084,8 @@ export const unmarshalCreateJobResponseSchema: z.ZodType<CreateJobResponse> = z
 
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
-    quartz_cron_expression: z.string().optional(),
-    timezone_id: z.string().optional(),
+    quartz_cron_expression: z.string(),
+    timezone_id: z.string(),
     pause_status: z.string().optional(),
     sql_condition: z
       .lazy(() => unmarshalSqlConditionConfigurationSchema)
@@ -6029,8 +6101,8 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
 export const unmarshalCronTriggerConfigurationSchema: z.ZodType<CronTriggerConfiguration> =
   z
     .object({
-      quartz_cron_expression: z.string().optional(),
-      timezone_id: z.string().optional(),
+      quartz_cron_expression: z.string(),
+      timezone_id: z.string(),
     })
     .transform(d => ({
       quartzCronExpression: d.quartz_cron_expression,
@@ -6077,7 +6149,7 @@ export const unmarshalDashboardTaskOutputSchema: z.ZodType<DashboardTaskOutput> 
 
 export const unmarshalDbfsStorageInfoSchema: z.ZodType<DbfsStorageInfo> = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -6178,7 +6250,7 @@ export const unmarshalDbtPlatformTaskOutputSchema: z.ZodType<DbtPlatformTaskOutp
 export const unmarshalDbtTaskSchema: z.ZodType<DbtTask> = z
   .object({
     project_directory: z.string().optional(),
-    commands: z.array(z.string()).optional(),
+    commands: z.array(z.string()),
     schema: z.string().optional(),
     warehouse_id: z.string().optional(),
     profiles_directory: z.string().optional(),
@@ -6215,8 +6287,8 @@ export const unmarshalDeleteRunResponseSchema: z.ZodType<DeleteRunResponse> =
 
 export const unmarshalDeploymentSpecSchema: z.ZodType<DeploymentSpec> = z
   .object({
-    command_path: z.string().optional(),
-    compute: z.lazy(() => unmarshalComputeSpecSchema).optional(),
+    command_path: z.string(),
+    compute: z.lazy(() => unmarshalComputeSpecSchema),
     name: z.string().optional(),
   })
   .transform(d => ({
@@ -6309,7 +6381,7 @@ export const unmarshalExportRunResponseSchema: z.ZodType<ExportRunResponse> = z
 export const unmarshalFileArrivalTriggerConfigurationSchema: z.ZodType<FileArrivalTriggerConfiguration> =
   z
     .object({
-      url: z.string().optional(),
+      url: z.string(),
       min_time_between_triggers_seconds: z.number().optional(),
       wait_after_last_change_seconds: z.number().optional(),
     })
@@ -6330,9 +6402,9 @@ export const unmarshalFileArrivalTriggerStateSchema: z.ZodType<FileArrivalTrigge
 
 export const unmarshalForEachTaskSchema: z.ZodType<ForEachTask> = z
   .object({
-    inputs: z.string().optional(),
+    inputs: z.string(),
     concurrency: z.number().optional(),
-    task: z.lazy(() => unmarshalTaskSettingsSchema).optional(),
+    task: z.lazy(() => unmarshalTaskSettingsSchema),
   })
   .transform(d => ({
     inputs: d.inputs,
@@ -6364,7 +6436,7 @@ export const unmarshalGcpAttributesSchema: z.ZodType<GcpAttributes> = z
 
 export const unmarshalGcsStorageInfoSchema: z.ZodType<GcsStorageInfo> = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -6372,7 +6444,7 @@ export const unmarshalGcsStorageInfoSchema: z.ZodType<GcsStorageInfo> = z
 
 export const unmarshalGenAiComputeTaskSchema: z.ZodType<GenAiComputeTask> = z
   .object({
-    dl_runtime_image: z.string().optional(),
+    dl_runtime_image: z.string(),
     compute: z.lazy(() => unmarshalComputeConfigSchema).optional(),
     command: z.string().optional(),
     source: z.string().optional(),
@@ -6662,8 +6734,8 @@ export const unmarshalGitMetadataSnapshotSchema: z.ZodType<GitMetadataSnapshot> 
 
 export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
   .object({
-    git_url: z.string().optional(),
-    git_provider: z.string().optional(),
+    git_url: z.string(),
+    git_provider: z.string(),
     git_branch: z.string().optional(),
     git_tag: z.string().optional(),
     git_commit: z.string().optional(),
@@ -6718,7 +6790,7 @@ export const unmarshalInitScriptInfoSchema: z.ZodType<InitScriptInfo> = z
 
 export const unmarshalJobClusterSchema: z.ZodType<JobCluster> = z
   .object({
-    job_cluster_key: z.string().optional(),
+    job_cluster_key: z.string(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
     serverless_compute_id: z.string().optional(),
   })
@@ -6730,7 +6802,7 @@ export const unmarshalJobClusterSchema: z.ZodType<JobCluster> = z
 
 export const unmarshalJobDeploymentSchema: z.ZodType<JobDeployment> = z
   .object({
-    kind: z.string().optional(),
+    kind: z.string(),
     metadata_file_path: z.string().optional(),
     deployment_id: z.string().optional(),
     version_id: z.string().optional(),
@@ -6764,7 +6836,7 @@ export const unmarshalJobEmailNotificationsSchema: z.ZodType<JobEmailNotificatio
 
 export const unmarshalJobEnvironmentSchema: z.ZodType<JobEnvironment> = z
   .object({
-    environment_key: z.string().optional(),
+    environment_key: z.string(),
     spec: z.lazy(() => unmarshalEnvironmentSchema).optional(),
   })
   .transform(d => ({
@@ -6774,8 +6846,8 @@ export const unmarshalJobEnvironmentSchema: z.ZodType<JobEnvironment> = z
 
 export const unmarshalJobLevelParameterSchema: z.ZodType<JobLevelParameter> = z
   .object({
-    name: z.string().optional(),
-    default: z.string().optional(),
+    name: z.string(),
+    default: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -6884,7 +6956,7 @@ export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
 
 export const unmarshalJobSourceSchema: z.ZodType<JobSource> = z
   .object({
-    job_config_path: z.string().optional(),
+    job_config_path: z.string(),
     import_from_git_branch: z.string().optional(),
     dirty_state: z.string().optional(),
   })
@@ -6902,12 +6974,11 @@ export const unmarshalJobSourceSchema: z.ZodType<JobSource> = z
 
 export const unmarshalJobsHealthRuleSchema: z.ZodType<JobsHealthRule> = z
   .object({
-    metric: z.string().optional(),
-    op: z.string().optional(),
+    metric: z.string(),
+    op: z.string(),
     value: z
       .union([z.number(), z.bigint(), z.string()])
-      .transform(v => BigInt(v))
-      .optional(),
+      .transform(v => BigInt(v)),
   })
   .transform(d => ({
     metric: d.metric,
@@ -6961,8 +7032,7 @@ export const unmarshalListJobComplianceForPolicy_JobComplianceSchema: z.ZodType<
     .object({
       job_id: z
         .union([z.number(), z.bigint(), z.string()])
-        .transform(v => BigInt(v))
-        .optional(),
+        .transform(v => BigInt(v)),
       is_compliant: z.boolean().optional(),
       violations: z.record(z.string(), z.string()).optional(),
     })
@@ -7019,7 +7089,7 @@ export const unmarshalListRunsResponseSchema: z.ZodType<ListRunsResponse> = z
 
 export const unmarshalLocalFileInfoSchema: z.ZodType<LocalFileInfo> = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -7035,9 +7105,21 @@ export const unmarshalLogAnalyticsInfoSchema: z.ZodType<LogAnalyticsInfo> = z
     logAnalyticsPrimaryKey: d.log_analytics_primary_key,
   }));
 
+export const unmarshalMaintenanceWindowSchema: z.ZodType<MaintenanceWindow> = z
+  .object({
+    start_hour: z.number(),
+    day_of_week: z.string(),
+    timezone_id: z.string(),
+  })
+  .transform(d => ({
+    startHour: d.start_hour,
+    dayOfWeek: d.day_of_week,
+    timezoneId: d.timezone_id,
+  }));
+
 export const unmarshalMavenLibrarySchema: z.ZodType<MavenLibrary> = z
   .object({
-    coordinates: z.string().optional(),
+    coordinates: z.string(),
     repo: z.string().optional(),
     exclusions: z.array(z.string()).optional(),
   })
@@ -7052,7 +7134,7 @@ export const unmarshalModelTriggerConfigurationSchema: z.ZodType<ModelTriggerCon
     .object({
       securable_name: z.string().optional(),
       aliases: z.array(z.string()).optional(),
-      condition: z.string().optional(),
+      condition: z.string(),
       min_time_between_triggers_seconds: z.number().optional(),
       wait_after_last_change_seconds: z.number().optional(),
     })
@@ -7071,14 +7153,16 @@ export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> 
   z
     .object({
       alternate_node_type_ids: z.array(z.string()).optional(),
+      aws_context_id: z.string().optional(),
     })
     .transform(d => ({
       alternateNodeTypeIds: d.alternate_node_type_ids,
+      awsContextId: d.aws_context_id,
     }));
 
 export const unmarshalNotebookTaskSchema: z.ZodType<NotebookTask> = z
   .object({
-    notebook_path: z.string().optional(),
+    notebook_path: z.string(),
     base_parameters: z.record(z.string(), z.string()).optional(),
     source: z.string().optional(),
     warehouse_id: z.string().optional(),
@@ -7165,8 +7249,8 @@ export const unmarshalPerTriggerStateSchema: z.ZodType<PerTriggerState> = z
 export const unmarshalPeriodicTriggerConfigurationSchema: z.ZodType<PeriodicTriggerConfiguration> =
   z
     .object({
-      interval: z.number().optional(),
-      unit: z.string().optional(),
+      interval: z.number(),
+      unit: z.string(),
     })
     .transform(d => ({
       interval: d.interval,
@@ -7204,7 +7288,7 @@ export const unmarshalPipelineParametersSchema: z.ZodType<PipelineParameters> =
 
 export const unmarshalPipelineTaskSchema: z.ZodType<PipelineTask> = z
   .object({
-    pipeline_id: z.string().optional(),
+    pipeline_id: z.string(),
     parameters: z.record(z.string(), z.string()).optional(),
     full_refresh: z.boolean().optional(),
     refresh_selection: z.array(z.string()).optional(),
@@ -7295,7 +7379,7 @@ export const unmarshalPythonOperatorTask_ParameterSchema: z.ZodType<PythonOperat
 
 export const unmarshalPythonPyPiLibrarySchema: z.ZodType<PythonPyPiLibrary> = z
   .object({
-    package: z.string().optional(),
+    package: z.string(),
     repo: z.string().optional(),
   })
   .transform(d => ({
@@ -7305,8 +7389,8 @@ export const unmarshalPythonPyPiLibrarySchema: z.ZodType<PythonPyPiLibrary> = z
 
 export const unmarshalPythonWheelTaskSchema: z.ZodType<PythonWheelTask> = z
   .object({
-    package_name: z.string().optional(),
-    entry_point: z.string().optional(),
+    package_name: z.string(),
+    entry_point: z.string(),
     parameters: z.array(z.string()).optional(),
     named_parameters: z.record(z.string(), z.string()).optional(),
   })
@@ -7329,7 +7413,7 @@ export const unmarshalQueueDetailsSchema: z.ZodType<QueueDetails> = z
 
 export const unmarshalQueueSettingsSchema: z.ZodType<QueueSettings> = z
   .object({
-    enabled: z.boolean().optional(),
+    enabled: z.boolean(),
   })
   .transform(d => ({
     enabled: d.enabled,
@@ -7337,7 +7421,7 @@ export const unmarshalQueueSettingsSchema: z.ZodType<QueueSettings> = z
 
 export const unmarshalRCranLibrarySchema: z.ZodType<RCranLibrary> = z
   .object({
-    package: z.string().optional(),
+    package: z.string(),
     repo: z.string().optional(),
   })
   .transform(d => ({
@@ -7730,8 +7814,7 @@ export const unmarshalRunJobTaskSchema: z.ZodType<RunJobTask> = z
   .object({
     job_id: z
       .union([z.number(), z.bigint(), z.string()])
-      .transform(v => BigInt(v))
-      .optional(),
+      .transform(v => BigInt(v)),
     job_parameters: z.record(z.string(), z.string()).optional(),
     pipeline_params: z.lazy(() => unmarshalPipelineParametersSchema).optional(),
     jar_params: z.array(z.string()).optional(),
@@ -7851,7 +7934,7 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
     effective_performance_target: z.string().optional(),
     effective_serverless_compute_id: z.string().optional(),
-    task_key: z.string().optional(),
+    task_key: z.string(),
     description: z.string().optional(),
     depends_on: z.array(z.lazy(() => unmarshalTaskDependencySchema)).optional(),
     run_if: z.string().optional(),
@@ -8099,7 +8182,7 @@ export const unmarshalRunTriggerInfoSchema: z.ZodType<RunTriggerInfo> = z
 
 export const unmarshalS3StorageInfoSchema: z.ZodType<S3StorageInfo> = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
     region: z.string().optional(),
     endpoint: z.string().optional(),
     enable_encryption: z.boolean().optional(),
@@ -8136,7 +8219,7 @@ export const unmarshalSparkJarTaskSchema: z.ZodType<SparkJarTask> = z
 
 export const unmarshalSparkPythonTaskSchema: z.ZodType<SparkPythonTask> = z
   .object({
-    python_file: z.string().optional(),
+    python_file: z.string(),
     parameters: z.array(z.string()).optional(),
     source: z.string().optional(),
   })
@@ -8165,8 +8248,8 @@ export const unmarshalSparseCheckoutSchema: z.ZodType<SparseCheckout> = z
 export const unmarshalSqlConditionConfigurationSchema: z.ZodType<SqlConditionConfiguration> =
   z
     .object({
-      sql_query_id: z.string().optional(),
-      warehouse_id: z.string().optional(),
+      sql_query_id: z.string(),
+      warehouse_id: z.string(),
       trigger_mode: z.string().optional(),
     })
     .transform(d => ({
@@ -8210,7 +8293,7 @@ export const unmarshalSqlTaskSchema: z.ZodType<SqlTask> = z
     dashboard: z.lazy(() => unmarshalSqlTaskDashboardSchema).optional(),
     alert: z.lazy(() => unmarshalSqlTaskAlertSchema).optional(),
     file: z.lazy(() => unmarshalSqlTaskFileSchema).optional(),
-    warehouse_id: z.string().optional(),
+    warehouse_id: z.string(),
   })
   .transform(d => ({
     parameters: d.parameters,
@@ -8358,7 +8441,7 @@ export const unmarshalSqlTask_SqlStatementOutputSchema: z.ZodType<SqlTask_SqlSta
 
 export const unmarshalSqlTaskAlertSchema: z.ZodType<SqlTaskAlert> = z
   .object({
-    alert_id: z.string().optional(),
+    alert_id: z.string(),
     subscriptions: z
       .array(z.lazy(() => unmarshalSqlTaskSubscriptionSchema))
       .optional(),
@@ -8372,7 +8455,7 @@ export const unmarshalSqlTaskAlertSchema: z.ZodType<SqlTaskAlert> = z
 
 export const unmarshalSqlTaskDashboardSchema: z.ZodType<SqlTaskDashboard> = z
   .object({
-    dashboard_id: z.string().optional(),
+    dashboard_id: z.string(),
     subscriptions: z
       .array(z.lazy(() => unmarshalSqlTaskSubscriptionSchema))
       .optional(),
@@ -8388,7 +8471,7 @@ export const unmarshalSqlTaskDashboardSchema: z.ZodType<SqlTaskDashboard> = z
 
 export const unmarshalSqlTaskFileSchema: z.ZodType<SqlTaskFile> = z
   .object({
-    path: z.string().optional(),
+    path: z.string(),
     source: z.string().optional(),
   })
   .transform(d => ({
@@ -8476,7 +8559,7 @@ export const unmarshalTableStateSchema: z.ZodType<TableState> = z
 export const unmarshalTableTriggerConfigurationSchema: z.ZodType<TableTriggerConfiguration> =
   z
     .object({
-      table_names: z.array(z.string()).optional(),
+      table_names: z.array(z.string()),
       min_time_between_triggers_seconds: z.number().optional(),
       wait_after_last_change_seconds: z.number().optional(),
       condition: z.string().optional(),
@@ -8502,7 +8585,7 @@ export const unmarshalTableTriggerStateSchema: z.ZodType<TableTriggerState> = z
 
 export const unmarshalTaskDependencySchema: z.ZodType<TaskDependency> = z
   .object({
-    task_key: z.string().optional(),
+    task_key: z.string(),
     outcome: z.string().optional(),
   })
   .transform(d => ({
@@ -8512,7 +8595,7 @@ export const unmarshalTaskDependencySchema: z.ZodType<TaskDependency> = z
 
 export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
   .object({
-    task_key: z.string().optional(),
+    task_key: z.string(),
     depends_on: z.array(z.lazy(() => unmarshalTaskDependencySchema)).optional(),
     run_if: z.string().optional(),
     timeout_seconds: z.number().optional(),
@@ -8858,7 +8941,7 @@ export const unmarshalViewItemSchema: z.ZodType<ViewItem> = z
 export const unmarshalVolumesStorageInfoSchema: z.ZodType<VolumesStorageInfo> =
   z
     .object({
-      destination: z.string().optional(),
+      destination: z.string(),
     })
     .transform(d => ({
       destination: d.destination,
@@ -8866,7 +8949,7 @@ export const unmarshalVolumesStorageInfoSchema: z.ZodType<VolumesStorageInfo> =
 
 export const unmarshalWebhookSchema: z.ZodType<Webhook> = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -8904,7 +8987,7 @@ export const unmarshalWidgetErrorDetailSchema: z.ZodType<WidgetErrorDetail> = z
 
 export const unmarshalWorkloadTypeSchema: z.ZodType<WorkloadType> = z
   .object({
-    clients: z.lazy(() => unmarshalWorkloadType_ClientsTypesSchema).optional(),
+    clients: z.lazy(() => unmarshalWorkloadType_ClientsTypesSchema),
   })
   .transform(d => ({
     clients: d.clients,
@@ -8925,7 +9008,7 @@ export const unmarshalWorkloadType_ClientsTypesSchema: z.ZodType<WorkloadType_Cl
 export const unmarshalWorkspaceStorageInfoSchema: z.ZodType<WorkspaceStorageInfo> =
   z
     .object({
-      destination: z.string().optional(),
+      destination: z.string(),
     })
     .transform(d => ({
       destination: d.destination,
@@ -8960,7 +9043,7 @@ export const marshalAccessControlRequestSchema: z.ZodType = z
 
 export const marshalAdlsgen2InfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -8968,8 +9051,8 @@ export const marshalAdlsgen2InfoSchema: z.ZodType = z
 
 export const marshalAiRuntimeTaskSchema: z.ZodType = z
   .object({
-    experiment: z.string().optional(),
-    deployments: z.array(z.lazy(() => marshalDeploymentSpecSchema)).optional(),
+    experiment: z.string(),
+    deployments: z.array(z.lazy(() => marshalDeploymentSpecSchema)),
     codeSourcePath: z.string().optional(),
     mlflowRun: z.string().optional(),
     mlflowExperimentDirectory: z.string().optional(),
@@ -8994,12 +9077,14 @@ export const marshalAlertTaskSchema: z.ZodType = z
     subscribers: z
       .array(z.lazy(() => marshalAlertTaskSubscriberSchema))
       .optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
     alert_id: d.alertId,
     warehouse_id: d.warehouseId,
     workspace_path: d.workspacePath,
     subscribers: d.subscribers,
+    parameters: d.parameters,
   }));
 
 export const marshalAlertTaskSubscriberSchema: z.ZodType = z
@@ -9087,7 +9172,7 @@ export const marshalCancelAllRunsRequestSchema: z.ZodType = z
 
 export const marshalCancelRunRequestSchema: z.ZodType = z
   .object({
-    runId: z.bigint().optional(),
+    runId: z.bigint(),
   })
   .transform(d => ({
     run_id: d.runId,
@@ -9095,8 +9180,8 @@ export const marshalCancelRunRequestSchema: z.ZodType = z
 
 export const marshalCleanRoomsNotebookTaskSchema: z.ZodType = z
   .object({
-    cleanRoomName: z.string().optional(),
-    notebookName: z.string().optional(),
+    cleanRoomName: z.string(),
+    notebookName: z.string(),
     etag: z.string().optional(),
     notebookBaseParameters: z.record(z.string(), z.string()).optional(),
   })
@@ -9230,7 +9315,7 @@ export const marshalComputeSchema: z.ZodType = z
 
 export const marshalComputeConfigSchema: z.ZodType = z
   .object({
-    numGpus: z.number().optional(),
+    numGpus: z.number(),
     gpuNodePoolId: z.string().optional(),
     gpuType: z.string().optional(),
   })
@@ -9242,8 +9327,8 @@ export const marshalComputeConfigSchema: z.ZodType = z
 
 export const marshalComputeSpecSchema: z.ZodType = z
   .object({
-    acceleratorType: z.string().optional(),
-    acceleratorCount: z.number().optional(),
+    acceleratorType: z.string(),
+    acceleratorCount: z.number(),
   })
   .transform(d => ({
     accelerator_type: d.acceleratorType,
@@ -9252,9 +9337,9 @@ export const marshalComputeSpecSchema: z.ZodType = z
 
 export const marshalConditionTaskSchema: z.ZodType = z
   .object({
-    op: z.string().optional(),
-    left: z.string().optional(),
-    right: z.string().optional(),
+    op: z.string(),
+    left: z.string(),
+    right: z.string(),
     outcome: z.string().optional(),
   })
   .transform(d => ({
@@ -9268,18 +9353,22 @@ export const marshalContinuousSettingsSchema: z.ZodType = z
   .object({
     pauseStatus: z.string().optional(),
     taskRetryMode: z.string().optional(),
+    maintenanceWindow: z.lazy(() => marshalMaintenanceWindowSchema).optional(),
   })
   .transform(d => ({
     pause_status: d.pauseStatus,
     task_retry_mode: d.taskRetryMode,
+    maintenance_window: d.maintenanceWindow,
   }));
 
 export const marshalContinuousTriggerConfigurationSchema: z.ZodType = z
   .object({
     taskRetryMode: z.string().optional(),
+    maintenanceWindow: z.lazy(() => marshalMaintenanceWindowSchema).optional(),
   })
   .transform(d => ({
     task_retry_mode: d.taskRetryMode,
+    maintenance_window: d.maintenanceWindow,
   }));
 
 export const marshalCreateJobRequestSchema: z.ZodType = z
@@ -9366,8 +9455,8 @@ export const marshalCreateJobRequestSchema: z.ZodType = z
 
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
-    quartzCronExpression: z.string().optional(),
-    timezoneId: z.string().optional(),
+    quartzCronExpression: z.string(),
+    timezoneId: z.string(),
     pauseStatus: z.string().optional(),
     sqlCondition: z
       .lazy(() => marshalSqlConditionConfigurationSchema)
@@ -9382,8 +9471,8 @@ export const marshalCronScheduleSchema: z.ZodType = z
 
 export const marshalCronTriggerConfigurationSchema: z.ZodType = z
   .object({
-    quartzCronExpression: z.string().optional(),
-    timezoneId: z.string().optional(),
+    quartzCronExpression: z.string(),
+    timezoneId: z.string(),
   })
   .transform(d => ({
     quartz_cron_expression: d.quartzCronExpression,
@@ -9406,7 +9495,7 @@ export const marshalDashboardTaskSchema: z.ZodType = z
 
 export const marshalDbfsStorageInfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -9435,7 +9524,7 @@ export const marshalDbtPlatformTaskSchema: z.ZodType = z
 export const marshalDbtTaskSchema: z.ZodType = z
   .object({
     projectDirectory: z.string().optional(),
-    commands: z.array(z.string()).optional(),
+    commands: z.array(z.string()),
     schema: z.string().optional(),
     warehouseId: z.string().optional(),
     profilesDirectory: z.string().optional(),
@@ -9454,7 +9543,7 @@ export const marshalDbtTaskSchema: z.ZodType = z
 
 export const marshalDeleteJobRequestSchema: z.ZodType = z
   .object({
-    jobId: z.bigint().optional(),
+    jobId: z.bigint(),
   })
   .transform(d => ({
     job_id: d.jobId,
@@ -9462,7 +9551,7 @@ export const marshalDeleteJobRequestSchema: z.ZodType = z
 
 export const marshalDeleteRunRequestSchema: z.ZodType = z
   .object({
-    runId: z.bigint().optional(),
+    runId: z.bigint(),
   })
   .transform(d => ({
     run_id: d.runId,
@@ -9470,8 +9559,8 @@ export const marshalDeleteRunRequestSchema: z.ZodType = z
 
 export const marshalDeploymentSpecSchema: z.ZodType = z
   .object({
-    commandPath: z.string().optional(),
-    compute: z.lazy(() => marshalComputeSpecSchema).optional(),
+    commandPath: z.string(),
+    compute: z.lazy(() => marshalComputeSpecSchema),
     name: z.string().optional(),
   })
   .transform(d => ({
@@ -9511,7 +9600,7 @@ export const marshalDockerImageSchema: z.ZodType = z
 
 export const marshalEnforcePolicyComplianceForJobSchema: z.ZodType = z
   .object({
-    jobId: z.bigint().optional(),
+    jobId: z.bigint(),
     validateOnly: z.boolean().optional(),
   })
   .transform(d => ({
@@ -9537,7 +9626,7 @@ export const marshalEnvironmentSchema: z.ZodType = z
 
 export const marshalFileArrivalTriggerConfigurationSchema: z.ZodType = z
   .object({
-    url: z.string().optional(),
+    url: z.string(),
     minTimeBetweenTriggersSeconds: z.number().optional(),
     waitAfterLastChangeSeconds: z.number().optional(),
   })
@@ -9549,9 +9638,9 @@ export const marshalFileArrivalTriggerConfigurationSchema: z.ZodType = z
 
 export const marshalForEachTaskSchema: z.ZodType = z
   .object({
-    inputs: z.string().optional(),
+    inputs: z.string(),
     concurrency: z.number().optional(),
-    task: z.lazy(() => marshalTaskSettingsSchema).optional(),
+    task: z.lazy(() => marshalTaskSettingsSchema),
   })
   .transform(d => ({
     inputs: d.inputs,
@@ -9583,7 +9672,7 @@ export const marshalGcpAttributesSchema: z.ZodType = z
 
 export const marshalGcsStorageInfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -9591,7 +9680,7 @@ export const marshalGcsStorageInfoSchema: z.ZodType = z
 
 export const marshalGenAiComputeTaskSchema: z.ZodType = z
   .object({
-    dlRuntimeImage: z.string().optional(),
+    dlRuntimeImage: z.string(),
     compute: z.lazy(() => marshalComputeConfigSchema).optional(),
     command: z.string().optional(),
     source: z.string().optional(),
@@ -9621,8 +9710,8 @@ export const marshalGitMetadataSnapshotSchema: z.ZodType = z
 
 export const marshalGitSourceSchema: z.ZodType = z
   .object({
-    gitUrl: z.string().optional(),
-    gitProvider: z.string().optional(),
+    gitUrl: z.string(),
+    gitProvider: z.string(),
     gitReference: z
       .discriminatedUnion('$case', [
         z.object({$case: z.literal('gitBranch'), gitBranch: z.string()}),
@@ -9698,7 +9787,7 @@ export const marshalInitScriptInfoSchema: z.ZodType = z
 
 export const marshalJobClusterSchema: z.ZodType = z
   .object({
-    jobClusterKey: z.string().optional(),
+    jobClusterKey: z.string(),
     newCluster: z.lazy(() => marshalClusterSpec_NewClusterSchema).optional(),
     serverlessComputeId: z.string().optional(),
   })
@@ -9710,7 +9799,7 @@ export const marshalJobClusterSchema: z.ZodType = z
 
 export const marshalJobDeploymentSchema: z.ZodType = z
   .object({
-    kind: z.string().optional(),
+    kind: z.string(),
     metadataFilePath: z.string().optional(),
     deploymentId: z.string().optional(),
     versionId: z.string().optional(),
@@ -9743,7 +9832,7 @@ export const marshalJobEmailNotificationsSchema: z.ZodType = z
 
 export const marshalJobEnvironmentSchema: z.ZodType = z
   .object({
-    environmentKey: z.string().optional(),
+    environmentKey: z.string(),
     spec: z.lazy(() => marshalEnvironmentSchema).optional(),
   })
   .transform(d => ({
@@ -9753,8 +9842,8 @@ export const marshalJobEnvironmentSchema: z.ZodType = z
 
 export const marshalJobLevelParameterSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    default: z.string().optional(),
+    name: z.string(),
+    default: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -9864,7 +9953,7 @@ export const marshalJobSettingsSchema: z.ZodType = z
 
 export const marshalJobSourceSchema: z.ZodType = z
   .object({
-    jobConfigPath: z.string().optional(),
+    jobConfigPath: z.string(),
     importFromGitReference: z
       .discriminatedUnion('$case', [
         z.object({
@@ -9885,9 +9974,9 @@ export const marshalJobSourceSchema: z.ZodType = z
 
 export const marshalJobsHealthRuleSchema: z.ZodType = z
   .object({
-    metric: z.string().optional(),
-    op: z.string().optional(),
-    value: z.bigint().optional(),
+    metric: z.string(),
+    op: z.string(),
+    value: z.bigint(),
   })
   .transform(d => ({
     metric: d.metric,
@@ -9938,7 +10027,7 @@ export const marshalLibrarySchema: z.ZodType = z
 
 export const marshalLocalFileInfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -9954,9 +10043,21 @@ export const marshalLogAnalyticsInfoSchema: z.ZodType = z
     log_analytics_primary_key: d.logAnalyticsPrimaryKey,
   }));
 
+export const marshalMaintenanceWindowSchema: z.ZodType = z
+  .object({
+    startHour: z.number(),
+    dayOfWeek: z.string(),
+    timezoneId: z.string(),
+  })
+  .transform(d => ({
+    start_hour: d.startHour,
+    day_of_week: d.dayOfWeek,
+    timezone_id: d.timezoneId,
+  }));
+
 export const marshalMavenLibrarySchema: z.ZodType = z
   .object({
-    coordinates: z.string().optional(),
+    coordinates: z.string(),
     repo: z.string().optional(),
     exclusions: z.array(z.string()).optional(),
   })
@@ -9970,7 +10071,7 @@ export const marshalModelTriggerConfigurationSchema: z.ZodType = z
   .object({
     securableName: z.string().optional(),
     aliases: z.array(z.string()).optional(),
-    condition: z.string().optional(),
+    condition: z.string(),
     minTimeBetweenTriggersSeconds: z.number().optional(),
     waitAfterLastChangeSeconds: z.number().optional(),
   })
@@ -9985,14 +10086,16 @@ export const marshalModelTriggerConfigurationSchema: z.ZodType = z
 export const marshalNodeTypeFlexibilitySchema: z.ZodType = z
   .object({
     alternateNodeTypeIds: z.array(z.string()).optional(),
+    awsContextId: z.string().optional(),
   })
   .transform(d => ({
     alternate_node_type_ids: d.alternateNodeTypeIds,
+    aws_context_id: d.awsContextId,
   }));
 
 export const marshalNotebookTaskSchema: z.ZodType = z
   .object({
-    notebookPath: z.string().optional(),
+    notebookPath: z.string(),
     baseParameters: z.record(z.string(), z.string()).optional(),
     source: z.string().optional(),
     warehouseId: z.string().optional(),
@@ -10018,8 +10121,8 @@ export const marshalNotificationSettingsSchema: z.ZodType = z
 
 export const marshalPeriodicTriggerConfigurationSchema: z.ZodType = z
   .object({
-    interval: z.number().optional(),
-    unit: z.string().optional(),
+    interval: z.number(),
+    unit: z.string(),
   })
   .transform(d => ({
     interval: d.interval,
@@ -10044,7 +10147,7 @@ export const marshalPipelineParametersSchema: z.ZodType = z
 
 export const marshalPipelineTaskSchema: z.ZodType = z
   .object({
-    pipelineId: z.string().optional(),
+    pipelineId: z.string(),
     pipelineTaskParameters: z.record(z.string(), z.string()).optional(),
     fullRefresh: z.boolean().optional(),
     refreshSelection: z.array(z.string()).optional(),
@@ -10133,7 +10236,7 @@ export const marshalPythonOperatorTask_ParameterSchema: z.ZodType = z
 
 export const marshalPythonPyPiLibrarySchema: z.ZodType = z
   .object({
-    package: z.string().optional(),
+    package: z.string(),
     repo: z.string().optional(),
   })
   .transform(d => ({
@@ -10143,8 +10246,8 @@ export const marshalPythonPyPiLibrarySchema: z.ZodType = z
 
 export const marshalPythonWheelTaskSchema: z.ZodType = z
   .object({
-    packageName: z.string().optional(),
-    entryPoint: z.string().optional(),
+    packageName: z.string(),
+    entryPoint: z.string(),
     parameters: z.array(z.string()).optional(),
     namedParameters: z.record(z.string(), z.string()).optional(),
   })
@@ -10157,7 +10260,7 @@ export const marshalPythonWheelTaskSchema: z.ZodType = z
 
 export const marshalQueueSettingsSchema: z.ZodType = z
   .object({
-    enabled: z.boolean().optional(),
+    enabled: z.boolean(),
   })
   .transform(d => ({
     enabled: d.enabled,
@@ -10165,7 +10268,7 @@ export const marshalQueueSettingsSchema: z.ZodType = z
 
 export const marshalRCranLibrarySchema: z.ZodType = z
   .object({
-    package: z.string().optional(),
+    package: z.string(),
     repo: z.string().optional(),
   })
   .transform(d => ({
@@ -10175,7 +10278,7 @@ export const marshalRCranLibrarySchema: z.ZodType = z
 
 export const marshalRepairRunRequestSchema: z.ZodType = z
   .object({
-    runId: z.bigint().optional(),
+    runId: z.bigint(),
     latestRepairId: z.bigint().optional(),
     rerunTasks: z.array(z.string()).optional(),
     jobParameters: z.record(z.string(), z.string()).optional(),
@@ -10211,8 +10314,8 @@ export const marshalRepairRunRequestSchema: z.ZodType = z
 
 export const marshalResetJobRequestSchema: z.ZodType = z
   .object({
-    jobId: z.bigint().optional(),
-    newSettings: z.lazy(() => marshalJobSettingsSchema).optional(),
+    jobId: z.bigint(),
+    newSettings: z.lazy(() => marshalJobSettingsSchema),
   })
   .transform(d => ({
     job_id: d.jobId,
@@ -10221,7 +10324,7 @@ export const marshalResetJobRequestSchema: z.ZodType = z
 
 export const marshalRunJobTaskSchema: z.ZodType = z
   .object({
-    jobId: z.bigint().optional(),
+    jobId: z.bigint(),
     jobParameters: z.record(z.string(), z.string()).optional(),
     pipelineParams: z.lazy(() => marshalPipelineParametersSchema).optional(),
     jarParams: z.array(z.string()).optional(),
@@ -10247,7 +10350,7 @@ export const marshalRunJobTaskSchema: z.ZodType = z
 
 export const marshalRunNowRequestSchema: z.ZodType = z
   .object({
-    jobId: z.bigint().optional(),
+    jobId: z.bigint(),
     jobParameters: z.record(z.string(), z.string()).optional(),
     idempotencyToken: z.string().optional(),
     queue: z.lazy(() => marshalQueueSettingsSchema).optional(),
@@ -10281,7 +10384,7 @@ export const marshalRunNowRequestSchema: z.ZodType = z
 
 export const marshalRunTaskSettingsSchema: z.ZodType = z
   .object({
-    taskKey: z.string().optional(),
+    taskKey: z.string(),
     description: z.string().optional(),
     dependsOn: z.array(z.lazy(() => marshalTaskDependencySchema)).optional(),
     runIf: z.string().optional(),
@@ -10493,7 +10596,7 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
 
 export const marshalS3StorageInfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
     region: z.string().optional(),
     endpoint: z.string().optional(),
     enableEncryption: z.boolean().optional(),
@@ -10527,7 +10630,7 @@ export const marshalSparkJarTaskSchema: z.ZodType = z
 
 export const marshalSparkPythonTaskSchema: z.ZodType = z
   .object({
-    pythonFile: z.string().optional(),
+    pythonFile: z.string(),
     parameters: z.array(z.string()).optional(),
     source: z.string().optional(),
   })
@@ -10555,8 +10658,8 @@ export const marshalSparseCheckoutSchema: z.ZodType = z
 
 export const marshalSqlConditionConfigurationSchema: z.ZodType = z
   .object({
-    sqlQueryId: z.string().optional(),
-    warehouseId: z.string().optional(),
+    sqlQueryId: z.string(),
+    warehouseId: z.string(),
     triggerMode: z.string().optional(),
   })
   .transform(d => ({
@@ -10588,7 +10691,7 @@ export const marshalSqlTaskSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    warehouseId: z.string().optional(),
+    warehouseId: z.string(),
   })
   .transform(d => ({
     parameters: d.parameters,
@@ -10603,7 +10706,7 @@ export const marshalSqlTaskSchema: z.ZodType = z
 
 export const marshalSqlTaskAlertSchema: z.ZodType = z
   .object({
-    alertId: z.string().optional(),
+    alertId: z.string(),
     subscriptions: z
       .array(z.lazy(() => marshalSqlTaskSubscriptionSchema))
       .optional(),
@@ -10617,7 +10720,7 @@ export const marshalSqlTaskAlertSchema: z.ZodType = z
 
 export const marshalSqlTaskDashboardSchema: z.ZodType = z
   .object({
-    dashboardId: z.string().optional(),
+    dashboardId: z.string(),
     subscriptions: z
       .array(z.lazy(() => marshalSqlTaskSubscriptionSchema))
       .optional(),
@@ -10633,7 +10736,7 @@ export const marshalSqlTaskDashboardSchema: z.ZodType = z
 
 export const marshalSqlTaskFileSchema: z.ZodType = z
   .object({
-    path: z.string().optional(),
+    path: z.string(),
     source: z.string().optional(),
   })
   .transform(d => ({
@@ -10758,7 +10861,7 @@ export const marshalSubscription_SubscriberSchema: z.ZodType = z
 
 export const marshalTableTriggerConfigurationSchema: z.ZodType = z
   .object({
-    tableNames: z.array(z.string()).optional(),
+    tableNames: z.array(z.string()),
     minTimeBetweenTriggersSeconds: z.number().optional(),
     waitAfterLastChangeSeconds: z.number().optional(),
     condition: z.string().optional(),
@@ -10772,7 +10875,7 @@ export const marshalTableTriggerConfigurationSchema: z.ZodType = z
 
 export const marshalTaskDependencySchema: z.ZodType = z
   .object({
-    taskKey: z.string().optional(),
+    taskKey: z.string(),
     outcome: z.string().optional(),
   })
   .transform(d => ({
@@ -10782,7 +10885,7 @@ export const marshalTaskDependencySchema: z.ZodType = z
 
 export const marshalTaskSettingsSchema: z.ZodType = z
   .object({
-    taskKey: z.string().optional(),
+    taskKey: z.string(),
     dependsOn: z.array(z.lazy(() => marshalTaskDependencySchema)).optional(),
     runIf: z.string().optional(),
     timeoutSeconds: z.number().optional(),
@@ -11070,7 +11173,7 @@ export const marshalTriggerSettingsSchema: z.ZodType = z
 
 export const marshalUpdateJobRequestSchema: z.ZodType = z
   .object({
-    jobId: z.bigint().optional(),
+    jobId: z.bigint(),
     newSettings: z.lazy(() => marshalJobSettingsSchema).optional(),
     fieldsToRemove: z.array(z.string()).optional(),
   })
@@ -11082,7 +11185,7 @@ export const marshalUpdateJobRequestSchema: z.ZodType = z
 
 export const marshalVolumesStorageInfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,
@@ -11090,7 +11193,7 @@ export const marshalVolumesStorageInfoSchema: z.ZodType = z
 
 export const marshalWebhookSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -11119,7 +11222,7 @@ export const marshalWebhookNotificationsSchema: z.ZodType = z
 
 export const marshalWorkloadTypeSchema: z.ZodType = z
   .object({
-    clients: z.lazy(() => marshalWorkloadType_ClientsTypesSchema).optional(),
+    clients: z.lazy(() => marshalWorkloadType_ClientsTypesSchema),
   })
   .transform(d => ({
     clients: d.clients,
@@ -11138,7 +11241,7 @@ export const marshalWorkloadType_ClientsTypesSchema: z.ZodType = z
 
 export const marshalWorkspaceStorageInfoSchema: z.ZodType = z
   .object({
-    destination: z.string().optional(),
+    destination: z.string(),
   })
   .transform(d => ({
     destination: d.destination,

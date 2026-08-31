@@ -202,7 +202,7 @@ export interface TrashAlertRequest {
 
 export interface UpdateAlertRequest {
   alert?: UpdateAlertRequestAlert | undefined;
-  updateMask?: FieldMask<UpdateAlertRequestAlert> | undefined;
+  updateMask: FieldMask<UpdateAlertRequestAlert>;
   id?: string | undefined;
   /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */
   autoResolveDisplayName?: boolean | undefined;
@@ -523,10 +523,7 @@ export const marshalCreateAlertRequestAlertSchema: z.ZodType = z
 export const marshalUpdateAlertRequestSchema: z.ZodType = z
   .object({
     alert: z.lazy(() => marshalUpdateAlertRequestAlertSchema).optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
+    updateMask: z.any().transform((m: FieldMask) => m.toString()),
     id: z.string().optional(),
     autoResolveDisplayName: z.boolean().optional(),
   })

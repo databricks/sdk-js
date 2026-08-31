@@ -28,7 +28,7 @@ export type ArtifactMatcher_MatchType =
 
 export interface ArtifactAllowlistInfo {
   /** A list of allowed artifact match patterns. */
-  artifactMatchers?: ArtifactMatcher[] | undefined;
+  artifactMatchers: ArtifactMatcher[];
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
   /** Username of the user who set the artifact allowlist. */
@@ -39,21 +39,21 @@ export interface ArtifactAllowlistInfo {
 
 export interface ArtifactMatcher {
   /** The artifact path or maven coordinate */
-  artifact?: string | undefined;
+  artifact: string;
   /** The pattern matching type of the artifact */
-  matchType?: ArtifactMatcher_MatchType | undefined;
+  matchType: ArtifactMatcher_MatchType;
 }
 
 export interface GetArtifactAllowlistRequest {
   /** The artifact type of the allowlist. */
-  artifactType?: ArtifactType | undefined;
+  artifactType: ArtifactType;
 }
 
 export interface SetArtifactAllowlistRequest {
   /** The artifact type of the allowlist. */
-  artifactType?: ArtifactType | undefined;
+  artifactType: ArtifactType;
   /** A list of allowed artifact match patterns. */
-  artifactMatchers?: ArtifactMatcher[] | undefined;
+  artifactMatchers: ArtifactMatcher[];
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
   /** Username of the user who set the artifact allowlist. */
@@ -65,9 +65,7 @@ export interface SetArtifactAllowlistRequest {
 export const unmarshalArtifactAllowlistInfoSchema: z.ZodType<ArtifactAllowlistInfo> =
   z
     .object({
-      artifact_matchers: z
-        .array(z.lazy(() => unmarshalArtifactMatcherSchema))
-        .optional(),
+      artifact_matchers: z.array(z.lazy(() => unmarshalArtifactMatcherSchema)),
       metastore_id: z.string().optional(),
       created_by: z.string().optional(),
       created_at: z
@@ -84,8 +82,8 @@ export const unmarshalArtifactAllowlistInfoSchema: z.ZodType<ArtifactAllowlistIn
 
 export const unmarshalArtifactMatcherSchema: z.ZodType<ArtifactMatcher> = z
   .object({
-    artifact: z.string().optional(),
-    match_type: z.string().optional(),
+    artifact: z.string(),
+    match_type: z.string(),
   })
   .transform(d => ({
     artifact: d.artifact,
@@ -94,8 +92,8 @@ export const unmarshalArtifactMatcherSchema: z.ZodType<ArtifactMatcher> = z
 
 export const marshalArtifactMatcherSchema: z.ZodType = z
   .object({
-    artifact: z.string().optional(),
-    matchType: z.string().optional(),
+    artifact: z.string(),
+    matchType: z.string(),
   })
   .transform(d => ({
     artifact: d.artifact,
@@ -104,10 +102,8 @@ export const marshalArtifactMatcherSchema: z.ZodType = z
 
 export const marshalSetArtifactAllowlistRequestSchema: z.ZodType = z
   .object({
-    artifactType: z.string().optional(),
-    artifactMatchers: z
-      .array(z.lazy(() => marshalArtifactMatcherSchema))
-      .optional(),
+    artifactType: z.string(),
+    artifactMatchers: z.array(z.lazy(() => marshalArtifactMatcherSchema)),
     metastoreId: z.string().optional(),
     createdBy: z.string().optional(),
     createdAt: z.bigint().optional(),

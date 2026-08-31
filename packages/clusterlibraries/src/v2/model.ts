@@ -48,14 +48,14 @@ export interface ClusterLibraryStatuses {
 
 export interface ClusterStatusRequest {
   /** Unique identifier of the cluster whose status should be retrieved. */
-  clusterId?: string | undefined;
+  clusterId: string;
 }
 
 export interface InstallLibrariesRequest {
   /** Unique identifier for the cluster on which to install these libraries. */
-  clusterId?: string | undefined;
+  clusterId: string;
   /** The libraries to install. */
-  libraries?: Library[] | undefined;
+  libraries: Library[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -144,7 +144,7 @@ export interface ListAllClusterLibraryStatusesResponse {
 
 export interface MavenLibrary {
   /** Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2". */
-  coordinates?: string | undefined;
+  coordinates: string;
   /**
    * Maven repo to install the Maven package from. If omitted, both Maven Central Repository
    * and Spark Packages are searched.
@@ -164,7 +164,7 @@ export interface PythonPyPiLibrary {
    * The name of the pypi package to install. An optional exact version specification is also
    * supported. Examples: "simplejson" and "simplejson==3.8.0".
    */
-  package?: string | undefined;
+  package: string;
   /**
    * The repository where the package can be found. If not specified, the default pip index is
    * used.
@@ -174,16 +174,16 @@ export interface PythonPyPiLibrary {
 
 export interface RCranLibrary {
   /** The name of the CRAN package to install. */
-  package?: string | undefined;
+  package: string;
   /** The repository where the package can be found. If not specified, the default CRAN repo is used. */
   repo?: string | undefined;
 }
 
 export interface UninstallLibrariesRequest {
   /** Unique identifier for the cluster on which to uninstall these libraries. */
-  clusterId?: string | undefined;
+  clusterId: string;
   /** The libraries to uninstall. */
-  libraries?: Library[] | undefined;
+  libraries: Library[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -264,7 +264,7 @@ export const unmarshalListAllClusterLibraryStatusesResponseSchema: z.ZodType<Lis
 
 export const unmarshalMavenLibrarySchema: z.ZodType<MavenLibrary> = z
   .object({
-    coordinates: z.string().optional(),
+    coordinates: z.string(),
     repo: z.string().optional(),
     exclusions: z.array(z.string()).optional(),
   })
@@ -276,7 +276,7 @@ export const unmarshalMavenLibrarySchema: z.ZodType<MavenLibrary> = z
 
 export const unmarshalPythonPyPiLibrarySchema: z.ZodType<PythonPyPiLibrary> = z
   .object({
-    package: z.string().optional(),
+    package: z.string(),
     repo: z.string().optional(),
   })
   .transform(d => ({
@@ -286,7 +286,7 @@ export const unmarshalPythonPyPiLibrarySchema: z.ZodType<PythonPyPiLibrary> = z
 
 export const unmarshalRCranLibrarySchema: z.ZodType<RCranLibrary> = z
   .object({
-    package: z.string().optional(),
+    package: z.string(),
     repo: z.string().optional(),
   })
   .transform(d => ({
@@ -299,8 +299,8 @@ export const unmarshalUninstallLibrariesResponseSchema: z.ZodType<UninstallLibra
 
 export const marshalInstallLibrariesRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
-    libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
+    clusterId: z.string(),
+    libraries: z.array(z.lazy(() => marshalLibrarySchema)),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
@@ -342,7 +342,7 @@ export const marshalLibrarySchema: z.ZodType = z
 
 export const marshalMavenLibrarySchema: z.ZodType = z
   .object({
-    coordinates: z.string().optional(),
+    coordinates: z.string(),
     repo: z.string().optional(),
     exclusions: z.array(z.string()).optional(),
   })
@@ -354,7 +354,7 @@ export const marshalMavenLibrarySchema: z.ZodType = z
 
 export const marshalPythonPyPiLibrarySchema: z.ZodType = z
   .object({
-    package: z.string().optional(),
+    package: z.string(),
     repo: z.string().optional(),
   })
   .transform(d => ({
@@ -364,7 +364,7 @@ export const marshalPythonPyPiLibrarySchema: z.ZodType = z
 
 export const marshalRCranLibrarySchema: z.ZodType = z
   .object({
-    package: z.string().optional(),
+    package: z.string(),
     repo: z.string().optional(),
   })
   .transform(d => ({
@@ -374,8 +374,8 @@ export const marshalRCranLibrarySchema: z.ZodType = z
 
 export const marshalUninstallLibrariesRequestSchema: z.ZodType = z
   .object({
-    clusterId: z.string().optional(),
-    libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
+    clusterId: z.string(),
+    libraries: z.array(z.lazy(() => marshalLibrarySchema)),
   })
   .transform(d => ({
     cluster_id: d.clusterId,

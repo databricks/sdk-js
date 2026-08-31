@@ -111,8 +111,8 @@ export interface CreateQueryRequestQuery {
 }
 
 export interface DateRange {
-  start?: string | undefined;
-  end?: string | undefined;
+  start: string;
+  end: string;
 }
 
 export interface DateRangeValue {
@@ -335,7 +335,7 @@ export interface TrashQueryRequest {
 
 export interface UpdateQueryRequest {
   query?: UpdateQueryRequestQuery | undefined;
-  updateMask?: FieldMask<UpdateQueryRequestQuery> | undefined;
+  updateMask: FieldMask<UpdateQueryRequestQuery>;
   id?: string | undefined;
   /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */
   autoResolveDisplayName?: boolean | undefined;
@@ -398,8 +398,8 @@ export interface Visualization {
 
 export const unmarshalDateRangeSchema: z.ZodType<DateRange> = z
   .object({
-    start: z.string().optional(),
-    end: z.string().optional(),
+    start: z.string(),
+    end: z.string(),
   })
   .transform(d => ({
     start: d.start,
@@ -751,8 +751,8 @@ export const marshalCreateQueryRequestQuerySchema: z.ZodType = z
 
 export const marshalDateRangeSchema: z.ZodType = z
   .object({
-    start: z.string().optional(),
-    end: z.string().optional(),
+    start: z.string(),
+    end: z.string(),
   })
   .transform(d => ({
     start: d.start,
@@ -923,10 +923,7 @@ export const marshalTextValueSchema: z.ZodType = z
 export const marshalUpdateQueryRequestSchema: z.ZodType = z
   .object({
     query: z.lazy(() => marshalUpdateQueryRequestQuerySchema).optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
+    updateMask: z.any().transform((m: FieldMask) => m.toString()),
     id: z.string().optional(),
     autoResolveDisplayName: z.boolean().optional(),
   })

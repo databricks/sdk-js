@@ -166,7 +166,7 @@ export interface CreateFunction {
 
 export interface CreateFunctionRequest {
   /** Partial __FunctionInfo__ specifying the function to be created. */
-  functionInfo?: CreateFunction | undefined;
+  functionInfo: CreateFunction;
 }
 
 /** A credential that is dependent on a SQL object. */
@@ -177,7 +177,7 @@ export interface CredentialDependency {
 
 export interface DeleteFunctionRequest {
   /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__) . */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** Force deletion even if the function is notempty. */
   force?: boolean | undefined;
 }
@@ -207,7 +207,7 @@ export interface DependencyList {
 /** A function that is dependent on a SQL object. */
 export interface FunctionDependency {
   /** Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__. */
-  functionFullName?: string | undefined;
+  functionFullName: string;
 }
 
 export interface FunctionInfo {
@@ -275,13 +275,13 @@ export interface FunctionInfo {
 
 export interface FunctionParameterInfo {
   /** Name of Parameter. */
-  name?: string | undefined;
+  name: string;
   /** Full data type spec, SQL/catalogString text. */
-  typeText?: string | undefined;
+  typeText: string;
   /** Full data type spec, JSON-serialized. */
   typeJson?: string | undefined;
   /** Name of type (INT, STRUCT, MAP, etc.) */
-  typeName?: ColumnTypeName | undefined;
+  typeName: ColumnTypeName;
   /** Digits of precision; required on Create for DecimalTypes. */
   typePrecision?: number | undefined;
   /** Digits to right of decimal; Required on Create for DecimalTypes. */
@@ -289,7 +289,7 @@ export interface FunctionParameterInfo {
   /** Format of IntervalType. */
   typeIntervalType?: string | undefined;
   /** Ordinal position of column (starting at position 0). */
-  position?: number | undefined;
+  position: number;
   /** Function parameter mode. */
   parameterMode?: FunctionParameterMode | undefined;
   /** Function parameter type. */
@@ -306,16 +306,16 @@ export interface FunctionParameterInfos {
 
 export interface GetFunctionRequest {
   /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__). */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** Whether to include functions in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
 
 export interface ListFunctionsRequest {
   /** Name of parent catalog for functions of interest. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /** Parent schema of functions. */
-  schemaName?: string | undefined;
+  schemaName: string;
   /** Whether to include functions in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
   /**
@@ -343,12 +343,12 @@ export interface ListFunctionsResponse {
 /** A table that is dependent on a SQL object. */
 export interface TableDependency {
   /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
-  tableFullName?: string | undefined;
+  tableFullName: string;
 }
 
 export interface UpdateFunctionRequest {
   /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__). */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** Name of function, relative to parent schema. */
   name?: string | undefined;
   /** Name of parent Catalog. */
@@ -463,7 +463,7 @@ export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
 export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
   z
     .object({
-      function_full_name: z.string().optional(),
+      function_full_name: z.string(),
     })
     .transform(d => ({
       functionFullName: d.function_full_name,
@@ -550,14 +550,14 @@ export const unmarshalFunctionInfoSchema: z.ZodType<FunctionInfo> = z
 export const unmarshalFunctionParameterInfoSchema: z.ZodType<FunctionParameterInfo> =
   z
     .object({
-      name: z.string().optional(),
-      type_text: z.string().optional(),
+      name: z.string(),
+      type_text: z.string(),
       type_json: z.string().optional(),
-      type_name: z.string().optional(),
+      type_name: z.string(),
       type_precision: z.number().optional(),
       type_scale: z.number().optional(),
       type_interval_type: z.string().optional(),
-      position: z.number().optional(),
+      position: z.number(),
       parameter_mode: z.string().optional(),
       parameter_type: z.string().optional(),
       parameter_default: z.string().optional(),
@@ -602,7 +602,7 @@ export const unmarshalListFunctionsResponseSchema: z.ZodType<ListFunctionsRespon
 
 export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
   .object({
-    table_full_name: z.string().optional(),
+    table_full_name: z.string(),
   })
   .transform(d => ({
     tableFullName: d.table_full_name,
@@ -684,7 +684,7 @@ export const marshalCreateFunctionSchema: z.ZodType = z
 
 export const marshalCreateFunctionRequestSchema: z.ZodType = z
   .object({
-    functionInfo: z.lazy(() => marshalCreateFunctionSchema).optional(),
+    functionInfo: z.lazy(() => marshalCreateFunctionSchema),
   })
   .transform(d => ({
     function_info: d.functionInfo,
@@ -738,7 +738,7 @@ export const marshalDependencyListSchema: z.ZodType = z
 
 export const marshalFunctionDependencySchema: z.ZodType = z
   .object({
-    functionFullName: z.string().optional(),
+    functionFullName: z.string(),
   })
   .transform(d => ({
     function_full_name: d.functionFullName,
@@ -746,14 +746,14 @@ export const marshalFunctionDependencySchema: z.ZodType = z
 
 export const marshalFunctionParameterInfoSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    typeText: z.string().optional(),
+    name: z.string(),
+    typeText: z.string(),
     typeJson: z.string().optional(),
-    typeName: z.string().optional(),
+    typeName: z.string(),
     typePrecision: z.number().optional(),
     typeScale: z.number().optional(),
     typeIntervalType: z.string().optional(),
-    position: z.number().optional(),
+    position: z.number(),
     parameterMode: z.string().optional(),
     parameterType: z.string().optional(),
     parameterDefault: z.string().optional(),
@@ -786,7 +786,7 @@ export const marshalFunctionParameterInfosSchema: z.ZodType = z
 
 export const marshalTableDependencySchema: z.ZodType = z
   .object({
-    tableFullName: z.string().optional(),
+    tableFullName: z.string(),
   })
   .transform(d => ({
     table_full_name: d.tableFullName,
@@ -794,7 +794,7 @@ export const marshalTableDependencySchema: z.ZodType = z
 
 export const marshalUpdateFunctionRequestSchema: z.ZodType = z
   .object({
-    fullNameArg: z.string().optional(),
+    fullNameArg: z.string(),
     name: z.string().optional(),
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),

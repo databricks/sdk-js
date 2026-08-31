@@ -139,7 +139,7 @@ export interface CloudResourceContainer {
 }
 
 export interface CreateWorkspaceRequest {
-  accountId?: string | undefined;
+  accountId: string;
   /** The human-readable name of the workspace. */
   workspaceName?: string | undefined;
   /**
@@ -193,8 +193,8 @@ export interface CreateWorkspaceRequest {
 }
 
 export interface DeleteWorkspaceRequest {
-  workspaceId?: bigint | undefined;
-  accountId?: string | undefined;
+  workspaceId: bigint;
+  accountId: string;
 }
 
 export interface GcpCloudResourceContainer {
@@ -230,8 +230,8 @@ export interface GcpManagedNetworkConfig {
 }
 
 export interface GetWorkspaceRequest {
-  workspaceId?: bigint | undefined;
-  accountId?: string | undefined;
+  workspaceId: bigint;
+  accountId: string;
 }
 
 /** The configurations of the GKE cluster used by the GCP workspace. */
@@ -246,7 +246,7 @@ export interface GkeConfig {
 }
 
 export interface ListWorkspacesRequest {
-  accountId?: string | undefined;
+  accountId: string;
 }
 
 export interface ListWorkspacesResponse {
@@ -254,7 +254,7 @@ export interface ListWorkspacesResponse {
 }
 
 export interface UpdateWorkspaceRequest {
-  customerFacingWorkspace?: Workspace | undefined;
+  customerFacingWorkspace: Workspace;
   updateMask?: FieldMask<Workspace> | undefined;
 }
 
@@ -561,7 +561,7 @@ export const marshalCloudResourceContainerSchema: z.ZodType = z
 
 export const marshalCreateWorkspaceRequestSchema: z.ZodType = z
   .object({
-    accountId: z.string().optional(),
+    accountId: z.string(),
     workspaceName: z.string().optional(),
     deploymentName: z.string().optional(),
     awsRegion: z.string().optional(),

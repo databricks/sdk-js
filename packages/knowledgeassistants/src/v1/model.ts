@@ -35,14 +35,14 @@ export interface CreateExampleRequest {
    * Parent resource where this example will be created.
    * Format: knowledge-assistants/{knowledge_assistant_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /** The example to create under the parent Knowledge Assistant. */
-  example?: Example | undefined;
+  example: Example;
 }
 
 export interface CreateKnowledgeAssistantRequest {
   /** The Knowledge Assistant to create. */
-  knowledgeAssistant?: KnowledgeAssistant | undefined;
+  knowledgeAssistant: KnowledgeAssistant;
 }
 
 export interface CreateKnowledgeSourceRequest {
@@ -50,8 +50,8 @@ export interface CreateKnowledgeSourceRequest {
    * Parent resource where this source will be created.
    * Format: knowledge-assistants/{knowledge_assistant_id}
    */
-  parent?: string | undefined;
-  knowledgeSource?: KnowledgeSource | undefined;
+  parent: string;
+  knowledgeSource: KnowledgeSource;
 }
 
 /** Delete an example. */
@@ -60,7 +60,7 @@ export interface DeleteExampleRequest {
    * The resource name of the example to delete.
    * Format: knowledge-assistants/{knowledge_assistant_id}/examples/{example_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** A request to delete a Knowledge Assistant. */
@@ -69,7 +69,7 @@ export interface DeleteKnowledgeAssistantRequest {
    * The resource name of the knowledge assistant to be deleted.
    * Format: knowledge-assistants/{knowledge_assistant_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeleteKnowledgeSourceRequest {
@@ -77,7 +77,7 @@ export interface DeleteKnowledgeSourceRequest {
    * The resource name of the Knowledge Source to delete.
    * Format: knowledge-assistants/{knowledge_assistant_id}/knowledge-sources/{knowledge_source_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /**
@@ -91,7 +91,7 @@ export interface Example {
    */
   name?: string | undefined;
   /** The example question. */
-  question?: string | undefined;
+  question: string;
   /**
    * Guidelines for answering the question. Optional — examples may be created
    * with just a question; the front-end form does not require guidelines.
@@ -108,15 +108,15 @@ export interface Example {
 /** FileTableSpec specifies a file table source configuration. */
 export interface FileTableSpec {
   /** Full UC name of the table, in the format of {CATALOG}.{SCHEMA}.{TABLE_NAME}. */
-  tableName?: string | undefined;
+  tableName: string;
   /** The name of the column containing BINARY file content to be indexed. */
-  fileCol?: string | undefined;
+  fileCol: string;
 }
 
 /** FilesSpec specifies a files source configuration. */
 export interface FilesSpec {
   /** A UC volume path that includes a list of files. */
-  path?: string | undefined;
+  path: string;
 }
 
 /** Get an example. */
@@ -125,7 +125,7 @@ export interface GetExampleRequest {
    * The resource name of the example.
    * Format: knowledge-assistants/{knowledge_assistant_id}/examples/{example_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** A request to retrieve a Knowledge Assistant. */
@@ -134,7 +134,7 @@ export interface GetKnowledgeAssistantRequest {
    * The resource name of the knowledge assistant.
    * Format: knowledge-assistants/{knowledge_assistant_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetKnowledgeSourceRequest {
@@ -142,17 +142,17 @@ export interface GetKnowledgeSourceRequest {
    * The resource name of the Knowledge Source.
    * Format: knowledge-assistants/{knowledge_assistant_id}/knowledge-sources/{knowledge_source_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** IndexSpec specifies a vector search index source configuration. */
 export interface IndexSpec {
   /** Full UC name of the vector search index, in the format of {CATALOG}.{SCHEMA}.{INDEX_NAME}. */
-  indexName?: string | undefined;
+  indexName: string;
   /** The column that includes the document text for retrieval. */
-  textCol?: string | undefined;
+  textCol: string;
   /** The column that specifies a link or reference to where the information came from. */
-  docUriCol?: string | undefined;
+  docUriCol: string;
 }
 
 /**
@@ -176,14 +176,14 @@ export interface KnowledgeAssistant {
    * When updating a Knowledge Assistant, optional unless included in
    * update_mask.
    */
-  displayName?: string | undefined;
+  displayName: string;
   /**
    * Description of what this agent can do (user-facing).
    * Required when creating a Knowledge Assistant.
    * When updating a Knowledge Assistant, optional unless included in
    * update_mask.
    */
-  description?: string | undefined;
+  description: string;
   /**
    * Additional global instructions on how the agent should generate answers.
    * Optional on create and update.
@@ -220,19 +220,19 @@ export interface KnowledgeSource {
    * Required when creating a Knowledge Source.
    * When updating a Knowledge Source, optional unless included in update_mask.
    */
-  displayName?: string | undefined;
+  displayName: string;
   /**
    * Description of the knowledge source.
    * Required when creating a Knowledge Source.
    * When updating a Knowledge Source, optional unless included in update_mask.
    */
-  description?: string | undefined;
+  description: string;
   /**
    * The type of the source: "index", "files", or "file_table".
    * Required when creating a Knowledge Source.
    * When updating a Knowledge Source, this field is ignored.
    */
-  sourceType?: string | undefined;
+  sourceType: string;
   /** Specification for the knowledge source type. */
   spec?:
     | {$case: 'index'; index: IndexSpec}
@@ -253,7 +253,7 @@ export interface ListExamplesRequest {
    * Parent resource to list from.
    * Format: knowledge-assistants/{knowledge_assistant_id}
    */
-  parent?: string | undefined;
+  parent: string;
   /**
    * The maximum number of examples to return.
    * If unspecified, at most 100 examples will be returned.
@@ -305,7 +305,7 @@ export interface ListKnowledgeSourcesRequest {
    * Parent resource to list from.
    * Format: knowledge-assistants/{knowledge_assistant_id}
    */
-  parent?: string | undefined;
+  parent: string;
   pageSize?: number | undefined;
   pageToken?: string | undefined;
 }
@@ -320,7 +320,7 @@ export interface SyncKnowledgeSourcesRequest {
    * The resource name of the Knowledge Assistant.
    * Format: knowledge-assistants/{knowledge_assistant_id}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Update an example. */
@@ -329,8 +329,8 @@ export interface UpdateExampleRequest {
    * The resource name of the example to update.
    * Format: knowledge-assistants/{knowledge_assistant_id}/examples/{example_id}
    */
-  name?: string | undefined;
-  example?: Example | undefined;
+  name: string;
+  example: Example;
   /**
    * Comma-delimited list of fields to update on the example.
    * Allowed values: `question`, `guidelines`.
@@ -338,7 +338,7 @@ export interface UpdateExampleRequest {
    * - `question`
    * - `question,guidelines`
    */
-  updateMask?: FieldMask<Example> | undefined;
+  updateMask: FieldMask<Example>;
 }
 
 export interface UpdateKnowledgeAssistantRequest {
@@ -348,7 +348,7 @@ export interface UpdateKnowledgeAssistantRequest {
    * REQUIRED annotations on Knowledge Assistant fields describe create-time
    * requirements and do not mean all those fields are required for update.
    */
-  knowledgeAssistant?: KnowledgeAssistant | undefined;
+  knowledgeAssistant: KnowledgeAssistant;
   /**
    * Comma-delimited list of fields to update on the Knowledge Assistant.
    * Allowed values: `display_name`, `description`, `instructions`.
@@ -356,7 +356,7 @@ export interface UpdateKnowledgeAssistantRequest {
    * - `display_name`
    * - `description,instructions`
    */
-  updateMask?: FieldMask<KnowledgeAssistant> | undefined;
+  updateMask: FieldMask<KnowledgeAssistant>;
 }
 
 export interface UpdateKnowledgeSourceRequest {
@@ -364,14 +364,14 @@ export interface UpdateKnowledgeSourceRequest {
    * The resource name of the Knowledge Source to update.
    * Format: knowledge-assistants/{knowledge_assistant_id}/knowledge-sources/{knowledge_source_id}
    */
-  name?: string | undefined;
+  name: string;
   /**
    * The Knowledge Source update payload.
    * Only fields listed in update_mask are updated.
    * REQUIRED annotations on Knowledge Source fields describe create-time
    * requirements and do not mean all those fields are required for update.
    */
-  knowledgeSource?: KnowledgeSource | undefined;
+  knowledgeSource: KnowledgeSource;
   /**
    * Comma-delimited list of fields to update on the Knowledge Source.
    * Allowed values: `display_name`, `description`.
@@ -379,13 +379,13 @@ export interface UpdateKnowledgeSourceRequest {
    * - `display_name`
    * - `display_name,description`
    */
-  updateMask?: FieldMask<KnowledgeSource> | undefined;
+  updateMask: FieldMask<KnowledgeSource>;
 }
 
 export const unmarshalExampleSchema: z.ZodType<Example> = z
   .object({
     name: z.string().optional(),
-    question: z.string().optional(),
+    question: z.string(),
     guidelines: z.array(z.string()).optional(),
     example_id: z.string().optional(),
     create_time: z
@@ -408,8 +408,8 @@ export const unmarshalExampleSchema: z.ZodType<Example> = z
 
 export const unmarshalFileTableSpecSchema: z.ZodType<FileTableSpec> = z
   .object({
-    table_name: z.string().optional(),
-    file_col: z.string().optional(),
+    table_name: z.string(),
+    file_col: z.string(),
   })
   .transform(d => ({
     tableName: d.table_name,
@@ -418,7 +418,7 @@ export const unmarshalFileTableSpecSchema: z.ZodType<FileTableSpec> = z
 
 export const unmarshalFilesSpecSchema: z.ZodType<FilesSpec> = z
   .object({
-    path: z.string().optional(),
+    path: z.string(),
   })
   .transform(d => ({
     path: d.path,
@@ -426,9 +426,9 @@ export const unmarshalFilesSpecSchema: z.ZodType<FilesSpec> = z
 
 export const unmarshalIndexSpecSchema: z.ZodType<IndexSpec> = z
   .object({
-    index_name: z.string().optional(),
-    text_col: z.string().optional(),
-    doc_uri_col: z.string().optional(),
+    index_name: z.string(),
+    text_col: z.string(),
+    doc_uri_col: z.string(),
   })
   .transform(d => ({
     indexName: d.index_name,
@@ -442,8 +442,8 @@ export const unmarshalKnowledgeAssistantSchema: z.ZodType<KnowledgeAssistant> =
       name: z.string().optional(),
       state: z.string().optional(),
       id: z.string().optional(),
-      display_name: z.string().optional(),
-      description: z.string().optional(),
+      display_name: z.string(),
+      description: z.string(),
       instructions: z.string().optional(),
       creator: z.string().optional(),
       create_time: z
@@ -471,9 +471,9 @@ export const unmarshalKnowledgeAssistantSchema: z.ZodType<KnowledgeAssistant> =
 export const unmarshalKnowledgeSourceSchema: z.ZodType<KnowledgeSource> = z
   .object({
     name: z.string().optional(),
-    display_name: z.string().optional(),
-    description: z.string().optional(),
-    source_type: z.string().optional(),
+    display_name: z.string(),
+    description: z.string(),
+    source_type: z.string(),
     index: z.lazy(() => unmarshalIndexSpecSchema).optional(),
     files: z.lazy(() => unmarshalFilesSpecSchema).optional(),
     file_table: z.lazy(() => unmarshalFileTableSpecSchema).optional(),
@@ -547,7 +547,7 @@ export const unmarshalListKnowledgeSourcesResponseSchema: z.ZodType<ListKnowledg
 export const marshalExampleSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    question: z.string().optional(),
+    question: z.string(),
     guidelines: z.array(z.string()).optional(),
     exampleId: z.string().optional(),
     createTime: z
@@ -570,8 +570,8 @@ export const marshalExampleSchema: z.ZodType = z
 
 export const marshalFileTableSpecSchema: z.ZodType = z
   .object({
-    tableName: z.string().optional(),
-    fileCol: z.string().optional(),
+    tableName: z.string(),
+    fileCol: z.string(),
   })
   .transform(d => ({
     table_name: d.tableName,
@@ -580,7 +580,7 @@ export const marshalFileTableSpecSchema: z.ZodType = z
 
 export const marshalFilesSpecSchema: z.ZodType = z
   .object({
-    path: z.string().optional(),
+    path: z.string(),
   })
   .transform(d => ({
     path: d.path,
@@ -588,9 +588,9 @@ export const marshalFilesSpecSchema: z.ZodType = z
 
 export const marshalIndexSpecSchema: z.ZodType = z
   .object({
-    indexName: z.string().optional(),
-    textCol: z.string().optional(),
-    docUriCol: z.string().optional(),
+    indexName: z.string(),
+    textCol: z.string(),
+    docUriCol: z.string(),
   })
   .transform(d => ({
     index_name: d.indexName,
@@ -603,8 +603,8 @@ export const marshalKnowledgeAssistantSchema: z.ZodType = z
     name: z.string().optional(),
     state: z.string().optional(),
     id: z.string().optional(),
-    displayName: z.string().optional(),
-    description: z.string().optional(),
+    displayName: z.string(),
+    description: z.string(),
     instructions: z.string().optional(),
     creator: z.string().optional(),
     createTime: z
@@ -632,9 +632,9 @@ export const marshalKnowledgeAssistantSchema: z.ZodType = z
 export const marshalKnowledgeSourceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    displayName: z.string().optional(),
-    description: z.string().optional(),
-    sourceType: z.string().optional(),
+    displayName: z.string(),
+    description: z.string(),
+    sourceType: z.string(),
     spec: z
       .discriminatedUnion('$case', [
         z.object({
@@ -678,7 +678,7 @@ export const marshalKnowledgeSourceSchema: z.ZodType = z
 
 export const marshalSyncKnowledgeSourcesRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,

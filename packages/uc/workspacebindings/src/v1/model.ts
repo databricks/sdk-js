@@ -15,7 +15,7 @@ export type BindingType =
 
 export interface GetCatalogWorkspaceBindingsRequest {
   /** The name of the catalog. */
-  catalogName?: string | undefined;
+  catalogName: string;
 }
 
 export interface GetCatalogWorkspaceBindingsResponse {
@@ -25,9 +25,9 @@ export interface GetCatalogWorkspaceBindingsResponse {
 
 export interface GetWorkspaceBindingsRequest {
   /** The type of the securable to bind to a workspace (catalog, storage_credential, credential, or external_location). */
-  securableType?: string | undefined;
+  securableType: string;
   /** The name of the securable. */
-  securableFullName?: string | undefined;
+  securableFullName: string;
   /**
    * Maximum number of workspace bindings to return.
    * - When set to 0, the page length is set to a server configured value (recommended);
@@ -52,7 +52,7 @@ export interface GetWorkspaceBindingsResponse {
 
 export interface UpdateCatalogWorkspaceBindingsRequest {
   /** The name of the catalog. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /** A list of workspace IDs. */
   assignWorkspaces?: bigint[] | undefined;
   /** A list of workspace IDs. */
@@ -66,9 +66,9 @@ export interface UpdateCatalogWorkspaceBindingsResponse {
 
 export interface UpdateWorkspaceBindingsRequest {
   /** The type of the securable to bind to a workspace (catalog, storage_credential, credential, or external_location). */
-  securableType?: string | undefined;
+  securableType: string;
   /** The name of the securable. */
-  securableFullName?: string | undefined;
+  securableFullName: string;
   /**
    * List of workspace bindings to add. If a binding for the workspace already exists with a
    * different binding_type, adding it again with a new binding_type will update the existing
@@ -87,7 +87,7 @@ export interface UpdateWorkspaceBindingsResponse {
 
 export interface WorkspaceBindingInfo {
   /** Required */
-  workspaceId?: bigint | undefined;
+  workspaceId: bigint;
   /** One of READ_WRITE/READ_ONLY. Default is READ_WRITE. */
   bindingType?: BindingType | undefined;
 }
@@ -151,8 +151,7 @@ export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo
     .object({
       workspace_id: z
         .union([z.number(), z.bigint(), z.string()])
-        .transform(v => BigInt(v))
-        .optional(),
+        .transform(v => BigInt(v)),
       binding_type: z.string().optional(),
     })
     .transform(d => ({
@@ -162,7 +161,7 @@ export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo
 
 export const marshalUpdateCatalogWorkspaceBindingsRequestSchema: z.ZodType = z
   .object({
-    catalogName: z.string().optional(),
+    catalogName: z.string(),
     assignWorkspaces: z.array(z.bigint()).optional(),
     unassignWorkspaces: z.array(z.bigint()).optional(),
   })
@@ -174,8 +173,8 @@ export const marshalUpdateCatalogWorkspaceBindingsRequestSchema: z.ZodType = z
 
 export const marshalUpdateWorkspaceBindingsRequestSchema: z.ZodType = z
   .object({
-    securableType: z.string().optional(),
-    securableFullName: z.string().optional(),
+    securableType: z.string(),
+    securableFullName: z.string(),
     add: z.array(z.lazy(() => marshalWorkspaceBindingInfoSchema)).optional(),
     remove: z.array(z.lazy(() => marshalWorkspaceBindingInfoSchema)).optional(),
   })
@@ -188,7 +187,7 @@ export const marshalUpdateWorkspaceBindingsRequestSchema: z.ZodType = z
 
 export const marshalWorkspaceBindingInfoSchema: z.ZodType = z
   .object({
-    workspaceId: z.bigint().optional(),
+    workspaceId: z.bigint(),
     bindingType: z.string().optional(),
   })
   .transform(d => ({
