@@ -59,6 +59,20 @@ function requestParams(request: CapturedRequest): URLSearchParams {
   return new URLSearchParams(body);
 }
 
+function expectedTokenExchangeParams(
+  clientId?: string,
+  groupId?: string
+): URLSearchParams {
+  return new URLSearchParams({
+    ...(clientId !== undefined && clientId !== '' && {client_id: clientId}),
+    scope: 'all-apis',
+    subject_token_type: 'urn:ietf:params:oauth:token-type:jwt',
+    subject_token: ID_TOKEN,
+    grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+    ...(groupId !== undefined && groupId !== '' && {assume_group: groupId}),
+  });
+}
+
 const TOKEN_ENDPOINT = 'https://host.com/oidc/v1/token';
 const ID_TOKEN = 'id-token-42';
 
@@ -142,10 +156,8 @@ describe('newDatabricksOidcTokenProvider', () => {
     clientId?: string;
     accountId?: string;
     audience?: string;
-    groupId?: string;
     wantAudience: string;
     wantClientIdInBody: boolean;
-    wantGroupId: string | null;
   }[] = [
     {
       name: 'WIF workspace uses configured audience and sends client_id',
@@ -153,7 +165,6 @@ describe('newDatabricksOidcTokenProvider', () => {
       audience: 'token-audience',
       wantAudience: 'token-audience',
       wantClientIdInBody: true,
-      wantGroupId: null,
     },
     {
       name: 'WIF account uses configured audience and sends client_id',
@@ -162,7 +173,6 @@ describe('newDatabricksOidcTokenProvider', () => {
       audience: 'token-audience',
       wantAudience: 'token-audience',
       wantClientIdInBody: true,
-      wantGroupId: null,
     },
     {
       name: 'account default audience falls back to accountId',
@@ -170,39 +180,18 @@ describe('newDatabricksOidcTokenProvider', () => {
       accountId: 'ac123',
       wantAudience: 'ac123',
       wantClientIdInBody: true,
-      wantGroupId: null,
     },
     {
       name: 'workspace default audience falls back to the token endpoint',
       clientId: 'client-id',
       wantAudience: TOKEN_ENDPOINT,
       wantClientIdInBody: true,
-      wantGroupId: null,
     },
     {
       name: 'account-wide federation omits client_id from the body',
       audience: 'token-audience',
       wantAudience: 'token-audience',
       wantClientIdInBody: false,
-      wantGroupId: null,
-    },
-    {
-      name: 'WIF sends the requested group role',
-      clientId: 'client-id',
-      audience: 'token-audience',
-      groupId: 'group-123',
-      wantAudience: 'token-audience',
-      wantClientIdInBody: true,
-      wantGroupId: 'group-123',
-    },
-    {
-      name: 'empty group ID omits group role from WIF',
-      clientId: 'client-id',
-      audience: 'token-audience',
-      groupId: '',
-      wantAudience: 'token-audience',
-      wantClientIdInBody: true,
-      wantGroupId: null,
     },
   ];
 
@@ -212,10 +201,8 @@ describe('newDatabricksOidcTokenProvider', () => {
       clientId,
       accountId,
       audience,
-      groupId,
       wantAudience,
       wantClientIdInBody,
-      wantGroupId,
     }) => {
       vi.setSystemTime(NOW);
       const {captured} = stubFetchJson(200, {
@@ -232,7 +219,6 @@ describe('newDatabricksOidcTokenProvider', () => {
         ...(clientId !== undefined && {clientId}),
         ...(accountId !== undefined && {accountId}),
         ...(audience !== undefined && {audience}),
-        ...(groupId !== undefined && {groupId}),
       });
 
       const token = await ts.token();
@@ -272,29 +258,52 @@ describe('newDatabricksOidcTokenProvider', () => {
       expect(params.get('grant_type')).toBe(
         'urn:ietf:params:oauth:grant-type:token-exchange'
       );
-      expect(params.get('assume_group')).toBe(wantGroupId);
     }
   );
 
-  it('retains the group role across repeated token exchanges', async () => {
-    const {captured} = stubFetchJson(200, {access_token: 'token'});
-    const {provider} = staticIdTokenProvider(ID_TOKEN);
-    const ts = newDatabricksOidcTokenProvider({
-      host: 'http://host.com',
-      tokenEndpointProvider: fixedEndpointProvider(),
-      idTokenProvider: provider,
-      audience: 'token-audience',
-      groupId: 'group-123',
-    });
+  const groupAssumptionCases: {name: string; groupId?: string}[] = [
+    {
+      name: 'omits the group role when no group is configured',
+    },
+    {
+      name: 'omits the group role when the group ID is empty',
+      groupId: '',
+    },
+    {
+      name: 'requests group A',
+      groupId: 'group-a',
+    },
+    {
+      name: 'requests group B',
+      groupId: 'group-b',
+    },
+  ];
 
-    await ts.token();
-    await ts.token();
+  it.each(groupAssumptionCases)(
+    '$name on every token exchange',
+    async ({groupId}) => {
+      const {captured} = stubFetchJson(200, {access_token: 'token'});
+      const ts = newDatabricksOidcTokenProvider({
+        host: 'http://host.com',
+        tokenEndpointProvider: fixedEndpointProvider(),
+        idTokenProvider: staticIdTokenProvider(ID_TOKEN).provider,
+        clientId: 'client-id',
+        audience: 'token-audience',
+        ...(groupId !== undefined && {groupId}),
+      });
 
-    expect(captured).toHaveLength(2);
-    for (const request of captured) {
-      expect(requestParams(request).get('assume_group')).toBe('group-123');
+      await ts.token();
+      await ts.token();
+
+      expect(captured).toHaveLength(2);
+      const wantParams = [
+        ...expectedTokenExchangeParams('client-id', groupId).entries(),
+      ];
+      for (const request of captured) {
+        expect([...requestParams(request).entries()]).toStrictEqual(wantParams);
+      }
     }
-  });
+  );
 
   it('keeps group roles isolated between OIDC providers', async () => {
     const captured: CapturedRequest[] = [];
@@ -404,9 +413,9 @@ describe('newDatabricksOidcTokenProvider', () => {
 
       expect(captured).toHaveLength(1);
       expect(captured[0].url).toBe(tokenEndpoint);
-      const params = requestParams(captured[0]);
-      expect(params.get('assume_group')).toBe('group-123');
-      expect(params.has('client_id')).toBe(clientId !== undefined);
+      expect([...requestParams(captured[0]).entries()]).toStrictEqual([
+        ...expectedTokenExchangeParams(clientId, 'group-123').entries(),
+      ]);
     }
   );
 

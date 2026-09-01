@@ -42,6 +42,14 @@ function requestParams(request: CapturedRequest): URLSearchParams {
   return new URLSearchParams(body);
 }
 
+function expectedM2mParams(groupId?: string): URLSearchParams {
+  return new URLSearchParams({
+    grant_type: 'client_credentials',
+    scope: 'all-apis',
+    ...(groupId !== undefined && groupId !== '' && {assume_group: groupId}),
+  });
+}
+
 const HOST = 'https://workspace.example';
 const HOST_METADATA_URL = `${HOST}/.well-known/databricks-config`;
 const OIDC_ROOT = `${HOST}/oidc`;
@@ -96,7 +104,6 @@ describe('newM2mCredentials', () => {
     clientId?: string;
     clientSecret?: string;
     scopes?: string[];
-    groupId?: string;
     tokenResponseBody: Record<string, unknown>;
     want: {
       basicAuth: string;
@@ -104,7 +111,6 @@ describe('newM2mCredentials', () => {
       tokenValue: string;
       tokenType: string | undefined;
       expiry: Date | undefined;
-      assumeGroup: string | null;
     };
   }[] = [
     {
@@ -120,7 +126,6 @@ describe('newM2mCredentials', () => {
         tokenValue: 'test-token',
         tokenType: 'Bearer',
         expiry: new Date(NOW + 3600 * 1000),
-        assumeGroup: null,
       },
     },
     {
@@ -132,7 +137,6 @@ describe('newM2mCredentials', () => {
         tokenValue: 'cde',
         tokenType: 'Some',
         expiry: undefined,
-        assumeGroup: null,
       },
     },
     {
@@ -144,7 +148,6 @@ describe('newM2mCredentials', () => {
         tokenValue: 'no-type-token',
         tokenType: undefined,
         expiry: undefined,
-        assumeGroup: null,
       },
     },
     {
@@ -158,7 +161,6 @@ describe('newM2mCredentials', () => {
         tokenValue: 't',
         tokenType: 'Bearer',
         expiry: undefined,
-        assumeGroup: null,
       },
     },
     {
@@ -171,7 +173,6 @@ describe('newM2mCredentials', () => {
         tokenValue: 't',
         tokenType: 'Bearer',
         expiry: undefined,
-        assumeGroup: null,
       },
     },
     {
@@ -184,7 +185,6 @@ describe('newM2mCredentials', () => {
         tokenValue: 't',
         tokenType: 'Bearer',
         expiry: undefined,
-        assumeGroup: null,
       },
     },
     {
@@ -197,47 +197,13 @@ describe('newM2mCredentials', () => {
         tokenValue: 't',
         tokenType: 'Bearer',
         expiry: undefined,
-        assumeGroup: null,
-      },
-    },
-    {
-      name: 'group role is included in the token grant',
-      groupId: 'group-123',
-      tokenResponseBody: {token_type: 'Bearer', access_token: 't'},
-      want: {
-        basicAuth: `Basic ${btoa('b:c')}`,
-        scope: 'all-apis',
-        tokenValue: 't',
-        tokenType: 'Bearer',
-        expiry: undefined,
-        assumeGroup: 'group-123',
-      },
-    },
-    {
-      name: 'empty group ID omits group role from the token grant',
-      groupId: '',
-      tokenResponseBody: {token_type: 'Bearer', access_token: 't'},
-      want: {
-        basicAuth: `Basic ${btoa('b:c')}`,
-        scope: 'all-apis',
-        tokenValue: 't',
-        tokenType: 'Bearer',
-        expiry: undefined,
-        assumeGroup: null,
       },
     },
   ];
 
   it.each(successCases)(
     '$name',
-    async ({
-      clientId,
-      clientSecret,
-      scopes,
-      groupId,
-      tokenResponseBody,
-      want,
-    }) => {
+    async ({clientId, clientSecret, scopes, tokenResponseBody, want}) => {
       vi.setSystemTime(NOW);
       const {captured} = stubFetch({
         token: () => jsonResponse(200, tokenResponseBody),
@@ -248,7 +214,6 @@ describe('newM2mCredentials', () => {
         clientId: clientId ?? DEFAULT_CLIENT_ID,
         clientSecret: clientSecret ?? DEFAULT_CLIENT_SECRET,
         ...(scopes !== undefined && {scopes}),
-        ...(groupId !== undefined && {groupId}),
       });
       expect(creds.name()).toBe('oauth-m2m');
       const token = await creds.token();
@@ -280,7 +245,49 @@ describe('newM2mCredentials', () => {
       const params = new URLSearchParams(body);
       expect(params.get('grant_type')).toBe('client_credentials');
       expect(params.get('scope')).toBe(want.scope);
-      expect(params.get('assume_group')).toBe(want.assumeGroup);
+    }
+  );
+
+  const groupAssumptionCases: {name: string; groupId?: string}[] = [
+    {
+      name: 'omits the group role when no group is configured'
+    },
+    {
+      name: 'omits the group role when the group ID is empty',
+      groupId: '',
+    },
+    {
+      name: 'requests group A',
+      groupId: 'group-a',
+    },
+    {
+      name: 'requests group B',
+      groupId: 'group-b',
+    },
+  ];
+
+  it.each(groupAssumptionCases)(
+    '$name on every token grant',
+    async ({groupId}) => {
+      const {captured} = stubFetch({
+        token: () => jsonResponse(200, {access_token: 't'}),
+      });
+      const creds = newM2mCredentials({
+        host: HOST,
+        clientId: DEFAULT_CLIENT_ID,
+        clientSecret: DEFAULT_CLIENT_SECRET,
+        ...(groupId !== undefined && {groupId}),
+      });
+
+      await creds.token();
+      await creds.token();
+
+      const tokenRequests = captured.filter(c => c.url === TOKEN_ENDPOINT);
+      expect(tokenRequests).toHaveLength(2);
+      const wantParams = [...expectedM2mParams(groupId).entries()];
+      for (const request of tokenRequests) {
+        expect([...requestParams(request).entries()]).toStrictEqual(wantParams);
+      }
     }
   );
 
@@ -302,27 +309,6 @@ describe('newM2mCredentials', () => {
       TOKEN_ENDPOINT,
       TOKEN_ENDPOINT,
     ]);
-  });
-
-  it('retains the group role across repeated token grants', async () => {
-    const {captured} = stubFetch({
-      token: () => jsonResponse(200, {access_token: 't'}),
-    });
-    const creds = newM2mCredentials({
-      host: HOST,
-      clientId: DEFAULT_CLIENT_ID,
-      clientSecret: DEFAULT_CLIENT_SECRET,
-      groupId: 'group-123',
-    });
-
-    await creds.token();
-    await creds.token();
-
-    const tokenRequests = captured.filter(c => c.url === TOKEN_ENDPOINT);
-    expect(tokenRequests).toHaveLength(2);
-    for (const request of tokenRequests) {
-      expect(requestParams(request).get('assume_group')).toBe('group-123');
-    }
   });
 
   it('keeps group roles isolated between credential providers', async () => {
