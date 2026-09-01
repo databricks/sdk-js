@@ -26,7 +26,7 @@ export interface EffectivePrivilegeAssignment {
 
 export interface GetEffectivePermissionsRequest {
   /** Type of securable. */
-  securableType?: string | undefined;
+  securableType: string;
   /** Full name of securable. */
   securableFullName?: string | undefined;
   /** If provided, only the effective permissions for the specified principal (user or group) are returned. */
@@ -61,7 +61,7 @@ export interface GetEffectivePermissionsResponse {
 
 export interface GetPermissionsRequest {
   /** Type of securable. */
-  securableType?: string | undefined;
+  securableType: string;
   /** Full name of securable. */
   securableFullName?: string | undefined;
   /** If provided, only the permissions for the specified principal (user or group) are returned. */
@@ -96,9 +96,9 @@ export interface GetPermissionsResponse {
 
 export interface ListEffectivePrivilegeAssignmentsRequest {
   /** Type of securable. */
-  securableType?: string | undefined;
+  securableType: string;
   /** Full name of securable. */
-  fullName?: string | undefined;
+  fullName: string;
   /** If provided, only the effective permissions for the specified principal (user or group) are returned. */
   principal?: string | undefined;
   /**
@@ -131,9 +131,9 @@ export interface ListEffectivePrivilegeAssignmentsResponse {
 
 export interface ListPrivilegeAssignmentsRequest {
   /** Type of securable. */
-  securableType?: string | undefined;
+  securableType: string;
   /** Full name of securable. */
-  fullName?: string | undefined;
+  fullName: string;
   /** If provided, only the permissions for the specified principal (user or group) are returned. */
   principal?: string | undefined;
   /**
@@ -187,7 +187,7 @@ export interface PrivilegeAssignment {
 
 export interface UpdatePermissionsRequest {
   /** Type of securable. */
-  securableType?: string | undefined;
+  securableType: string;
   /** Full name of securable. */
   securableFullName?: string | undefined;
   /** Optional, default false. Specifies whether all the permissions should be returned in the response. */
@@ -315,7 +315,7 @@ export const marshalPermissionsChangeSchema: z.ZodType = z
 
 export const marshalUpdatePermissionsRequestSchema: z.ZodType = z
   .object({
-    securableType: z.string().optional(),
+    securableType: z.string(),
     securableFullName: z.string().optional(),
     omitPermissionsInResponse: z.boolean().optional(),
     changes: z.array(z.lazy(() => marshalPermissionsChangeSchema)).optional(),

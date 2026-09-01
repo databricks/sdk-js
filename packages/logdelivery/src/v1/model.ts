@@ -90,19 +90,19 @@ export interface CreateLogDeliveryConfigurationParams {
    * * `BILLABLE_USAGE` — Configure [billable usage log delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). For the CSV schema, see the [View billable usage](https://docs.databricks.com/administration-guide/account-settings/usage.html).
    * * `AUDIT_LOGS` — Configure [audit log delivery](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html). For the JSON schema, see [Configure audit logging](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html)
    */
-  logType?: LogDeliveryType | undefined;
+  logType: LogDeliveryType;
   /**
    * The file type of log delivery.
    * * If `log_type` is `BILLABLE_USAGE`, this value must be `CSV`. Only the CSV (comma-separated values) format is supported. For the schema, see the [View billable usage](https://docs.databricks.com/administration-guide/account-settings/usage.html)
    * * If `log_type` is `AUDIT_LOGS`, this value must be `JSON`. Only the JSON (JavaScript Object Notation) format is supported. For the schema, see the [Configuring audit logs](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html).
    */
-  outputFormat?: LogDeliveryOutputFormat | undefined;
+  outputFormat: LogDeliveryOutputFormat;
   /** <Databricks> account ID. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The ID for a method:credentials/create that represents the AWS IAM role with policy and trust relationship as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). */
-  credentialsId?: string | undefined;
+  credentialsId: string;
   /** The ID for a method:storage/create  that represents the S3 bucket with bucket policy as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). */
-  storageConfigurationId?: string | undefined;
+  storageConfigurationId: string;
   /** Optional filter that specifies workspace IDs to deliver logs for. By default the workspace filter is empty and log delivery applies at the account level, delivering workspace-level logs for all workspaces in your account, plus account level logs. You can optionally set this field to an array of workspace IDs (each one is an `int64`) to which log delivery should apply, in which case only workspace-level logs relating to the specified workspaces are delivered. If you plan to use different log delivery configurations for different workspaces, set this field explicitly. Be aware that delivery configurations mentioning specific workspaces won't apply to new workspaces created in the future, and delivery won't include account level logs. For some types of <Databricks> deployments there is only one workspace per account ID, so this field is unnecessary. */
   workspaceIdsFilter?: bigint[] | undefined;
   /** The optional delivery path prefix within Amazon S3 storage. Defaults to empty, which means that logs are delivered to the root of the bucket. This must be a valid S3 object key. This must not start or end with a slash character. */
@@ -124,7 +124,7 @@ export interface CreateLogDeliveryConfigurationParams {
  * Properties of the new log delivery configuration.
  */
 export interface CreateLogDeliveryConfigurationRequest {
-  logDeliveryConfiguration?: CreateLogDeliveryConfigurationParams | undefined;
+  logDeliveryConfiguration: CreateLogDeliveryConfigurationParams;
 }
 
 export interface CreateLogDeliveryConfigurationResponse {
@@ -138,9 +138,9 @@ export interface CreateLogDeliveryConfigurationResponse {
  */
 export interface GetLogDeliveryConfigurationRequest {
   /** The log delivery configuration id of customer */
-  configId?: string | undefined;
+  configId: string;
   /** <Databricks> account ID. */
-  accountId?: string | undefined;
+  accountId: string;
 }
 
 export interface GetLogDeliveryConfigurationResponse {
@@ -154,7 +154,7 @@ export interface GetLogDeliveryConfigurationResponse {
  */
 export interface ListLogDeliveryConfigurationRequest {
   /** <Databricks> account ID. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The Credentials id to filter the search results with */
   credentialsId?: string | undefined;
   /** The Storage Configuration id to filter the search results with */
@@ -189,19 +189,19 @@ export interface LogDeliveryConfiguration {
    * * `BILLABLE_USAGE` — Configure [billable usage log delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). For the CSV schema, see the [View billable usage](https://docs.databricks.com/administration-guide/account-settings/usage.html).
    * * `AUDIT_LOGS` — Configure [audit log delivery](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html). For the JSON schema, see [Configure audit logging](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html)
    */
-  logType?: LogDeliveryType | undefined;
+  logType: LogDeliveryType;
   /**
    * The file type of log delivery.
    * * If `log_type` is `BILLABLE_USAGE`, this value must be `CSV`. Only the CSV (comma-separated values) format is supported. For the schema, see the [View billable usage](https://docs.databricks.com/administration-guide/account-settings/usage.html)
    * * If `log_type` is `AUDIT_LOGS`, this value must be `JSON`. Only the JSON (JavaScript Object Notation) format is supported. For the schema, see the [Configuring audit logs](https://docs.databricks.com/administration-guide/account-settings/audit-logs.html).
    */
-  outputFormat?: LogDeliveryOutputFormat | undefined;
+  outputFormat: LogDeliveryOutputFormat;
   /** <Databricks> account ID. */
-  accountId?: string | undefined;
+  accountId: string;
   /** The ID for a method:credentials/create that represents the AWS IAM role with policy and trust relationship as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). */
-  credentialsId?: string | undefined;
+  credentialsId: string;
   /** The ID for a method:storage/create  that represents the S3 bucket with bucket policy as described in the main billable usage documentation page. See [Configure billable usage delivery](https://docs.databricks.com/administration-guide/account-settings/billable-usage-delivery.html). */
-  storageConfigurationId?: string | undefined;
+  storageConfigurationId: string;
   /** Optional filter that specifies workspace IDs to deliver logs for. By default the workspace filter is empty and log delivery applies at the account level, delivering workspace-level logs for all workspaces in your account, plus account level logs. You can optionally set this field to an array of workspace IDs (each one is an `int64`) to which log delivery should apply, in which case only workspace-level logs relating to the specified workspaces are delivered. If you plan to use different log delivery configurations for different workspaces, set this field explicitly. Be aware that delivery configurations mentioning specific workspaces won't apply to new workspaces created in the future, and delivery won't include account level logs. For some types of <Databricks> deployments there is only one workspace per account ID, so this field is unnecessary. */
   workspaceIdsFilter?: bigint[] | undefined;
   /** The optional delivery path prefix within Amazon S3 storage. Defaults to empty, which means that logs are delivered to the root of the bucket. This must be a valid S3 object key. This must not start or end with a slash character. */
@@ -227,13 +227,13 @@ export interface LogDeliveryStatus {
    * * `SYSTEM_FAILURE`: The latest attempt of log delivery failed because of an <Databricks> internal error. Contact support if it doesn't go away soon.
    * * `NOT_FOUND`: The log delivery status as the configuration has been disabled since the release of this feature or there are no workspaces in the account.
    */
-  status?: LogDeliveryStatusEnum | undefined;
+  status: LogDeliveryStatusEnum;
   /** The UTC time for the latest log delivery attempt. */
   lastAttemptTime?: string | undefined;
   /** The UTC time for the latest successful log delivery. */
   lastSuccessfulAttemptTime?: string | undefined;
   /** Informative message about the latest log delivery attempt. If the log delivery fails with USER_FAILURE, error details will be provided for fixing misconfigurations in cloud permissions. */
-  message?: string | undefined;
+  message: string;
 }
 
 /**
@@ -242,11 +242,11 @@ export interface LogDeliveryStatus {
  */
 export interface UpdateLogDeliveryConfigurationRequest {
   /** The log delivery configuration id of customer */
-  configId?: string | undefined;
+  configId: string;
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html). */
-  accountId?: string | undefined;
+  accountId: string;
   /** Status of log delivery configuration. Set to `ENABLED` (enabled) or `DISABLED` (disabled). Defaults to `ENABLED`. You can [enable or disable the configuration](#operation/patch-log-delivery-config-status) later. Deletion of a configuration is not supported, so disable a log delivery configuration that is no longer needed. */
-  status?: LogDeliveryConfigStatus | undefined;
+  status: LogDeliveryConfigStatus;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -292,11 +292,11 @@ export const unmarshalLogDeliveryConfigurationSchema: z.ZodType<LogDeliveryConfi
     .object({
       config_id: z.string().optional(),
       config_name: z.string().optional(),
-      log_type: z.string().optional(),
-      output_format: z.string().optional(),
-      account_id: z.string().optional(),
-      credentials_id: z.string().optional(),
-      storage_configuration_id: z.string().optional(),
+      log_type: z.string(),
+      output_format: z.string(),
+      account_id: z.string(),
+      credentials_id: z.string(),
+      storage_configuration_id: z.string(),
       workspace_ids_filter: z
         .array(
           z
@@ -338,10 +338,10 @@ export const unmarshalLogDeliveryConfigurationSchema: z.ZodType<LogDeliveryConfi
 
 export const unmarshalLogDeliveryStatusSchema: z.ZodType<LogDeliveryStatus> = z
   .object({
-    status: z.string().optional(),
+    status: z.string(),
     last_attempt_time: z.string().optional(),
     last_successful_attempt_time: z.string().optional(),
-    message: z.string().optional(),
+    message: z.string(),
   })
   .transform(d => ({
     status: d.status,
@@ -357,11 +357,11 @@ export const marshalCreateLogDeliveryConfigurationParamsSchema: z.ZodType = z
   .object({
     configId: z.string().optional(),
     configName: z.string().optional(),
-    logType: z.string().optional(),
-    outputFormat: z.string().optional(),
-    accountId: z.string().optional(),
-    credentialsId: z.string().optional(),
-    storageConfigurationId: z.string().optional(),
+    logType: z.string(),
+    outputFormat: z.string(),
+    accountId: z.string(),
+    credentialsId: z.string(),
+    storageConfigurationId: z.string(),
     workspaceIdsFilter: z.array(z.bigint()).optional(),
     deliveryPathPrefix: z.string().optional(),
     deliveryStartTime: z.string().optional(),
@@ -389,9 +389,9 @@ export const marshalCreateLogDeliveryConfigurationParamsSchema: z.ZodType = z
 
 export const marshalCreateLogDeliveryConfigurationRequestSchema: z.ZodType = z
   .object({
-    logDeliveryConfiguration: z
-      .lazy(() => marshalCreateLogDeliveryConfigurationParamsSchema)
-      .optional(),
+    logDeliveryConfiguration: z.lazy(
+      () => marshalCreateLogDeliveryConfigurationParamsSchema
+    ),
   })
   .transform(d => ({
     log_delivery_configuration: d.logDeliveryConfiguration,
@@ -399,10 +399,10 @@ export const marshalCreateLogDeliveryConfigurationRequestSchema: z.ZodType = z
 
 export const marshalLogDeliveryStatusSchema: z.ZodType = z
   .object({
-    status: z.string().optional(),
+    status: z.string(),
     lastAttemptTime: z.string().optional(),
     lastSuccessfulAttemptTime: z.string().optional(),
-    message: z.string().optional(),
+    message: z.string(),
   })
   .transform(d => ({
     status: d.status,
@@ -413,9 +413,9 @@ export const marshalLogDeliveryStatusSchema: z.ZodType = z
 
 export const marshalUpdateLogDeliveryConfigurationRequestSchema: z.ZodType = z
   .object({
-    configId: z.string().optional(),
-    accountId: z.string().optional(),
-    status: z.string().optional(),
+    configId: z.string(),
+    accountId: z.string(),
+    status: z.string(),
   })
   .transform(d => ({
     config_id: d.configId,

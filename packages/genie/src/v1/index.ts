@@ -37,6 +37,7 @@ export type {
   DownloadMessageAttachmentVisualizationResponse,
   ExternalLink,
   GenieAttachment,
+  GenieCancelResponseRequest,
   GenieConversation,
   GenieConversationSummary,
   GenieCreateConversationMessageRequest,

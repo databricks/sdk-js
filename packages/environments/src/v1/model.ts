@@ -555,7 +555,7 @@ export interface ApiError {
 /** Request message for CreateWorkspaceBaseEnvironment. */
 export interface CreateWorkspaceBaseEnvironmentRequest {
   /** Required. The workspace base environment to create. */
-  workspaceBaseEnvironment?: WorkspaceBaseEnvironment | undefined;
+  workspaceBaseEnvironment: WorkspaceBaseEnvironment;
   /**
    * The ID to use for the workspace base environment, which will become the final component of
    * the resource name.
@@ -598,7 +598,7 @@ export interface DeleteWorkspaceBaseEnvironmentRequest {
    * Required. The resource name of the workspace base environment to delete.
    * Format: workspace-base-environments/{workspace_base_environment}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /**
@@ -626,7 +626,7 @@ export interface GetDefaultWorkspaceBaseEnvironmentRequest {
    * A static resource name of the default workspace base environment.
    * Format: default-workspace-base-environment
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** The request message for `GetOperation` method. */
@@ -641,7 +641,7 @@ export interface GetWorkspaceBaseEnvironmentRequest {
    * Required. The resource name of the workspace base environment to retrieve.
    * Format: workspace-base-environments/{workspace_base_environment}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Request message for ListWorkspaceBaseEnvironments. */
@@ -715,13 +715,13 @@ export interface RefreshWorkspaceBaseEnvironmentRequest {
    * Required. The resource name of the workspace base environment to delete.
    * Format: workspace-base-environments/{workspace_base_environment}
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Request message for UpdateDefaultWorkspaceBaseEnvironment. */
 export interface UpdateDefaultWorkspaceBaseEnvironmentRequest {
   /** Required. The default workspace base environment configuration to update. */
-  defaultWorkspaceBaseEnvironment?: DefaultWorkspaceBaseEnvironment | undefined;
+  defaultWorkspaceBaseEnvironment: DefaultWorkspaceBaseEnvironment;
   /**
    * Field mask specifying which fields to update. Use comma as the separator for multiple fields (no space).
    * The special value '*' indicates that all fields should be updated (full replacement).
@@ -730,17 +730,17 @@ export interface UpdateDefaultWorkspaceBaseEnvironmentRequest {
    * To unset one or both defaults, include the field path(s) in the mask and omit them from the request body.
    * To unset both, you must list both paths explicitly — the wildcard '*' cannot be used to unset fields.
    */
-  updateMask?: FieldMask<DefaultWorkspaceBaseEnvironment> | undefined;
+  updateMask: FieldMask<DefaultWorkspaceBaseEnvironment>;
 }
 
 /** Request message for UpdateWorkspaceBaseEnvironment. */
 export interface UpdateWorkspaceBaseEnvironmentRequest {
-  name?: string | undefined;
+  name: string;
   /**
    * Required. The workspace base environment with updated fields.
    * The name field is used to identify the environment to update.
    */
-  workspaceBaseEnvironment?: WorkspaceBaseEnvironment | undefined;
+  workspaceBaseEnvironment: WorkspaceBaseEnvironment;
 }
 
 /**
@@ -754,7 +754,7 @@ export interface WorkspaceBaseEnvironment {
    */
   name?: string | undefined;
   /** Human-readable display name for the workspace base environment. */
-  displayName?: string | undefined;
+  displayName: string;
   /** The WSFS or UC Volumes path to the environment YAML file. */
   filepath?: string | undefined;
   /** User ID of the creator. */
@@ -862,7 +862,7 @@ export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnv
   z
     .object({
       name: z.string().optional(),
-      display_name: z.string().optional(),
+      display_name: z.string(),
       filepath: z.string().optional(),
       creator_user_id: z.string().optional(),
       create_time: z
@@ -922,7 +922,7 @@ export const marshalEnvironmentSpecSchema: z.ZodType = z
 
 export const marshalRefreshWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -931,7 +931,7 @@ export const marshalRefreshWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
 export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    displayName: z.string().optional(),
+    displayName: z.string(),
     filepath: z.string().optional(),
     creatorUserId: z.string().optional(),
     createTime: z

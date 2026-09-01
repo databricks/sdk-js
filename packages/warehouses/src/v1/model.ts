@@ -772,9 +772,9 @@ export interface CreateDefaultWarehouseOverrideRequest {
    * of the override's resource name.
    * Can be a numeric user ID or the literal string "me" for the current user.
    */
-  defaultWarehouseOverrideId?: string | undefined;
+  defaultWarehouseOverrideId: string;
   /** Required. The default warehouse override to create. */
-  defaultWarehouseOverride?: DefaultWarehouseOverride | undefined;
+  defaultWarehouseOverride: DefaultWarehouseOverride;
 }
 
 /** Creates a new SQL warehouse. */
@@ -896,7 +896,7 @@ export interface DefaultWarehouseOverride {
   /** The ID component of the resource name (user ID). */
   defaultWarehouseOverrideId?: string | undefined;
   /** The type of override behavior. */
-  type?: DefaultWarehouseOverrideType | undefined;
+  type: DefaultWarehouseOverrideType;
   /**
    * The specific warehouse ID when type is CUSTOM.
    * Not set for LAST_SELECTED type.
@@ -911,7 +911,7 @@ export interface DeleteDefaultWarehouseOverrideRequest {
    * Format: default-warehouse-overrides/{default_warehouse_override_id}
    * The default_warehouse_override_id can be a numeric user ID or the literal string "me" for the current user.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -924,7 +924,7 @@ export interface DeleteWarehouseResponse {}
  */
 export interface EditWarehouseRequest {
   /** Required. Id of the warehouse to configure. */
-  id?: string | undefined;
+  id: string;
   /**
    * Logical name for the cluster.
    *
@@ -1165,13 +1165,13 @@ export interface GetDefaultWarehouseOverrideRequest {
    * Format: default-warehouse-overrides/{default_warehouse_override_id}
    * The default_warehouse_override_id can be a numeric user ID or the literal string "me" for the current user.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Fetches the warehouse info for a single SQL warehouse. */
 export interface GetWarehouseRequest {
   /** Required. Id of the SQL warehouse. */
-  id?: string | undefined;
+  id: string;
 }
 
 export interface GetWarehouseResponse {
@@ -1455,14 +1455,14 @@ export interface UpdateDefaultWarehouseOverrideRequest {
    * The name field must be set in the format: default-warehouse-overrides/{default_warehouse_override_id}
    * The default_warehouse_override_id can be a numeric user ID or the literal string "me" for the current user.
    */
-  defaultWarehouseOverride?: DefaultWarehouseOverride | undefined;
+  defaultWarehouseOverride: DefaultWarehouseOverride;
   /**
    * Required. Field mask specifying which fields to update.
    * Only the fields specified in the mask will be updated.
    * Use "*" to update all fields.
    * When allow_missing is true, this field is ignored and all fields are applied.
    */
-  updateMask?: FieldMask<DefaultWarehouseOverride> | undefined;
+  updateMask: FieldMask<DefaultWarehouseOverride>;
   /**
    * If set to true, and the override is not found, a new override will be created.
    * In this situation, `update_mask` is ignored and all fields are applied.
@@ -1491,7 +1491,7 @@ export interface WarehouseTypePair {
  */
 export interface DeleteWarehouseRequest {
   /** Required. Id of the SQL warehouse. */
-  id?: string | undefined;
+  id: string;
 }
 
 /**
@@ -1524,7 +1524,7 @@ export interface ListWarehousesRequest {
  */
 export interface StartRequest {
   /** Required. Id of the SQL warehouse. */
-  id?: string | undefined;
+  id: string;
 }
 
 /**
@@ -1533,7 +1533,7 @@ export interface StartRequest {
  */
 export interface StopRequest {
   /** Required. Id of the SQL warehouse. */
-  id?: string | undefined;
+  id: string;
 }
 
 export const unmarshalChannelSchema: z.ZodType<Channel> = z
@@ -1560,7 +1560,7 @@ export const unmarshalDefaultWarehouseOverrideSchema: z.ZodType<DefaultWarehouse
     .object({
       name: z.string().optional(),
       default_warehouse_override_id: z.string().optional(),
-      type: z.string().optional(),
+      type: z.string(),
       warehouse_id: z.string().optional(),
     })
     .transform(d => ({
@@ -1890,7 +1890,7 @@ export const marshalDefaultWarehouseOverrideSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     defaultWarehouseOverrideId: z.string().optional(),
-    type: z.string().optional(),
+    type: z.string(),
     warehouseId: z.string().optional(),
   })
   .transform(d => ({
@@ -1902,7 +1902,7 @@ export const marshalDefaultWarehouseOverrideSchema: z.ZodType = z
 
 export const marshalEditWarehouseRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
     name: z.string().optional(),
     clusterSize: z.string().optional(),
     minNumClusters: z.number().optional(),
@@ -2022,7 +2022,7 @@ export const marshalWarehouseTypePairSchema: z.ZodType = z
 
 export const marshalStartRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -2030,7 +2030,7 @@ export const marshalStartRequestSchema: z.ZodType = z
 
 export const marshalStopRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
   })
   .transform(d => ({
     id: d.id,

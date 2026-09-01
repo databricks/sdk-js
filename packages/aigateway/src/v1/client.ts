@@ -267,7 +267,10 @@ export class AiGatewayClient {
     const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
-      params.append('etag', String(req.etag));
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -304,7 +307,10 @@ export class AiGatewayClient {
     const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
-      params.append('etag', String(req.etag));
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -340,7 +346,10 @@ export class AiGatewayClient {
     const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
-      params.append('etag', String(req.etag));
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -695,7 +704,10 @@ export class AiGatewayClient {
       params.append('update_mask', req.updateMask.toString());
     }
     if (req.etag !== undefined) {
-      params.append('etag', String(req.etag));
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -749,7 +761,10 @@ export class AiGatewayClient {
       params.append('update_mask', req.updateMask.toString());
     }
     if (req.etag !== undefined) {
-      params.append('etag', String(req.etag));
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -805,7 +820,10 @@ export class AiGatewayClient {
       params.append('update_mask', req.updateMask.toString());
     }
     if (req.etag !== undefined) {
-      params.append('etag', String(req.etag));
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;

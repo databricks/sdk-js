@@ -23,6 +23,7 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   DownloadMessageAttachmentVisualizationRequest,
   DownloadMessageAttachmentVisualizationResponse,
+  GenieCancelResponseRequest,
   GenieCreateConversationMessageRequest,
   GenieCreateEvalRunRequest,
   GenieCreateMessageCommentRequest,
@@ -70,6 +71,7 @@ import type {
 } from './model';
 import {
   MessageStatus_MessageStatus,
+  marshalGenieCancelResponseRequestSchema,
   marshalGenieCreateConversationMessageRequestSchema,
   marshalGenieCreateEvalRunRequestSchema,
   marshalGenieCreateMessageCommentRequestSchema,
@@ -189,6 +191,40 @@ export class GenieClient {
       resp = {
         contents: httpResp.body ?? undefined,
       };
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Cancels an in-flight agent-mode response. `response_id` is the id returned in the
+   * `response.created` event from the agent-mode responses endpoint. The response stops at
+   * the next agent boundary and its terminal state is returned.
+   */
+  async genieCancelResponse(
+    req: GenieCancelResponseRequest,
+    options?: CallOptions
+  ): Promise<GenieMessage> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/genie/agents/${req.agentId ?? ''}/conversations/${req.conversationId ?? ''}/responses/${req.responseId ?? ''}/cancel`;
+    const body = marshalRequest(req, marshalGenieCancelResponseRequestSchema);
+    let resp: GenieMessage | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalGenieMessageSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

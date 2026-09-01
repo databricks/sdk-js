@@ -84,36 +84,6 @@ export type ListModelServicesRequest_View =
   | (typeof ListModelServicesRequest_View)[keyof typeof ListModelServicesRequest_View]
   | (string & {});
 
-/**
- * Which Anthropic subscription tier the relayed OAuth token belongs to.
- * Immutable after Create (switching tiers changes which governance controls
- * the platform enforces). Only MAX and TEAM_ENTERPRISE differ in the
- * governance surface the gateway can enforce, not in how the token is
- * relayed.
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
-export const ModelProviderServiceConfig_AnthropicProviderRelayedConfig_AnthropicRelayedPlanType =
-  {
-    /**
-     * Personal Claude Max/Pro subscription. No gateway-enforced governance:
-     * model selection, per-principal rate limits, and service policies (guard-
-     * rails) cannot be enforced on a personal subscription and are rejected.
-     */
-    ANTHROPIC_RELAYED_PLAN_TYPE_MAX: 'ANTHROPIC_RELAYED_PLAN_TYPE_MAX',
-    /**
-     * Claude for Teams / Enterprise organization subscription. Supports the
-     * full gateway governance surface: model allowlist (`targets` /
-     * `allow_all_targets`), rate limits, and service policies.
-     */
-    ANTHROPIC_RELAYED_PLAN_TYPE_TEAM_ENTERPRISE:
-      'ANTHROPIC_RELAYED_PLAN_TYPE_TEAM_ENTERPRISE',
-  } as const;
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export type ModelProviderServiceConfig_AnthropicProviderRelayedConfig_AnthropicRelayedPlanType =
-
-    | (typeof ModelProviderServiceConfig_AnthropicProviderRelayedConfig_AnthropicRelayedPlanType)[keyof typeof ModelProviderServiceConfig_AnthropicProviderRelayedConfig_AnthropicRelayedPlanType]
-    | (string & {});
-
 /** External LLM provider for an EXTERNAL_FOUNDATION_MODEL destination. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ModelProviderServiceConfig_ExternalModelProviderType = {
@@ -211,14 +181,14 @@ export interface CreateMcpServiceRequest {
    * Format: `schemas/{catalog}.{schema}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  parent?: string | undefined;
+  parent: string;
   /** Name for the MCP service, e.g. "my_mcp_service". */
-  mcpServiceId?: string | undefined;
+  mcpServiceId: string;
   /**
    * The MCP service to create. The server populates `name` from `parent` +
    * `mcp_service_id`; clients should leave it unset.
    */
-  mcpService?: McpService | undefined;
+  mcpService: McpService;
 }
 
 /** Request to create a new model provider service. */
@@ -228,14 +198,14 @@ export interface CreateModelProviderServiceRequest {
    * Format: `schemas/{catalog}.{schema}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  parent?: string | undefined;
+  parent: string;
   /** Name for the model provider service, e.g. "openai_prod". */
-  modelProviderServiceId?: string | undefined;
+  modelProviderServiceId: string;
   /**
    * The model provider service to create. The server populates `name` from
    * `parent` + `model_provider_service_id`; clients should leave it unset.
    */
-  modelProviderService?: ModelProviderService | undefined;
+  modelProviderService: ModelProviderService;
 }
 
 /** Request to create a new model service. */
@@ -245,14 +215,14 @@ export interface CreateModelServiceRequest {
    * Format: `schemas/{catalog}.{schema}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  parent?: string | undefined;
+  parent: string;
   /** Name for the model service, e.g. "my_model_service". */
-  modelServiceId?: string | undefined;
+  modelServiceId: string;
   /**
    * The model service to create. The server populates `name` from `parent` +
    * `model_service_id`; clients should leave it unset.
    */
-  modelService?: ModelService | undefined;
+  modelService: ModelService;
 }
 
 /** Request to delete an MCP service. */
@@ -262,7 +232,7 @@ export interface DeleteMcpServiceRequest {
    * Format: `mcp-services/{catalog}.{schema}.{mcp_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  name?: string | undefined;
+  name: string;
   /**
    * If-match precondition: when set, the delete proceeds only if the current
    * server-side etag matches. Empty means unconditional delete.
@@ -277,7 +247,7 @@ export interface DeleteModelProviderServiceRequest {
    * Format: `model-provider-services/{catalog}.{schema}.{model_provider_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  name?: string | undefined;
+  name: string;
   /**
    * If-match precondition: when set, the delete proceeds only if the current
    * server-side etag matches. Empty means unconditional delete.
@@ -292,7 +262,7 @@ export interface DeleteModelServiceRequest {
    * Format: `model-services/{catalog}.{schema}.{model_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  name?: string | undefined;
+  name: string;
   /**
    * If-match precondition: when set, the delete proceeds only if the current
    * server-side etag matches. Empty means unconditional delete.
@@ -307,7 +277,7 @@ export interface GetMcpServiceRequest {
    * Format: `mcp-services/{catalog}.{schema}.{mcp_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Request to get a model provider service. */
@@ -317,7 +287,7 @@ export interface GetModelProviderServiceRequest {
    * Format: `model-provider-services/{catalog}.{schema}.{model_provider_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Request to get a model service. */
@@ -327,7 +297,7 @@ export interface GetModelServiceRequest {
    * Format: `model-services/{catalog}.{schema}.{model_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /**
@@ -345,7 +315,7 @@ export interface InferenceTableConfig {
    * Format: `schemas/{catalog}.{schema}`. Set at create time and immutable
    * thereafter; changing it on an existing service is rejected.
    */
-  parent?: string | undefined;
+  parent: string;
   /**
    * Prefix for the inference-table's UC-registered name. The actual leaf name UC
    * stores is `<table_name_prefix>_payload`; the `_payload` suffix is appended
@@ -592,7 +562,7 @@ export interface McpServiceConfig_SourceConnection {
    * Name of the UC connection that hosts the MCP server, as
    * `connections/{catalog}.{schema}.{connection}`.
    */
-  name?: string | undefined;
+  name: string;
   isDeleted?: boolean | undefined;
 }
 
@@ -678,13 +648,13 @@ export interface ModelProviderServiceConfig {
    * Provider-specific configuration. Exactly one variant must be set, and it
    * must match `provider_type`; a request whose active variant disagrees with
    * `provider_type` is rejected with `INVALID_PARAMETER_VALUE`. Secret-bearing
-   * fields nested inside each *DirectConfig (`api_key`, `aws_secret_access_key`,
+   * fields nested inside each *DirectConfig (`api_key`, `secret_access_key`,
    * `service_account_key`, ...) wrap a `ProviderSecret`: callers supply the
    * value as `ProviderSecret.plaintext` on writes, and the platform stores it
    * encrypted. Reads (Get and List) omit the plaintext; secret-bearing
    * fields appear in the response only as a presence indicator that a secret is
    * configured. Non-secret fields (`base_url`, `region`, `organization`,
-   * `aws_access_key_id`, ...) round-trip directly.
+   * `access_key_id`, ...) round-trip directly.
    *
    * Declarative tooling (Terraform / DABs): the `plaintext` field is
    * INPUT_ONLY and never round-trips on reads, so a Terraform config that
@@ -914,17 +884,8 @@ export interface ModelProviderServiceConfig_AnthropicProviderDirectConfig {
  * is the signal that the provider service uses relayed auth; `plan_type`
  * further distinguishes which Anthropic subscription tier the token belongs to.
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ModelProviderServiceConfig_AnthropicProviderRelayedConfig {
-  /**
-   * Which Anthropic subscription tier the relayed token belongs to. Optional;
-   * when unset the MPS gets the full governance surface (see TEAM_ENTERPRISE).
-   * Immutable after Create, so the tier cannot be flipped in place.
-   */
-  planType?:
-    | ModelProviderServiceConfig_AnthropicProviderRelayedConfig_AnthropicRelayedPlanType
-    | undefined;
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
+export interface ModelProviderServiceConfig_AnthropicProviderRelayedConfig {}
 
 /** AWS access-key-pair auth for Amazon Bedrock: a SigV4-signing key pair. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1238,7 +1199,7 @@ export interface ModelProviderServiceConfig_ModelTargetConfig {
    * hook for external destinations is the ModelProviderService referenced by
    * `ExternalModelConfig.model_provider_service`, not the model itself.
    */
-  model?: string | undefined;
+  model: string;
   /**
    * Provider-native API types the model supports (e.g.
    * "openai/v1/chat/completions"). Used by the platform for request/response
@@ -1308,10 +1269,9 @@ export interface ModelProviderServiceConfig_OpenAiProviderDirectConfig {
 export interface ModelProviderServiceConfig_ProviderSecret {
   /**
    * How the credential value is supplied. Exactly one variant may be set.
-   * (-- Wrapped in a oneof so a future non-plaintext source (e.g. a Databricks
-   * secret reference `{{secrets/<scope>/<key>}}`, mirroring AIGW v2's
-   * ProviderSecret) can be added as an additional variant without a breaking
-   * change. --)
+   * (-- Wrapped in a oneof so a non-plaintext source can be added as an
+   * additional variant without a breaking change; `secret_reference` is
+   * that variant, and further sources can follow the same way. --)
    */
   value?:
     | {
@@ -1339,7 +1299,7 @@ export interface ModelProviderServiceConfig_ServiceCredential {
    * create the caller supplies the name here. On read it reflects the
    * credential's current name at read time.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /**
@@ -1418,11 +1378,9 @@ export interface ModelServiceConfig {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelServiceConfig_DestinationConfig {
   /** User-facing label for this destination, used in routing references. */
-  name?: string | undefined;
+  name: string;
   /** Backing-model category. Determines which oneof variant is populated. */
-  destinationType?:
-    | ModelServiceConfig_DestinationConfig_DestinationType
-    | undefined;
+  destinationType: ModelServiceConfig_DestinationConfig_DestinationType;
   /**
    * Share of traffic sent to this destination, 0-100. Optional on fallback
    * destinations; see FallbackConfig.
@@ -1470,13 +1428,13 @@ export interface ModelServiceConfig_ExternalModelConfig {
    * Format: `model-provider-services/{catalog}.{schema}.{model_provider_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  modelProviderService?: string | undefined;
+  modelProviderService: string;
   /**
    * Routing target for the destination: the provider-side model selected from
    * the referenced ModelProviderService's `targets` catalog, plus the unified
    * API types the platform should translate to/from at request time.
    */
-  target?: ModelProviderServiceConfig_ModelTargetConfig | undefined;
+  target: ModelProviderServiceConfig_ModelTargetConfig;
 }
 
 /**
@@ -1504,7 +1462,7 @@ export interface ModelServiceConfig_PayPerTokenConfig {
    * Resource name of the UC model.
    * Format: `models/{catalog}.{schema}.{model}`.
    */
-  model?: string | undefined;
+  model: string;
 }
 
 /**
@@ -1523,7 +1481,7 @@ export interface ModelServiceConfig_ProvisionedThroughputConfig {
    * caller picks which one this destination routes to. The endpoint must
    * exist at create time.
    */
-  modelServingEndpoint?: string | undefined;
+  modelServingEndpoint: string;
   /**
    * UC model FQN of the model served by the backing endpoint (e.g.,
    * `system.ai.databricks-claude-opus-4-6`). Resolved from Model Serving at
@@ -1582,9 +1540,9 @@ export interface ModelServiceConfig_RoutingConfig_TrafficSplitting {}
  */
 export interface RateLimit {
   /** Scope key. Determines whether `principal` is required. */
-  key?: RateLimit_RateLimitKey | undefined;
+  key: RateLimit_RateLimitKey;
   /** Renewal period. */
-  renewalPeriod?: RateLimit_RateLimitRenewalPeriod | undefined;
+  renewalPeriod: RateLimit_RateLimitRenewalPeriod;
   /**
    * Principal this limit applies to: user email, group name, or service
    * principal application ID. Required unless `key` is
@@ -1617,13 +1575,13 @@ export interface UpdateMcpServiceRequest {
    * resource (`mcp-services/{catalog}.{schema}.{mcp_service}`); only fields
    * listed in `update_mask` are applied.
    */
-  mcpService?: McpService | undefined;
+  mcpService: McpService;
   /**
    * The list of fields to update. The framework validates each path against
    * the `mcp_service` field above. Wildcard paths (`paths: ["*"]`) are not
    * supported; list each field path explicitly.
    */
-  updateMask?: FieldMask<McpService> | undefined;
+  updateMask: FieldMask<McpService>;
   /**
    * If-match precondition: when set, the update proceeds only if the
    * current server-side etag matches. Empty means an unconditional update.
@@ -1642,13 +1600,13 @@ export interface UpdateModelProviderServiceRequest {
    * (`model-provider-services/{catalog}.{schema}.{model_provider_service}`);
    * only fields listed in `update_mask` are applied.
    */
-  modelProviderService?: ModelProviderService | undefined;
+  modelProviderService: ModelProviderService;
   /**
    * The list of fields to update. The framework validates each path against
    * the `model_provider_service` field above. Wildcard paths (`paths: ["*"]`)
    * are not supported; list each field path explicitly.
    */
-  updateMask?: FieldMask<ModelProviderService> | undefined;
+  updateMask: FieldMask<ModelProviderService>;
   /**
    * If-match precondition: when set, the update proceeds only if the
    * current server-side etag matches. Empty means an unconditional update.
@@ -1666,13 +1624,13 @@ export interface UpdateModelServiceRequest {
    * resource (`model-services/{catalog}.{schema}.{model_service}`); only
    * fields listed in `update_mask` are applied.
    */
-  modelService?: ModelService | undefined;
+  modelService: ModelService;
   /**
    * The list of fields to update. The framework validates each path against
    * the `model_service` field above. Wildcard paths (`paths: ["*"]`) are not
    * supported; list each field path explicitly.
    */
-  updateMask?: FieldMask<ModelService> | undefined;
+  updateMask: FieldMask<ModelService>;
   /**
    * If-match precondition: when set, the update proceeds only if the
    * current server-side etag matches. Empty means an unconditional update.
@@ -1683,7 +1641,7 @@ export interface UpdateModelServiceRequest {
 export const unmarshalInferenceTableConfigSchema: z.ZodType<InferenceTableConfig> =
   z
     .object({
-      parent: z.string().optional(),
+      parent: z.string(),
       table_name_prefix: z.string().optional(),
       disabled: z.boolean().optional(),
       table: z.string().optional(),
@@ -1795,7 +1753,7 @@ export const unmarshalMcpServiceConfigSchema: z.ZodType<McpServiceConfig> = z
 export const unmarshalMcpServiceConfig_SourceConnectionSchema: z.ZodType<McpServiceConfig_SourceConnection> =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
       is_deleted: z.boolean().optional(),
     })
     .transform(d => ({
@@ -2025,13 +1983,7 @@ export const unmarshalModelProviderServiceConfig_AnthropicProviderDirectConfigSc
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalModelProviderServiceConfig_AnthropicProviderRelayedConfigSchema: z.ZodType<ModelProviderServiceConfig_AnthropicProviderRelayedConfig> =
-  z
-    .object({
-      plan_type: z.string().optional(),
-    })
-    .transform(d => ({
-      planType: d.plan_type,
-    }));
+  z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalModelProviderServiceConfig_AwsAccessKeySchema: z.ZodType<ModelProviderServiceConfig_AwsAccessKey> =
@@ -2248,7 +2200,7 @@ export const unmarshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectC
 export const unmarshalModelProviderServiceConfig_ModelTargetConfigSchema: z.ZodType<ModelProviderServiceConfig_ModelTargetConfig> =
   z
     .object({
-      model: z.string().optional(),
+      model: z.string(),
       native_api_types: z.array(z.string()).optional(),
     })
     .transform(d => ({
@@ -2310,7 +2262,7 @@ export const unmarshalModelProviderServiceConfig_ProviderSecretSchema: z.ZodType
 export const unmarshalModelProviderServiceConfig_ServiceCredentialSchema: z.ZodType<ModelProviderServiceConfig_ServiceCredential> =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
     })
     .transform(d => ({
       name: d.name,
@@ -2376,8 +2328,8 @@ export const unmarshalModelServiceConfigSchema: z.ZodType<ModelServiceConfig> =
 export const unmarshalModelServiceConfig_DestinationConfigSchema: z.ZodType<ModelServiceConfig_DestinationConfig> =
   z
     .object({
-      name: z.string().optional(),
-      destination_type: z.string().optional(),
+      name: z.string(),
+      destination_type: z.string(),
       traffic_percentage: z.number().optional(),
       pay_per_token_config: z
         .lazy(() => unmarshalModelServiceConfig_PayPerTokenConfigSchema)
@@ -2420,10 +2372,10 @@ export const unmarshalModelServiceConfig_DestinationConfigSchema: z.ZodType<Mode
 export const unmarshalModelServiceConfig_ExternalModelConfigSchema: z.ZodType<ModelServiceConfig_ExternalModelConfig> =
   z
     .object({
-      model_provider_service: z.string().optional(),
-      target: z
-        .lazy(() => unmarshalModelProviderServiceConfig_ModelTargetConfigSchema)
-        .optional(),
+      model_provider_service: z.string(),
+      target: z.lazy(
+        () => unmarshalModelProviderServiceConfig_ModelTargetConfigSchema
+      ),
     })
     .transform(d => ({
       modelProviderService: d.model_provider_service,
@@ -2448,7 +2400,7 @@ export const unmarshalModelServiceConfig_FallbackConfigSchema: z.ZodType<ModelSe
 export const unmarshalModelServiceConfig_PayPerTokenConfigSchema: z.ZodType<ModelServiceConfig_PayPerTokenConfig> =
   z
     .object({
-      model: z.string().optional(),
+      model: z.string(),
     })
     .transform(d => ({
       model: d.model,
@@ -2458,7 +2410,7 @@ export const unmarshalModelServiceConfig_PayPerTokenConfigSchema: z.ZodType<Mode
 export const unmarshalModelServiceConfig_ProvisionedThroughputConfigSchema: z.ZodType<ModelServiceConfig_ProvisionedThroughputConfig> =
   z
     .object({
-      model_serving_endpoint: z.string().optional(),
+      model_serving_endpoint: z.string(),
       model: z.string().optional(),
     })
     .transform(d => ({
@@ -2507,8 +2459,8 @@ export const unmarshalModelServiceConfig_RoutingConfig_TrafficSplittingSchema: z
 
 export const unmarshalRateLimitSchema: z.ZodType<RateLimit> = z
   .object({
-    key: z.string().optional(),
-    renewal_period: z.string().optional(),
+    key: z.string(),
+    renewal_period: z.string(),
     principal: z.string().optional(),
     requests: z
       .union([z.number(), z.bigint(), z.string()])
@@ -2533,7 +2485,7 @@ export const unmarshalRateLimitSchema: z.ZodType<RateLimit> = z
 
 export const marshalInferenceTableConfigSchema: z.ZodType = z
   .object({
-    parent: z.string().optional(),
+    parent: z.string(),
     tableNamePrefix: z.string().optional(),
     disabled: z.boolean().optional(),
     table: z.string().optional(),
@@ -2612,7 +2564,7 @@ export const marshalMcpServiceConfigSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalMcpServiceConfig_SourceConnectionSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     isDeleted: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2858,13 +2810,7 @@ export const marshalModelProviderServiceConfig_AnthropicProviderDirectConfigSche
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalModelProviderServiceConfig_AnthropicProviderRelayedConfigSchema: z.ZodType =
-  z
-    .object({
-      planType: z.string().optional(),
-    })
-    .transform(d => ({
-      plan_type: d.planType,
-    }));
+  z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalModelProviderServiceConfig_AwsAccessKeySchema: z.ZodType = z
@@ -3120,7 +3066,7 @@ export const marshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectCon
 export const marshalModelProviderServiceConfig_ModelTargetConfigSchema: z.ZodType =
   z
     .object({
-      model: z.string().optional(),
+      model: z.string(),
       nativeApiTypes: z.array(z.string()).optional(),
     })
     .transform(d => ({
@@ -3191,7 +3137,7 @@ export const marshalModelProviderServiceConfig_ProviderSecretSchema: z.ZodType =
 export const marshalModelProviderServiceConfig_ServiceCredentialSchema: z.ZodType =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
     })
     .transform(d => ({
       name: d.name,
@@ -3255,8 +3201,8 @@ export const marshalModelServiceConfigSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalModelServiceConfig_DestinationConfigSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    destinationType: z.string().optional(),
+    name: z.string(),
+    destinationType: z.string(),
     trafficPercentage: z.number().optional(),
     typeConfig: z
       .discriminatedUnion('$case', [
@@ -3301,10 +3247,10 @@ export const marshalModelServiceConfig_DestinationConfigSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalModelServiceConfig_ExternalModelConfigSchema: z.ZodType = z
   .object({
-    modelProviderService: z.string().optional(),
-    target: z
-      .lazy(() => marshalModelProviderServiceConfig_ModelTargetConfigSchema)
-      .optional(),
+    modelProviderService: z.string(),
+    target: z.lazy(
+      () => marshalModelProviderServiceConfig_ModelTargetConfigSchema
+    ),
   })
   .transform(d => ({
     model_provider_service: d.modelProviderService,
@@ -3325,7 +3271,7 @@ export const marshalModelServiceConfig_FallbackConfigSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalModelServiceConfig_PayPerTokenConfigSchema: z.ZodType = z
   .object({
-    model: z.string().optional(),
+    model: z.string(),
   })
   .transform(d => ({
     model: d.model,
@@ -3335,7 +3281,7 @@ export const marshalModelServiceConfig_PayPerTokenConfigSchema: z.ZodType = z
 export const marshalModelServiceConfig_ProvisionedThroughputConfigSchema: z.ZodType =
   z
     .object({
-      modelServingEndpoint: z.string().optional(),
+      modelServingEndpoint: z.string(),
       model: z.string().optional(),
     })
     .transform(d => ({
@@ -3382,8 +3328,8 @@ export const marshalModelServiceConfig_RoutingConfig_TrafficSplittingSchema: z.Z
 
 export const marshalRateLimitSchema: z.ZodType = z
   .object({
-    key: z.string().optional(),
-    renewalPeriod: z.string().optional(),
+    key: z.string(),
+    renewalPeriod: z.string(),
     principal: z.string().optional(),
     requests: z.bigint().optional(),
     tokens: z.bigint().optional(),
@@ -3567,9 +3513,7 @@ const modelProviderServiceConfig_AnthropicProviderDirectConfigFieldMaskSchema: F
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 const modelProviderServiceConfig_AnthropicProviderRelayedConfigFieldMaskSchema: FieldMaskSchema =
-  {
-    planType: {wire: 'plan_type'},
-  };
+  {};
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 const modelProviderServiceConfig_AwsAccessKeyFieldMaskSchema: FieldMaskSchema =

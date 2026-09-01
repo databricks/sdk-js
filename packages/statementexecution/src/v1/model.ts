@@ -118,7 +118,7 @@ export interface CancelStatementRequest {
    * The statement ID is returned upon successfully submitting a SQL statement, and is a required
    * reference for all subsequent calls.
    */
-  statementId?: string | undefined;
+  statementId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -172,12 +172,12 @@ export interface ExecuteStatementRequest {
    * The SQL statement to execute. The statement can optionally be parameterized, see `parameters`.
    * The maximum query text size is 16 MiB.
    */
-  statement?: string | undefined;
+  statement: string;
   /**
    * Warehouse upon which to execute a statement. See also
    * [What are SQL warehouses?](https://docs.databricks.com/sql/admin/warehouse-type.html)
    */
-  warehouseId?: string | undefined;
+  warehouseId: string;
   /**
    * Sets default catalog for statement execution, similar to
    * [`USE CATALOG`](https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-use-catalog.html)
@@ -399,8 +399,8 @@ export interface GetResultDataRequest {
    * The statement ID is returned upon successfully submitting a SQL statement, and is a required
    * reference for all subsequent calls.
    */
-  statementId?: string | undefined;
-  chunkIndex?: number | undefined;
+  statementId: string;
+  chunkIndex: number;
 }
 
 export interface GetStatementResultRequest {
@@ -408,7 +408,7 @@ export interface GetStatementResultRequest {
    * The statement ID is returned upon successfully submitting a SQL statement, and is a required
    * reference for all subsequent calls.
    */
-  statementId?: string | undefined;
+  statementId: string;
 }
 
 /**
@@ -417,7 +417,7 @@ export interface GetStatementResultRequest {
  * QueryTag is the user-facing representation.
  */
 export interface QueryTag {
-  key?: string | undefined;
+  key: string;
   value?: string | undefined;
 }
 
@@ -494,7 +494,7 @@ export interface ServiceError {
 
 export interface StatementParameter {
   /** The name of a parameter marker to be substituted in the statement. */
-  name?: string | undefined;
+  name: string;
   /** The value to substitute, represented as a string. If omitted, the value is interpreted as NULL. */
   value?: string | undefined;
   /**
@@ -728,7 +728,7 @@ export const unmarshalStatementStatusSchema: z.ZodType<StatementStatus> = z
 
 export const marshalCancelStatementRequestSchema: z.ZodType = z
   .object({
-    statementId: z.string().optional(),
+    statementId: z.string(),
   })
   .transform(d => ({
     statement_id: d.statementId,
@@ -736,8 +736,8 @@ export const marshalCancelStatementRequestSchema: z.ZodType = z
 
 export const marshalExecuteStatementRequestSchema: z.ZodType = z
   .object({
-    statement: z.string().optional(),
-    warehouseId: z.string().optional(),
+    statement: z.string(),
+    warehouseId: z.string(),
     catalog: z.string().optional(),
     schema: z.string().optional(),
     rowLimit: z.bigint().optional(),
@@ -768,7 +768,7 @@ export const marshalExecuteStatementRequestSchema: z.ZodType = z
 
 export const marshalQueryTagSchema: z.ZodType = z
   .object({
-    key: z.string().optional(),
+    key: z.string(),
     value: z.string().optional(),
   })
   .transform(d => ({
@@ -778,7 +778,7 @@ export const marshalQueryTagSchema: z.ZodType = z
 
 export const marshalStatementParameterSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     value: z.string().optional(),
     type: z.string().optional(),
   })

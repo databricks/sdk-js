@@ -4,9 +4,9 @@ import {z} from 'zod';
 
 export interface DisableSystemSchemaRequest {
   /** Full name of the system schema. */
-  schema?: string | undefined;
+  schema: string;
   /** The metastore ID under which the system schema lives. */
-  metastoreId?: string | undefined;
+  metastoreId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -14,9 +14,9 @@ export interface DisableSystemSchemaResponse {}
 
 export interface EnableSystemSchemaRequest {
   /** Full name of the system schema. */
-  schema?: string | undefined;
+  schema: string;
   /** The metastore ID under which the system schema lives. */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   /** the catalog for which the system schema is to enabled in */
   catalogName?: string | undefined;
 }
@@ -26,7 +26,7 @@ export interface EnableSystemSchemaResponse {}
 
 export interface ListSystemSchemasRequest {
   /** The ID for the metastore in which the system schema resides. */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   /**
    * Maximum number of schemas to return.
    * - When set to 0, the page length is set to a server configured value (recommended);
@@ -90,8 +90,8 @@ export const unmarshalSystemSchemaInfoSchema: z.ZodType<SystemSchemaInfo> = z
 
 export const marshalEnableSystemSchemaRequestSchema: z.ZodType = z
   .object({
-    schema: z.string().optional(),
-    metastoreId: z.string().optional(),
+    schema: z.string(),
+    metastoreId: z.string(),
     catalogName: z.string().optional(),
   })
   .transform(d => ({

@@ -73,10 +73,10 @@ export type SchedulePauseStatus =
   | (string & {});
 
 export interface Alert {
-  /** UUID identifying the alert. */
+  /** The canonical identifier of the alert to retrieve information about. */
   id?: string | undefined;
   /** The display name of the alert. */
-  displayName?: string | undefined;
+  displayName: string;
   /** The owner's username. This field is set to "Unavailable" if the user has been deleted. */
   ownerUserName?: string | undefined;
   /** The timestamp indicating when the alert was created. */
@@ -86,17 +86,17 @@ export interface Alert {
   /** The workspace path of the folder containing the alert. Can only be set on create, and cannot be updated. */
   parentPath?: string | undefined;
   /** Text of the query to be run. */
-  queryText?: string | undefined;
+  queryText: string;
   /** ID of the SQL warehouse attached to the alert. */
-  warehouseId?: string | undefined;
+  warehouseId: string;
   /**
    * The run as username or application ID of service principal.
    * On Create and Update, this field can be set to application ID of an active service principal. Setting this field requires the servicePrincipal/user role.
    * Deprecated: Use `run_as` field instead. This field will be removed in a future release.
    */
   runAsUserName?: string | undefined;
-  evaluation?: AlertEvaluation | undefined;
-  schedule?: CronSchedule | undefined;
+  evaluation: AlertEvaluation;
+  schedule: CronSchedule;
   /** Indicates whether the query is trashed. */
   lifecycleState?: AlertLifecycleState | undefined;
   /** Custom summary for the alert. support mustache template. */
@@ -118,17 +118,26 @@ export interface Alert {
    */
   effectiveRunAs?: AlertRunAs | undefined;
   /**
-   * Query parameters bound when executing the alert query, referenced in the
-   * query text with `:name` syntax. Static values only.
+   * A list of parameters to pass into the alert SQL query statement containing parameter markers. Static values only.
+   *
+   * Reference a parameter in the query text as `:name`. Each parameter must have a unique, non-empty name.
+   * Each parameter consists of a name, a value, and optionally a type. To represent a NULL
+   * value, the `value` field may be omitted or set to `null` explicitly. If the `type` field
+   * is omitted, the value is interpreted as a string.
+   *
+   * If the type is given, parameters will be checked for type correctness according
+   * to the given type. A value is correct if the provided string can be converted to
+   * the requested type using the `cast` function. The exact semantics are described in
+   * the section [`cast` function](https://docs.databricks.com/sql/language-manual/functions/cast.html) of the SQL language reference.
    */
   parameters?: AlertStatementParameter[] | undefined;
 }
 
 export interface AlertEvaluation {
   /** Source column from result to use to evaluate alert */
-  source?: AlertOperandColumn | undefined;
+  source: AlertOperandColumn;
   /** Operator used for comparison in alert evaluation. */
-  comparisonOperator?: ComparisonOperator | undefined;
+  comparisonOperator: ComparisonOperator;
   /** Threshold to user for alert evaluation, can be a column or a value. */
   threshold?: AlertOperand | undefined;
   /** User or Notification Destination to notify when alert is triggered. */
@@ -162,7 +171,7 @@ export interface AlertOperand {
 }
 
 export interface AlertOperandColumn {
-  name?: string | undefined;
+  name: string;
   display?: string | undefined;
   /** If not set, the behavior is equivalent to using `First row` in the UI. */
   aggregation?: Aggregation | undefined;
@@ -193,21 +202,20 @@ export interface AlertRunAs {
 }
 
 /**
- * Redash-owned copy of the internal StatementParameter for the external AlertV2 API.
- * The internal `ordinal` and `args` fields are intentionally omitted: the public API
- * supports only flat, named scalar parameters; complex types (ARRAY, MAP, STRUCT) are
- * not supported. This mirrors SEA's public StatementParameter schema, see:
- * cmdexec/sql-exec-api/proto/sql_exec_api_service.proto:763-779
+ * A named parameter bound to the alert query. Only flat, named scalar parameters are
+ * supported; complex types such as ARRAY, MAP, and STRUCT are not.
  */
 export interface AlertStatementParameter {
-  /** The name of the parameter, referenced in the query as `:name`. */
-  name?: string | undefined;
-  /** The bound value for the parameter, given as a string. If omitted, the value is interpreted as NULL. */
+  /**
+   * The name of the parameter. Reference it in the query text as `:name`. Required, must be
+   * non-empty, and must be unique across the alert's parameters.
+   */
+  name: string;
+  /** The value bound to the parameter, represented as a string. If omitted, the value is interpreted as NULL. */
   value?: string | undefined;
   /**
-   * The SQL data type of the parameter, e.g. STRING, INT, or DATE. Defaults to STRING. This is a
-   * string rather than an enum because scalar subtypes such as DECIMAL(10, 4) cannot be enumerated.
-   * Complex types such as ARRAY, MAP, and STRUCT are not supported.
+   * The SQL data type of the parameter, for example `STRING`, `INT`, or `DECIMAL(10, 2)`. If no type is given
+   * the type is assumed to be `STRING`. Complex types such as `ARRAY`, `MAP`, and `STRUCT` are not supported.
    */
   type?: string | undefined;
 }
@@ -228,13 +236,13 @@ export interface CronSchedule {
    * A cron expression using quartz syntax that specifies the schedule for this pipeline.
    * Should use the quartz format described here: http://www.quartz-scheduler.org/documentation/quartz-2.1.7/tutorials/tutorial-lesson-06.html
    */
-  quartzCronSchedule?: string | undefined;
+  quartzCronSchedule: string;
   /**
    * A Java timezone id. The schedule will be resolved using this timezone.
    * This will be combined with the quartz_cron_schedule to determine the schedule.
    * See https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-conf-mgmt-set-timezone.html for details.
    */
-  timezoneId?: string | undefined;
+  timezoneId: string;
   /** Indicate whether this schedule is paused or not. */
   pauseStatus?: SchedulePauseStatus | undefined;
 }
@@ -268,13 +276,13 @@ export interface TrashAlertRequest {
 
 export interface UpdateAlertRequest {
   alert?: Alert | undefined;
-  updateMask?: FieldMask<Alert> | undefined;
+  updateMask: FieldMask<Alert>;
 }
 
 export const unmarshalAlertSchema: z.ZodType<Alert> = z
   .object({
     id: z.string().optional(),
-    display_name: z.string().optional(),
+    display_name: z.string(),
     owner_user_name: z.string().optional(),
     create_time: z
       .string()
@@ -285,11 +293,11 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
       .transform(s => Temporal.Instant.from(s))
       .optional(),
     parent_path: z.string().optional(),
-    query_text: z.string().optional(),
-    warehouse_id: z.string().optional(),
+    query_text: z.string(),
+    warehouse_id: z.string(),
     run_as_user_name: z.string().optional(),
-    evaluation: z.lazy(() => unmarshalAlertEvaluationSchema).optional(),
-    schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
+    evaluation: z.lazy(() => unmarshalAlertEvaluationSchema),
+    schedule: z.lazy(() => unmarshalCronScheduleSchema),
     lifecycle_state: z.string().optional(),
     custom_summary: z.string().optional(),
     custom_description: z.string().optional(),
@@ -321,8 +329,8 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
 
 export const unmarshalAlertEvaluationSchema: z.ZodType<AlertEvaluation> = z
   .object({
-    source: z.lazy(() => unmarshalAlertOperandColumnSchema).optional(),
-    comparison_operator: z.string().optional(),
+    source: z.lazy(() => unmarshalAlertOperandColumnSchema),
+    comparison_operator: z.string(),
     threshold: z.lazy(() => unmarshalAlertOperandSchema).optional(),
     notification: z.lazy(() => unmarshalAlertNotificationSchema).optional(),
     state: z.string().optional(),
@@ -373,7 +381,7 @@ export const unmarshalAlertOperandSchema: z.ZodType<AlertOperand> = z
 export const unmarshalAlertOperandColumnSchema: z.ZodType<AlertOperandColumn> =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
       display: z.string().optional(),
       aggregation: z.string().optional(),
     })
@@ -420,7 +428,7 @@ export const unmarshalAlertRunAsSchema: z.ZodType<AlertRunAs> = z
 export const unmarshalAlertStatementParameterSchema: z.ZodType<AlertStatementParameter> =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
       value: z.string().optional(),
       type: z.string().optional(),
     })
@@ -446,8 +454,8 @@ export const unmarshalAlertSubscriptionSchema: z.ZodType<AlertSubscription> = z
 
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
-    quartz_cron_schedule: z.string().optional(),
-    timezone_id: z.string().optional(),
+    quartz_cron_schedule: z.string(),
+    timezone_id: z.string(),
     pause_status: z.string().optional(),
   })
   .transform(d => ({
@@ -472,7 +480,7 @@ export const unmarshalListAlertsResponseSchema: z.ZodType<ListAlertsResponse> =
 export const marshalAlertSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    displayName: z.string().optional(),
+    displayName: z.string(),
     ownerUserName: z.string().optional(),
     createTime: z
       .any()
@@ -483,11 +491,11 @@ export const marshalAlertSchema: z.ZodType = z
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     parentPath: z.string().optional(),
-    queryText: z.string().optional(),
-    warehouseId: z.string().optional(),
+    queryText: z.string(),
+    warehouseId: z.string(),
     runAsUserName: z.string().optional(),
-    evaluation: z.lazy(() => marshalAlertEvaluationSchema).optional(),
-    schedule: z.lazy(() => marshalCronScheduleSchema).optional(),
+    evaluation: z.lazy(() => marshalAlertEvaluationSchema),
+    schedule: z.lazy(() => marshalCronScheduleSchema),
     lifecycleState: z.string().optional(),
     customSummary: z.string().optional(),
     customDescription: z.string().optional(),
@@ -519,8 +527,8 @@ export const marshalAlertSchema: z.ZodType = z
 
 export const marshalAlertEvaluationSchema: z.ZodType = z
   .object({
-    source: z.lazy(() => marshalAlertOperandColumnSchema).optional(),
-    comparisonOperator: z.string().optional(),
+    source: z.lazy(() => marshalAlertOperandColumnSchema),
+    comparisonOperator: z.string(),
     threshold: z.lazy(() => marshalAlertOperandSchema).optional(),
     notification: z.lazy(() => marshalAlertNotificationSchema).optional(),
     state: z.string().optional(),
@@ -576,7 +584,7 @@ export const marshalAlertOperandSchema: z.ZodType = z
 
 export const marshalAlertOperandColumnSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     display: z.string().optional(),
     aggregation: z.string().optional(),
   })
@@ -627,7 +635,7 @@ export const marshalAlertRunAsSchema: z.ZodType = z
 
 export const marshalAlertStatementParameterSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     value: z.string().optional(),
     type: z.string().optional(),
   })
@@ -660,8 +668,8 @@ export const marshalAlertSubscriptionSchema: z.ZodType = z
 
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
-    quartzCronSchedule: z.string().optional(),
-    timezoneId: z.string().optional(),
+    quartzCronSchedule: z.string(),
+    timezoneId: z.string(),
     pauseStatus: z.string().optional(),
   })
   .transform(d => ({
