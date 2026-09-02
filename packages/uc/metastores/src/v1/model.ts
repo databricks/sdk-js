@@ -24,11 +24,11 @@ export type DeltaSharingScope_Enum =
 /** The mapping from workspace to metastore. */
 export interface AccountsCreateMetastoreAssignmentRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Workspace ID. */
   workspaceId?: bigint | undefined;
   /** Unity Catalog metastore ID */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   metastoreAssignment?: MetastoreAssignment | undefined;
 }
 
@@ -39,7 +39,7 @@ export interface AccountsCreateMetastoreAssignmentResponse {}
 /** Properties of the new metastore. */
 export interface AccountsCreateMetastoreRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   metastoreInfo?: CreateAccountsMetastore | undefined;
 }
 
@@ -50,11 +50,11 @@ export interface AccountsCreateMetastoreResponse {
 /** Delete a metastore assignment to a workspace */
 export interface AccountsDeleteMetastoreAssignmentRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Workspace ID. */
   workspaceId?: bigint | undefined;
   /** Unity Catalog metastore ID */
-  metastoreId?: string | undefined;
+  metastoreId: string;
 }
 
 /** The metastore assignment was successfully deleted. */
@@ -64,9 +64,9 @@ export interface AccountsDeleteMetastoreAssignmentResponse {}
 /** Delete a metastore for the given account */
 export interface AccountsDeleteMetastoreRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Unity Catalog metastore ID */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   /** Force deletion even if the metastore is not empty. Default is false. */
   force?: boolean | undefined;
 }
@@ -78,9 +78,9 @@ export interface AccountsDeleteMetastoreResponse {}
 /** Retrieves the assignment of which metastore to a given workspace */
 export interface AccountsGetMetastoreAssignmentRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Workspace ID. */
-  workspaceId?: bigint | undefined;
+  workspaceId: bigint;
 }
 
 /** The workspace metastore assignment was successfully returned. */
@@ -91,9 +91,9 @@ export interface AccountsGetMetastoreAssignmentResponse {
 /** Get a metastore for a given account */
 export interface AccountsGetMetastoreRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Unity Catalog metastore ID */
-  metastoreId?: string | undefined;
+  metastoreId: string;
 }
 
 /** The metastore was successfully returned. */
@@ -104,7 +104,7 @@ export interface AccountsGetMetastoreResponse {
 /** List the metastores for an account */
 export interface AccountsListMetastoresRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
 }
 
 /** Metastores were returned successfully. */
@@ -116,9 +116,9 @@ export interface AccountsListMetastoresResponse {
 /** Lists all workspace IDs for a given metastore */
 export interface AccountsListWorkspaceIdsForMetastoreRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Unity Catalog metastore ID */
-  metastoreId?: string | undefined;
+  metastoreId: string;
 }
 
 /** The metastore assignments were successfully returned. */
@@ -129,11 +129,11 @@ export interface AccountsListWorkspaceIdsForMetastoreResponse {
 /** The metastore assignment to update. */
 export interface AccountsUpdateMetastoreAssignmentRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Workspace ID. */
   workspaceId?: bigint | undefined;
   /** Unity Catalog metastore ID */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   metastoreAssignment?: MetastoreAssignment | undefined;
 }
 
@@ -144,9 +144,9 @@ export interface AccountsUpdateMetastoreAssignmentResponse {}
 /** Properties of the metastore to change. */
 export interface AccountsUpdateMetastoreRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
-  accountId?: string | undefined;
+  accountId: string;
   /** Unity Catalog metastore ID */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   /** Properties of the metastore to change. */
   metastoreInfo?: UpdateAccountsMetastore | undefined;
 }
@@ -199,15 +199,15 @@ export interface CreateAccountsMetastore {
 
 export interface CreateMetastoreAssignmentRequest {
   /** A workspace ID. */
-  workspaceId?: bigint | undefined;
+  workspaceId: bigint;
   /** The unique ID of the metastore. */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   /**
    * The name of the default catalog in the metastore.
    * This field is deprecated. Please use "Default Namespace API" to
    * configure the default catalog for a <Databricks> workspace.
    */
-  defaultCatalogName?: string | undefined;
+  defaultCatalogName: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -256,9 +256,9 @@ export interface CreateMetastoreRequest {
 
 export interface DeleteMetastoreAssignmentRequest {
   /** A workspace ID. */
-  workspaceId?: bigint | undefined;
+  workspaceId: bigint;
   /** Query for the ID of the metastore to delete. */
-  metastoreId?: string | undefined;
+  metastoreId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -266,7 +266,7 @@ export interface DeleteMetastoreAssignmentResponse {}
 
 export interface DeleteMetastoreRequest {
   /** Unique ID of the metastore. */
-  id?: string | undefined;
+  id: string;
   /** Force deletion even if the metastore is not empty. Default is false. */
   force?: boolean | undefined;
 }
@@ -282,7 +282,7 @@ export interface GetCurrentMetastoreAssignmentRequest {}
 
 export interface GetMetastoreRequest {
   /** Unique ID of the metastore. */
-  id?: string | undefined;
+  id: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -356,9 +356,9 @@ export interface ListMetastoresResponse {
 
 export interface MetastoreAssignment {
   /** The unique ID of the <Databricks> workspace. */
-  workspaceId?: bigint | undefined;
+  workspaceId: bigint;
   /** The unique ID of the metastore. */
-  metastoreId?: string | undefined;
+  metastoreId: string;
   /**
    * The name of the default catalog in the metastore. This field is deprecated.
    * Please use "Default Namespace API" to configure the default catalog for a <Databricks> workspace.
@@ -450,7 +450,7 @@ export interface UpdateAccountsMetastore {
 
 export interface UpdateMetastoreAssignmentRequest {
   /** A workspace ID. */
-  workspaceId?: bigint | undefined;
+  workspaceId: bigint;
   /** The unique ID of the metastore. */
   metastoreId?: string | undefined;
   /**
@@ -466,7 +466,7 @@ export interface UpdateMetastoreAssignmentResponse {}
 
 export interface UpdateMetastoreRequest {
   /** Unique ID of the metastore. */
-  id?: string | undefined;
+  id: string;
   /** New name for the metastore. */
   newName?: string | undefined;
   /** The user-specified name of the metastore. */
@@ -667,9 +667,8 @@ export const unmarshalMetastoreAssignmentSchema: z.ZodType<MetastoreAssignment> 
     .object({
       workspace_id: z
         .union([z.number(), z.bigint(), z.string()])
-        .transform(v => BigInt(v))
-        .optional(),
-      metastore_id: z.string().optional(),
+        .transform(v => BigInt(v)),
+      metastore_id: z.string(),
       default_catalog_name: z.string().optional(),
     })
     .transform(d => ({
@@ -738,9 +737,9 @@ export const unmarshalUpdateMetastoreAssignmentResponseSchema: z.ZodType<UpdateM
 export const marshalAccountsCreateMetastoreAssignmentRequestSchema: z.ZodType =
   z
     .object({
-      accountId: z.string().optional(),
+      accountId: z.string(),
       workspaceId: z.bigint().optional(),
-      metastoreId: z.string().optional(),
+      metastoreId: z.string(),
       metastoreAssignment: z
         .lazy(() => marshalMetastoreAssignmentSchema)
         .optional(),
@@ -754,7 +753,7 @@ export const marshalAccountsCreateMetastoreAssignmentRequestSchema: z.ZodType =
 
 export const marshalAccountsCreateMetastoreRequestSchema: z.ZodType = z
   .object({
-    accountId: z.string().optional(),
+    accountId: z.string(),
     metastoreInfo: z
       .lazy(() => marshalCreateAccountsMetastoreSchema)
       .optional(),
@@ -767,9 +766,9 @@ export const marshalAccountsCreateMetastoreRequestSchema: z.ZodType = z
 export const marshalAccountsUpdateMetastoreAssignmentRequestSchema: z.ZodType =
   z
     .object({
-      accountId: z.string().optional(),
+      accountId: z.string(),
       workspaceId: z.bigint().optional(),
-      metastoreId: z.string().optional(),
+      metastoreId: z.string(),
       metastoreAssignment: z
         .lazy(() => marshalMetastoreAssignmentSchema)
         .optional(),
@@ -783,8 +782,8 @@ export const marshalAccountsUpdateMetastoreAssignmentRequestSchema: z.ZodType =
 
 export const marshalAccountsUpdateMetastoreRequestSchema: z.ZodType = z
   .object({
-    accountId: z.string().optional(),
-    metastoreId: z.string().optional(),
+    accountId: z.string(),
+    metastoreId: z.string(),
     metastoreInfo: z
       .lazy(() => marshalUpdateAccountsMetastoreSchema)
       .optional(),
@@ -842,9 +841,9 @@ export const marshalCreateAccountsMetastoreSchema: z.ZodType = z
 
 export const marshalCreateMetastoreAssignmentRequestSchema: z.ZodType = z
   .object({
-    workspaceId: z.bigint().optional(),
-    metastoreId: z.string().optional(),
-    defaultCatalogName: z.string().optional(),
+    workspaceId: z.bigint(),
+    metastoreId: z.string(),
+    defaultCatalogName: z.string(),
   })
   .transform(d => ({
     workspace_id: d.workspaceId,
@@ -899,8 +898,8 @@ export const marshalCreateMetastoreRequestSchema: z.ZodType = z
 
 export const marshalMetastoreAssignmentSchema: z.ZodType = z
   .object({
-    workspaceId: z.bigint().optional(),
-    metastoreId: z.string().optional(),
+    workspaceId: z.bigint(),
+    metastoreId: z.string(),
     defaultCatalogName: z.string().optional(),
   })
   .transform(d => ({
@@ -956,7 +955,7 @@ export const marshalUpdateAccountsMetastoreSchema: z.ZodType = z
 
 export const marshalUpdateMetastoreAssignmentRequestSchema: z.ZodType = z
   .object({
-    workspaceId: z.bigint().optional(),
+    workspaceId: z.bigint(),
     metastoreId: z.string().optional(),
     defaultCatalogName: z.string().optional(),
   })
@@ -968,7 +967,7 @@ export const marshalUpdateMetastoreAssignmentRequestSchema: z.ZodType = z
 
 export const marshalUpdateMetastoreRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
     newName: z.string().optional(),
     name: z.string().optional(),
     storageRoot: z.string().optional(),

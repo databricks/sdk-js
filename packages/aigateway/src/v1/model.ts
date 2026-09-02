@@ -84,36 +84,6 @@ export type ListModelServicesRequest_View =
   | (typeof ListModelServicesRequest_View)[keyof typeof ListModelServicesRequest_View]
   | (string & {});
 
-/**
- * Which Anthropic subscription tier the relayed OAuth token belongs to.
- * Immutable after Create (switching tiers changes which governance controls
- * the platform enforces). Only MAX and TEAM_ENTERPRISE differ in the
- * governance surface the gateway can enforce, not in how the token is
- * relayed.
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
-export const ModelProviderServiceConfig_AnthropicProviderRelayedConfig_AnthropicRelayedPlanType =
-  {
-    /**
-     * Personal Claude Max/Pro subscription. No gateway-enforced governance:
-     * model selection, per-principal rate limits, and service policies (guard-
-     * rails) cannot be enforced on a personal subscription and are rejected.
-     */
-    ANTHROPIC_RELAYED_PLAN_TYPE_MAX: 'ANTHROPIC_RELAYED_PLAN_TYPE_MAX',
-    /**
-     * Claude for Teams / Enterprise organization subscription. Supports the
-     * full gateway governance surface: model allowlist (`targets` /
-     * `allow_all_targets`), rate limits, and service policies.
-     */
-    ANTHROPIC_RELAYED_PLAN_TYPE_TEAM_ENTERPRISE:
-      'ANTHROPIC_RELAYED_PLAN_TYPE_TEAM_ENTERPRISE',
-  } as const;
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export type ModelProviderServiceConfig_AnthropicProviderRelayedConfig_AnthropicRelayedPlanType =
-
-    | (typeof ModelProviderServiceConfig_AnthropicProviderRelayedConfig_AnthropicRelayedPlanType)[keyof typeof ModelProviderServiceConfig_AnthropicProviderRelayedConfig_AnthropicRelayedPlanType]
-    | (string & {});
-
 /** External LLM provider for an EXTERNAL_FOUNDATION_MODEL destination. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ModelProviderServiceConfig_ExternalModelProviderType = {
@@ -133,7 +103,10 @@ export const ModelProviderServiceConfig_ExternalModelProviderType = {
    * Configured by `base_url` + API key.
    */
   EXTERNAL_MODEL_PROVIDER_TYPE_CUSTOM: 'EXTERNAL_MODEL_PROVIDER_TYPE_CUSTOM',
-  /** Microsoft AI Foundry. Auth via API key plus Foundry endpoint URL. */
+  /**
+   * Microsoft Foundry. Configure a Foundry endpoint URL and authentication
+   * credentials.
+   */
   EXTERNAL_MODEL_PROVIDER_TYPE_MICROSOFT_FOUNDRY:
     'EXTERNAL_MODEL_PROVIDER_TYPE_MICROSOFT_FOUNDRY',
   /** Google Gemini Enterprise. Auth via API key. */
@@ -211,14 +184,15 @@ export interface CreateMcpServiceRequest {
    * Format: `schemas/{catalog}.{schema}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  parent?: string | undefined;
+  parent: string;
   /** Name for the MCP service, e.g. "my_mcp_service". */
-  mcpServiceId?: string | undefined;
+  mcpServiceId: string;
   /**
    * The MCP service to create. The server populates `name` from `parent` +
-   * `mcp_service_id`; clients should leave it unset.
+   * `mcp_service_id`; clients should leave it unset. `source_connection` is
+   * required.
    */
-  mcpService?: McpService | undefined;
+  mcpService: McpService;
 }
 
 /** Request to create a new model provider service. */
@@ -228,14 +202,14 @@ export interface CreateModelProviderServiceRequest {
    * Format: `schemas/{catalog}.{schema}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  parent?: string | undefined;
+  parent: string;
   /** Name for the model provider service, e.g. "openai_prod". */
-  modelProviderServiceId?: string | undefined;
+  modelProviderServiceId: string;
   /**
    * The model provider service to create. The server populates `name` from
    * `parent` + `model_provider_service_id`; clients should leave it unset.
    */
-  modelProviderService?: ModelProviderService | undefined;
+  modelProviderService: ModelProviderService;
 }
 
 /** Request to create a new model service. */
@@ -245,14 +219,14 @@ export interface CreateModelServiceRequest {
    * Format: `schemas/{catalog}.{schema}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  parent?: string | undefined;
+  parent: string;
   /** Name for the model service, e.g. "my_model_service". */
-  modelServiceId?: string | undefined;
+  modelServiceId: string;
   /**
    * The model service to create. The server populates `name` from `parent` +
    * `model_service_id`; clients should leave it unset.
    */
-  modelService?: ModelService | undefined;
+  modelService: ModelService;
 }
 
 /** Request to delete an MCP service. */
@@ -262,10 +236,12 @@ export interface DeleteMcpServiceRequest {
    * Format: `mcp-services/{catalog}.{schema}.{mcp_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  name?: string | undefined;
+  name: string;
   /**
-   * If-match precondition: when set, the delete proceeds only if the current
-   * server-side etag matches. Empty means unconditional delete.
+   * Optimistic concurrency token from the most recent read. When set, the
+   * delete succeeds only if the resource has not changed. Leave unset for an
+   * unconditional delete. For REST requests, URL-encode the base64 string
+   * returned by the API when setting the `etag` query parameter.
    */
   etag?: Uint8Array | undefined;
 }
@@ -277,10 +253,12 @@ export interface DeleteModelProviderServiceRequest {
    * Format: `model-provider-services/{catalog}.{schema}.{model_provider_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  name?: string | undefined;
+  name: string;
   /**
-   * If-match precondition: when set, the delete proceeds only if the current
-   * server-side etag matches. Empty means unconditional delete.
+   * Optimistic concurrency token from the most recent read. When set, the
+   * delete succeeds only if the resource has not changed. Leave unset for an
+   * unconditional delete. For REST requests, URL-encode the base64 string
+   * returned by the API when setting the `etag` query parameter.
    */
   etag?: Uint8Array | undefined;
 }
@@ -292,10 +270,12 @@ export interface DeleteModelServiceRequest {
    * Format: `model-services/{catalog}.{schema}.{model_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  name?: string | undefined;
+  name: string;
   /**
-   * If-match precondition: when set, the delete proceeds only if the current
-   * server-side etag matches. Empty means unconditional delete.
+   * Optimistic concurrency token from the most recent read. When set, the
+   * delete succeeds only if the resource has not changed. Leave unset for an
+   * unconditional delete. For REST requests, URL-encode the base64 string
+   * returned by the API when setting the `etag` query parameter.
    */
   etag?: Uint8Array | undefined;
 }
@@ -307,7 +287,7 @@ export interface GetMcpServiceRequest {
    * Format: `mcp-services/{catalog}.{schema}.{mcp_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Request to get a model provider service. */
@@ -317,7 +297,7 @@ export interface GetModelProviderServiceRequest {
    * Format: `model-provider-services/{catalog}.{schema}.{model_provider_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Request to get a model service. */
@@ -327,7 +307,7 @@ export interface GetModelServiceRequest {
    * Format: `model-services/{catalog}.{schema}.{model_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /**
@@ -345,25 +325,15 @@ export interface InferenceTableConfig {
    * Format: `schemas/{catalog}.{schema}`. Set at create time and immutable
    * thereafter; changing it on an existing service is rejected.
    */
-  parent?: string | undefined;
+  parent: string;
   /**
-   * Prefix for the inference-table's UC-registered name. The actual leaf name UC
-   * stores is `<table_name_prefix>_payload`; the `_payload` suffix is appended
-   * automatically. To find the actual UC table after Create, read the `table`
-   * field on the response. Defaults to `<model_service_name>_payload` when unset.
-   * Set at create time and immutable thereafter; changing it on an existing
-   * service is rejected.
+   * Prefix used to form the inference table's registered name. AI Gateway
+   * appends `_payload`; for example, `table_name_prefix = "orders"` creates
+   * `orders_payload`. If unset, the prefix defaults to the service name. Read
+   * `table` from the response for the resolved resource name. Set at create
+   * time and immutable thereafter.
    */
   tableNamePrefix?: string | undefined;
-  /**
-   * Indicates whether payload logging is disabled (opt-out). Unset means that
-   * payload logging is active (the on-by-default state coincides with the proto
-   * zero-value, so the server never fills this field for a client that leaves it
-   * unset). Set `disabled = true` to pause runtime logging while keeping the
-   * sub-message attached (preserving `parent` and `table_name_prefix` for a
-   * later flip back to active). `parent` remains required either way.
-   */
-  disabled?: boolean | undefined;
   /**
    * Resolved UC table for payload logs.
    * Format: `tables/{catalog}.{schema}.{table}`.
@@ -384,9 +354,9 @@ export interface InferenceTableConfig {
  */
 export interface ListMcpServicesRequest {
   /**
-   * Name of the parent schema to list within, as
-   * `schemas/{catalog}.{schema}`. Each `{...}` component is capped at 255
-   * characters individually.
+   * Parent schema to list within, in the form
+   * `schemas/{catalog}.{schema}`. Required. Each `{...}` component is capped at
+   * 255 characters individually.
    */
   parent?: string | undefined;
   /**
@@ -397,9 +367,10 @@ export interface ListMcpServicesRequest {
   /** Opaque pagination token from a previous request. */
   pageToken?: string | undefined;
   /**
-   * View selector controlling which fields are populated per row. `FULL`
-   * returns the full representation of the service; `BASIC` returns a more
-   * compact version. Defaults to `BASIC` when unset.
+   * Fields to return for each service. `FULL` includes source-connection
+   * details and rate-limit principal names. `BASIC` omits the source connection
+   * and omits principal names from rate limits. Defaults to `BASIC` when unset
+   * or `VIEW_UNSPECIFIED`.
    */
   view?: ListMcpServicesRequest_View | undefined;
 }
@@ -418,9 +389,9 @@ export interface ListMcpServicesResponse {
  */
 export interface ListModelProviderServicesRequest {
   /**
-   * Name of the parent schema to list within, as
-   * `schemas/{catalog}.{schema}`. Each `{...}` component is capped at 255
-   * characters individually.
+   * Parent schema to list within, in the form
+   * `schemas/{catalog}.{schema}`. Required. Each `{...}` component is capped at
+   * 255 characters individually.
    */
   parent?: string | undefined;
   /**
@@ -431,9 +402,10 @@ export interface ListModelProviderServicesRequest {
   /** Opaque pagination token from a previous request. */
   pageToken?: string | undefined;
   /**
-   * View selector controlling which fields are populated per row. `FULL`
-   * returns the full representation of the service; `BASIC` returns a more
-   * compact version. Defaults to `BASIC` when unset.
+   * Fields to return for each service. `FULL` includes inference-table details
+   * and rate-limit principal names. `BASIC` omits inference-table details and
+   * omits principal names from rate limits. Defaults to `BASIC` when unset or
+   * `VIEW_UNSPECIFIED`.
    */
   view?: ListModelProviderServicesRequest_View | undefined;
 }
@@ -452,9 +424,9 @@ export interface ListModelProviderServicesResponse {
  */
 export interface ListModelServicesRequest {
   /**
-   * Name of the parent schema to list within, as
-   * `schemas/{catalog}.{schema}`. Each `{...}` component is capped at 255
-   * characters individually.
+   * Parent schema to list within, in the form
+   * `schemas/{catalog}.{schema}`. Required. Each `{...}` component is capped at
+   * 255 characters individually.
    */
   parent?: string | undefined;
   /**
@@ -465,9 +437,10 @@ export interface ListModelServicesRequest {
   /** Opaque pagination token from a previous request. */
   pageToken?: string | undefined;
   /**
-   * View selector controlling which fields are populated per row. `FULL`
-   * returns the full representation of the service; `BASIC` returns a more
-   * compact version. Defaults to `BASIC` when unset.
+   * Fields to return for each service. `FULL` includes destinations,
+   * inference-table details, and rate-limit principal names. `BASIC` omits
+   * destinations and inference-table details and omits principal names from
+   * rate limits. Defaults to `BASIC` when unset or `VIEW_UNSPECIFIED`.
    */
   view?: ListModelServicesRequest_View | undefined;
 }
@@ -481,10 +454,9 @@ export interface ListModelServicesResponse {
 }
 
 /**
- * A governed MCP server registration in Unity Catalog. Acts as a container
- * securable that references an MCP server -- customer-external via a UC
- * Connection, or <Databricks>-hosted via an internal server -- and
- * exposes its tools for discovery, authorization, and invocation.
+ * A Unity Catalog securable that registers an MCP server through a Unity
+ * Catalog connection and exposes its tools for discovery, authorization, and
+ * invocation.
  */
 export interface McpService {
   /**
@@ -495,8 +467,6 @@ export interface McpService {
    * `mcp_service_id`; required and immutable on Update/Get/Delete.
    */
   name?: string | undefined;
-  /** The owner of the MCP service. Write-only; read owner via effective_owner. */
-  owner?: string | undefined;
   /**
    * The resolved owner of the MCP service. Falls back to the caller's identity
    * when `owner` is not explicitly set on creation.
@@ -504,36 +474,34 @@ export interface McpService {
   effectiveOwner?: string | undefined;
   /** Metastore hosting the MCP service. */
   metastoreId?: string | undefined;
-  /** When the MCP service was created. */
+  /** Time the MCP service was created. */
   createTime?: Temporal.Instant | undefined;
   /** Creator identity. */
   createdBy?: string | undefined;
-  /** When the MCP service was last modified. */
+  /** Time the MCP service was last modified. */
   updateTime?: Temporal.Instant | undefined;
   /** Identity of the last updater. */
   updatedBy?: string | undefined;
   /** User-provided description. */
   comment?: string | undefined;
   /**
-   * Operational configuration: connection, tool selectors, rate limit.
-   * Required on CreateMcpService; on
-   * UpdateMcpService it is required only when `config` (or a `config.*`
-   * subpath) appears in `update_mask`.
+   * Connection, tool selectors, and rate limits. Required on Create. On Update,
+   * provide this field when `update_mask` contains `config` or one of its
+   * subpaths.
    */
   config?: McpServiceConfig | undefined;
   /**
-   * Optimistic concurrency control token. Server-generated from the
-   * entity's state and returned on every read. To use it as an if-match
-   * precondition on a mutation, echo the last-read value back via the dedicated
-   * `etag` field on the Update / Delete request; the server rejects the mutation
-   * if the stored etag differs.
+   * Optimistic concurrency token returned on every read. To make an Update or
+   * Delete conditional, pass the last-read value in that request's `etag`
+   * field. In REST responses, this value is a base64 string; URL-encode it when
+   * setting the `etag` query parameter.
    */
   etag?: Uint8Array | undefined;
 }
 
 /**
  * Operational configuration for an MCP service. Groups the source reference,
- * tool selectors, and rate limit -- the fields that configure how the MCP
+ * tool selectors, and rate limits -- the fields that configure how the MCP
  * service behaves at invocation time.
  */
 export interface McpServiceConfig {
@@ -560,48 +528,52 @@ export interface McpServiceConfig {
   source?:
     | {
         $case: 'sourceConnection';
-        /** UC Connection referencing the MCP server. */
+        /** Unity Catalog connection referencing the MCP server. Required on Create. */
         sourceConnection: McpServiceConfig_SourceConnection;
       }
     | undefined;
   /**
-   * Glob or exact-match patterns selecting which tools from the MCP server
-   * to expose. Prefix match for patterns with `*`, exact match otherwise.
-   * An empty list means all tools are included. Per-element max 256 chars.
+   * Tool names or prefix patterns to expose from the MCP server. Use exact
+   * tool names or prefix patterns such as `read_*`. An empty list exposes all
+   * tools. Each selector can contain at most 256 characters.
    */
   includeToolSelectors?: string[] | undefined;
   /**
-   * Per-principal rate limits applied to tool invocations routed through this
-   * MCP service. Repeated to support per-USER / USER_GROUP / SERVICE_PRINCIPAL
-   * / SERVICE / USER_DEFAULT scopes simultaneously, mirroring the
-   * `ModelServiceConfig.rate_limits` shape. Empty when no rate limit is
+   * Rate limits for tool invocations, scoped to a user, group, service
+   * principal, the service as a whole, or each user by default. Request-tag
+   * rate limits are not supported for MCP services. Empty when no rate limit is
    * configured.
    */
   rateLimits?: RateLimit[] | undefined;
 }
 
 /**
- * UC Connection that hosts the MCP server. On create, provide `name` in the
- * schema-scoped form `connections/{catalog}.{schema}.{connection}`. On read,
- * the service populates the resolved connection metadata and preserves a
- * dangling source so callers can diagnose a deleted backing connection.
+ * Unity Catalog connection that hosts the MCP server. On Create, provide
+ * `name` in the schema-scoped form
+ * `connections/{catalog}.{schema}.{connection}`. On read, the service
+ * populates the resolved connection metadata and preserves a dangling source
+ * so callers can diagnose a deleted backing connection.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface McpServiceConfig_SourceConnection {
   /**
-   * Name of the UC connection that hosts the MCP server, as
+   * Name of the Unity Catalog connection that hosts the MCP server, as
    * `connections/{catalog}.{schema}.{connection}`.
    */
-  name?: string | undefined;
+  name: string;
+  /**
+   * Whether the referenced connection has been deleted. The MCP service keeps
+   * the reference so callers can identify the broken dependency; tool
+   * invocation fails until the source connection is updated.
+   */
   isDeleted?: boolean | undefined;
 }
 
 /**
- * A governed external model-provider connection stored in Unity Catalog (e.g.
- * an OpenAI API account, an Azure OpenAI deployment, an Amazon Bedrock
- * account). Owns the provider type and the auth/configuration the platform
- * needs to invoke that provider, and is referenced from
- * `ExternalModelConfig.model_provider_service` on a ModelService.
+ * A governed connection to an external model provider stored in Unity Catalog,
+ * such as an OpenAI account, Azure OpenAI deployment, or Amazon Bedrock account.
+ * It stores the provider type, authentication, and connection configuration
+ * used by model service destinations.
  *
  * One ModelProviderService can back many ModelServices (e.g. an `openai_prod`
  * provider serving multiple models); a single ModelService can fan out across
@@ -617,40 +589,33 @@ export interface ModelProviderService {
    */
   name?: string | undefined;
   /**
-   * The owner of the model provider service. Write-only; read owner via
-   * effective_owner.
-   */
-  owner?: string | undefined;
-  /**
    * The resolved owner of the model provider service. Falls back to the
    * caller's identity when `owner` is not explicitly set on creation.
    */
   effectiveOwner?: string | undefined;
   /** Metastore hosting the provider service. */
   metastoreId?: string | undefined;
-  /** When the provider service was created. */
+  /** Time the provider service was created. */
   createTime?: Temporal.Instant | undefined;
   /** Creator identity. */
   createdBy?: string | undefined;
-  /** When the provider service was last modified. */
+  /** Time the provider service was last modified. */
   updateTime?: Temporal.Instant | undefined;
   /** Identity of the last updater. */
   updatedBy?: string | undefined;
   /** User-provided description. */
   comment?: string | undefined;
   /**
-   * Optimistic concurrency control token. Server-generated from the
-   * entity's state and returned on every read. To use it as an if-match
-   * precondition on a mutation, echo the last-read value back via the dedicated
-   * `etag` field on the Update / Delete request; the server rejects the mutation
-   * if the stored etag differs.
+   * Optimistic concurrency token returned on every read. To make an Update or
+   * Delete conditional, pass the last-read value in that request's `etag`
+   * field. In REST responses, this value is a base64 string; URL-encode it when
+   * setting the `etag` query parameter.
    */
   etag?: Uint8Array | undefined;
   /**
-   * Behavioral configuration: provider connection, model catalog, and
-   * passthrough policy. See `ModelProviderServiceConfig` for the per-field
-   * contract. Required on CreateModelProviderService; on Update it is required
-   * only when `config` (or a `config.*` subpath) appears in `update_mask`.
+   * Provider connection, exposed models, request-forwarding controls, rate
+   * limits, and payload logging. Required on Create. On Update, it is required
+   * only when `config` or one of its subpaths appears in `update_mask`.
    */
   config?: ModelProviderServiceConfig | undefined;
 }
@@ -678,13 +643,13 @@ export interface ModelProviderServiceConfig {
    * Provider-specific configuration. Exactly one variant must be set, and it
    * must match `provider_type`; a request whose active variant disagrees with
    * `provider_type` is rejected with `INVALID_PARAMETER_VALUE`. Secret-bearing
-   * fields nested inside each *DirectConfig (`api_key`, `aws_secret_access_key`,
+   * fields nested inside each *DirectConfig (`api_key`, `secret_access_key`,
    * `service_account_key`, ...) wrap a `ProviderSecret`: callers supply the
    * value as `ProviderSecret.plaintext` on writes, and the platform stores it
    * encrypted. Reads (Get and List) omit the plaintext; secret-bearing
    * fields appear in the response only as a presence indicator that a secret is
    * configured. Non-secret fields (`base_url`, `region`, `organization`,
-   * `aws_access_key_id`, ...) round-trip directly.
+   * `access_key_id`, ...) round-trip directly.
    *
    * Declarative tooling (Terraform / DABs): the `plaintext` field is
    * INPUT_ONLY and never round-trips on reads, so a Terraform config that
@@ -743,48 +708,44 @@ export interface ModelProviderServiceConfig {
    */
   allowAllTargets?: boolean | undefined;
   /**
-   * Routing targets this provider service exposes (provider-side model
-   * identifier + unified API types per entry). Required (>=1) when
-   * `allow_all_targets = false`; optional and additive when
-   * `allow_all_targets = true`. References from `ExternalModelConfig.target`
-   * must match an entry here unless `allow_all_targets = true`.
+   * Models and provider-native API types exposed by this provider service. Each
+   * entry must include at least one `native_api_types` value. When
+   * `allow_all_targets` is false, at least one entry is required and model
+   * service destinations can reference only listed models. When
+   * `allow_all_targets` is true, any upstream model is routable; entries in
+   * this list provide API-type metadata without restricting other models.
    */
   targets?: ModelProviderServiceConfig_ModelTargetConfig[] | undefined;
   /**
-   * Whether to forward incoming request headers to the upstream provider.
-   * Applies to managed (multi-model) requests as well as passthrough requests
-   * served by this provider service. Governance-level decision by the provider
-   * service owner; not selectable per inference call.
+   * Whether to forward incoming HTTP headers to the upstream provider. Applies
+   * to translated and passthrough requests and is configured for the entire
+   * provider service, not per request. Upstream authentication is configured
+   * separately in `provider`.
    */
   forwardHeaders?: boolean | undefined;
   /**
-   * Whether to forward incoming request query parameters to the upstream
-   * provider. Same trust-boundary semantics as `forward_headers`.
+   * Whether incoming query parameters are forwarded to the upstream provider.
+   * Applies to translated and passthrough requests and is configured for the
+   * entire provider service, not per request.
    */
   forwardQueryParameters?: boolean | undefined;
   /**
-   * Whether to forward request paths that fall outside this service's managed
-   * API set to the upstream provider as opaque passthrough. When true,
-   * requests addressed to subpaths not recognized by the managed API surface
-   * are proxied to the upstream provider over the same provider connection.
-   * When false, only managed-API paths are served. Governance-level decision
-   * by the provider service owner; expanding this expands the trust boundary
-   * that the ModelProviderService exposes.
+   * Whether to proxy paths that AI Gateway does not recognize as configured
+   * provider-native API types. When true, these paths are forwarded unchanged
+   * over the provider connection. When false, only recognized API paths are
+   * served. Enabling this broadens the upstream API surface exposed through
+   * the provider service.
    */
   forwardUnmanagedPaths?: boolean | undefined;
   /**
-   * Rate limits applied when this provider service is invoked directly. When
-   * it is invoked through a model service, the model service's own
-   * `rate_limits` apply instead. Mirrors `ModelServiceConfig.rate_limits` /
-   * `McpServiceConfig.rate_limits`.
+   * Rate limits for requests sent directly to this provider service. Requests
+   * routed through a model service use that model service's rate limits instead.
    */
   rateLimits?: RateLimit[] | undefined;
   /**
-   * Inference table configuration for payload logging when this provider
-   * service is invoked directly. When it is invoked through a model service,
-   * the model service's own inference table captures the invocation instead.
-   * Mirrors `ModelServiceConfig.inference_table` /
-   * `AgentServiceConfig.inference_table`.
+   * Payload logging configuration for requests sent directly to this provider
+   * service. Requests routed through a model service are captured by that model
+   * service's inference table instead.
    */
   inferenceTable?: InferenceTableConfig | undefined;
 }
@@ -813,10 +774,10 @@ export interface ModelProviderServiceConfig_AmazonBedrockProviderConfig {
  * Authentication is one of two mutually exclusive modes, exactly one of which
  * must be supplied on Create:
  * - Access keys: set `aws_access_key`, leave `service_credential` unset.
- * - UC service credential: set `service_credential.name` to the AIP-122
- * resource-name form `credentials/{name}`, leave `aws_access_key` unset. The
- * credential value lives in UC and is referenced by name, not held on this
- * message.
+ * - Unity Catalog service credential: set `service_credential.name` to the
+ * resource name `credentials/{name}`, leave `aws_access_key` unset. The
+ * credential value lives in Unity Catalog and is referenced by name, not
+ * held on this message.
  * Setting more than one mode is rejected.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -831,12 +792,12 @@ export interface ModelProviderServiceConfig_AmazonBedrockProviderDirectConfig {
     | {
         $case: 'serviceCredential';
         /**
-         * Reference to a UC service credential authorizing Bedrock requests. On
-         * Create the caller supplies `service_credential.name` in the AIP-122
-         * resource-name form `credentials/{name}`. Required on Create when using
-         * UC-service-credential auth; mutually exclusive with `aws_access_key`. The
-         * credential is referenced by name; its value is not carried here. On read the
-         * resolved `id` and `is_deleted` are also populated. Only supported on AWS-hosted
+         * Reference to a Unity Catalog service credential authorizing Bedrock
+         * requests. On Create, supply `service_credential.name` in the form
+         * `credentials/{name}`. Required on Create when using service-credential
+         * authentication; mutually exclusive with `aws_access_key`. The credential
+         * is referenced by name; its value is not carried here. On read, the resolved
+         * `id` and `is_deleted` are also populated. Only supported on AWS-hosted
          * workspaces; Create requests from other clouds are rejected with
          * INVALID_PARAMETER_VALUE.
          */
@@ -914,17 +875,8 @@ export interface ModelProviderServiceConfig_AnthropicProviderDirectConfig {
  * is the signal that the provider service uses relayed auth; `plan_type`
  * further distinguishes which Anthropic subscription tier the token belongs to.
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ModelProviderServiceConfig_AnthropicProviderRelayedConfig {
-  /**
-   * Which Anthropic subscription tier the relayed token belongs to. Optional;
-   * when unset the MPS gets the full governance surface (see TEAM_ENTERPRISE).
-   * Immutable after Create, so the tier cannot be flipped in place.
-   */
-  planType?:
-    | ModelProviderServiceConfig_AnthropicProviderRelayedConfig_AnthropicRelayedPlanType
-    | undefined;
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
+export interface ModelProviderServiceConfig_AnthropicProviderRelayedConfig {}
 
 /** AWS access-key-pair auth for Amazon Bedrock: a SigV4-signing key pair. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -968,11 +920,11 @@ export interface ModelProviderServiceConfig_AzureOpenAiProviderConfig {
  * `service_credential` unset.
  * - Entra ID (service principal): set `entra_service_principal`, leave
  * `api_key` and `service_credential` unset.
- * - UC service credential: set `service_credential.name` to the AIP-122
- * resource-name form `credentials/{name}`, leave `api_key` and
- * `entra_service_principal` unset. The credential value lives in UC and is
- * referenced by name, not held on this message. Only supported on
- * Azure-hosted workspaces.
+ * - Unity Catalog service credential: set `service_credential.name` to the
+ * resource name `credentials/{name}`, leave `api_key` and
+ * `entra_service_principal` unset. The credential value lives in Unity
+ * Catalog and is referenced by name, not held on this message. Only
+ * supported on Azure-hosted workspaces.
  * Setting more than one mode is rejected.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -996,15 +948,14 @@ export interface ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig {
     | {
         $case: 'serviceCredential';
         /**
-         * Reference to a UC service credential authorizing Azure OpenAI requests. On
-         * Create the caller supplies `service_credential.name` in the AIP-122
-         * resource-name form `credentials/{name}`. Required on Create when using
-         * UC-service-credential auth; mutually exclusive with `api_key` and
-         * `entra_service_principal`. The credential is
-         * referenced by name; its value is not carried here. On read the resolved `id`
-         * and `is_deleted` are also populated. Only supported on Azure-hosted
-         * workspaces; Create requests from other clouds are rejected with
-         * INVALID_PARAMETER_VALUE.
+         * Reference to a Unity Catalog service credential authorizing Azure OpenAI
+         * requests. On Create, supply `service_credential.name` in the form
+         * `credentials/{name}`. Required on Create when using service-credential
+         * authentication; mutually exclusive with `api_key` and
+         * `entra_service_principal`. The credential is referenced by name; its value
+         * is not carried here. On read, the resolved `id` and `is_deleted` are also
+         * populated. Only supported on Azure-hosted workspaces; Create requests from
+         * other clouds are rejected with INVALID_PARAMETER_VALUE.
          */
         serviceCredential: ModelProviderServiceConfig_ServiceCredential;
       }
@@ -1127,7 +1078,8 @@ export interface ModelProviderServiceConfig_GeminiEnterpriseProviderConfig {
  * Authentication is one of two mutually exclusive modes; exactly one must be
  * supplied on Create:
  * - API key: set `api_key`, leave `service_credential` unset.
- * - UC service credential: set `service_credential`, leave `api_key` unset.
+ * - Unity Catalog service credential: set `service_credential`, leave
+ * `api_key` unset.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_GeminiEnterpriseProviderDirectConfig {
@@ -1156,8 +1108,8 @@ export interface ModelProviderServiceConfig_GeminiEnterpriseProviderDirectConfig
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_MicrosoftFoundryProviderConfig {
   /**
-   * Direct (inline-credentials) form: caller supplies the Foundry endpoint
-   * URL + API key in the request body. Required on Create.
+   * Direct form: caller supplies the Foundry endpoint URL and authentication
+   * configuration in the request body. Required on Create.
    * Provider configuration mode. Exactly one variant may be set.
    * (-- Wrapped in a oneof so future non-direct modes can be added as additional
    * variants without a breaking change. --)
@@ -1181,23 +1133,23 @@ export interface ModelProviderServiceConfig_MicrosoftFoundryProviderConfig {
  * `api_key` and `service_credential` unset. AI Gateway exchanges these for
  * an Entra bearer token on outbound requests via the OAuth2
  * client-credentials grant.
- * - UC service credential: set `service_credential.name` to the AIP-122
- * resource-name form `credentials/{name}`, leave `api_key` and
- * `entra_service_principal` unset. The credential value lives in UC and is
- * referenced by name, not held on this message. Only supported on
- * Azure-hosted workspaces.
+ * - Unity Catalog service credential: set `service_credential.name` to the
+ * resource name `credentials/{name}`, leave `api_key` and
+ * `entra_service_principal` unset. The credential value lives in Unity
+ * Catalog and is referenced by name, not held on this message. Only
+ * supported on Azure-hosted workspaces.
  * Setting more than one mode is rejected.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_MicrosoftFoundryProviderDirectConfig {
-  /** Microsoft AI Foundry endpoint URL. Required on Create. */
+  /** Microsoft Foundry endpoint URL. Required on Create. */
   baseUrl?: string | undefined;
   /** Authentication mode. Exactly one variant may be set. */
   authMode?:
     | {
         $case: 'apiKey';
         /**
-         * Microsoft AI Foundry API key. Mutually exclusive with the Entra and
+         * Microsoft Foundry API key. Mutually exclusive with the Entra and
          * service-credential modes. Supplied as inline plaintext via
          * `ProviderSecret.plaintext`.
          */
@@ -1206,15 +1158,14 @@ export interface ModelProviderServiceConfig_MicrosoftFoundryProviderDirectConfig
     | {
         $case: 'serviceCredential';
         /**
-         * Reference to a UC service credential authorizing Microsoft Foundry requests.
-         * On Create the caller supplies `service_credential.name` in the AIP-122
-         * resource-name form `credentials/{name}`. Required on Create when using
-         * UC-service-credential auth; mutually exclusive with `api_key` and
-         * `entra_service_principal`. The credential is
-         * referenced by name; its value is not carried here. On read the resolved `id`
-         * and `is_deleted` are also populated. Only supported on Azure-hosted
-         * workspaces; Create requests from other clouds are rejected with
-         * INVALID_PARAMETER_VALUE.
+         * Reference to a Unity Catalog service credential authorizing Microsoft
+         * Foundry requests. On Create, supply `service_credential.name` in the form
+         * `credentials/{name}`. Required on Create when using service-credential
+         * authentication; mutually exclusive with `api_key` and
+         * `entra_service_principal`. The credential is referenced by name; its value
+         * is not carried here. On read, the resolved `id` and `is_deleted` are also
+         * populated. Only supported on Azure-hosted workspaces; Create requests from
+         * other clouds are rejected with INVALID_PARAMETER_VALUE.
          */
         serviceCredential: ModelProviderServiceConfig_ServiceCredential;
       }
@@ -1233,18 +1184,16 @@ export interface ModelProviderServiceConfig_MicrosoftFoundryProviderDirectConfig
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_ModelTargetConfig {
   /**
-   * Provider-side model identifier (e.g. "gpt-5", "claude-opus-4-7"). This is
-   * a string on the LLM provider's side, not a UC entity. The UC governance
-   * hook for external destinations is the ModelProviderService referenced by
-   * `ExternalModelConfig.model_provider_service`, not the model itself.
+   * Provider-side model identifier, such as `gpt-5` or `claude-opus-4-7`.
+   * This identifies a model at the upstream provider; it is not a Unity
+   * Catalog model resource.
    */
-  model?: string | undefined;
+  model: string;
   /**
-   * Provider-native API types the model supports (e.g.
-   * "openai/v1/chat/completions"). Used by the platform for request/response
-   * translation from the unified API type. At most 64 entries of at most 256
-   * characters each; the list is persisted into the destination binding's
-   * bounded storage envelope.
+   * Provider-native API types supported by this model, such as
+   * `openai/v1/chat/completions`. AI Gateway uses these values to translate
+   * requests and responses. At most 64 entries of 256 characters each are
+   * allowed.
    */
   nativeApiTypes?: string[] | undefined;
 }
@@ -1308,10 +1257,9 @@ export interface ModelProviderServiceConfig_OpenAiProviderDirectConfig {
 export interface ModelProviderServiceConfig_ProviderSecret {
   /**
    * How the credential value is supplied. Exactly one variant may be set.
-   * (-- Wrapped in a oneof so a future non-plaintext source (e.g. a Databricks
-   * secret reference `{{secrets/<scope>/<key>}}`, mirroring AIGW v2's
-   * ProviderSecret) can be added as an additional variant without a breaking
-   * change. --)
+   * (-- Wrapped in a oneof so a non-plaintext source can be added as an
+   * additional variant without a breaking change; `secret_reference` is
+   * that variant, and further sources can follow the same way. --)
    */
   value?:
     | {
@@ -1328,26 +1276,24 @@ export interface ModelProviderServiceConfig_ProviderSecret {
 
 /**
  * ---- Provider configuration (nested; see the `provider` oneof below) ----
- * The customer-owned UC service credential a ModelProviderService uses to
- * authenticate to its provider, referenced by name.
+ * The customer-owned Unity Catalog service credential a ModelProviderService
+ * uses to authenticate to its provider, referenced by name.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_ServiceCredential {
   /**
-   * Resource name of the bound UC service credential, in the AIP-122 form
-   * `credentials/{name}` (a metastore-level single-part credential name). On
-   * create the caller supplies the name here. On read it reflects the
-   * credential's current name at read time.
+   * Resource name of the bound Unity Catalog service credential, in the form
+   * `credentials/{name}`. On Create, supply the name here. On read, this field
+   * reflects the credential's current name.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 /**
  * A governed AI Gateway endpoint in Unity Catalog that routes inference
- * requests to one or more model destinations (for example a foundation model
- * or an external LLM reached through a ModelProviderService). Applies
- * centralized access control, rate limits, guardrails, and auditing to the
- * traffic it serves.
+ * requests to one or more destinations, such as a <Databricks> foundation model
+ * or an external model reached through a model provider service. Applies
+ * centralized access control, rate limits, and auditing to its traffic.
  */
 export interface ModelService {
   /**
@@ -1358,8 +1304,6 @@ export interface ModelService {
    * `model_service_id`; required and immutable on Update/Get/Delete.
    */
   name?: string | undefined;
-  /** The owner of the model service. Write-only; read owner via effective_owner. */
-  owner?: string | undefined;
   /**
    * The resolved owner of the ModelService. Falls back to the caller's identity
    * when `owner` is not explicitly set on creation.
@@ -1367,34 +1311,33 @@ export interface ModelService {
   effectiveOwner?: string | undefined;
   /** Metastore hosting the model service. */
   metastoreId?: string | undefined;
-  /** When the model service was created. */
+  /** Time the model service was created. */
   createTime?: Temporal.Instant | undefined;
   /** Creator identity. */
   createdBy?: string | undefined;
-  /** When the model service was last modified. */
+  /** Time the model service was last modified. */
   updateTime?: Temporal.Instant | undefined;
   /** Identity of the last updater. */
   updatedBy?: string | undefined;
   /** User-provided description. */
   comment?: string | undefined;
   /**
-   * Operational configuration: destinations, routing, rate limits, inference
-   * table. Required on CreateModelService; on UpdateModelService it is
-   * required only when `config` (or a `config.*` subpath) appears in
-   * `update_mask`.
+   * Destinations, routing, rate limits, and payload logging configuration.
+   * Required on Create. On Update, provide this field when `update_mask`
+   * contains `config` or one of its subpaths.
    */
   config?: ModelServiceConfig | undefined;
   /**
-   * Optimistic concurrency control token. Server-generated from the
-   * entity's state and returned on every read. To use it as an if-match
-   * precondition on a mutation, echo the last-read value back via the dedicated
-   * `etag` field on the Update / Delete request; the server rejects the mutation
-   * if the stored etag differs.
+   * Optimistic concurrency token returned on every read. To make an Update or
+   * Delete conditional, pass the last-read value in that request's `etag`
+   * field. In REST responses, this value is a base64 string; URL-encode it when
+   * setting the `etag` query parameter.
    */
   etag?: Uint8Array | undefined;
   /**
-   * Unified API types this endpoint supports (e.g. "chat", "embeddings",
-   * "completions"). Derived from the destinations' backing models / providers
+   * API types supported across this service's destinations, such as
+   * `openai/v1/chat/completions`, `openai/v1/embeddings`, and
+   * `mlflow/v1/chat/completions`. Derived from the backing models and providers
    * at read time.
    */
   supportedApiTypes?: string[] | undefined;
@@ -1418,14 +1361,16 @@ export interface ModelServiceConfig {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelServiceConfig_DestinationConfig {
   /** User-facing label for this destination, used in routing references. */
-  name?: string | undefined;
-  /** Backing-model category. Determines which oneof variant is populated. */
-  destinationType?:
-    | ModelServiceConfig_DestinationConfig_DestinationType
-    | undefined;
+  name: string;
   /**
-   * Share of traffic sent to this destination, 0-100. Optional on fallback
-   * destinations; see FallbackConfig.
+   * Backing-model category. Provide the matching type-specific configuration
+   * and leave the other type-specific configurations unset.
+   */
+  destinationType: ModelServiceConfig_DestinationConfig_DestinationType;
+  /**
+   * Percentage of primary traffic sent to this destination, from 0 to 100.
+   * Required when `traffic_splitting` is set; primary percentages must sum to
+   * 100. Fallback destinations are ordered and do not use this field.
    */
   trafficPercentage?: number | undefined;
   /** Destination-type-specific configuration. */
@@ -1470,13 +1415,13 @@ export interface ModelServiceConfig_ExternalModelConfig {
    * Format: `model-provider-services/{catalog}.{schema}.{model_provider_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
-  modelProviderService?: string | undefined;
+  modelProviderService: string;
   /**
    * Routing target for the destination: the provider-side model selected from
    * the referenced ModelProviderService's `targets` catalog, plus the unified
    * API types the platform should translate to/from at request time.
    */
-  target?: ModelProviderServiceConfig_ModelTargetConfig | undefined;
+  target: ModelProviderServiceConfig_ModelTargetConfig;
 }
 
 /**
@@ -1501,10 +1446,10 @@ export interface ModelServiceConfig_FallbackConfig {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelServiceConfig_PayPerTokenConfig {
   /**
-   * Resource name of the UC model.
+   * Resource name of the Unity Catalog model.
    * Format: `models/{catalog}.{schema}.{model}`.
    */
-  model?: string | undefined;
+  model: string;
 }
 
 /**
@@ -1517,13 +1462,13 @@ export interface ModelServiceConfig_PayPerTokenConfig {
 export interface ModelServiceConfig_ProvisionedThroughputConfig {
   /**
    * Name of the backing Model Serving endpoint serving the provisioned-
-   * throughput foundation model, as the AIP-122 typed resource name
-   * `serving-endpoints/{name}`. The same UC model can be served on multiple
-   * Model Serving endpoints (different throughput / region / config); the
-   * caller picks which one this destination routes to. The endpoint must
-   * exist at create time.
+   * throughput foundation model, in the form `serving-endpoints/{name}`. The
+   * same Unity Catalog model can be served on multiple Model Serving endpoints
+   * with different throughput, regions, or configurations. The caller selects
+   * the endpoint to which this destination routes. The endpoint must exist at
+   * create time.
    */
-  modelServingEndpoint?: string | undefined;
+  modelServingEndpoint: string;
   /**
    * UC model FQN of the model served by the backing endpoint (e.g.,
    * `system.ai.databricks-claude-opus-4-6`). Resolved from Model Serving at
@@ -1540,9 +1485,10 @@ export interface ModelServiceConfig_ProvisionedThroughputConfig {
 export interface ModelServiceConfig_RoutingConfig {
   /**
    * Primary routing destinations. At most 10 are allowed. At least one is
-   * required on CreateModelService; on UpdateModelService it is required only
-   * when `config.routing` (or a `config.routing.*` subpath) appears in
-   * `update_mask`.
+   * required on Create. On Update, provide this list when replacing the full
+   * `config` or updating `config.routing.destinations`; other granular routing
+   * updates do not require resending destinations. The intermediate
+   * `config.routing` mask path is not supported.
    */
   destinations?: ModelServiceConfig_DestinationConfig[] | undefined;
   /** Selects how requests are distributed across destinations. */
@@ -1550,14 +1496,16 @@ export interface ModelServiceConfig_RoutingConfig {
     | {
         $case: 'trafficSplitting';
         /**
-         * Marker message selecting request-based traffic splitting. Traffic is
-         * distributed according to each destination's traffic_percentage value;
-         * no configuration lives on this message itself.
+         * Select `traffic_splitting` to enable weighted traffic splitting across
+         * primary destinations. Their `traffic_percentage` values must sum to 100.
          */
         trafficSplitting: ModelServiceConfig_RoutingConfig_TrafficSplitting;
       }
     | undefined;
-  /** Fallback routing config, applied after primary destinations fail. */
+  /**
+   * Fallback routing applied after a primary destination fails. Fallback
+   * destinations are tried in the listed order.
+   */
   fallback?: ModelServiceConfig_FallbackConfig | undefined;
   /**
    * Timeout for the first token of a streaming response. If a destination does
@@ -1581,10 +1529,13 @@ export interface ModelServiceConfig_RoutingConfig_TrafficSplitting {}
  * within the renewal period.
  */
 export interface RateLimit {
-  /** Scope key. Determines whether `principal` is required. */
-  key?: RateLimit_RateLimitKey | undefined;
+  /**
+   * Scope of the rate limit. Depending on this value, the limit applies to a
+   * principal, the service as a whole, each user by default, or a request tag.
+   */
+  key: RateLimit_RateLimitKey;
   /** Renewal period. */
-  renewalPeriod?: RateLimit_RateLimitRenewalPeriod | undefined;
+  renewalPeriod: RateLimit_RateLimitRenewalPeriod;
   /**
    * Principal this limit applies to: user email, group name, or service
    * principal application ID. Required unless `key` is
@@ -1592,9 +1543,15 @@ export interface RateLimit {
    * `RATE_LIMIT_KEY_REQUEST_TAG` (which must not set a principal).
    */
   principal?: string | undefined;
-  /** Max requests allowed within a renewal period. Leave unset for no request limit. */
+  /**
+   * Maximum requests allowed in one renewal period. Leave unset for no request
+   * limit. Set to `0` to deny all requests.
+   */
   requests?: bigint | undefined;
-  /** Max tokens allowed within a renewal period. Leave unset for no token limit. */
+  /**
+   * Maximum tokens allowed in one renewal period. Leave unset for no token
+   * limit. Set to `0` to deny all requests.
+   */
   tokens?: bigint | undefined;
   /**
    * Request tag key this limit applies to. Required when `key` is
@@ -1617,16 +1574,20 @@ export interface UpdateMcpServiceRequest {
    * resource (`mcp-services/{catalog}.{schema}.{mcp_service}`); only fields
    * listed in `update_mask` are applied.
    */
-  mcpService?: McpService | undefined;
+  mcpService: McpService;
   /**
-   * The list of fields to update. The framework validates each path against
-   * the `mcp_service` field above. Wildcard paths (`paths: ["*"]`) are not
-   * supported; list each field path explicitly.
+   * Fields to update. Use `config` to replace the entire configuration. The
+   * replacement must include every required field; any optional field you omit
+   * is cleared. To preserve sibling fields, use one or more granular paths:
+   * `comment`, `config.source_connection.name`, `config.include_tool_selectors`, or
+   * `config.rate_limits`. Wildcard paths such as `*` are not supported.
    */
-  updateMask?: FieldMask<McpService> | undefined;
+  updateMask: FieldMask<McpService>;
   /**
-   * If-match precondition: when set, the update proceeds only if the
-   * current server-side etag matches. Empty means an unconditional update.
+   * Optimistic concurrency token from the most recent read. When set, the
+   * update succeeds only if the resource has not changed. Leave unset for an
+   * unconditional update. For REST requests, URL-encode the base64 string
+   * returned by the API when setting the `etag` query parameter.
    */
   etag?: Uint8Array | undefined;
 }
@@ -1642,16 +1603,23 @@ export interface UpdateModelProviderServiceRequest {
    * (`model-provider-services/{catalog}.{schema}.{model_provider_service}`);
    * only fields listed in `update_mask` are applied.
    */
-  modelProviderService?: ModelProviderService | undefined;
+  modelProviderService: ModelProviderService;
   /**
-   * The list of fields to update. The framework validates each path against
-   * the `model_provider_service` field above. Wildcard paths (`paths: ["*"]`)
-   * are not supported; list each field path explicitly.
+   * Fields to update. Use `config` to replace the entire configuration. The
+   * replacement must include every required field; any optional field you omit
+   * is cleared. To preserve sibling fields, use one or more granular paths:
+   * `comment`, `config.provider`,
+   * `config.allow_all_targets`, `config.targets`, `config.forward_headers`,
+   * `config.forward_query_parameters`, `config.forward_unmanaged_paths`,
+   * `config.rate_limits`, or `config.inference_table`. The provider type is
+   * immutable, and wildcard paths such as `*` are not supported.
    */
-  updateMask?: FieldMask<ModelProviderService> | undefined;
+  updateMask: FieldMask<ModelProviderService>;
   /**
-   * If-match precondition: when set, the update proceeds only if the
-   * current server-side etag matches. Empty means an unconditional update.
+   * Optimistic concurrency token from the most recent read. When set, the
+   * update succeeds only if the resource has not changed. Leave unset for an
+   * unconditional update. For REST requests, URL-encode the base64 string
+   * returned by the API when setting the `etag` query parameter.
    */
   etag?: Uint8Array | undefined;
 }
@@ -1666,16 +1634,23 @@ export interface UpdateModelServiceRequest {
    * resource (`model-services/{catalog}.{schema}.{model_service}`); only
    * fields listed in `update_mask` are applied.
    */
-  modelService?: ModelService | undefined;
+  modelService: ModelService;
   /**
-   * The list of fields to update. The framework validates each path against
-   * the `model_service` field above. Wildcard paths (`paths: ["*"]`) are not
-   * supported; list each field path explicitly.
+   * Fields to update. Use `config` to replace the entire configuration. The
+   * replacement must include every required field; any optional field you omit
+   * is cleared. To preserve sibling fields, use one or more granular paths:
+   * `comment`, `config.routing.destinations`, `config.routing.routing_strategy`,
+   * `config.routing.fallback.destinations`,
+   * `config.routing.first_token_timeout`, `config.rate_limits`, or
+   * `config.inference_table`. Intermediate paths such as `config.routing` and
+   * `config.routing.fallback`, and wildcard paths such as `*`, are not supported.
    */
-  updateMask?: FieldMask<ModelService> | undefined;
+  updateMask: FieldMask<ModelService>;
   /**
-   * If-match precondition: when set, the update proceeds only if the
-   * current server-side etag matches. Empty means an unconditional update.
+   * Optimistic concurrency token from the most recent read. When set, the
+   * update succeeds only if the resource has not changed. Leave unset for an
+   * unconditional update. For REST requests, URL-encode the base64 string
+   * returned by the API when setting the `etag` query parameter.
    */
   etag?: Uint8Array | undefined;
 }
@@ -1683,16 +1658,14 @@ export interface UpdateModelServiceRequest {
 export const unmarshalInferenceTableConfigSchema: z.ZodType<InferenceTableConfig> =
   z
     .object({
-      parent: z.string().optional(),
+      parent: z.string(),
       table_name_prefix: z.string().optional(),
-      disabled: z.boolean().optional(),
       table: z.string().optional(),
       is_deleted: z.boolean().optional(),
     })
     .transform(d => ({
       parent: d.parent,
       tableNamePrefix: d.table_name_prefix,
-      disabled: d.disabled,
       table: d.table,
       isDeleted: d.is_deleted,
     }));
@@ -1737,7 +1710,6 @@ export const unmarshalListModelServicesResponseSchema: z.ZodType<ListModelServic
 export const unmarshalMcpServiceSchema: z.ZodType<McpService> = z
   .object({
     name: z.string().optional(),
-    owner: z.string().optional(),
     effective_owner: z.string().optional(),
     metastore_id: z.string().optional(),
     create_time: z
@@ -1759,7 +1731,6 @@ export const unmarshalMcpServiceSchema: z.ZodType<McpService> = z
   })
   .transform(d => ({
     name: d.name,
-    owner: d.owner,
     effectiveOwner: d.effective_owner,
     metastoreId: d.metastore_id,
     createTime: d.create_time,
@@ -1795,7 +1766,7 @@ export const unmarshalMcpServiceConfigSchema: z.ZodType<McpServiceConfig> = z
 export const unmarshalMcpServiceConfig_SourceConnectionSchema: z.ZodType<McpServiceConfig_SourceConnection> =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
       is_deleted: z.boolean().optional(),
     })
     .transform(d => ({
@@ -1807,7 +1778,6 @@ export const unmarshalModelProviderServiceSchema: z.ZodType<ModelProviderService
   z
     .object({
       name: z.string().optional(),
-      owner: z.string().optional(),
       effective_owner: z.string().optional(),
       metastore_id: z.string().optional(),
       create_time: z
@@ -1831,7 +1801,6 @@ export const unmarshalModelProviderServiceSchema: z.ZodType<ModelProviderService
     })
     .transform(d => ({
       name: d.name,
-      owner: d.owner,
       effectiveOwner: d.effective_owner,
       metastoreId: d.metastore_id,
       createTime: d.create_time,
@@ -2025,13 +1994,7 @@ export const unmarshalModelProviderServiceConfig_AnthropicProviderDirectConfigSc
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalModelProviderServiceConfig_AnthropicProviderRelayedConfigSchema: z.ZodType<ModelProviderServiceConfig_AnthropicProviderRelayedConfig> =
-  z
-    .object({
-      plan_type: z.string().optional(),
-    })
-    .transform(d => ({
-      planType: d.plan_type,
-    }));
+  z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalModelProviderServiceConfig_AwsAccessKeySchema: z.ZodType<ModelProviderServiceConfig_AwsAccessKey> =
@@ -2248,7 +2211,7 @@ export const unmarshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectC
 export const unmarshalModelProviderServiceConfig_ModelTargetConfigSchema: z.ZodType<ModelProviderServiceConfig_ModelTargetConfig> =
   z
     .object({
-      model: z.string().optional(),
+      model: z.string(),
       native_api_types: z.array(z.string()).optional(),
     })
     .transform(d => ({
@@ -2310,7 +2273,7 @@ export const unmarshalModelProviderServiceConfig_ProviderSecretSchema: z.ZodType
 export const unmarshalModelProviderServiceConfig_ServiceCredentialSchema: z.ZodType<ModelProviderServiceConfig_ServiceCredential> =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
     })
     .transform(d => ({
       name: d.name,
@@ -2319,7 +2282,6 @@ export const unmarshalModelProviderServiceConfig_ServiceCredentialSchema: z.ZodT
 export const unmarshalModelServiceSchema: z.ZodType<ModelService> = z
   .object({
     name: z.string().optional(),
-    owner: z.string().optional(),
     effective_owner: z.string().optional(),
     metastore_id: z.string().optional(),
     create_time: z
@@ -2342,7 +2304,6 @@ export const unmarshalModelServiceSchema: z.ZodType<ModelService> = z
   })
   .transform(d => ({
     name: d.name,
-    owner: d.owner,
     effectiveOwner: d.effective_owner,
     metastoreId: d.metastore_id,
     createTime: d.create_time,
@@ -2376,8 +2337,8 @@ export const unmarshalModelServiceConfigSchema: z.ZodType<ModelServiceConfig> =
 export const unmarshalModelServiceConfig_DestinationConfigSchema: z.ZodType<ModelServiceConfig_DestinationConfig> =
   z
     .object({
-      name: z.string().optional(),
-      destination_type: z.string().optional(),
+      name: z.string(),
+      destination_type: z.string(),
       traffic_percentage: z.number().optional(),
       pay_per_token_config: z
         .lazy(() => unmarshalModelServiceConfig_PayPerTokenConfigSchema)
@@ -2420,10 +2381,10 @@ export const unmarshalModelServiceConfig_DestinationConfigSchema: z.ZodType<Mode
 export const unmarshalModelServiceConfig_ExternalModelConfigSchema: z.ZodType<ModelServiceConfig_ExternalModelConfig> =
   z
     .object({
-      model_provider_service: z.string().optional(),
-      target: z
-        .lazy(() => unmarshalModelProviderServiceConfig_ModelTargetConfigSchema)
-        .optional(),
+      model_provider_service: z.string(),
+      target: z.lazy(
+        () => unmarshalModelProviderServiceConfig_ModelTargetConfigSchema
+      ),
     })
     .transform(d => ({
       modelProviderService: d.model_provider_service,
@@ -2448,7 +2409,7 @@ export const unmarshalModelServiceConfig_FallbackConfigSchema: z.ZodType<ModelSe
 export const unmarshalModelServiceConfig_PayPerTokenConfigSchema: z.ZodType<ModelServiceConfig_PayPerTokenConfig> =
   z
     .object({
-      model: z.string().optional(),
+      model: z.string(),
     })
     .transform(d => ({
       model: d.model,
@@ -2458,7 +2419,7 @@ export const unmarshalModelServiceConfig_PayPerTokenConfigSchema: z.ZodType<Mode
 export const unmarshalModelServiceConfig_ProvisionedThroughputConfigSchema: z.ZodType<ModelServiceConfig_ProvisionedThroughputConfig> =
   z
     .object({
-      model_serving_endpoint: z.string().optional(),
+      model_serving_endpoint: z.string(),
       model: z.string().optional(),
     })
     .transform(d => ({
@@ -2507,8 +2468,8 @@ export const unmarshalModelServiceConfig_RoutingConfig_TrafficSplittingSchema: z
 
 export const unmarshalRateLimitSchema: z.ZodType<RateLimit> = z
   .object({
-    key: z.string().optional(),
-    renewal_period: z.string().optional(),
+    key: z.string(),
+    renewal_period: z.string(),
     principal: z.string().optional(),
     requests: z
       .union([z.number(), z.bigint(), z.string()])
@@ -2533,16 +2494,14 @@ export const unmarshalRateLimitSchema: z.ZodType<RateLimit> = z
 
 export const marshalInferenceTableConfigSchema: z.ZodType = z
   .object({
-    parent: z.string().optional(),
+    parent: z.string(),
     tableNamePrefix: z.string().optional(),
-    disabled: z.boolean().optional(),
     table: z.string().optional(),
     isDeleted: z.boolean().optional(),
   })
   .transform(d => ({
     parent: d.parent,
     table_name_prefix: d.tableNamePrefix,
-    disabled: d.disabled,
     table: d.table,
     is_deleted: d.isDeleted,
   }));
@@ -2550,7 +2509,6 @@ export const marshalInferenceTableConfigSchema: z.ZodType = z
 export const marshalMcpServiceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    owner: z.string().optional(),
     effectiveOwner: z.string().optional(),
     metastoreId: z.string().optional(),
     createTime: z
@@ -2574,7 +2532,6 @@ export const marshalMcpServiceSchema: z.ZodType = z
   })
   .transform(d => ({
     name: d.name,
-    owner: d.owner,
     effective_owner: d.effectiveOwner,
     metastore_id: d.metastoreId,
     create_time: d.createTime,
@@ -2612,7 +2569,7 @@ export const marshalMcpServiceConfigSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalMcpServiceConfig_SourceConnectionSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     isDeleted: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2623,7 +2580,6 @@ export const marshalMcpServiceConfig_SourceConnectionSchema: z.ZodType = z
 export const marshalModelProviderServiceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    owner: z.string().optional(),
     effectiveOwner: z.string().optional(),
     metastoreId: z.string().optional(),
     createTime: z
@@ -2647,7 +2603,6 @@ export const marshalModelProviderServiceSchema: z.ZodType = z
   })
   .transform(d => ({
     name: d.name,
-    owner: d.owner,
     effective_owner: d.effectiveOwner,
     metastore_id: d.metastoreId,
     create_time: d.createTime,
@@ -2858,13 +2813,7 @@ export const marshalModelProviderServiceConfig_AnthropicProviderDirectConfigSche
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalModelProviderServiceConfig_AnthropicProviderRelayedConfigSchema: z.ZodType =
-  z
-    .object({
-      planType: z.string().optional(),
-    })
-    .transform(d => ({
-      plan_type: d.planType,
-    }));
+  z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalModelProviderServiceConfig_AwsAccessKeySchema: z.ZodType = z
@@ -3120,7 +3069,7 @@ export const marshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectCon
 export const marshalModelProviderServiceConfig_ModelTargetConfigSchema: z.ZodType =
   z
     .object({
-      model: z.string().optional(),
+      model: z.string(),
       nativeApiTypes: z.array(z.string()).optional(),
     })
     .transform(d => ({
@@ -3191,7 +3140,7 @@ export const marshalModelProviderServiceConfig_ProviderSecretSchema: z.ZodType =
 export const marshalModelProviderServiceConfig_ServiceCredentialSchema: z.ZodType =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
     })
     .transform(d => ({
       name: d.name,
@@ -3200,7 +3149,6 @@ export const marshalModelProviderServiceConfig_ServiceCredentialSchema: z.ZodTyp
 export const marshalModelServiceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    owner: z.string().optional(),
     effectiveOwner: z.string().optional(),
     metastoreId: z.string().optional(),
     createTime: z
@@ -3225,7 +3173,6 @@ export const marshalModelServiceSchema: z.ZodType = z
   })
   .transform(d => ({
     name: d.name,
-    owner: d.owner,
     effective_owner: d.effectiveOwner,
     metastore_id: d.metastoreId,
     create_time: d.createTime,
@@ -3255,8 +3202,8 @@ export const marshalModelServiceConfigSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalModelServiceConfig_DestinationConfigSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    destinationType: z.string().optional(),
+    name: z.string(),
+    destinationType: z.string(),
     trafficPercentage: z.number().optional(),
     typeConfig: z
       .discriminatedUnion('$case', [
@@ -3301,10 +3248,10 @@ export const marshalModelServiceConfig_DestinationConfigSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalModelServiceConfig_ExternalModelConfigSchema: z.ZodType = z
   .object({
-    modelProviderService: z.string().optional(),
-    target: z
-      .lazy(() => marshalModelProviderServiceConfig_ModelTargetConfigSchema)
-      .optional(),
+    modelProviderService: z.string(),
+    target: z.lazy(
+      () => marshalModelProviderServiceConfig_ModelTargetConfigSchema
+    ),
   })
   .transform(d => ({
     model_provider_service: d.modelProviderService,
@@ -3325,7 +3272,7 @@ export const marshalModelServiceConfig_FallbackConfigSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalModelServiceConfig_PayPerTokenConfigSchema: z.ZodType = z
   .object({
-    model: z.string().optional(),
+    model: z.string(),
   })
   .transform(d => ({
     model: d.model,
@@ -3335,7 +3282,7 @@ export const marshalModelServiceConfig_PayPerTokenConfigSchema: z.ZodType = z
 export const marshalModelServiceConfig_ProvisionedThroughputConfigSchema: z.ZodType =
   z
     .object({
-      modelServingEndpoint: z.string().optional(),
+      modelServingEndpoint: z.string(),
       model: z.string().optional(),
     })
     .transform(d => ({
@@ -3382,8 +3329,8 @@ export const marshalModelServiceConfig_RoutingConfig_TrafficSplittingSchema: z.Z
 
 export const marshalRateLimitSchema: z.ZodType = z
   .object({
-    key: z.string().optional(),
-    renewalPeriod: z.string().optional(),
+    key: z.string(),
+    renewalPeriod: z.string(),
     principal: z.string().optional(),
     requests: z.bigint().optional(),
     tokens: z.bigint().optional(),
@@ -3401,7 +3348,6 @@ export const marshalRateLimitSchema: z.ZodType = z
   }));
 
 const inferenceTableConfigFieldMaskSchema: FieldMaskSchema = {
-  disabled: {wire: 'disabled'},
   isDeleted: {wire: 'is_deleted'},
   parent: {wire: 'parent'},
   table: {wire: 'table'},
@@ -3417,7 +3363,6 @@ const mcpServiceFieldMaskSchema: FieldMaskSchema = {
   etag: {wire: 'etag'},
   metastoreId: {wire: 'metastore_id'},
   name: {wire: 'name'},
-  owner: {wire: 'owner'},
   updateTime: {wire: 'update_time'},
   updatedBy: {wire: 'updated_by'},
 };
@@ -3453,7 +3398,6 @@ const modelProviderServiceFieldMaskSchema: FieldMaskSchema = {
   etag: {wire: 'etag'},
   metastoreId: {wire: 'metastore_id'},
   name: {wire: 'name'},
-  owner: {wire: 'owner'},
   updateTime: {wire: 'update_time'},
   updatedBy: {wire: 'updated_by'},
 };
@@ -3567,9 +3511,7 @@ const modelProviderServiceConfig_AnthropicProviderDirectConfigFieldMaskSchema: F
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 const modelProviderServiceConfig_AnthropicProviderRelayedConfigFieldMaskSchema: FieldMaskSchema =
-  {
-    planType: {wire: 'plan_type'},
-  };
+  {};
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 const modelProviderServiceConfig_AwsAccessKeyFieldMaskSchema: FieldMaskSchema =
@@ -3735,7 +3677,6 @@ const modelServiceFieldMaskSchema: FieldMaskSchema = {
   etag: {wire: 'etag'},
   metastoreId: {wire: 'metastore_id'},
   name: {wire: 'name'},
-  owner: {wire: 'owner'},
   supportedApiTypes: {wire: 'supported_api_types'},
   updateTime: {wire: 'update_time'},
   updatedBy: {wire: 'updated_by'},

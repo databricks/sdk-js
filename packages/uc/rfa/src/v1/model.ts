@@ -49,6 +49,10 @@ export const SecurableType = {
   EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
   STAGING_TABLE: 'STAGING_TABLE',
+  MODEL: 'MODEL',
+  MODEL_SERVICE: 'MODEL_SERVICE',
+  MCP_SERVICE: 'MCP_SERVICE',
+  MODEL_PROVIDER_SERVICE: 'MODEL_PROVIDER_SERVICE',
 } as const;
 export type SecurableType =
   | (typeof SecurableType)[keyof typeof SecurableType]
@@ -78,7 +82,7 @@ export interface AccessRequestDestinations {
   /** The access request destinations for the securable. */
   destinations?: NotificationDestination[] | undefined;
   /** The securable for which the access request destinations are being modified or read. */
-  securable?: Securable | undefined;
+  securable: Securable;
   /**
    * Indicates whether any destinations are hidden from the caller due to a lack of permissions.
    * This value is true if the caller does not have permission to see all destinations.
@@ -205,8 +209,8 @@ export interface UpdateAccessRequestDestinationsRequest {
    * The access request destinations to assign to the securable.
    * For each destination, a **destination_id** and **destination_type** must be defined.
    */
-  accessRequestDestinations?: AccessRequestDestinations | undefined;
-  updateMask?: FieldMask<AccessRequestDestinations> | undefined;
+  accessRequestDestinations: AccessRequestDestinations;
+  updateMask: FieldMask<AccessRequestDestinations>;
 }
 
 export const unmarshalAccessRequestDestinationsSchema: z.ZodType<AccessRequestDestinations> =
@@ -215,7 +219,7 @@ export const unmarshalAccessRequestDestinationsSchema: z.ZodType<AccessRequestDe
       destinations: z
         .array(z.lazy(() => unmarshalNotificationDestinationSchema))
         .optional(),
-      securable: z.lazy(() => unmarshalSecurableSchema).optional(),
+      securable: z.lazy(() => unmarshalSecurableSchema),
       are_any_destinations_hidden: z.boolean().optional(),
       destination_source_securable: z
         .lazy(() => unmarshalSecurableSchema)
@@ -296,7 +300,7 @@ export const marshalAccessRequestDestinationsSchema: z.ZodType = z
     destinations: z
       .array(z.lazy(() => marshalNotificationDestinationSchema))
       .optional(),
-    securable: z.lazy(() => marshalSecurableSchema).optional(),
+    securable: z.lazy(() => marshalSecurableSchema),
     areAnyDestinationsHidden: z.boolean().optional(),
     destinationSourceSecurable: z.lazy(() => marshalSecurableSchema).optional(),
     securableType: z.string().optional(),

@@ -10,7 +10,6 @@ export {
   ListMcpServicesRequest_View,
   ListModelProviderServicesRequest_View,
   ListModelServicesRequest_View,
-  ModelProviderServiceConfig_AnthropicProviderRelayedConfig_AnthropicRelayedPlanType,
   ModelProviderServiceConfig_ExternalModelProviderType,
   ModelServiceConfig_DestinationConfig_DestinationType,
   RateLimit_RateLimitKey,

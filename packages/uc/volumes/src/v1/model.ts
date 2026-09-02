@@ -61,7 +61,7 @@ export interface CreateVolumeRequest {
 
 export interface DeleteVolumeRequest {
   /** The three-level (fully qualified) name of the volume */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -80,16 +80,16 @@ export interface EncryptionDetails {
 
 export interface GetVolumeRequest {
   /** The three-level (fully qualified) name of the volume */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** Whether to include volumes in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
 
 export interface ListVolumesRequest {
   /** The identifier of the catalog */
-  catalogName?: string | undefined;
+  catalogName: string;
   /** The identifier of the schema */
-  schemaName?: string | undefined;
+  schemaName: string;
   /** Whether to include volumes in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
   /**
@@ -130,7 +130,7 @@ export interface SseEncryptionDetails {
 
 export interface UpdateVolumeRequest {
   /** The three-level (fully qualified) name of the volume */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** New name for the volume. */
   newName?: string | undefined;
   /** The name of the volume */
@@ -366,7 +366,7 @@ export const marshalSseEncryptionDetailsSchema: z.ZodType = z
 
 export const marshalUpdateVolumeRequestSchema: z.ZodType = z
   .object({
-    fullNameArg: z.string().optional(),
+    fullNameArg: z.string(),
     newName: z.string().optional(),
     name: z.string().optional(),
     catalogName: z.string().optional(),

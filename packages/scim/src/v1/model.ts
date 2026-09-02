@@ -373,7 +373,7 @@ export interface CreateUserRequest {
 /** Delete a group */
 export interface DeleteAccountGroupRequest {
   /** Unique ID for a group in the <Databricks> account. */
-  id?: string | undefined;
+  id: string;
   /** <Databricks> account ID */
   accountId?: string | undefined;
 }
@@ -381,7 +381,7 @@ export interface DeleteAccountGroupRequest {
 /** Delete a service principal */
 export interface DeleteAccountServicePrincipalRequest {
   /** Unique ID for a service principal in the <Databricks> account. */
-  id?: string | undefined;
+  id: string;
   /** <Databricks> account ID */
   accountId?: string | undefined;
 }
@@ -389,7 +389,7 @@ export interface DeleteAccountServicePrincipalRequest {
 /** Delete a user */
 export interface DeleteAccountUserRequest {
   /** Unique ID for a user in the <Databricks> account. */
-  id?: string | undefined;
+  id: string;
   /** <Databricks> account ID */
   accountId?: string | undefined;
 }
@@ -397,25 +397,25 @@ export interface DeleteAccountUserRequest {
 /** Delete a group */
 export interface DeleteGroupRequest {
   /** Unique ID for a group in the <Databricks> workspace. */
-  id?: string | undefined;
+  id: string;
 }
 
 /** Delete a service principal */
 export interface DeleteServicePrincipalRequest {
   /** Unique ID for a service principal in the <Databricks> workspace. */
-  id?: string | undefined;
+  id: string;
 }
 
 /** Delete a user */
 export interface DeleteUserRequest {
   /** Unique ID for a user in the <Databricks> workspace. */
-  id?: string | undefined;
+  id: string;
 }
 
 /** Get group details */
 export interface GetAccountGroupRequest {
   /** Unique ID for a group in the <Databricks> account. */
-  id?: string | undefined;
+  id: string;
   /** <Databricks> account ID */
   accountId?: string | undefined;
 }
@@ -423,7 +423,7 @@ export interface GetAccountGroupRequest {
 /** Get service principal details */
 export interface GetAccountServicePrincipalRequest {
   /** Unique ID for a service principal in the <Databricks> account. */
-  id?: string | undefined;
+  id: string;
   /** <Databricks> account ID */
   accountId?: string | undefined;
 }
@@ -439,7 +439,7 @@ export interface GetAccountUserRequest {
   /** Query by which the results have to be filtered. Supported operators are equals(`eq`), contains(`co`), starts with(`sw`) and not equals(`ne`). Additionally, simple expressions can be formed using logical operators - `and` and `or`. The [SCIM RFC](https://tools.ietf.org/html/rfc7644#section-3.4.2.2) has more details but we currently only support simple expressions. */
   filter?: string | undefined;
   /** Unique ID for a user in the <Databricks> account. */
-  id?: string | undefined;
+  id: string;
   /** Attribute to sort the results. Multi-part paths are supported. For example, `userName`, `name.givenName`, and `emails`. */
   sortBy?: string | undefined;
   /** The order to sort the results. */
@@ -453,7 +453,7 @@ export interface GetAccountUserRequest {
 /** Get group details */
 export interface GetGroupRequest {
   /** Unique ID for a group in the <Databricks> workspace. */
-  id?: string | undefined;
+  id: string;
 }
 
 /** Get object permission levels */
@@ -471,7 +471,7 @@ export interface GetPasswordPermissionsRequest {}
 /** Get service principal details */
 export interface GetServicePrincipalRequest {
   /** Unique ID for a service principal in the <Databricks> workspace. */
-  id?: string | undefined;
+  id: string;
 }
 
 /** Get user details */
@@ -485,7 +485,7 @@ export interface GetUserRequest {
   /** Query by which the results have to be filtered. Supported operators are equals(`eq`), contains(`co`), starts with(`sw`) and not equals(`ne`). Additionally, simple expressions can be formed using logical operators - `and` and `or`. The [SCIM RFC](https://tools.ietf.org/html/rfc7644#section-3.4.2.2) has more details but we currently only support simple expressions. */
   filter?: string | undefined;
   /** Unique ID for a user in the <Databricks> workspace. */
-  id?: string | undefined;
+  id: string;
   /** Attribute to sort the results. Multi-part paths are supported. For example, `userName`, `name.givenName`, and `emails`. */
   sortBy?: string | undefined;
   /** The order to sort the results. */
@@ -778,7 +778,7 @@ export interface Patch {
 
 export interface PatchAccountGroupRequest {
   /** Unique ID in the <Databricks> workspace. */
-  id?: string | undefined;
+  id: string;
   operations?: AccountPatch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
   schemas?: AccountPatchSchema_PatchSchema[] | undefined;
@@ -788,7 +788,7 @@ export interface PatchAccountGroupRequest {
 
 export interface PatchAccountServicePrincipalRequest {
   /** Unique ID in the <Databricks> workspace. */
-  id?: string | undefined;
+  id: string;
   operations?: AccountPatch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
   schemas?: AccountPatchSchema_PatchSchema[] | undefined;
@@ -798,7 +798,7 @@ export interface PatchAccountServicePrincipalRequest {
 
 export interface PatchAccountUserRequest {
   /** Unique ID in the <Databricks> workspace. */
-  id?: string | undefined;
+  id: string;
   operations?: AccountPatch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
   schemas?: AccountPatchSchema_PatchSchema[] | undefined;
@@ -808,7 +808,7 @@ export interface PatchAccountUserRequest {
 
 export interface PatchGroupRequest {
   /** Unique ID in the <Databricks> workspace. */
-  id?: string | undefined;
+  id: string;
   operations?: Patch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
   schemas?: PatchSchema[] | undefined;
@@ -816,7 +816,7 @@ export interface PatchGroupRequest {
 
 export interface PatchServicePrincipalRequest {
   /** Unique ID in the <Databricks> workspace. */
-  id?: string | undefined;
+  id: string;
   operations?: Patch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
   schemas?: PatchSchema[] | undefined;
@@ -824,7 +824,7 @@ export interface PatchServicePrincipalRequest {
 
 export interface PatchUserRequest {
   /** Unique ID in the <Databricks> workspace. */
-  id?: string | undefined;
+  id: string;
   operations?: Patch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
   schemas?: PatchSchema[] | undefined;
@@ -1641,7 +1641,7 @@ export const marshalPatchSchema: z.ZodType = z
 
 export const marshalPatchAccountGroupRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
     operations: z.array(z.lazy(() => marshalAccountPatchSchema)).optional(),
     schemas: z.array(z.string()).optional(),
     accountId: z.string().optional(),
@@ -1655,7 +1655,7 @@ export const marshalPatchAccountGroupRequestSchema: z.ZodType = z
 
 export const marshalPatchAccountServicePrincipalRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
     operations: z.array(z.lazy(() => marshalAccountPatchSchema)).optional(),
     schemas: z.array(z.string()).optional(),
     accountId: z.string().optional(),
@@ -1669,7 +1669,7 @@ export const marshalPatchAccountServicePrincipalRequestSchema: z.ZodType = z
 
 export const marshalPatchAccountUserRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
     operations: z.array(z.lazy(() => marshalAccountPatchSchema)).optional(),
     schemas: z.array(z.string()).optional(),
     accountId: z.string().optional(),
@@ -1683,7 +1683,7 @@ export const marshalPatchAccountUserRequestSchema: z.ZodType = z
 
 export const marshalPatchGroupRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
     operations: z.array(z.lazy(() => marshalPatchSchema)).optional(),
     schemas: z.array(z.string()).optional(),
   })
@@ -1695,7 +1695,7 @@ export const marshalPatchGroupRequestSchema: z.ZodType = z
 
 export const marshalPatchServicePrincipalRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
     operations: z.array(z.lazy(() => marshalPatchSchema)).optional(),
     schemas: z.array(z.string()).optional(),
   })
@@ -1707,7 +1707,7 @@ export const marshalPatchServicePrincipalRequestSchema: z.ZodType = z
 
 export const marshalPatchUserRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
     operations: z.array(z.lazy(() => marshalPatchSchema)).optional(),
     schemas: z.array(z.string()).optional(),
   })

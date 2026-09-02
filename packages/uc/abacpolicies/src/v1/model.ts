@@ -37,6 +37,10 @@ export const SecurableType = {
   EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
   STAGING_TABLE: 'STAGING_TABLE',
+  MODEL: 'MODEL',
+  MODEL_SERVICE: 'MODEL_SERVICE',
+  MCP_SERVICE: 'MCP_SERVICE',
+  MODEL_PROVIDER_SERVICE: 'MODEL_PROVIDER_SERVICE',
 } as const;
 export type SecurableType =
   | (typeof SecurableType)[keyof typeof SecurableType]
@@ -49,13 +53,13 @@ export interface ColumnMaskOptions {
    * The function's first argument and its return type should match the type of the masked column.
    * Required on create and update.
    */
-  functionName?: string | undefined;
+  functionName: string;
   /**
    * The alias of the column to be masked. The alias must refer to one of matched columns.
    * The values of the column is passed to the column mask function as the first argument.
    * Required on create and update.
    */
-  onColumn?: string | undefined;
+  onColumn: string;
   /**
    * Optional list of column aliases or constant literals to be passed as additional arguments to the column mask function.
    * The type of each column should match the positional argument of the column mask function.
@@ -63,22 +67,44 @@ export interface ColumnMaskOptions {
   using?: FunctionArgument[] | undefined;
 }
 
+/** Extracts the value of a column-level tag: get_column_tag_value(col, "tagKey"). */
+export interface ColumnTagValueExtraction {
+  /** The alias from MATCH COLUMNS that identifies the column. */
+  columnAlias: string;
+  /** 1024 matches the max_length on FunctionArgument.constant above. */
+  tagKey: string;
+}
+
 export interface CreatePolicyRequest {
   /** Required. The policy to create. */
-  policyInfo?: PolicyInfo | undefined;
+  policyInfo: PolicyInfo;
 }
 
 export interface DeletePolicyRequest {
   /** Required. The type of the securable to delete the policy from. */
-  onSecurableType?: string | undefined;
+  onSecurableType: string;
   /** Required. The fully qualified name of the securable to delete the policy from. */
-  onSecurableFullname?: string | undefined;
+  onSecurableFullname: string;
   /** Required. The name of the policy to delete */
-  name?: string | undefined;
+  name: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeletePolicyResponse {}
+
+/**
+ * An expression that is evaluated at query time against per-request context.
+ * New variants (e.g., identity attributes) are added as additional oneof cases.
+ */
+export interface FunctionArgExpression {
+  expr?:
+    | {
+        $case: 'tagIntrospection';
+        /** An expression that introspects tags at query time. */
+        tagIntrospection: TagIntrospectionExpression;
+      }
+    | undefined;
+}
 
 export interface FunctionArgument {
   /** A positional argument pass to a row filter or column mask function. */
@@ -93,16 +119,25 @@ export interface FunctionArgument {
         /** A constant literal. */
         constant: string;
       }
+    | {
+        $case: 'functionArgExpression';
+        /**
+         * An expression evaluated at query time. Wraps per-request expression variants
+         * (e.g., tag introspection) so new variants can be added without extending the
+         * FunctionArgument oneof.
+         */
+        functionArgExpression: FunctionArgExpression;
+      }
     | undefined;
 }
 
 export interface GetPolicyRequest {
   /** Required. The type of the securable to retrieve the policy for. */
-  onSecurableType?: string | undefined;
+  onSecurableType: string;
   /** Required. The fully qualified name of securable to retrieve policy for. */
-  onSecurableFullname?: string | undefined;
+  onSecurableFullname: string;
   /** Required. The name of the policy to retrieve. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GrantOptions {
@@ -112,14 +147,14 @@ export interface GrantOptions {
    * if the principal and condition match.
    * Required on create and update.
    */
-  privileges?: string[] | undefined;
+  privileges: string[];
 }
 
 export interface ListPoliciesRequest {
   /** Required. The type of the securable to list policies for. */
-  onSecurableType?: string | undefined;
+  onSecurableType: string;
   /** Required. The fully qualified name of securable to list policies for. */
-  onSecurableFullname?: string | undefined;
+  onSecurableFullname: string;
   /**
    * Optional. Whether to include policies defined on parent securables.
    * By default, the inherited policies are not included.
@@ -177,18 +212,18 @@ export interface PolicyInfo {
    * List of user or group names that the policy applies to.
    * Required on create and optional on update.
    */
-  toPrincipals?: string[] | undefined;
+  toPrincipals: string[];
   /** Optional list of user or group names that should be excluded from the policy. */
   exceptPrincipals?: string[] | undefined;
   /**
    * Type of securables that the policy should take effect on.
    * Required on create and optional on update.
    */
-  forSecurableType?: SecurableType | undefined;
+  forSecurableType: SecurableType;
   /** Optional condition when the policy should take effect. */
   whenCondition?: string | undefined;
   /** Type of the policy. Required on create. */
-  policyType?: PolicyType | undefined;
+  policyType: PolicyType;
   /**
    * (--[Create:REQ Update:OPT] Type-specific options for the Policy--)
    * Type-specific options for the policy.
@@ -245,7 +280,7 @@ export interface RowFilterOptions {
    * indicating whether the row should be visible to the user.
    * Required on create and update.
    */
-  functionName?: string | undefined;
+  functionName: string;
   /**
    * Optional list of column aliases or constant literals to be passed as arguments to the row filter function.
    * The type of each column should match the positional argument of the row filter function.
@@ -253,13 +288,36 @@ export interface RowFilterOptions {
   using?: FunctionArgument[] | undefined;
 }
 
+/** An expression that introspects tags at query time. */
+export interface TagIntrospectionExpression {
+  /** The tag introspection variant to evaluate at query time. */
+  expr?:
+    | {
+        $case: 'tagValue';
+        /** Extracts the value of a securable-level tag. */
+        tagValue: TagValueExtraction;
+      }
+    | {
+        $case: 'columnTagValue';
+        /** Extracts the value of a column-level tag. */
+        columnTagValue: ColumnTagValueExtraction;
+      }
+    | undefined;
+}
+
+/** Extracts the value of a securable-level tag: get_tag_value("tagKey"). */
+export interface TagValueExtraction {
+  /** 1024 matches the max_length on FunctionArgument.constant above. */
+  tagKey: string;
+}
+
 export interface UpdatePolicyRequest {
   /** Required. The type of the securable to update the policy for. */
-  onSecurableType?: string | undefined;
+  onSecurableType: string;
   /** Required. The fully qualified name of the securable to update the policy for. */
-  onSecurableFullname?: string | undefined;
+  onSecurableFullname: string;
   /** Required. The name of the policy to update. */
-  name?: string | undefined;
+  name: string;
   /**
    * Optional fields to update. This is the request body for updating a policy.
    * Use `update_mask` field to specify which fields in the request is to be updated.
@@ -279,8 +337,8 @@ export interface UpdatePolicyRequest {
 
 export const unmarshalColumnMaskOptionsSchema: z.ZodType<ColumnMaskOptions> = z
   .object({
-    function_name: z.string().optional(),
-    on_column: z.string().optional(),
+    function_name: z.string(),
+    on_column: z.string(),
     using: z.array(z.lazy(() => unmarshalFunctionArgumentSchema)).optional(),
   })
   .transform(d => ({
@@ -289,13 +347,44 @@ export const unmarshalColumnMaskOptionsSchema: z.ZodType<ColumnMaskOptions> = z
     using: d.using,
   }));
 
+export const unmarshalColumnTagValueExtractionSchema: z.ZodType<ColumnTagValueExtraction> =
+  z
+    .object({
+      column_alias: z.string(),
+      tag_key: z.string(),
+    })
+    .transform(d => ({
+      columnAlias: d.column_alias,
+      tagKey: d.tag_key,
+    }));
+
 export const unmarshalDeletePolicyResponseSchema: z.ZodType<DeletePolicyResponse> =
   z.object({});
+
+export const unmarshalFunctionArgExpressionSchema: z.ZodType<FunctionArgExpression> =
+  z
+    .object({
+      tag_introspection: z
+        .lazy(() => unmarshalTagIntrospectionExpressionSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      expr:
+        d.tag_introspection !== undefined
+          ? {
+              $case: 'tagIntrospection' as const,
+              tagIntrospection: d.tag_introspection,
+            }
+          : undefined,
+    }));
 
 export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
   .object({
     alias: z.string().optional(),
     constant: z.string().optional(),
+    function_arg_expression: z
+      .lazy(() => unmarshalFunctionArgExpressionSchema)
+      .optional(),
   })
   .transform(d => ({
     arg:
@@ -303,12 +392,17 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
         ? {$case: 'alias' as const, alias: d.alias}
         : d.constant !== undefined
           ? {$case: 'constant' as const, constant: d.constant}
-          : undefined,
+          : d.function_arg_expression !== undefined
+            ? {
+                $case: 'functionArgExpression' as const,
+                functionArgExpression: d.function_arg_expression,
+              }
+            : undefined,
   }));
 
 export const unmarshalGrantOptionsSchema: z.ZodType<GrantOptions> = z
   .object({
-    privileges: z.array(z.string()).optional(),
+    privileges: z.array(z.string()),
   })
   .transform(d => ({
     privileges: d.privileges,
@@ -342,11 +436,11 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
     on_securable_fullname: z.string().optional(),
     name: z.string().optional(),
     comment: z.string().optional(),
-    to_principals: z.array(z.string()).optional(),
+    to_principals: z.array(z.string()),
     except_principals: z.array(z.string()).optional(),
-    for_securable_type: z.string().optional(),
+    for_securable_type: z.string(),
     when_condition: z.string().optional(),
-    policy_type: z.string().optional(),
+    policy_type: z.string(),
     row_filter: z.lazy(() => unmarshalRowFilterOptionsSchema).optional(),
     column_mask: z.lazy(() => unmarshalColumnMaskOptionsSchema).optional(),
     grant: z.lazy(() => unmarshalGrantOptionsSchema).optional(),
@@ -390,7 +484,7 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
 
 export const unmarshalRowFilterOptionsSchema: z.ZodType<RowFilterOptions> = z
   .object({
-    function_name: z.string().optional(),
+    function_name: z.string(),
     using: z.array(z.lazy(() => unmarshalFunctionArgumentSchema)).optional(),
   })
   .transform(d => ({
@@ -398,10 +492,39 @@ export const unmarshalRowFilterOptionsSchema: z.ZodType<RowFilterOptions> = z
     using: d.using,
   }));
 
+export const unmarshalTagIntrospectionExpressionSchema: z.ZodType<TagIntrospectionExpression> =
+  z
+    .object({
+      tag_value: z.lazy(() => unmarshalTagValueExtractionSchema).optional(),
+      column_tag_value: z
+        .lazy(() => unmarshalColumnTagValueExtractionSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      expr:
+        d.tag_value !== undefined
+          ? {$case: 'tagValue' as const, tagValue: d.tag_value}
+          : d.column_tag_value !== undefined
+            ? {
+                $case: 'columnTagValue' as const,
+                columnTagValue: d.column_tag_value,
+              }
+            : undefined,
+    }));
+
+export const unmarshalTagValueExtractionSchema: z.ZodType<TagValueExtraction> =
+  z
+    .object({
+      tag_key: z.string(),
+    })
+    .transform(d => ({
+      tagKey: d.tag_key,
+    }));
+
 export const marshalColumnMaskOptionsSchema: z.ZodType = z
   .object({
-    functionName: z.string().optional(),
-    onColumn: z.string().optional(),
+    functionName: z.string(),
+    onColumn: z.string(),
     using: z.array(z.lazy(() => marshalFunctionArgumentSchema)).optional(),
   })
   .transform(d => ({
@@ -410,23 +533,61 @@ export const marshalColumnMaskOptionsSchema: z.ZodType = z
     using: d.using,
   }));
 
+export const marshalColumnTagValueExtractionSchema: z.ZodType = z
+  .object({
+    columnAlias: z.string(),
+    tagKey: z.string(),
+  })
+  .transform(d => ({
+    column_alias: d.columnAlias,
+    tag_key: d.tagKey,
+  }));
+
+export const marshalFunctionArgExpressionSchema: z.ZodType = z
+  .object({
+    expr: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('tagIntrospection'),
+          tagIntrospection: z.lazy(
+            () => marshalTagIntrospectionExpressionSchema
+          ),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.expr?.$case === 'tagIntrospection' && {
+      tag_introspection: d.expr.tagIntrospection,
+    }),
+  }));
+
 export const marshalFunctionArgumentSchema: z.ZodType = z
   .object({
     arg: z
       .discriminatedUnion('$case', [
         z.object({$case: z.literal('alias'), alias: z.string()}),
         z.object({$case: z.literal('constant'), constant: z.string()}),
+        z.object({
+          $case: z.literal('functionArgExpression'),
+          functionArgExpression: z.lazy(
+            () => marshalFunctionArgExpressionSchema
+          ),
+        }),
       ])
       .optional(),
   })
   .transform(d => ({
     ...(d.arg?.$case === 'alias' && {alias: d.arg.alias}),
     ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
+    ...(d.arg?.$case === 'functionArgExpression' && {
+      function_arg_expression: d.arg.functionArgExpression,
+    }),
   }));
 
 export const marshalGrantOptionsSchema: z.ZodType = z
   .object({
-    privileges: z.array(z.string()).optional(),
+    privileges: z.array(z.string()),
   })
   .transform(d => ({
     privileges: d.privileges,
@@ -449,11 +610,11 @@ export const marshalPolicyInfoSchema: z.ZodType = z
     onSecurableFullname: z.string().optional(),
     name: z.string().optional(),
     comment: z.string().optional(),
-    toPrincipals: z.array(z.string()).optional(),
+    toPrincipals: z.array(z.string()),
     exceptPrincipals: z.array(z.string()).optional(),
-    forSecurableType: z.string().optional(),
+    forSecurableType: z.string(),
     whenCondition: z.string().optional(),
-    policyType: z.string().optional(),
+    policyType: z.string(),
     options: z
       .discriminatedUnion('$case', [
         z.object({
@@ -501,12 +662,42 @@ export const marshalPolicyInfoSchema: z.ZodType = z
 
 export const marshalRowFilterOptionsSchema: z.ZodType = z
   .object({
-    functionName: z.string().optional(),
+    functionName: z.string(),
     using: z.array(z.lazy(() => marshalFunctionArgumentSchema)).optional(),
   })
   .transform(d => ({
     function_name: d.functionName,
     using: d.using,
+  }));
+
+export const marshalTagIntrospectionExpressionSchema: z.ZodType = z
+  .object({
+    expr: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('tagValue'),
+          tagValue: z.lazy(() => marshalTagValueExtractionSchema),
+        }),
+        z.object({
+          $case: z.literal('columnTagValue'),
+          columnTagValue: z.lazy(() => marshalColumnTagValueExtractionSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.expr?.$case === 'tagValue' && {tag_value: d.expr.tagValue}),
+    ...(d.expr?.$case === 'columnTagValue' && {
+      column_tag_value: d.expr.columnTagValue,
+    }),
+  }));
+
+export const marshalTagValueExtractionSchema: z.ZodType = z
+  .object({
+    tagKey: z.string(),
+  })
+  .transform(d => ({
+    tag_key: d.tagKey,
   }));
 
 const columnMaskOptionsFieldMaskSchema: FieldMaskSchema = {

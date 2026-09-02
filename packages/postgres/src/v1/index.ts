@@ -34,10 +34,12 @@ export {
   UpdateEndpointOperation,
   UpdateProjectOperation,
   UpdateRoleOperation,
+  UpdateSnapshotScheduleOperation,
 } from './client';
 
 export {
   CdfState,
+  DayOfWeek,
   EndpointType,
   ErrorCode,
   OpenApiMode,
@@ -79,6 +81,7 @@ export type {
   CreateRoleRequest,
   CreateSnapshotRequest,
   CreateSyncedTableRequest,
+  DailySchedule,
   DataApi,
   DataApi_DataApiSpec,
   DataApi_DataApiStatus,
@@ -119,6 +122,7 @@ export type {
   GetProjectRequest,
   GetRoleRequest,
   GetSnapshotRequest,
+  GetSnapshotScheduleRequest,
   GetSyncedTableRequest,
   InitialBranchSpec,
   InitialEndpointSpec,
@@ -138,6 +142,7 @@ export type {
   ListRolesResponse,
   ListSnapshotsRequest,
   ListSnapshotsResponse,
+  MonthlySchedule,
   NewPipelineSpec,
   Operation,
   Project,
@@ -154,8 +159,11 @@ export type {
   Role_RoleSpec,
   Role_RoleStatus,
   RoleOperationMetadata,
+  ScheduleCadence,
   Snapshot,
   SnapshotOperationMetadata,
+  SnapshotSchedule,
+  SnapshotScheduleOperationMetadata,
   SnapshotSpec,
   SnapshotStatus,
   SyncedTable,
@@ -174,6 +182,8 @@ export type {
   UpdateEndpointRequest,
   UpdateProjectRequest,
   UpdateRoleRequest,
+  UpdateSnapshotScheduleRequest,
+  WeeklySchedule,
 } from './model';
 
 export {
@@ -183,4 +193,5 @@ export {
   endpointFieldMask,
   projectFieldMask,
   roleFieldMask,
+  snapshotScheduleFieldMask,
 } from './model';

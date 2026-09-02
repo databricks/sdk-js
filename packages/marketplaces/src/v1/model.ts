@@ -205,8 +205,8 @@ export type Visibility =
   | (string & {});
 
 export interface AddExchangeForListingRequest {
-  listingId?: string | undefined;
-  exchangeId?: string | undefined;
+  listingId: string;
+  exchangeId: string;
 }
 
 export interface AddExchangeForListingResponse {
@@ -230,7 +230,7 @@ export interface BatchGetProvidersResponse {
 }
 
 export interface ConsumerTerms {
-  version?: string | undefined;
+  version: string;
 }
 
 /** contact info for the consumer requesting data or performing a listing installation */
@@ -242,7 +242,7 @@ export interface ContactInfo {
 }
 
 export interface CreateExchangeFilterRequest {
-  filter?: ExchangeFilter | undefined;
+  filter: ExchangeFilter;
 }
 
 export interface CreateExchangeFilterResponse {
@@ -250,7 +250,7 @@ export interface CreateExchangeFilterResponse {
 }
 
 export interface CreateExchangeRequest {
-  exchange?: Exchange | undefined;
+  exchange: Exchange;
 }
 
 export interface CreateExchangeResponse {
@@ -258,9 +258,9 @@ export interface CreateExchangeResponse {
 }
 
 export interface CreateFileRequest {
-  fileParent?: FileParent | undefined;
-  marketplaceFileType?: MarketplaceFileType | undefined;
-  mimeType?: string | undefined;
+  fileParent: FileParent;
+  marketplaceFileType: MarketplaceFileType;
+  mimeType: string;
   displayName?: string | undefined;
 }
 
@@ -271,7 +271,7 @@ export interface CreateFileResponse {
 }
 
 export interface CreateInstallationRequest {
-  listingId?: string | undefined;
+  listingId: string;
   shareName?: string | undefined;
   catalogName?: string | undefined;
   /** for git repo installations */
@@ -285,7 +285,7 @@ export interface CreateInstallationResponse {
 }
 
 export interface CreateListingRequest {
-  listing?: Listing | undefined;
+  listing: Listing;
 }
 
 export interface CreateListingResponse {
@@ -297,15 +297,15 @@ export interface CreateListingResponse {
  * also creates a lead (maybe)
  */
 export interface CreatePersonalizationRequest {
-  listingId?: string | undefined;
+  listingId: string;
   comment?: string | undefined;
-  intendedUse?: string | undefined;
+  intendedUse: string;
   firstName?: string | undefined;
   lastName?: string | undefined;
   company?: string | undefined;
   isFromLighthouse?: boolean | undefined;
   recipientType?: DeltaSharingRecipientType | undefined;
-  acceptedConsumerTerms?: ConsumerTerms | undefined;
+  acceptedConsumerTerms: ConsumerTerms;
 }
 
 export interface CreatePersonalizationResponse {
@@ -316,11 +316,11 @@ export interface CreatePersonalizationResponse {
 export interface CreateProviderAnalyticsDashboardRequest {}
 
 export interface CreateProviderAnalyticsDashboardResponse {
-  id?: string | undefined;
+  id: string;
 }
 
 export interface CreateProviderRequest {
-  provider?: ProviderInfo | undefined;
+  provider: ProviderInfo;
 }
 
 export interface CreateProviderResponse {
@@ -328,48 +328,48 @@ export interface CreateProviderResponse {
 }
 
 export interface DataRefreshInfo {
-  interval?: bigint | undefined;
-  unit?: DataRefresh | undefined;
+  interval: bigint;
+  unit: DataRefresh;
 }
 
 export interface DeleteExchangeFilterRequest {
-  id?: string | undefined;
+  id: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeleteExchangeFilterResponse {}
 
 export interface DeleteExchangeRequest {
-  id?: string | undefined;
+  id: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeleteExchangeResponse {}
 
 export interface DeleteFileRequest {
-  fileId?: string | undefined;
+  fileId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeleteFileResponse {}
 
 export interface DeleteInstallationRequest {
-  listingId?: string | undefined;
-  installationId?: string | undefined;
+  listingId: string;
+  installationId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeleteInstallationResponse {}
 
 export interface DeleteListingRequest {
-  id?: string | undefined;
+  id: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeleteListingResponse {}
 
 export interface DeleteProviderRequest {
-  id?: string | undefined;
+  id: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -377,7 +377,7 @@ export interface DeleteProviderResponse {}
 
 export interface Exchange {
   id?: string | undefined;
-  name?: string | undefined;
+  name: string;
   comment?: string | undefined;
   filters?: ExchangeFilter[] | undefined;
   createdAt?: bigint | undefined;
@@ -389,14 +389,14 @@ export interface Exchange {
 
 export interface ExchangeFilter {
   id?: string | undefined;
-  exchangeId?: string | undefined;
-  filterValue?: string | undefined;
+  exchangeId: string;
+  filterValue: string;
   name?: string | undefined;
   createdAt?: bigint | undefined;
   createdBy?: string | undefined;
   updatedAt?: bigint | undefined;
   updatedBy?: string | undefined;
-  filterType?: ExchangeFilterType | undefined;
+  filterType: ExchangeFilterType;
 }
 
 export interface ExchangeListing {
@@ -435,7 +435,7 @@ export interface GetAllPersonalizationRequestsForConsumerResponse {
 }
 
 export interface GetExchangeRequest {
-  id?: string | undefined;
+  id: string;
 }
 
 export interface GetExchangeResponse {
@@ -443,7 +443,7 @@ export interface GetExchangeResponse {
 }
 
 export interface GetFileRequest {
-  fileId?: string | undefined;
+  fileId: string;
 }
 
 export interface GetFileResponse {
@@ -451,7 +451,7 @@ export interface GetFileResponse {
 }
 
 export interface GetInstallationDetailsRequest {
-  listingId?: string | undefined;
+  listingId: string;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
@@ -469,7 +469,7 @@ export interface GetLatestVersionProviderAnalyticsDashboardResponse {
 }
 
 export interface GetListingContentMetadataRequest {
-  listingId?: string | undefined;
+  listingId: string;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
@@ -480,7 +480,7 @@ export interface GetListingContentMetadataResponse {
 }
 
 export interface GetListingRequest {
-  id?: string | undefined;
+  id: string;
 }
 
 export interface GetListingResponse {
@@ -493,7 +493,7 @@ export interface GetListingsResponse {
 }
 
 export interface GetPersonalizationRequestsForConsumerRequest {
-  listingId?: string | undefined;
+  listingId: string;
 }
 
 export interface GetPersonalizationRequestsForConsumerResponse {
@@ -511,7 +511,7 @@ export interface GetPersonalizationRequestsForProviderResponse {
 }
 
 export interface GetProviderRequest {
-  id?: string | undefined;
+  id: string;
 }
 
 export interface GetProviderResponse {
@@ -519,7 +519,7 @@ export interface GetProviderResponse {
 }
 
 export interface GetPublishedListingForConsumerRequest {
-  id?: string | undefined;
+  id: string;
 }
 
 export interface GetPublishedListingForConsumerResponse {
@@ -532,7 +532,7 @@ export interface GetPublishedListingsForConsumerResponse {
 }
 
 export interface GetPublishedProviderForConsumerRequest {
-  id?: string | undefined;
+  id: string;
 }
 
 export interface GetPublishedProviderForConsumerResponse {
@@ -561,7 +561,7 @@ export interface ListAllInstallationsResponse {
 }
 
 export interface ListExchangeFiltersRequest {
-  exchangeId?: string | undefined;
+  exchangeId: string;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
@@ -572,7 +572,7 @@ export interface ListExchangeFiltersResponse {
 }
 
 export interface ListExchangesForListingRequest {
-  listingId?: string | undefined;
+  listingId: string;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
@@ -593,7 +593,7 @@ export interface ListExchangesResponse {
 }
 
 export interface ListFilesRequest {
-  fileParent?: FileParent | undefined;
+  fileParent: FileParent;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
@@ -619,13 +619,13 @@ export interface ListInstallationsResponse {
 }
 
 export interface ListListingFulfillmentsRequest {
-  listingId?: string | undefined;
+  listingId: string;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
 
 export interface ListListingsForExchangeRequest {
-  exchangeId?: string | undefined;
+  exchangeId: string;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
@@ -649,10 +649,10 @@ export interface ListPersonalizationRequestsForConsumerRequest {
 export interface ListProviderAnalyticsDashboardRequest {}
 
 export interface ListProviderAnalyticsDashboardResponse {
-  id?: string | undefined;
+  id: string;
   version?: bigint | undefined;
   /** dashboard_id will be used to open Lakeview dashboard. */
-  dashboardId?: string | undefined;
+  dashboardId: string;
 }
 
 export interface ListProvidersRequest {
@@ -698,7 +698,7 @@ export interface ListPublishedProvidersForConsumerResponse {
 
 export interface Listing {
   id?: string | undefined;
-  summary?: ListingSummary | undefined;
+  summary: ListingSummary;
   detail?: ListingDetail | undefined;
 }
 
@@ -749,7 +749,7 @@ export interface ListingDetail {
 }
 
 export interface ListingFulfillment {
-  listingId?: string | undefined;
+  listingId: string;
   fulfillmentType?: FulfillmentType | undefined;
   shareInfo?: ShareInfo | undefined;
   repoInfo?: RepoInfo | undefined;
@@ -761,7 +761,7 @@ export interface ListingSetting {
 }
 
 export interface ListingSummary {
-  name?: string | undefined;
+  name: string;
   subtitle?: string | undefined;
   status?: ListingStatus | undefined;
   share?: ShareInfo | undefined;
@@ -774,7 +774,7 @@ export interface ListingSummary {
   publishedAt?: bigint | undefined;
   publishedBy?: string | undefined;
   categories?: Category[] | undefined;
-  listingType?: ListingType | undefined;
+  listingType: ListingType;
   createdById?: bigint | undefined;
   updatedById?: bigint | undefined;
   providerId?: string | undefined;
@@ -792,7 +792,7 @@ export interface ListingTag {
 
 export interface PersonalizationRequest {
   id?: string | undefined;
-  consumerRegion?: RegionInfo | undefined;
+  consumerRegion: RegionInfo;
   contactInfo?: ContactInfo | undefined;
   comment?: string | undefined;
   intendedUse?: string | undefined;
@@ -815,10 +815,10 @@ export interface PersonalizationRequest {
 
 export interface ProviderInfo {
   id?: string | undefined;
-  name?: string | undefined;
+  name: string;
   description?: string | undefined;
   iconFilePath?: string | undefined;
-  businessContactEmail?: string | undefined;
+  businessContactEmail: string;
   supportContactEmail?: string | undefined;
   /** is_featured is accessible by consumers only */
   isFeatured?: boolean | undefined;
@@ -826,8 +826,8 @@ export interface ProviderInfo {
   publishedBy?: string | undefined;
   companyWebsiteLink?: string | undefined;
   iconFileId?: string | undefined;
-  termOfServiceLink?: string | undefined;
-  privacyPolicyLink?: string | undefined;
+  termOfServiceLink: string;
+  privacyPolicyLink: string;
   darkModeIconFileId?: string | undefined;
   darkModeIconFilePath?: string | undefined;
 }
@@ -838,7 +838,7 @@ export interface RegionInfo {
 }
 
 export interface RemoveExchangeForListingRequest {
-  id?: string | undefined;
+  id: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -846,22 +846,22 @@ export interface RemoveExchangeForListingResponse {}
 
 export interface RepoInfo {
   /** the git repo url e.g. https://github.com/databrickslabs/dolly.git */
-  gitRepoUrl?: string | undefined;
+  gitRepoUrl: string;
 }
 
 export interface RepoInstallation {
   /** the user-specified repo name for their installed git repo listing */
-  repoName?: string | undefined;
+  repoName: string;
   /**
    * refers to the full url file path that navigates the user to the repo's entrypoint (e.g. a README.md file, or the repo file view in the unified UI)
    * should just be a relative path
    */
-  repoPath?: string | undefined;
+  repoPath: string;
 }
 
 export interface SearchPublishedListingsForConsumerRequest {
   /** Fuzzy matches query */
-  query?: string | undefined;
+  query: string;
   isFree?: boolean | undefined;
   isPrivateExchange?: boolean | undefined;
   /** Matches any of the following provider ids */
@@ -880,8 +880,8 @@ export interface SearchPublishedListingsForConsumerResponse {
 }
 
 export interface ShareInfo {
-  name?: string | undefined;
-  type?: ListingShareType | undefined;
+  name: string;
+  type: ListingShareType;
 }
 
 export interface SharedDataObject {
@@ -923,8 +923,8 @@ export interface TokenInfo {
 }
 
 export interface UpdateExchangeFilterRequest {
-  id?: string | undefined;
-  filter?: ExchangeFilter | undefined;
+  id: string;
+  filter: ExchangeFilter;
 }
 
 export interface UpdateExchangeFilterResponse {
@@ -932,8 +932,8 @@ export interface UpdateExchangeFilterResponse {
 }
 
 export interface UpdateExchangeRequest {
-  id?: string | undefined;
-  exchange?: Exchange | undefined;
+  id: string;
+  exchange: Exchange;
 }
 
 export interface UpdateExchangeResponse {
@@ -941,9 +941,9 @@ export interface UpdateExchangeResponse {
 }
 
 export interface UpdateInstallationRequest {
-  listingId?: string | undefined;
-  installationId?: string | undefined;
-  installation?: InstallationDetail | undefined;
+  listingId: string;
+  installationId: string;
+  installation: InstallationDetail;
   rotateToken?: boolean | undefined;
 }
 
@@ -952,8 +952,8 @@ export interface UpdateInstallationResponse {
 }
 
 export interface UpdateListingRequest {
-  id?: string | undefined;
-  listing?: Listing | undefined;
+  id: string;
+  listing: Listing;
 }
 
 export interface UpdateListingResponse {
@@ -961,9 +961,9 @@ export interface UpdateListingResponse {
 }
 
 export interface UpdatePersonalizationRequestStatusRequest {
-  listingId?: string | undefined;
-  requestId?: string | undefined;
-  status?: PersonalizationRequestStatus | undefined;
+  listingId: string;
+  requestId: string;
+  status: PersonalizationRequestStatus;
   reason?: string | undefined;
   share?: ShareInfo | undefined;
 }
@@ -974,7 +974,7 @@ export interface UpdatePersonalizationRequestStatusResponse {
 
 export interface UpdateProviderAnalyticsDashboardRequest {
   /** id is immutable property and can't be updated. */
-  id?: string | undefined;
+  id: string;
   /**
    * this is the version of the dashboard template we want to update our user to
    * current expectation is that it should be equal to latest version of the dashboard template
@@ -984,15 +984,15 @@ export interface UpdateProviderAnalyticsDashboardRequest {
 
 export interface UpdateProviderAnalyticsDashboardResponse {
   /** id & version should be the same as the request */
-  id?: string | undefined;
+  id: string;
   version?: bigint | undefined;
   /** this is newly created Lakeview dashboard for the user */
-  dashboardId?: string | undefined;
+  dashboardId: string;
 }
 
 export interface UpdateProviderRequest {
-  id?: string | undefined;
-  provider?: ProviderInfo | undefined;
+  id: string;
+  provider: ProviderInfo;
 }
 
 export interface UpdateProviderResponse {
@@ -1101,7 +1101,7 @@ export const unmarshalCreatePersonalizationResponseSchema: z.ZodType<CreatePerso
 export const unmarshalCreateProviderAnalyticsDashboardResponseSchema: z.ZodType<CreateProviderAnalyticsDashboardResponse> =
   z
     .object({
-      id: z.string().optional(),
+      id: z.string(),
     })
     .transform(d => ({
       id: d.id,
@@ -1120,9 +1120,8 @@ export const unmarshalDataRefreshInfoSchema: z.ZodType<DataRefreshInfo> = z
   .object({
     interval: z
       .union([z.number(), z.bigint(), z.string()])
-      .transform(v => BigInt(v))
-      .optional(),
-    unit: z.string().optional(),
+      .transform(v => BigInt(v)),
+    unit: z.string(),
   })
   .transform(d => ({
     interval: d.interval,
@@ -1150,7 +1149,7 @@ export const unmarshalDeleteProviderResponseSchema: z.ZodType<DeleteProviderResp
 export const unmarshalExchangeSchema: z.ZodType<Exchange> = z
   .object({
     id: z.string().optional(),
-    name: z.string().optional(),
+    name: z.string(),
     comment: z.string().optional(),
     filters: z.array(z.lazy(() => unmarshalExchangeFilterSchema)).optional(),
     created_at: z
@@ -1182,8 +1181,8 @@ export const unmarshalExchangeSchema: z.ZodType<Exchange> = z
 export const unmarshalExchangeFilterSchema: z.ZodType<ExchangeFilter> = z
   .object({
     id: z.string().optional(),
-    exchange_id: z.string().optional(),
-    filter_value: z.string().optional(),
+    exchange_id: z.string(),
+    filter_value: z.string(),
     name: z.string().optional(),
     created_at: z
       .union([z.number(), z.bigint(), z.string()])
@@ -1195,7 +1194,7 @@ export const unmarshalExchangeFilterSchema: z.ZodType<ExchangeFilter> = z
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
-    filter_type: z.string().optional(),
+    filter_type: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -1547,12 +1546,12 @@ export const unmarshalListListingsForExchangeResponseSchema: z.ZodType<ListListi
 export const unmarshalListProviderAnalyticsDashboardResponseSchema: z.ZodType<ListProviderAnalyticsDashboardResponse> =
   z
     .object({
-      id: z.string().optional(),
+      id: z.string(),
       version: z
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
-      dashboard_id: z.string().optional(),
+      dashboard_id: z.string(),
     })
     .transform(d => ({
       id: d.id,
@@ -1585,7 +1584,7 @@ export const unmarshalListPublishedProvidersForConsumerResponseSchema: z.ZodType
 export const unmarshalListingSchema: z.ZodType<Listing> = z
   .object({
     id: z.string().optional(),
-    summary: z.lazy(() => unmarshalListingSummarySchema).optional(),
+    summary: z.lazy(() => unmarshalListingSummarySchema),
     detail: z.lazy(() => unmarshalListingDetailSchema).optional(),
   })
   .transform(d => ({
@@ -1651,7 +1650,7 @@ export const unmarshalListingDetailSchema: z.ZodType<ListingDetail> = z
 export const unmarshalListingFulfillmentSchema: z.ZodType<ListingFulfillment> =
   z
     .object({
-      listing_id: z.string().optional(),
+      listing_id: z.string(),
       fulfillment_type: z.string().optional(),
       share_info: z.lazy(() => unmarshalShareInfoSchema).optional(),
       repo_info: z.lazy(() => unmarshalRepoInfoSchema).optional(),
@@ -1675,7 +1674,7 @@ export const unmarshalListingSettingSchema: z.ZodType<ListingSetting> = z
 
 export const unmarshalListingSummarySchema: z.ZodType<ListingSummary> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     subtitle: z.string().optional(),
     status: z.string().optional(),
     share: z.lazy(() => unmarshalShareInfoSchema).optional(),
@@ -1697,7 +1696,7 @@ export const unmarshalListingSummarySchema: z.ZodType<ListingSummary> = z
       .optional(),
     published_by: z.string().optional(),
     categories: z.array(z.string()).optional(),
-    listingType: z.string().optional(),
+    listingType: z.string(),
     created_by_id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -1746,7 +1745,7 @@ export const unmarshalPersonalizationRequestSchema: z.ZodType<PersonalizationReq
   z
     .object({
       id: z.string().optional(),
-      consumer_region: z.lazy(() => unmarshalRegionInfoSchema).optional(),
+      consumer_region: z.lazy(() => unmarshalRegionInfoSchema),
       contact_info: z.lazy(() => unmarshalContactInfoSchema).optional(),
       comment: z.string().optional(),
       intended_use: z.string().optional(),
@@ -1790,17 +1789,17 @@ export const unmarshalPersonalizationRequestSchema: z.ZodType<PersonalizationReq
 export const unmarshalProviderInfoSchema: z.ZodType<ProviderInfo> = z
   .object({
     id: z.string().optional(),
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
     icon_file_path: z.string().optional(),
-    business_contact_email: z.string().optional(),
+    business_contact_email: z.string(),
     support_contact_email: z.string().optional(),
     is_featured: z.boolean().optional(),
     published_by: z.string().optional(),
     company_website_link: z.string().optional(),
     icon_file_id: z.string().optional(),
-    term_of_service_link: z.string().optional(),
-    privacy_policy_link: z.string().optional(),
+    term_of_service_link: z.string(),
+    privacy_policy_link: z.string(),
     dark_mode_icon_file_id: z.string().optional(),
     dark_mode_icon_file_path: z.string().optional(),
   })
@@ -1836,7 +1835,7 @@ export const unmarshalRemoveExchangeForListingResponseSchema: z.ZodType<RemoveEx
 
 export const unmarshalRepoInfoSchema: z.ZodType<RepoInfo> = z
   .object({
-    git_repo_url: z.string().optional(),
+    git_repo_url: z.string(),
   })
   .transform(d => ({
     gitRepoUrl: d.git_repo_url,
@@ -1855,8 +1854,8 @@ export const unmarshalSearchPublishedListingsForConsumerResponseSchema: z.ZodTyp
 
 export const unmarshalShareInfoSchema: z.ZodType<ShareInfo> = z
   .object({
-    name: z.string().optional(),
-    type: z.string().optional(),
+    name: z.string(),
+    type: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -1964,12 +1963,12 @@ export const unmarshalUpdatePersonalizationRequestStatusResponseSchema: z.ZodTyp
 export const unmarshalUpdateProviderAnalyticsDashboardResponseSchema: z.ZodType<UpdateProviderAnalyticsDashboardResponse> =
   z
     .object({
-      id: z.string().optional(),
+      id: z.string(),
       version: z
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
-      dashboard_id: z.string().optional(),
+      dashboard_id: z.string(),
     })
     .transform(d => ({
       id: d.id,
@@ -1988,8 +1987,8 @@ export const unmarshalUpdateProviderResponseSchema: z.ZodType<UpdateProviderResp
 
 export const marshalAddExchangeForListingRequestSchema: z.ZodType = z
   .object({
-    listingId: z.string().optional(),
-    exchangeId: z.string().optional(),
+    listingId: z.string(),
+    exchangeId: z.string(),
   })
   .transform(d => ({
     listing_id: d.listingId,
@@ -1998,7 +1997,7 @@ export const marshalAddExchangeForListingRequestSchema: z.ZodType = z
 
 export const marshalConsumerTermsSchema: z.ZodType = z
   .object({
-    version: z.string().optional(),
+    version: z.string(),
   })
   .transform(d => ({
     version: d.version,
@@ -2006,7 +2005,7 @@ export const marshalConsumerTermsSchema: z.ZodType = z
 
 export const marshalCreateExchangeFilterRequestSchema: z.ZodType = z
   .object({
-    filter: z.lazy(() => marshalExchangeFilterSchema).optional(),
+    filter: z.lazy(() => marshalExchangeFilterSchema),
   })
   .transform(d => ({
     filter: d.filter,
@@ -2014,7 +2013,7 @@ export const marshalCreateExchangeFilterRequestSchema: z.ZodType = z
 
 export const marshalCreateExchangeRequestSchema: z.ZodType = z
   .object({
-    exchange: z.lazy(() => marshalExchangeSchema).optional(),
+    exchange: z.lazy(() => marshalExchangeSchema),
   })
   .transform(d => ({
     exchange: d.exchange,
@@ -2022,9 +2021,9 @@ export const marshalCreateExchangeRequestSchema: z.ZodType = z
 
 export const marshalCreateFileRequestSchema: z.ZodType = z
   .object({
-    fileParent: z.lazy(() => marshalFileParentSchema).optional(),
-    marketplaceFileType: z.string().optional(),
-    mimeType: z.string().optional(),
+    fileParent: z.lazy(() => marshalFileParentSchema),
+    marketplaceFileType: z.string(),
+    mimeType: z.string(),
     displayName: z.string().optional(),
   })
   .transform(d => ({
@@ -2036,7 +2035,7 @@ export const marshalCreateFileRequestSchema: z.ZodType = z
 
 export const marshalCreateInstallationRequestSchema: z.ZodType = z
   .object({
-    listingId: z.string().optional(),
+    listingId: z.string(),
     shareName: z.string().optional(),
     catalogName: z.string().optional(),
     repoDetail: z.lazy(() => marshalRepoInstallationSchema).optional(),
@@ -2054,7 +2053,7 @@ export const marshalCreateInstallationRequestSchema: z.ZodType = z
 
 export const marshalCreateListingRequestSchema: z.ZodType = z
   .object({
-    listing: z.lazy(() => marshalListingSchema).optional(),
+    listing: z.lazy(() => marshalListingSchema),
   })
   .transform(d => ({
     listing: d.listing,
@@ -2062,15 +2061,15 @@ export const marshalCreateListingRequestSchema: z.ZodType = z
 
 export const marshalCreatePersonalizationRequestSchema: z.ZodType = z
   .object({
-    listingId: z.string().optional(),
+    listingId: z.string(),
     comment: z.string().optional(),
-    intendedUse: z.string().optional(),
+    intendedUse: z.string(),
     firstName: z.string().optional(),
     lastName: z.string().optional(),
     company: z.string().optional(),
     isFromLighthouse: z.boolean().optional(),
     recipientType: z.string().optional(),
-    acceptedConsumerTerms: z.lazy(() => marshalConsumerTermsSchema).optional(),
+    acceptedConsumerTerms: z.lazy(() => marshalConsumerTermsSchema),
   })
   .transform(d => ({
     listing_id: d.listingId,
@@ -2089,7 +2088,7 @@ export const marshalCreateProviderAnalyticsDashboardRequestSchema: z.ZodType =
 
 export const marshalCreateProviderRequestSchema: z.ZodType = z
   .object({
-    provider: z.lazy(() => marshalProviderInfoSchema).optional(),
+    provider: z.lazy(() => marshalProviderInfoSchema),
   })
   .transform(d => ({
     provider: d.provider,
@@ -2097,8 +2096,8 @@ export const marshalCreateProviderRequestSchema: z.ZodType = z
 
 export const marshalDataRefreshInfoSchema: z.ZodType = z
   .object({
-    interval: z.bigint().optional(),
-    unit: z.string().optional(),
+    interval: z.bigint(),
+    unit: z.string(),
   })
   .transform(d => ({
     interval: d.interval,
@@ -2108,7 +2107,7 @@ export const marshalDataRefreshInfoSchema: z.ZodType = z
 export const marshalExchangeSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    name: z.string().optional(),
+    name: z.string(),
     comment: z.string().optional(),
     filters: z.array(z.lazy(() => marshalExchangeFilterSchema)).optional(),
     createdAt: z.bigint().optional(),
@@ -2134,14 +2133,14 @@ export const marshalExchangeSchema: z.ZodType = z
 export const marshalExchangeFilterSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    exchangeId: z.string().optional(),
-    filterValue: z.string().optional(),
+    exchangeId: z.string(),
+    filterValue: z.string(),
     name: z.string().optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
-    filterType: z.string().optional(),
+    filterType: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -2246,7 +2245,7 @@ export const marshalInstallationDetailSchema: z.ZodType = z
 export const marshalListingSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    summary: z.lazy(() => marshalListingSummarySchema).optional(),
+    summary: z.lazy(() => marshalListingSummarySchema),
     detail: z.lazy(() => marshalListingDetailSchema).optional(),
   })
   .transform(d => ({
@@ -2313,7 +2312,7 @@ export const marshalListingSettingSchema: z.ZodType = z
 
 export const marshalListingSummarySchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     subtitle: z.string().optional(),
     status: z.string().optional(),
     share: z.lazy(() => marshalShareInfoSchema).optional(),
@@ -2326,7 +2325,7 @@ export const marshalListingSummarySchema: z.ZodType = z
     publishedAt: z.bigint().optional(),
     publishedBy: z.string().optional(),
     categories: z.array(z.string()).optional(),
-    listingType: z.string().optional(),
+    listingType: z.string(),
     createdById: z.bigint().optional(),
     updatedById: z.bigint().optional(),
     providerId: z.string().optional(),
@@ -2368,17 +2367,17 @@ export const marshalListingTagSchema: z.ZodType = z
 export const marshalProviderInfoSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
     iconFilePath: z.string().optional(),
-    businessContactEmail: z.string().optional(),
+    businessContactEmail: z.string(),
     supportContactEmail: z.string().optional(),
     isFeatured: z.boolean().optional(),
     publishedBy: z.string().optional(),
     companyWebsiteLink: z.string().optional(),
     iconFileId: z.string().optional(),
-    termOfServiceLink: z.string().optional(),
-    privacyPolicyLink: z.string().optional(),
+    termOfServiceLink: z.string(),
+    privacyPolicyLink: z.string(),
     darkModeIconFileId: z.string().optional(),
     darkModeIconFilePath: z.string().optional(),
   })
@@ -2411,7 +2410,7 @@ export const marshalRegionInfoSchema: z.ZodType = z
 
 export const marshalRepoInfoSchema: z.ZodType = z
   .object({
-    gitRepoUrl: z.string().optional(),
+    gitRepoUrl: z.string(),
   })
   .transform(d => ({
     git_repo_url: d.gitRepoUrl,
@@ -2419,8 +2418,8 @@ export const marshalRepoInfoSchema: z.ZodType = z
 
 export const marshalRepoInstallationSchema: z.ZodType = z
   .object({
-    repoName: z.string().optional(),
-    repoPath: z.string().optional(),
+    repoName: z.string(),
+    repoPath: z.string(),
   })
   .transform(d => ({
     repo_name: d.repoName,
@@ -2429,8 +2428,8 @@ export const marshalRepoInstallationSchema: z.ZodType = z
 
 export const marshalShareInfoSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    type: z.string().optional(),
+    name: z.string(),
+    type: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -2473,8 +2472,8 @@ export const marshalTokenInfoSchema: z.ZodType = z
 
 export const marshalUpdateExchangeFilterRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
-    filter: z.lazy(() => marshalExchangeFilterSchema).optional(),
+    id: z.string(),
+    filter: z.lazy(() => marshalExchangeFilterSchema),
   })
   .transform(d => ({
     id: d.id,
@@ -2483,8 +2482,8 @@ export const marshalUpdateExchangeFilterRequestSchema: z.ZodType = z
 
 export const marshalUpdateExchangeRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
-    exchange: z.lazy(() => marshalExchangeSchema).optional(),
+    id: z.string(),
+    exchange: z.lazy(() => marshalExchangeSchema),
   })
   .transform(d => ({
     id: d.id,
@@ -2493,9 +2492,9 @@ export const marshalUpdateExchangeRequestSchema: z.ZodType = z
 
 export const marshalUpdateInstallationRequestSchema: z.ZodType = z
   .object({
-    listingId: z.string().optional(),
-    installationId: z.string().optional(),
-    installation: z.lazy(() => marshalInstallationDetailSchema).optional(),
+    listingId: z.string(),
+    installationId: z.string(),
+    installation: z.lazy(() => marshalInstallationDetailSchema),
     rotateToken: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2507,8 +2506,8 @@ export const marshalUpdateInstallationRequestSchema: z.ZodType = z
 
 export const marshalUpdateListingRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
-    listing: z.lazy(() => marshalListingSchema).optional(),
+    id: z.string(),
+    listing: z.lazy(() => marshalListingSchema),
   })
   .transform(d => ({
     id: d.id,
@@ -2518,9 +2517,9 @@ export const marshalUpdateListingRequestSchema: z.ZodType = z
 export const marshalUpdatePersonalizationRequestStatusRequestSchema: z.ZodType =
   z
     .object({
-      listingId: z.string().optional(),
-      requestId: z.string().optional(),
-      status: z.string().optional(),
+      listingId: z.string(),
+      requestId: z.string(),
+      status: z.string(),
       reason: z.string().optional(),
       share: z.lazy(() => marshalShareInfoSchema).optional(),
     })
@@ -2534,7 +2533,7 @@ export const marshalUpdatePersonalizationRequestStatusRequestSchema: z.ZodType =
 
 export const marshalUpdateProviderAnalyticsDashboardRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
     version: z.bigint().optional(),
   })
   .transform(d => ({
@@ -2544,8 +2543,8 @@ export const marshalUpdateProviderAnalyticsDashboardRequestSchema: z.ZodType = z
 
 export const marshalUpdateProviderRequestSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
-    provider: z.lazy(() => marshalProviderInfoSchema).optional(),
+    id: z.string(),
+    provider: z.lazy(() => marshalProviderInfoSchema),
   })
   .transform(d => ({
     id: d.id,
