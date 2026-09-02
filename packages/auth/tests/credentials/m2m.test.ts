@@ -250,7 +250,7 @@ describe('newM2mCredentials', () => {
 
   const groupAssumptionCases: {name: string; groupId?: string}[] = [
     {
-      name: 'omits the group role when no group is configured'
+      name: 'omits the group role when no group is configured',
     },
     {
       name: 'omits the group role when the group ID is empty',
