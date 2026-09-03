@@ -195,7 +195,7 @@ export interface CreateInstancePoolResponse {
 
 export interface DeleteInstancePoolRequest {
   /** The instance pool to be terminated. */
-  instancePoolId?: string | undefined;
+  instancePoolId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -276,7 +276,7 @@ export interface DockerImage {
 
 export interface EditInstancePoolRequest {
   /** Instance pool ID */
-  instancePoolId?: string | undefined;
+  instancePoolId: string;
   /**
    * Pool name requested by the user. Pool name must be unique. Length must be between 1 and 100
    * characters.
@@ -358,7 +358,7 @@ export interface EditInstancePoolResponse {}
 
 export interface GetInstancePoolRequest {
   /** The canonical unique identifier for the instance pool. */
-  instancePoolId?: string | undefined;
+  instancePoolId: string;
 }
 
 export interface GetInstancePoolResponse {
@@ -680,6 +680,11 @@ export interface ListInstancePoolsResponse {
 export interface NodeTypeFlexibility {
   /** A list of node type IDs to use as fallbacks when the primary node type is unavailable. */
   alternateNodeTypeIds?: string[] | undefined;
+  /**
+   * The AWS Context ID for EC2 Fleet.
+   * When set (non-empty), the value is passed to AWS CreateFleet API to create the EC2 Fleet.
+   */
+  awsContextId?: string | undefined;
 }
 
 /** Error message of a failed pending instances */
@@ -960,9 +965,11 @@ export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> 
   z
     .object({
       alternate_node_type_ids: z.array(z.string()).optional(),
+      aws_context_id: z.string().optional(),
     })
     .transform(d => ({
       alternateNodeTypeIds: d.alternate_node_type_ids,
+      awsContextId: d.aws_context_id,
     }));
 
 export const unmarshalPendingInstanceErrorSchema: z.ZodType<PendingInstanceError> =
@@ -1026,7 +1033,7 @@ export const marshalCreateInstancePoolRequestSchema: z.ZodType = z
 
 export const marshalDeleteInstancePoolRequestSchema: z.ZodType = z
   .object({
-    instancePoolId: z.string().optional(),
+    instancePoolId: z.string(),
   })
   .transform(d => ({
     instance_pool_id: d.instancePoolId,
@@ -1103,7 +1110,7 @@ export const marshalDockerImageSchema: z.ZodType = z
 
 export const marshalEditInstancePoolRequestSchema: z.ZodType = z
   .object({
-    instancePoolId: z.string().optional(),
+    instancePoolId: z.string(),
     instancePoolName: z.string().optional(),
     minIdleInstances: z.number().optional(),
     maxCapacity: z.number().optional(),
@@ -1192,7 +1199,9 @@ export const marshalInstancePoolGcpAttributesSchema: z.ZodType = z
 export const marshalNodeTypeFlexibilitySchema: z.ZodType = z
   .object({
     alternateNodeTypeIds: z.array(z.string()).optional(),
+    awsContextId: z.string().optional(),
   })
   .transform(d => ({
     alternate_node_type_ids: d.alternateNodeTypeIds,
+    aws_context_id: d.awsContextId,
   }));

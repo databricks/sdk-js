@@ -15,7 +15,7 @@ export type CmkUseCase =
 
 export interface AwsKeyInfo {
   /** The AWS KMS key's Amazon Resource Name (ARN). */
-  keyArn?: string | undefined;
+  keyArn: string;
   /** The AWS KMS key alias. */
   keyAlias?: string | undefined;
   /** The AWS KMS key region. */
@@ -50,7 +50,7 @@ export interface AzureKeyInfo {
 
 export interface CreateAwsKeyInfo {
   /** The AWS KMS key's Amazon Resource Name (ARN). */
-  keyArn?: string | undefined;
+  keyArn: string;
   /** The AWS KMS key alias. */
   keyAlias?: string | undefined;
   /** The AWS KMS key region. */
@@ -84,7 +84,7 @@ export interface CreateAzureKeyInfo {
 }
 
 export interface CreateCustomerManagedKeyRequest {
-  accountId?: string | undefined;
+  accountId: string;
   /**
    * (-- The key information. Exactly one of aws_key_info, gcp_key_info, or
    * azure_key_info must be set, matching the cloud of the account. --)
@@ -95,7 +95,7 @@ export interface CreateCustomerManagedKeyRequest {
     | {$case: 'azureKeyInfo'; azureKeyInfo: CreateAzureKeyInfo}
     | undefined;
   /** The cases that the key can be used for. */
-  useCases?: CmkUseCase[] | undefined;
+  useCases: CmkUseCase[];
 }
 
 export interface CreateGcpKeyInfo {
@@ -103,7 +103,7 @@ export interface CreateGcpKeyInfo {
    * Globally unique kms key resource id of the form
    * projects/testProjectId/locations/us-east4/keyRings/gcpCmkKeyRing/cryptoKeys/cmk-eastus4
    */
-  kmsKeyId?: string | undefined;
+  kmsKeyId: string;
   /**
    * Globally unique service account email that has access to the KMS key.
    * The service account exists within the Databricks CP project.
@@ -139,8 +139,8 @@ export interface CustomerManagedKey {
 
 export interface DeleteCustomerManagedKeyRequest {
   /** <Databricks> encryption key configuration ID. */
-  customerManagedKeyId?: string | undefined;
-  accountId?: string | undefined;
+  customerManagedKeyId: string;
+  accountId: string;
 }
 
 export interface GcpKeyInfo {
@@ -148,7 +148,7 @@ export interface GcpKeyInfo {
    * Globally unique kms key resource id of the form
    * projects/testProjectId/locations/us-east4/keyRings/gcpCmkKeyRing/cryptoKeys/cmk-eastus4
    */
-  kmsKeyId?: string | undefined;
+  kmsKeyId: string;
   /**
    * Globally unique service account email that has access to the KMS key.
    * The service account exists within the Databricks CP project.
@@ -168,8 +168,8 @@ export interface GcpServiceAccount {
 
 export interface GetCustomerManagedKeyRequest {
   /** <Databricks> encryption key configuration ID. */
-  customerManagedKeyId?: string | undefined;
-  accountId?: string | undefined;
+  customerManagedKeyId: string;
+  accountId: string;
 }
 
 /** The credential ID that is used to access the key vault. */
@@ -178,7 +178,7 @@ export interface KeyAccessConfiguration {
 }
 
 export interface ListCustomerManagedKeyRequest {
-  accountId?: string | undefined;
+  accountId: string;
 }
 
 export interface ListCustomerManagedKeyResponse {
@@ -187,7 +187,7 @@ export interface ListCustomerManagedKeyResponse {
 
 export const unmarshalAwsKeyInfoSchema: z.ZodType<AwsKeyInfo> = z
   .object({
-    key_arn: z.string().optional(),
+    key_arn: z.string(),
     key_alias: z.string().optional(),
     key_region: z.string().optional(),
     reuse_key_for_cluster_volumes: z.boolean().optional(),
@@ -250,7 +250,7 @@ export const unmarshalCustomerManagedKeySchema: z.ZodType<CustomerManagedKey> =
 
 export const unmarshalGcpKeyInfoSchema: z.ZodType<GcpKeyInfo> = z
   .object({
-    kms_key_id: z.string().optional(),
+    kms_key_id: z.string(),
     gcp_service_account: z
       .lazy(() => unmarshalGcpServiceAccountSchema)
       .optional(),
@@ -281,7 +281,7 @@ export const unmarshalKeyAccessConfigurationSchema: z.ZodType<KeyAccessConfigura
 
 export const marshalCreateAwsKeyInfoSchema: z.ZodType = z
   .object({
-    keyArn: z.string().optional(),
+    keyArn: z.string(),
     keyAlias: z.string().optional(),
     keyRegion: z.string().optional(),
     reuseKeyForClusterVolumes: z.boolean().optional(),
@@ -315,7 +315,7 @@ export const marshalCreateAzureKeyInfoSchema: z.ZodType = z
 
 export const marshalCreateCustomerManagedKeyRequestSchema: z.ZodType = z
   .object({
-    accountId: z.string().optional(),
+    accountId: z.string(),
     keyInfo: z
       .discriminatedUnion('$case', [
         z.object({
@@ -332,7 +332,7 @@ export const marshalCreateCustomerManagedKeyRequestSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    useCases: z.array(z.string()).optional(),
+    useCases: z.array(z.string()),
   })
   .transform(d => ({
     account_id: d.accountId,
@@ -350,7 +350,7 @@ export const marshalCreateCustomerManagedKeyRequestSchema: z.ZodType = z
 
 export const marshalCreateGcpKeyInfoSchema: z.ZodType = z
   .object({
-    kmsKeyId: z.string().optional(),
+    kmsKeyId: z.string(),
     gcpServiceAccount: z.lazy(() => marshalGcpServiceAccountSchema).optional(),
     manual: z.boolean().optional(),
   })

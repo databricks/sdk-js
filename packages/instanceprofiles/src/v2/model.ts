@@ -13,7 +13,7 @@ export interface AddInstanceProfileRequest {
    */
   skipValidation?: boolean | undefined;
   /** The AWS ARN of the instance profile to register with <Databricks>. This field is required. */
-  instanceProfileArn?: string | undefined;
+  instanceProfileArn: string;
   /**
    * Boolean flag indicating whether the instance profile should only be used in credential
    * passthrough scenarios. If true, it means the instance profile contains an meta IAM role
@@ -38,7 +38,7 @@ export interface AddInstanceProfileResponse {}
 
 export interface EditInstanceProfileRequest {
   /** The AWS ARN of the instance profile to register with <Databricks>. This field is required. */
-  instanceProfileArn?: string | undefined;
+  instanceProfileArn: string;
   /**
    * Boolean flag indicating whether the instance profile should only be used in credential
    * passthrough scenarios. If true, it means the instance profile contains an meta IAM role
@@ -63,7 +63,7 @@ export interface EditInstanceProfileResponse {}
 
 export interface InstanceProfile {
   /** The AWS ARN of the instance profile to register with <Databricks>. This field is required. */
-  instanceProfileArn?: string | undefined;
+  instanceProfileArn: string;
   /**
    * Boolean flag indicating whether the instance profile should only be used in credential
    * passthrough scenarios. If true, it means the instance profile contains an meta IAM role
@@ -93,7 +93,7 @@ export interface ListInstanceProfilesResponse {
 
 export interface RemoveInstanceProfileRequest {
   /** The ARN of the instance profile to remove. This field is required. */
-  instanceProfileArn?: string | undefined;
+  instanceProfileArn: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -107,7 +107,7 @@ export const unmarshalEditInstanceProfileResponseSchema: z.ZodType<EditInstanceP
 
 export const unmarshalInstanceProfileSchema: z.ZodType<InstanceProfile> = z
   .object({
-    instance_profile_arn: z.string().optional(),
+    instance_profile_arn: z.string(),
     is_meta_instance_profile: z.boolean().optional(),
     iam_role_arn: z.string().optional(),
   })
@@ -134,7 +134,7 @@ export const unmarshalRemoveInstanceProfileResponseSchema: z.ZodType<RemoveInsta
 export const marshalAddInstanceProfileRequestSchema: z.ZodType = z
   .object({
     skipValidation: z.boolean().optional(),
-    instanceProfileArn: z.string().optional(),
+    instanceProfileArn: z.string(),
     isMetaInstanceProfile: z.boolean().optional(),
     iamRoleArn: z.string().optional(),
   })
@@ -147,7 +147,7 @@ export const marshalAddInstanceProfileRequestSchema: z.ZodType = z
 
 export const marshalEditInstanceProfileRequestSchema: z.ZodType = z
   .object({
-    instanceProfileArn: z.string().optional(),
+    instanceProfileArn: z.string(),
     isMetaInstanceProfile: z.boolean().optional(),
     iamRoleArn: z.string().optional(),
   })
@@ -159,7 +159,7 @@ export const marshalEditInstanceProfileRequestSchema: z.ZodType = z
 
 export const marshalRemoveInstanceProfileRequestSchema: z.ZodType = z
   .object({
-    instanceProfileArn: z.string().optional(),
+    instanceProfileArn: z.string(),
   })
   .transform(d => ({
     instance_profile_arn: d.instanceProfileArn,

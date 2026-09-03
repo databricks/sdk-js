@@ -43,22 +43,22 @@ export type ScopeBackendType =
  */
 export interface AclItem {
   /** The principal in which the permission is applied. */
-  principal?: string | undefined;
+  principal: string;
   /** The permission level applied to the principal. */
-  permission?: AclPermission | undefined;
+  permission: AclPermission;
 }
 
 /** The metadata of the Azure KeyVault for a secret scope of type `AZURE_KEYVAULT` */
 export interface AzureKeyVaultSecretScopeMetadata {
   /** The resource id of the azure KeyVault that user wants to associate the scope with. */
-  resourceId?: string | undefined;
+  resourceId: string;
   /** The DNS of the KeyVault */
-  dnsName?: string | undefined;
+  dnsName: string;
 }
 
 export interface CreateScopeRequest {
   /** Scope name requested by the user. Scope names are unique. */
-  scope?: string | undefined;
+  scope: string;
   /** The principal that is initially granted ``MANAGE`` permission to the created scope. */
   initialManagePrincipal?: string | undefined;
   /** The backend type the scope will be created with. If not specified, will default to ``DATABRICKS`` */
@@ -72,9 +72,9 @@ export interface CreateScopeResponse {}
 
 export interface DeleteAclRequest {
   /** The name of the scope to remove permissions from. */
-  scope?: string | undefined;
+  scope: string;
   /** The principal to remove an existing ACL from. */
-  principal?: string | undefined;
+  principal: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -82,7 +82,7 @@ export interface DeleteAclResponse {}
 
 export interface DeleteScopeRequest {
   /** Name of the scope to delete. */
-  scope?: string | undefined;
+  scope: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -90,9 +90,9 @@ export interface DeleteScopeResponse {}
 
 export interface DeleteSecretRequest {
   /** The name of the scope that contains the secret to delete. */
-  scope?: string | undefined;
+  scope: string;
   /** Name of the secret to delete. */
-  key?: string | undefined;
+  key: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -100,16 +100,16 @@ export interface DeleteSecretResponse {}
 
 export interface GetAclRequest {
   /** The name of the scope to fetch ACL information from. */
-  scope?: string | undefined;
+  scope: string;
   /** The principal to fetch ACL information for. */
-  principal?: string | undefined;
+  principal: string;
 }
 
 export interface GetSecretRequest {
   /** The name of the scope that contains the secret. */
-  scope?: string | undefined;
+  scope: string;
   /** Name of the secret to fetch value information. */
-  key?: string | undefined;
+  key: string;
 }
 
 export interface GetSecretResponse {
@@ -121,7 +121,7 @@ export interface GetSecretResponse {
 
 export interface ListAclsRequest {
   /** The name of the scope to fetch ACL information from. */
-  scope?: string | undefined;
+  scope: string;
 }
 
 export interface ListAclsResponse {
@@ -139,7 +139,7 @@ export interface ListScopesResponse {
 
 export interface ListSecretsRequest {
   /** The name of the scope to list secrets within. */
-  scope?: string | undefined;
+  scope: string;
 }
 
 export interface ListSecretsResponse {
@@ -149,11 +149,11 @@ export interface ListSecretsResponse {
 
 export interface PutAclRequest {
   /** The name of the scope to apply permissions to. */
-  scope?: string | undefined;
+  scope: string;
   /** The principal in which the permission is applied. */
-  principal?: string | undefined;
+  principal: string;
   /** The permission level applied to the principal. */
-  permission?: AclPermission | undefined;
+  permission: AclPermission;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -161,9 +161,9 @@ export interface PutAclResponse {}
 
 export interface PutSecretRequest {
   /** The name of the scope to which the secret will be associated with. */
-  scope?: string | undefined;
+  scope: string;
   /** A unique name to identify the secret. */
-  key?: string | undefined;
+  key: string;
   value?:
     | {
         $case: 'stringValue';
@@ -208,8 +208,8 @@ export interface SecretScope {
 
 export const unmarshalAclItemSchema: z.ZodType<AclItem> = z
   .object({
-    principal: z.string().optional(),
-    permission: z.string().optional(),
+    principal: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     principal: d.principal,
@@ -219,8 +219,8 @@ export const unmarshalAclItemSchema: z.ZodType<AclItem> = z
 export const unmarshalAzureKeyVaultSecretScopeMetadataSchema: z.ZodType<AzureKeyVaultSecretScopeMetadata> =
   z
     .object({
-      resource_id: z.string().optional(),
-      dns_name: z.string().optional(),
+      resource_id: z.string(),
+      dns_name: z.string(),
     })
     .transform(d => ({
       resourceId: d.resource_id,
@@ -313,8 +313,8 @@ export const unmarshalSecretScopeSchema: z.ZodType<SecretScope> = z
 
 export const marshalAzureKeyVaultSecretScopeMetadataSchema: z.ZodType = z
   .object({
-    resourceId: z.string().optional(),
-    dnsName: z.string().optional(),
+    resourceId: z.string(),
+    dnsName: z.string(),
   })
   .transform(d => ({
     resource_id: d.resourceId,
@@ -323,7 +323,7 @@ export const marshalAzureKeyVaultSecretScopeMetadataSchema: z.ZodType = z
 
 export const marshalCreateScopeRequestSchema: z.ZodType = z
   .object({
-    scope: z.string().optional(),
+    scope: z.string(),
     initialManagePrincipal: z.string().optional(),
     scopeBackendType: z.string().optional(),
     backendAzureKeyvault: z
@@ -339,8 +339,8 @@ export const marshalCreateScopeRequestSchema: z.ZodType = z
 
 export const marshalDeleteAclRequestSchema: z.ZodType = z
   .object({
-    scope: z.string().optional(),
-    principal: z.string().optional(),
+    scope: z.string(),
+    principal: z.string(),
   })
   .transform(d => ({
     scope: d.scope,
@@ -349,7 +349,7 @@ export const marshalDeleteAclRequestSchema: z.ZodType = z
 
 export const marshalDeleteScopeRequestSchema: z.ZodType = z
   .object({
-    scope: z.string().optional(),
+    scope: z.string(),
   })
   .transform(d => ({
     scope: d.scope,
@@ -357,8 +357,8 @@ export const marshalDeleteScopeRequestSchema: z.ZodType = z
 
 export const marshalDeleteSecretRequestSchema: z.ZodType = z
   .object({
-    scope: z.string().optional(),
-    key: z.string().optional(),
+    scope: z.string(),
+    key: z.string(),
   })
   .transform(d => ({
     scope: d.scope,
@@ -367,9 +367,9 @@ export const marshalDeleteSecretRequestSchema: z.ZodType = z
 
 export const marshalPutAclRequestSchema: z.ZodType = z
   .object({
-    scope: z.string().optional(),
-    principal: z.string().optional(),
-    permission: z.string().optional(),
+    scope: z.string(),
+    principal: z.string(),
+    permission: z.string(),
   })
   .transform(d => ({
     scope: d.scope,
@@ -379,8 +379,8 @@ export const marshalPutAclRequestSchema: z.ZodType = z
 
 export const marshalPutSecretRequestSchema: z.ZodType = z
   .object({
-    scope: z.string().optional(),
-    key: z.string().optional(),
+    scope: z.string(),
+    key: z.string(),
     value: z
       .discriminatedUnion('$case', [
         z.object({$case: z.literal('stringValue'), stringValue: z.string()}),

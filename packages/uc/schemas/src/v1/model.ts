@@ -18,9 +18,9 @@ export type CatalogType =
 
 export interface CreateSchemaRequest {
   /** Name of schema, relative to parent catalog. */
-  name?: string | undefined;
+  name: string;
   /** Name of parent catalog. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /** Username of current owner of schema. */
   owner?: string | undefined;
   /** User-provided free-form text description. */
@@ -55,14 +55,14 @@ export interface CreateSchemaRequest {
   /** Custom maximum retention period in hours for the schema. */
   customMaxRetentionHours?: bigint | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
 }
 
 export interface DeleteSchemaRequest {
   /** Full name of the schema. */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** Force deletion even if the schema is not empty. */
   force?: boolean | undefined;
 }
@@ -72,7 +72,7 @@ export interface DeleteSchemaResponse {}
 
 export interface EffectivePredictiveOptimizationFlag {
   /** Whether predictive optimization should be enabled for this object and objects under it. */
-  value?: string | undefined;
+  value: string;
   /** The type of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
   inheritedFromType?: string | undefined;
   /** The name of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
@@ -81,14 +81,14 @@ export interface EffectivePredictiveOptimizationFlag {
 
 export interface GetSchemaRequest {
   /** Full name of the schema. */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** Whether to include schemas in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
 
 export interface ListSchemasRequest {
   /** Parent catalog for schemas of interest. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /**
    * Maximum number of schemas to return.
    * If not set, all the schemas are returned (not recommended).
@@ -115,9 +115,9 @@ export interface ListSchemasResponse {
 
 export interface SchemaInfo {
   /** Name of schema, relative to parent catalog. */
-  name?: string | undefined;
+  name: string;
   /** Name of parent catalog. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /** Username of current owner of schema. */
   owner?: string | undefined;
   /** User-provided free-form text description. */
@@ -152,20 +152,20 @@ export interface SchemaInfo {
   /** Custom maximum retention period in hours for the schema. */
   customMaxRetentionHours?: bigint | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
 }
 
 export interface UpdateSchemaRequest {
   /** Full name of the schema. */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** New name for the schema. */
   newName?: string | undefined;
   /** Name of schema, relative to parent catalog. */
-  name?: string | undefined;
+  name: string;
   /** Name of parent catalog. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /** Username of current owner of schema. */
   owner?: string | undefined;
   /** User-provided free-form text description. */
@@ -200,7 +200,7 @@ export interface UpdateSchemaRequest {
   /** Custom maximum retention period in hours for the schema. */
   customMaxRetentionHours?: bigint | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
 }
@@ -211,7 +211,7 @@ export const unmarshalDeleteSchemaResponseSchema: z.ZodType<DeleteSchemaResponse
 export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
   z
     .object({
-      value: z.string().optional(),
+      value: z.string(),
       inherited_from_type: z.string().optional(),
       inherited_from_name: z.string().optional(),
     })
@@ -234,8 +234,8 @@ export const unmarshalListSchemasResponseSchema: z.ZodType<ListSchemasResponse> 
 
 export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
   .object({
-    name: z.string().optional(),
-    catalog_name: z.string().optional(),
+    name: z.string(),
+    catalog_name: z.string(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     storage_root: z.string().optional(),
@@ -263,7 +263,7 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
     options: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -292,8 +292,8 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
 
 export const marshalCreateSchemaRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    catalogName: z.string().optional(),
+    name: z.string(),
+    catalogName: z.string(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     storageRoot: z.string().optional(),
@@ -312,7 +312,7 @@ export const marshalCreateSchemaRequestSchema: z.ZodType = z
     schemaId: z.string().optional(),
     browseOnly: z.boolean().optional(),
     customMaxRetentionHours: z.bigint().optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
     options: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -341,7 +341,7 @@ export const marshalCreateSchemaRequestSchema: z.ZodType = z
 
 export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
   .object({
-    value: z.string().optional(),
+    value: z.string(),
     inheritedFromType: z.string().optional(),
     inheritedFromName: z.string().optional(),
   })
@@ -353,10 +353,10 @@ export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
 
 export const marshalUpdateSchemaRequestSchema: z.ZodType = z
   .object({
-    fullNameArg: z.string().optional(),
+    fullNameArg: z.string(),
     newName: z.string().optional(),
-    name: z.string().optional(),
-    catalogName: z.string().optional(),
+    name: z.string(),
+    catalogName: z.string(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     storageRoot: z.string().optional(),
@@ -375,7 +375,7 @@ export const marshalUpdateSchemaRequestSchema: z.ZodType = z
     schemaId: z.string().optional(),
     browseOnly: z.boolean().optional(),
     customMaxRetentionHours: z.bigint().optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
     options: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
