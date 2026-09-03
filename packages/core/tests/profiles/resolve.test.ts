@@ -66,6 +66,7 @@ describe('resolve', () => {
   const resolveCases: {
     name: string;
     options?: Parameters<typeof resolve>[0];
+    config?: string;
     env?: Record<string, string>;
     want: Profile;
     wantErr?: ProfileErrorCode;
@@ -252,6 +253,32 @@ describe('resolve', () => {
       want: {name: 'workspace', groupId: 'env-group'},
     },
     {
+      name: 'absent group configuration does not set a group ID',
+      config: '[DEFAULT]\nhost = https://workspace.example\n',
+      want: {
+        name: 'DEFAULT',
+        host: 'https://workspace.example',
+      },
+    },
+    {
+      name: 'empty profile group preserves the empty group ID',
+      config: '[DEFAULT]\nhost = https://workspace.example\ngroup_id =\n',
+      want: {
+        name: 'DEFAULT',
+        host: 'https://workspace.example',
+        groupId: '',
+      },
+    },
+    {
+      name: 'empty environment group does not set a group ID',
+      config: '[DEFAULT]\nhost = https://workspace.example\n',
+      env: {DATABRICKS_GROUP_ID: ''},
+      want: {
+        name: 'DEFAULT',
+        host: 'https://workspace.example',
+      },
+    },
+    {
       name: 'extra keys',
       options: {configFile: CFG, profile: 'extra-keys'},
       want: {
@@ -332,62 +359,33 @@ describe('resolve', () => {
     },
   ];
 
-  it.each(resolveCases)('$name', async ({options, env, want, wantErr}) => {
-    if (env !== undefined) {
-      for (const [key, value] of Object.entries(env)) {
-        vi.stubEnv(key, value);
-      }
-    }
-
-    if (wantErr !== undefined) {
-      await expect(resolve(options)).rejects.toMatchObject({
-        code: wantErr,
-      });
-    } else {
-      const got = await resolve(options);
-      expectProfileEqual(got, want);
-    }
-  });
-
-  const emptyGroupCases: {
-    name: string;
-    config: string;
-    env?: string;
-    wantGroupId: string | undefined;
-  }[] = [
-    {
-      name: 'absent group configuration',
-      config: '[DEFAULT]\nhost = https://workspace.example\n',
-      wantGroupId: undefined,
-    },
-    {
-      name: 'empty profile group',
-      config: '[DEFAULT]\nhost = https://workspace.example\ngroup_id =\n',
-      wantGroupId: '',
-    },
-    {
-      name: 'empty environment group',
-      config: '[DEFAULT]\nhost = https://workspace.example\n',
-      env: '',
-      wantGroupId: undefined,
-    },
-  ];
-
-  it.each(emptyGroupCases)(
-    'treats $name as no group assumption',
-    async ({config, env, wantGroupId}) => {
-      const configFile = join(
-        mkdtempSync(join(tmpdir(), 'group-profile-test-')),
-        'databrickscfg'
-      );
-      writeFileSync(configFile, config);
+  it.each(resolveCases)(
+    '$name',
+    async ({options, config, env, want, wantErr}) => {
       if (env !== undefined) {
-        vi.stubEnv('DATABRICKS_GROUP_ID', env);
+        for (const [key, value] of Object.entries(env)) {
+          vi.stubEnv(key, value);
+        }
       }
 
-      const profile = await resolve({configFile});
+      const configFile =
+        config === undefined
+          ? undefined
+          : join(mkdtempSync(join(tmpdir(), 'profile-test-')), 'databrickscfg');
+      if (configFile !== undefined) {
+        writeFileSync(configFile, config);
+      }
+      const resolvedOptions =
+        configFile === undefined ? options : {...options, configFile};
 
-      expect(profile.groupId).toBe(wantGroupId);
+      if (wantErr !== undefined) {
+        await expect(resolve(resolvedOptions)).rejects.toMatchObject({
+          code: wantErr,
+        });
+      } else {
+        const got = await resolve(resolvedOptions);
+        expectProfileEqual(got, want);
+      }
     }
   );
 });

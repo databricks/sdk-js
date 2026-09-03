@@ -2,8 +2,12 @@ import type {Stats} from 'node:fs';
 
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import type {U2mCredentialsErrorCode} from '../../src/credentials';
+import type {
+  DefaultCredentialsErrorCode,
+  U2mCredentialsErrorCode,
+} from '../../src/credentials';
 import {
+  DefaultCredentialsError,
   U2mCredentialsError,
   defaultCredentials,
   newU2mCredentials,
@@ -87,23 +91,6 @@ describe('newU2mCredentials', () => {
     vi.unstubAllEnvs();
   });
 
-  it('rejects grouped explicit CLI auth before invoking the CLI', async () => {
-    const credentials = defaultCredentials({
-      profile: {
-        name: DEFAULT_PROFILE,
-        host: 'https://workspace.example',
-        authType: 'databricks-cli',
-        groupId: 'group-123',
-      },
-    });
-
-    await expect(credentials.authHeaders()).rejects.toMatchObject({
-      code: 'GROUP_ROLE_UNSUPPORTED',
-    });
-    expect(statMock).not.toHaveBeenCalled();
-    expect(execFileMock).not.toHaveBeenCalled();
-  });
-
   const successCases: {
     name: string;
     profile: string;
@@ -175,21 +162,52 @@ describe('newU2mCredentials', () => {
     expect(args).toEqual(['auth', 'token', '--profile', profile]);
   });
 
-  const errorCases: {
+  type ErrorCase = {
     name: string;
     setup?: () => void;
-    profile: string;
-    wantCode: U2mCredentialsErrorCode;
-    wantMessage: RegExp;
-  }[] = [
+    verify?: () => void;
+  } & (
+    | {
+        kind: 'u2m';
+        profile: string;
+        wantCode: U2mCredentialsErrorCode;
+        wantMessage: RegExp;
+      }
+    | {
+        kind: 'default';
+        options: Parameters<typeof defaultCredentials>[0];
+        wantCode: DefaultCredentialsErrorCode;
+      }
+  );
+
+  const errorCases: ErrorCase[] = [
+    {
+      name: 'grouped explicit CLI auth before invoking the CLI',
+      kind: 'default',
+      options: {
+        profile: {
+          name: DEFAULT_PROFILE,
+          host: 'https://workspace.example',
+          authType: 'databricks-cli',
+          groupId: 'group-123',
+        },
+      },
+      wantCode: 'GROUP_ROLE_UNSUPPORTED',
+      verify: (): void => {
+        expect(statMock).not.toHaveBeenCalled();
+        expect(execFileMock).not.toHaveBeenCalled();
+      },
+    },
     {
       name: 'empty profile',
+      kind: 'u2m',
       profile: '',
       wantCode: 'PROFILE_REQUIRED',
       wantMessage: /profile is required/,
     },
     {
       name: 'binary missing from PATH',
+      kind: 'u2m',
       setup: (): void => {
         statMock.mockRejectedValue(
           Object.assign(new Error('ENOENT'), {code: 'ENOENT'})
@@ -201,6 +219,7 @@ describe('newU2mCredentials', () => {
     },
     {
       name: 'only legacy (undersized) binary available',
+      kind: 'u2m',
       setup: (): void => {
         statReturnsFile(LEGACY_CLI_SIZE);
       },
@@ -210,6 +229,7 @@ describe('newU2mCredentials', () => {
     },
     {
       name: 'CLI invocation surfaces stderr',
+      kind: 'u2m',
       setup: (): void => {
         statReturnsModernFile();
         stubCliRun({kind: 'err', stderr: 'not logged in'});
@@ -220,6 +240,7 @@ describe('newU2mCredentials', () => {
     },
     {
       name: 'CLI output is not valid JSON',
+      kind: 'u2m',
       setup: (): void => {
         statReturnsModernFile();
         stubCliRun({kind: 'ok', stdout: 'not json'});
@@ -230,6 +251,7 @@ describe('newU2mCredentials', () => {
     },
     {
       name: 'CLI response is missing access_token',
+      kind: 'u2m',
       setup: (): void => {
         statReturnsModernFile();
         stubCliRun({
@@ -246,6 +268,7 @@ describe('newU2mCredentials', () => {
     },
     {
       name: 'expiry cannot be parsed as a date',
+      kind: 'u2m',
       setup: (): void => {
         statReturnsModernFile();
         stubCliRun(okResponse({expiry: 'totally-not-a-date'}));
@@ -256,23 +279,31 @@ describe('newU2mCredentials', () => {
     },
   ];
 
-  it.each(errorCases)(
-    'rejects on $name',
-    async ({setup, profile, wantCode, wantMessage}) => {
-      setup?.();
+  it.each(errorCases)('rejects on $name', async testCase => {
+    testCase.setup?.();
 
-      let caught: unknown;
-      try {
-        const creds = newU2mCredentials({profile});
-        await creds.token();
-      } catch (e) {
-        caught = e;
+    let caught: unknown;
+    try {
+      if (testCase.kind === 'u2m') {
+        await newU2mCredentials({profile: testCase.profile}).token();
+      } else {
+        await defaultCredentials(testCase.options).authHeaders();
       }
+    } catch (e) {
+      caught = e;
+    }
+    if (testCase.kind === 'u2m') {
       if (!(caught instanceof U2mCredentialsError)) {
         expect.fail(`expected U2mCredentialsError, got ${String(caught)}`);
       }
-      expect(caught.code).toBe(wantCode);
-      expect(caught.message).toMatch(wantMessage);
+      expect(caught.code).toBe(testCase.wantCode);
+      expect(caught.message).toMatch(testCase.wantMessage);
+    } else {
+      if (!(caught instanceof DefaultCredentialsError)) {
+        expect.fail(`expected DefaultCredentialsError, got ${String(caught)}`);
+      }
+      expect(caught.code).toBe(testCase.wantCode);
     }
-  );
+    testCase.verify?.();
+  });
 });

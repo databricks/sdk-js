@@ -23,6 +23,7 @@ describe('property set and get', () => {
     def: PropertyDef;
     raw: string;
     wantGet: string;
+    wantNames?: {envVar: string; iniKey: string};
   }[] = [
     // String properties.
     {
@@ -42,6 +43,10 @@ describe('property set and get', () => {
       def: GROUP_ID_DEF,
       raw: 'group-123',
       wantGet: 'group-123',
+      wantNames: {
+        envVar: 'DATABRICKS_GROUP_ID',
+        iniKey: 'group_id',
+      },
     },
     // Secret properties.
     {
@@ -58,11 +63,17 @@ describe('property set and get', () => {
     },
   ];
 
-  it.each(roundTripCases)('should round-trip: $name', ({def, raw, wantGet}) => {
-    const profile: Profile = {};
-    def.set(profile, raw);
-    expect(def.get(profile)).toBe(wantGet);
-  });
+  it.each(roundTripCases)(
+    'should round-trip: $name',
+    ({def, raw, wantGet, wantNames}) => {
+      const profile: Profile = {};
+      def.set(profile, raw);
+      expect(def.get(profile)).toBe(wantGet);
+      if (wantNames !== undefined) {
+        expect(def).toMatchObject(wantNames);
+      }
+    }
+  );
 
   it('should wrap secret fields in Secret instances', () => {
     const profile: Profile = {};
@@ -84,13 +95,6 @@ describe('property set and get', () => {
 });
 
 describe('PROPERTY_DEFS', () => {
-  it('maps groupId to the Databricks environment and INI names', () => {
-    expect(GROUP_ID_DEF).toMatchObject({
-      envVar: 'DATABRICKS_GROUP_ID',
-      iniKey: 'group_id',
-    });
-  });
-
   it('should cover every Profile field except name and extra', () => {
     // Set every property to a sentinel value via PROPERTY_DEFS, then check
     // that no Profile field was missed. The source of truth is the Profile

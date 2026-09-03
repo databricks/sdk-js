@@ -58,17 +58,20 @@ const loaderFor =
     Promise.resolve(profile);
 
 describe('DefaultCredentials chain', () => {
+  const selectedError = new Error('selected provider failed');
   const resolutionCases: {
     name: string;
     strategies: readonly Strategy[];
     profile: Profile;
-    wantHeaders: Header[];
+    want: {headers: Header[]} | {error: Error};
   }[] = [
     {
       name: 'returns the first configured strategy',
       strategies: [patStrategy, configuredStrategy('oauth-m2m')],
       profile: {host: HOST, token: new Secret('dapi-abc')},
-      wantHeaders: [{key: 'Authorization', value: 'Bearer dapi-abc'}],
+      want: {
+        headers: [{key: 'Authorization', value: 'Bearer dapi-abc'}],
+      },
     },
     {
       name: 'falls through to the next strategy when earlier ones are unconfigured',
@@ -77,7 +80,9 @@ describe('DefaultCredentials chain', () => {
         configuredStrategy('oauth-m2m'),
       ],
       profile: {host: HOST},
-      wantHeaders: [{key: 'X-Test-Strategy', value: 'oauth-m2m'}],
+      want: {
+        headers: [{key: 'X-Test-Strategy', value: 'oauth-m2m'}],
+      },
     },
     {
       // PAT is configured and comes first, but authType pins oauth-m2m, so
@@ -89,18 +94,58 @@ describe('DefaultCredentials chain', () => {
         token: new Secret('dapi-abc'),
         authType: 'oauth-m2m',
       },
-      wantHeaders: [{key: 'X-Test-Strategy', value: 'oauth-m2m'}],
+      want: {
+        headers: [{key: 'X-Test-Strategy', value: 'oauth-m2m'}],
+      },
+    },
+    {
+      name: 'skips unsupported strategies when a group is configured',
+      strategies: [
+        configuredStrategy('pat', false),
+        configuredStrategy('oauth-m2m'),
+      ],
+      profile: {host: HOST, groupId: 'group-123'},
+      want: {
+        headers: [{key: 'X-Test-Strategy', value: 'oauth-m2m'}],
+      },
+    },
+    {
+      name: 'preserves normal strategy ordering when the group is empty',
+      strategies: [
+        configuredStrategy('pat', false),
+        configuredStrategy('oauth-m2m'),
+      ],
+      profile: {host: HOST, groupId: ''},
+      want: {headers: [{key: 'X-Test-Strategy', value: 'pat'}]},
+    },
+    {
+      name: 'does not configure a fallback after the selected strategy fails',
+      strategies: [
+        {
+          name: 'oauth-m2m',
+          supportsGroupAssumption: true,
+          configure: () => ({
+            name: () => 'oauth-m2m',
+            authHeaders: () => Promise.reject(selectedError),
+          }),
+        },
+        configuredStrategy('fallback', true, () => {
+          expect.fail('fallback strategy should not be configured');
+        }),
+      ],
+      profile: {host: HOST, groupId: 'group-123'},
+      want: {error: selectedError},
     },
   ];
 
-  it.each(resolutionCases)(
-    '$name',
-    async ({strategies, profile, wantHeaders}) => {
-      const creds = new DefaultCredentials(strategies, loaderFor(profile));
-      const headers = await creds.authHeaders();
-      expect(headers).toEqual(wantHeaders);
+  it.each(resolutionCases)('$name', async ({strategies, profile, want}) => {
+    const creds = new DefaultCredentials(strategies, loaderFor(profile));
+    if ('error' in want) {
+      await expect(creds.authHeaders()).rejects.toBe(want.error);
+    } else {
+      await expect(creds.authHeaders()).resolves.toEqual(want.headers);
     }
-  );
+  });
 
   it('caches the resolved strategy across calls', async () => {
     let buildCount = 0;
@@ -121,35 +166,6 @@ describe('DefaultCredentials chain', () => {
     expect(buildCount).toBe(1);
   });
 
-  it('skips unsupported strategies when a group is configured', async () => {
-    let unsupportedCalls = 0;
-    const creds = new DefaultCredentials(
-      [
-        configuredStrategy('pat', false, () => {
-          unsupportedCalls += 1;
-        }),
-        configuredStrategy('oauth-m2m'),
-      ],
-      loaderFor({host: HOST, groupId: 'group-123'})
-    );
-
-    expect(await creds.authHeaders()).toEqual([
-      {key: 'X-Test-Strategy', value: 'oauth-m2m'},
-    ]);
-    expect(unsupportedCalls).toBe(0);
-  });
-
-  it('preserves normal strategy ordering when the group is empty', async () => {
-    const creds = new DefaultCredentials(
-      [configuredStrategy('pat', false), configuredStrategy('oauth-m2m')],
-      loaderFor({host: HOST, groupId: ''})
-    );
-
-    expect(await creds.authHeaders()).toEqual([
-      {key: 'X-Test-Strategy', value: 'pat'},
-    ]);
-  });
-
   it('invokes the profile loader exactly once', async () => {
     let loaderCalls = 0;
     const loader = (): Promise<Profile> => {
@@ -160,29 +176,6 @@ describe('DefaultCredentials chain', () => {
     await creds.authHeaders();
     await creds.authHeaders();
     expect(loaderCalls).toBe(1);
-  });
-
-  it('does not configure a fallback after the selected strategy fails', async () => {
-    const selectedError = new Error('selected provider failed');
-    let fallbackCalls = 0;
-    const selected: Strategy = {
-      name: 'oauth-m2m',
-      supportsGroupAssumption: true,
-      configure: () => ({
-        name: () => 'oauth-m2m',
-        authHeaders: () => Promise.reject(selectedError),
-      }),
-    };
-    const fallback = configuredStrategy('fallback', true, () => {
-      fallbackCalls += 1;
-    });
-    const creds = new DefaultCredentials(
-      [selected, fallback],
-      loaderFor({host: HOST, groupId: 'group-123'})
-    );
-
-    await expect(creds.authHeaders()).rejects.toBe(selectedError);
-    expect(fallbackCalls).toBe(0);
   });
 
   const errorCases: {
