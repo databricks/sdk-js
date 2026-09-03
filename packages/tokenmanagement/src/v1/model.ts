@@ -56,7 +56,7 @@ export interface AdminTokenInfo {
 /** Configuration details for creating on-behalf tokens. */
 export interface CreateOnBehalfOfTokenRequest {
   /** Application ID of the service principal. */
-  applicationId?: string | undefined;
+  applicationId: string;
   /** The number of seconds before the token expires. */
   lifetimeSeconds?: bigint | undefined;
   /** Comment that describes the purpose of the token. */
@@ -125,9 +125,9 @@ export interface RevokeTokenResponse {}
  * https://docs.databricks.com/api/workspace/api/scopes.
  */
 export interface UpdateTokenRequest {
-  token?: AdminTokenInfo | undefined;
+  token: AdminTokenInfo;
   /** A list of field name under token, For example, {"update_mask": "comment,scopes"} */
-  updateMask?: FieldMask<AdminTokenInfo> | undefined;
+  updateMask: FieldMask<AdminTokenInfo>;
 }
 
 export const unmarshalAdminTokenInfoSchema: z.ZodType<AdminTokenInfo> = z
@@ -247,7 +247,7 @@ export const marshalAdminTokenInfoSchema: z.ZodType = z
 
 export const marshalCreateOnBehalfOfTokenRequestSchema: z.ZodType = z
   .object({
-    applicationId: z.string().optional(),
+    applicationId: z.string(),
     lifetimeSeconds: z.bigint().optional(),
     comment: z.string().optional(),
     scopes: z.array(z.string()).optional(),
@@ -263,11 +263,8 @@ export const marshalCreateOnBehalfOfTokenRequestSchema: z.ZodType = z
 
 export const marshalUpdateTokenRequestSchema: z.ZodType = z
   .object({
-    token: z.lazy(() => marshalAdminTokenInfoSchema).optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
+    token: z.lazy(() => marshalAdminTokenInfoSchema),
+    updateMask: z.any().transform((m: FieldMask) => m.toString()),
   })
   .transform(d => ({
     token: d.token,

@@ -67,6 +67,7 @@ import type {
   GetProjectRequest,
   GetRoleRequest,
   GetSnapshotRequest,
+  GetSnapshotScheduleRequest,
   GetSyncedTableRequest,
   ListBranchesRequest,
   ListBranchesResponse,
@@ -91,6 +92,8 @@ import type {
   RoleOperationMetadata,
   Snapshot,
   SnapshotOperationMetadata,
+  SnapshotSchedule,
+  SnapshotScheduleOperationMetadata,
   SyncedTable,
   SyncedTableOperationMetadata,
   UndeleteBranchRequest,
@@ -101,6 +104,7 @@ import type {
   UpdateEndpointRequest,
   UpdateProjectRequest,
   UpdateRoleRequest,
+  UpdateSnapshotScheduleRequest,
 } from './model';
 import {
   marshalBranchSchema,
@@ -112,6 +116,7 @@ import {
   marshalGenerateDatabaseCredentialRequestSchema,
   marshalProjectSchema,
   marshalRoleSchema,
+  marshalSnapshotScheduleSchema,
   marshalSnapshotSchema,
   marshalSyncedTableSchema,
   marshalUndeleteBranchRequestSchema,
@@ -144,6 +149,8 @@ import {
   unmarshalRoleOperationMetadataSchema,
   unmarshalRoleSchema,
   unmarshalSnapshotOperationMetadataSchema,
+  unmarshalSnapshotScheduleOperationMetadataSchema,
+  unmarshalSnapshotScheduleSchema,
   unmarshalSnapshotSchema,
   unmarshalSyncedTableOperationMetadataSchema,
   unmarshalSyncedTableSchema,
@@ -1518,6 +1525,38 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Retrieves the snapshot schedule for a branch. A branch with no configured
+   * schedule returns an empty schedule (not NOT_FOUND).
+   */
+  async getSnapshotSchedule(
+    req: GetSnapshotScheduleRequest,
+    options?: CallOptions
+  ): Promise<SnapshotSchedule> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    let resp: SnapshotSchedule | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalSnapshotScheduleSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
   /** Get a Synced Table. */
   async getSyncedTable(
     req: GetSyncedTableRequest,
@@ -2397,6 +2436,68 @@ export class PostgresClient {
   ): Promise<UpdateRoleOperation> {
     const op = await this.updateRoleBase(req, options);
     return new UpdateRoleOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
+  /**
+   * Sets the snapshot schedule for a branch. The `schedule` field is replaced
+   * wholesale; an empty schedule disables automatic snapshots.
+   */
+  private async updateSnapshotScheduleBase(
+    req: UpdateSnapshotScheduleRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.snapshotSchedule?.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(
+      req.snapshotSchedule,
+      marshalSnapshotScheduleSchema
+    );
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Sets the snapshot schedule for a branch. The `schedule` field is replaced
+   * wholesale; an empty schedule disables automatic snapshots.
+   */
+  async updateSnapshotSchedule(
+    req: UpdateSnapshotScheduleRequest,
+    options?: CallOptions
+  ): Promise<UpdateSnapshotScheduleOperation> {
+    const op = await this.updateSnapshotScheduleBase(req, options);
+    return new UpdateSnapshotScheduleOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
@@ -4595,6 +4696,92 @@ export class UpdateRoleOperation {
       }
 
       result = z.lazy(() => unmarshalRoleSchema).parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class UpdateSnapshotScheduleOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<SnapshotScheduleOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalSnapshotScheduleOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<SnapshotSchedule> {
+    let result: SnapshotSchedule | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z
+        .lazy(() => unmarshalSnapshotScheduleSchema)
+        .parse(op.result.response);
     };
 
     await executeWait(call, options);

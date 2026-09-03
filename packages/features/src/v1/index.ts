@@ -4,10 +4,12 @@
  * @module v1
  */
 
-export {FeaturesClient} from './client';
+export {FeaturesClient, BackfillFeaturesOperation} from './client';
 
 export {
+  ErrorCode,
   ScalarDataType,
+  BackfillOperationMetadata_State,
   MaterializedFeature_PipelineScheduleState,
   SchemaLocator_Format,
   StreamingMode_StreamingModeType,
@@ -15,13 +17,19 @@ export {
 
 export type {
   AggregationFunction,
+  ApiError,
   ApproxCountDistinctFunction,
   ApproxPercentileFunction,
   AuthConfig,
   AvgFunction,
+  BackfillFeaturesRequest,
+  BackfillFeaturesResponse,
+  BackfillOperationMetadata,
+  BackfillRange,
   BackfillSource,
   BatchCreateMaterializedFeaturesRequest,
   BatchCreateMaterializedFeaturesResponse,
+  CancelOperationRequest,
   ColumnSelection,
   CountFunction,
   CreateFeatureRequest,
@@ -49,6 +57,7 @@ export type {
   GetFeatureRequest,
   GetKafkaConfigRequest,
   GetMaterializedFeatureRequest,
+  GetOperationRequest,
   GetStreamRequest,
   IngestionConfig,
   IngestionDestination,
@@ -77,6 +86,7 @@ export type {
   MtlsConfig,
   OfflineStoreConfig,
   OnlineStoreConfig,
+  Operation,
   ProtoSchemaSpec,
   RequestSource,
   RollingWindow,

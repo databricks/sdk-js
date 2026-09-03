@@ -4,9 +4,9 @@ import {z} from 'zod';
 
 export interface AddBlockRequest {
   /** The handle on an open stream. */
-  handle?: bigint | undefined;
+  handle: bigint;
   /** The base64-encoded data to append to the stream. This has a limit of 1 MB. */
-  data?: Uint8Array | undefined;
+  data: Uint8Array;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -14,7 +14,7 @@ export interface AddBlockResponse {}
 
 export interface CloseRequest {
   /** The handle on an open stream. */
-  handle?: bigint | undefined;
+  handle: bigint;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -23,7 +23,7 @@ export interface CloseResponse {}
 /** Create a directory */
 export interface CreateDirectoryRequest {
   /** The absolute path of a directory. */
-  directoryPath?: string | undefined;
+  directoryPath: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -31,7 +31,7 @@ export interface CreateDirectoryResponse {}
 
 export interface CreateRequest {
   /** The path of the new file. The path should be the absolute DBFS path. */
-  path?: string | undefined;
+  path: string;
   /** The flag that specifies whether to overwrite existing file/files. */
   overwrite?: boolean | undefined;
 }
@@ -44,7 +44,7 @@ export interface CreateResponse {
 /** Delete a directory */
 export interface DeleteDirectoryRequest {
   /** The absolute path of a directory. */
-  directoryPath?: string | undefined;
+  directoryPath: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -53,7 +53,7 @@ export interface DeleteDirectoryResponse {}
 /** Delete a file */
 export interface DeleteFileRequest {
   /** The absolute path of the file. */
-  filePath?: string | undefined;
+  filePath: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -61,7 +61,7 @@ export interface DeleteFileResponse {}
 
 export interface DeleteRequest {
   /** The path of the file or directory to delete. The path should be the absolute DBFS path. */
-  path?: string | undefined;
+  path: string;
   /** Whether or not to recursively delete the directory's contents. Deleting empty directories can be done without providing the recursive flag. */
   recursive?: boolean | undefined;
 }
@@ -85,7 +85,7 @@ export interface DirectoryEntry {
 /** Download a file */
 export interface DownloadFileRequest {
   /** The absolute path of the file. */
-  filePath?: string | undefined;
+  filePath: string;
   /**
    * The range of bytes to retrieve.
    * The range is inclusive and zero-based, see
@@ -124,7 +124,7 @@ export interface FileInfo {
 /** Get directory metadata */
 export interface GetDirectoryMetadataRequest {
   /** The absolute path of a directory. */
-  directoryPath?: string | undefined;
+  directoryPath: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -133,7 +133,7 @@ export interface GetDirectoryMetadataResponse {}
 /** Get file metadata */
 export interface GetFileMetadataRequest {
   /** The absolute path of the file. */
-  filePath?: string | undefined;
+  filePath: string;
   /**
    * The range of bytes to retrieve.
    * The range is inclusive and zero-based, see
@@ -158,7 +158,7 @@ export interface GetFileMetadataResponse {
 
 export interface GetStatusRequest {
   /** The path of the file or directory. The path should be the absolute DBFS path. */
-  path?: string | undefined;
+  path: string;
 }
 
 export interface GetStatusResponse {
@@ -175,7 +175,7 @@ export interface GetStatusResponse {
 /** List directory contents */
 export interface ListDirectoryContentsRequest {
   /** The absolute path of a directory. */
-  directoryPath?: string | undefined;
+  directoryPath: string;
   /**
    * The maximum number of directory entries to return. The response may contain fewer
    * entries. If the response contains a `next_page_token`, there may be more entries,
@@ -210,7 +210,7 @@ export interface ListDirectoryResponse {
 
 export interface ListStatusRequest {
   /** The path of the file or directory. The path should be the absolute DBFS path. */
-  path?: string | undefined;
+  path: string;
 }
 
 export interface ListStatusResponse {
@@ -220,7 +220,7 @@ export interface ListStatusResponse {
 
 export interface MkDirsRequest {
   /** The path of the new directory. The path should be the absolute DBFS path. */
-  path?: string | undefined;
+  path: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -228,9 +228,9 @@ export interface MkDirsResponse {}
 
 export interface MoveRequest {
   /** The source path of the file or directory. The path should be the absolute DBFS path. */
-  sourcePath?: string | undefined;
+  sourcePath: string;
   /** The destination path of the file or directory. The path should be the absolute DBFS path. */
-  destinationPath?: string | undefined;
+  destinationPath: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -238,7 +238,7 @@ export interface MoveResponse {}
 
 export interface PutRequest {
   /** The path of the new file. The path should be the absolute DBFS path. */
-  path?: string | undefined;
+  path: string;
   /** This parameter might be absent, and instead a posted file will be used. */
   contents?: Uint8Array | undefined;
   /** The flag that specifies whether to overwrite existing file/files. */
@@ -250,7 +250,7 @@ export interface PutResponse {}
 
 export interface ReadRequest {
   /** The path of the file to read. The path should be the absolute DBFS path. */
-  path?: string | undefined;
+  path: string;
   /** The offset to read from in bytes. */
   offset?: bigint | undefined;
   /**
@@ -273,7 +273,7 @@ export interface ReadResponse {
 /** Upload a file */
 export interface UploadFileRequest {
   /** The absolute path of the file. */
-  filePath?: string | undefined;
+  filePath: string;
   contents?: ReadableStream | undefined;
   /** If true or unspecified, an existing file will be overwritten. If false, an error will be returned if the path points to an existing file. */
   overwrite?: boolean | undefined;
@@ -437,13 +437,12 @@ export const unmarshalUploadFileResponseSchema: z.ZodType<UploadFileResponse> =
 
 export const marshalAddBlockRequestSchema: z.ZodType = z
   .object({
-    handle: z.bigint().optional(),
+    handle: z.bigint(),
     data: z
       .any()
       .transform((d: Uint8Array) =>
         btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
-      )
-      .optional(),
+      ),
   })
   .transform(d => ({
     handle: d.handle,
@@ -452,7 +451,7 @@ export const marshalAddBlockRequestSchema: z.ZodType = z
 
 export const marshalCloseRequestSchema: z.ZodType = z
   .object({
-    handle: z.bigint().optional(),
+    handle: z.bigint(),
   })
   .transform(d => ({
     handle: d.handle,
@@ -460,7 +459,7 @@ export const marshalCloseRequestSchema: z.ZodType = z
 
 export const marshalCreateRequestSchema: z.ZodType = z
   .object({
-    path: z.string().optional(),
+    path: z.string(),
     overwrite: z.boolean().optional(),
   })
   .transform(d => ({
@@ -470,7 +469,7 @@ export const marshalCreateRequestSchema: z.ZodType = z
 
 export const marshalDeleteRequestSchema: z.ZodType = z
   .object({
-    path: z.string().optional(),
+    path: z.string(),
     recursive: z.boolean().optional(),
   })
   .transform(d => ({
@@ -480,7 +479,7 @@ export const marshalDeleteRequestSchema: z.ZodType = z
 
 export const marshalMkDirsRequestSchema: z.ZodType = z
   .object({
-    path: z.string().optional(),
+    path: z.string(),
   })
   .transform(d => ({
     path: d.path,
@@ -488,8 +487,8 @@ export const marshalMkDirsRequestSchema: z.ZodType = z
 
 export const marshalMoveRequestSchema: z.ZodType = z
   .object({
-    sourcePath: z.string().optional(),
-    destinationPath: z.string().optional(),
+    sourcePath: z.string(),
+    destinationPath: z.string(),
   })
   .transform(d => ({
     source_path: d.sourcePath,
@@ -498,7 +497,7 @@ export const marshalMoveRequestSchema: z.ZodType = z
 
 export const marshalPutRequestSchema: z.ZodType = z
   .object({
-    path: z.string().optional(),
+    path: z.string(),
     contents: z
       .any()
       .transform((d: Uint8Array) =>

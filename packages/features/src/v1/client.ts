@@ -6,6 +6,7 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
+import type {LroOptions} from '@databricks/sdk-options/lro';
 import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
@@ -14,11 +15,18 @@ import {
   executeHttpCall,
   marshalRequest,
   parseResponse,
+  executeWait,
+  StillRunningError,
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
+import {z} from 'zod';
 import type {
+  BackfillFeaturesRequest,
+  BackfillFeaturesResponse,
+  BackfillOperationMetadata,
   BatchCreateMaterializedFeaturesRequest,
   BatchCreateMaterializedFeaturesResponse,
+  CancelOperationRequest,
   CreateFeatureRequest,
   CreateKafkaConfigRequest,
   CreateMaterializedFeatureRequest,
@@ -31,6 +39,7 @@ import type {
   GetFeatureRequest,
   GetKafkaConfigRequest,
   GetMaterializedFeatureRequest,
+  GetOperationRequest,
   GetStreamRequest,
   KafkaConfig,
   ListFeaturesRequest,
@@ -42,6 +51,7 @@ import type {
   ListStreamsRequest,
   ListStreamsResponse,
   MaterializedFeature,
+  Operation,
   Stream,
   UpdateFeatureRequest,
   UpdateKafkaConfigRequest,
@@ -49,11 +59,15 @@ import type {
   UpdateStreamRequest,
 } from './model';
 import {
+  marshalBackfillFeaturesRequestSchema,
   marshalBatchCreateMaterializedFeaturesRequestSchema,
+  marshalCancelOperationRequestSchema,
   marshalFeatureSchema,
   marshalKafkaConfigSchema,
   marshalMaterializedFeatureSchema,
   marshalStreamSchema,
+  unmarshalBackfillFeaturesResponseSchema,
+  unmarshalBackfillOperationMetadataSchema,
   unmarshalBatchCreateMaterializedFeaturesResponseSchema,
   unmarshalFeatureSchema,
   unmarshalKafkaConfigSchema,
@@ -62,6 +76,7 @@ import {
   unmarshalListMaterializedFeaturesResponseSchema,
   unmarshalListStreamsResponseSchema,
   unmarshalMaterializedFeatureSchema,
+  unmarshalOperationSchema,
   unmarshalStreamSchema,
 } from './model';
 
@@ -98,6 +113,49 @@ export class FeaturesClient {
     return this.config;
   }
 
+  /** Backfill features. */
+  private async backfillFeaturesBase(
+    req: BackfillFeaturesRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/feature-engineering/features:backfill`;
+    const body = marshalRequest(req, marshalBackfillFeaturesRequestSchema);
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Backfill features. */
+  async backfillFeatures(
+    req: BackfillFeaturesRequest,
+    options?: CallOptions
+  ): Promise<BackfillFeaturesOperation> {
+    const op = await this.backfillFeaturesBase(req, options);
+    return new BackfillFeaturesOperation(
+      op,
+      (req, options) => this.getOperation(req, options),
+      (req, options) => this.cancelOperation(req, options)
+    );
+  }
+
   /** Batch create materialized features. */
   async batchCreateMaterializedFeatures(
     req: BatchCreateMaterializedFeaturesRequest,
@@ -132,6 +190,30 @@ export class FeaturesClient {
       throw new Error('operation completed without a result.');
     }
     return resp;
+  }
+
+  /** Cancel an operation. */
+  private async cancelOperation(
+    req: CancelOperationRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/feature-engineering/${req.name ?? ''}:cancel`;
+    const body = marshalRequest(req, marshalCancelOperationRequestSchema);
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
   }
 
   /** Create a Feature. */
@@ -440,6 +522,35 @@ export class FeaturesClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMaterializedFeatureSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Get an operation. */
+  private async getOperation(
+    req: GetOperationRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/feature-engineering/${req.name ?? ''}`;
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -889,5 +1000,100 @@ export class FeaturesClient {
       throw new Error('operation completed without a result.');
     }
     return resp;
+  }
+}
+
+export class BackfillFeaturesOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>,
+    private readonly cancelOperation: (
+      req: CancelOperationRequest,
+      options?: CallOptions
+    ) => Promise<void>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<BackfillOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalBackfillOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<BackfillFeaturesResponse> {
+    let result: BackfillFeaturesResponse | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z
+        .lazy(() => unmarshalBackfillFeaturesResponseSchema)
+        .parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+
+  /** Starts asynchronous cancellation on the long-running operation. */
+  async cancel(options?: CallOptions): Promise<void> {
+    await this.cancelOperation({name: this.operation.name}, options);
   }
 }

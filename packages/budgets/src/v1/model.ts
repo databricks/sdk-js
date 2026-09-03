@@ -181,7 +181,7 @@ export interface CreateBudgetConfigurationBudget {
 
 export interface CreateBudgetConfigurationRequest {
   /** Properties of the new budget configuration. */
-  budget?: CreateBudgetConfigurationBudget | undefined;
+  budget: CreateBudgetConfigurationBudget;
 }
 
 export interface CreateBudgetConfigurationResponse {
@@ -195,9 +195,9 @@ export interface CreateBudgetConfigurationResponse {
  */
 export interface DeleteBudgetConfigurationRequest {
   /** The <Databricks> budget configuration ID. */
-  budgetId?: string | undefined;
+  budgetId: string;
   /** <Databricks> account ID. */
-  accountId?: string | undefined;
+  accountId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -205,10 +205,9 @@ export interface DeleteBudgetConfigurationResponse {}
 
 export interface GetBudgetConfigurationRequest {
   /** The budget configuration ID */
-  budgetId?: string | undefined;
+  budgetId: string;
   /** <Databricks> account ID. */
-  accountId?: string | undefined;
-  includeSpendStatus?: boolean | undefined;
+  accountId: string;
 }
 
 export interface GetBudgetConfigurationResponse {
@@ -217,14 +216,12 @@ export interface GetBudgetConfigurationResponse {
 
 export interface ListBudgetConfigurationsRequest {
   /** <Databricks> account ID. */
-  accountId?: string | undefined;
+  accountId: string;
   /**
    * A page token received from a previous get all budget configurations call. This token can be used to retrieve the subsequent page.
    * Requests first page if absent.
    */
   pageToken?: string | undefined;
-  includeSpendStatus?: boolean | undefined;
-  includeWorkspaceBudgets?: boolean | undefined;
 }
 
 export interface ListBudgetConfigurationsResponse {
@@ -265,9 +262,9 @@ export interface UpdateBudgetConfigurationBudget {
 
 export interface UpdateBudgetConfigurationRequest {
   /** The <Databricks> budget configuration ID. */
-  budgetId?: string | undefined;
+  budgetId: string;
   /** The updated budget. This will overwrite the budget specified by the budget ID. */
-  budget?: UpdateBudgetConfigurationBudget | undefined;
+  budget: UpdateBudgetConfigurationBudget;
 }
 
 export interface UpdateBudgetConfigurationResponse {
@@ -575,9 +572,7 @@ export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
 
 export const marshalCreateBudgetConfigurationRequestSchema: z.ZodType = z
   .object({
-    budget: z
-      .lazy(() => marshalCreateBudgetConfigurationBudgetSchema)
-      .optional(),
+    budget: z.lazy(() => marshalCreateBudgetConfigurationBudgetSchema),
   })
   .transform(d => ({
     budget: d.budget,
@@ -619,10 +614,8 @@ export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
 
 export const marshalUpdateBudgetConfigurationRequestSchema: z.ZodType = z
   .object({
-    budgetId: z.string().optional(),
-    budget: z
-      .lazy(() => marshalUpdateBudgetConfigurationBudgetSchema)
-      .optional(),
+    budgetId: z.string(),
+    budget: z.lazy(() => marshalUpdateBudgetConfigurationBudgetSchema),
   })
   .transform(d => ({
     budget_id: d.budgetId,

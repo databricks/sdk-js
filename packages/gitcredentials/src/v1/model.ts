@@ -9,7 +9,7 @@ export interface CreateCredentialsRequest {
    * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
    * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`.
    */
-  gitProvider?: string | undefined;
+  gitProvider: string;
   /**
    * The username provided with your Git provider account and associated with the
    * credential. For most Git providers it is only used to set the Git committer & author names for commits,
@@ -40,9 +40,9 @@ export interface CreateCredentialsRequest {
 
 export interface CreateCredentialsResponse {
   /** ID of the credential object in the workspace. */
-  credentialId?: bigint | undefined;
+  credentialId: bigint;
   /** The Git provider associated with the credential. */
-  gitProvider?: string | undefined;
+  gitProvider: string;
   /**
    * The username provided with your Git provider account and associated with the
    * credential. For most Git providers it is only used to set the Git committer & author names for commits,
@@ -65,7 +65,7 @@ export interface CreateCredentialsResponse {
 
 export interface Credential {
   /** ID of the credential object in the workspace. */
-  credentialId?: bigint | undefined;
+  credentialId: bigint;
   /**
    * The Git provider associated with the credential. One of `gitHub`, `bitbucketCloud`,
    * `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including Microsoft Entra ID
@@ -95,7 +95,7 @@ export interface Credential {
 
 export interface DeleteCredentialsRequest {
   /** The ID for the corresponding credential to access. */
-  id?: bigint | undefined;
+  id: bigint;
   /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
   principalId?: bigint | undefined;
 }
@@ -105,14 +105,14 @@ export interface DeleteCredentialsResponse {}
 
 export interface GetCredentialsRequest {
   /** The ID for the corresponding credential to access. */
-  id?: bigint | undefined;
+  id: bigint;
   /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
   principalId?: bigint | undefined;
 }
 
 export interface GetCredentialsResponse {
   /** ID of the credential object in the workspace. */
-  credentialId?: bigint | undefined;
+  credentialId: bigint;
   /** The Git provider associated with the credential. */
   gitProvider?: string | undefined;
   /**
@@ -147,7 +147,7 @@ export interface ListCredentialsResponse {
 
 export interface UpdateCredentialsRequest {
   /** The ID for the corresponding credential to access. */
-  id?: bigint | undefined;
+  id: bigint;
   /**
    * The personal access token used to authenticate to the corresponding Git provider.
    * For certain providers, support may exist for other types of scoped access tokens.
@@ -160,7 +160,7 @@ export interface UpdateCredentialsRequest {
    * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
    * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`.
    */
-  gitProvider?: string | undefined;
+  gitProvider: string;
   /**
    * The username provided with your Git provider account and associated with the
    * credential. For most Git providers it is only used to set the Git committer & author names for commits,
@@ -191,9 +191,8 @@ export const unmarshalCreateCredentialsResponseSchema: z.ZodType<CreateCredentia
     .object({
       credential_id: z
         .union([z.number(), z.bigint(), z.string()])
-        .transform(v => BigInt(v))
-        .optional(),
-      git_provider: z.string().optional(),
+        .transform(v => BigInt(v)),
+      git_provider: z.string(),
       git_username: z.string().optional(),
       name: z.string().optional(),
       is_default_for_provider: z.boolean().optional(),
@@ -212,8 +211,7 @@ export const unmarshalCredentialSchema: z.ZodType<Credential> = z
   .object({
     credential_id: z
       .union([z.number(), z.bigint(), z.string()])
-      .transform(v => BigInt(v))
-      .optional(),
+      .transform(v => BigInt(v)),
     git_provider: z.string().optional(),
     git_username: z.string().optional(),
     name: z.string().optional(),
@@ -237,8 +235,7 @@ export const unmarshalGetCredentialsResponseSchema: z.ZodType<GetCredentialsResp
     .object({
       credential_id: z
         .union([z.number(), z.bigint(), z.string()])
-        .transform(v => BigInt(v))
-        .optional(),
+        .transform(v => BigInt(v)),
       git_provider: z.string().optional(),
       git_username: z.string().optional(),
       name: z.string().optional(),
@@ -268,7 +265,7 @@ export const unmarshalUpdateCredentialsResponseSchema: z.ZodType<UpdateCredentia
 
 export const marshalCreateCredentialsRequestSchema: z.ZodType = z
   .object({
-    gitProvider: z.string().optional(),
+    gitProvider: z.string(),
     gitUsername: z.string().optional(),
     personalAccessToken: z.string().optional(),
     principalId: z.bigint().optional(),
@@ -288,9 +285,9 @@ export const marshalCreateCredentialsRequestSchema: z.ZodType = z
 
 export const marshalUpdateCredentialsRequestSchema: z.ZodType = z
   .object({
-    id: z.bigint().optional(),
+    id: z.bigint(),
     personalAccessToken: z.string().optional(),
-    gitProvider: z.string().optional(),
+    gitProvider: z.string(),
     gitUsername: z.string().optional(),
     principalId: z.bigint().optional(),
     name: z.string().optional(),

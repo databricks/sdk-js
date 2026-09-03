@@ -27,7 +27,6 @@ import type {
   ClusterCompliance,
   ClusterEvent,
   ClusterInfo,
-  ClusterRevision,
   CreateClusterRequest,
   CreateClusterResponse,
   DeleteClusterRequest,
@@ -37,7 +36,6 @@ import type {
   EnforcePolicyComplianceForClusterRequest,
   EnforcePolicyComplianceForClusterResponse,
   GetClusterRequest,
-  GetClusterRevisionRequest,
   GetEventsResponse,
   GetPolicyComplianceForClusterRequest,
   GetPolicyComplianceForClusterResponse,
@@ -47,8 +45,6 @@ import type {
   ListAvailableZonesResponse,
   ListClusterComplianceForPolicyRequest,
   ListClusterComplianceForPolicyResponse,
-  ListClusterRevisionsRequest,
-  ListClusterRevisionsResponse,
   ListClustersRequest,
   ListClustersResponse,
   ListEventsRequest,
@@ -62,7 +58,6 @@ import type {
   ResizeClusterResponse,
   RestartClusterRequest,
   RestartClusterResponse,
-  RollbackClusterRequest,
   StartClusterRequest,
   StartClusterResponse,
   UnpinClusterRequest,
@@ -83,14 +78,12 @@ import {
   marshalPinClusterRequestSchema,
   marshalResizeClusterRequestSchema,
   marshalRestartClusterRequestSchema,
-  marshalRollbackClusterRequestSchema,
   marshalStartClusterRequestSchema,
   marshalUnpinClusterRequestSchema,
   marshalUpdateClusterRequestSchema,
   unmarshalCancelPendingClusterEnforcementResponseSchema,
   unmarshalChangeClusterOwnerResponseSchema,
   unmarshalClusterInfoSchema,
-  unmarshalClusterRevisionSchema,
   unmarshalCreateClusterResponseSchema,
   unmarshalDeleteClusterResponseSchema,
   unmarshalEditClusterResponseSchema,
@@ -100,7 +93,6 @@ import {
   unmarshalGetSparkVersionsResponseSchema,
   unmarshalListAvailableZonesResponseSchema,
   unmarshalListClusterComplianceForPolicyResponseSchema,
-  unmarshalListClusterRevisionsResponseSchema,
   unmarshalListClustersResponseSchema,
   unmarshalListNodeTypesResponseSchema,
   unmarshalPermanentDeleteClusterResponseSchema,
@@ -194,132 +186,6 @@ export class ClustersClient {
       }
       pageReq.pageToken = resp.nextPageToken;
     }
-  }
-
-  /** Get details of a cluster revision. */
-  async getClusterRevision(
-    req: GetClusterRevisionRequest,
-    options?: CallOptions
-  ): Promise<ClusterRevision> {
-    const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
-    let resp: ClusterRevision | undefined;
-    const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (workspaceId !== undefined) {
-        headers.set('X-Databricks-Workspace-Id', workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalClusterRevisionSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('operation completed without a result.');
-    }
-    return resp;
-  }
-
-  /** Lists a cluster's revisions, ordered from most to least recent. */
-  async listClusterRevisions(
-    req: ListClusterRevisionsRequest,
-    options?: CallOptions
-  ): Promise<ListClusterRevisionsResponse> {
-    const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.parent ?? ''}/revisions`;
-    const params = new URLSearchParams();
-    if (req.pageSize !== undefined) {
-      params.append('page_size', String(req.pageSize));
-    }
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListClusterRevisionsResponse | undefined;
-    const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (workspaceId !== undefined) {
-        headers.set('X-Databricks-Workspace-Id', workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListClusterRevisionsResponseSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('operation completed without a result.');
-    }
-    return resp;
-  }
-
-  async *listClusterRevisionsIter(
-    req: ListClusterRevisionsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<ClusterRevision> {
-    const pageReq: ListClusterRevisionsRequest = {...req};
-    for (;;) {
-      const resp = await this.listClusterRevisions(pageReq, options);
-      for (const item of resp.clusterRevisions ?? []) {
-        yield item;
-      }
-      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
-        return;
-      }
-      pageReq.pageToken = resp.nextPageToken;
-    }
-  }
-
-  /**
-   * Rolls back a cluster to a previous revision.
-   * A cluster can be rolled back if it is in a `RUNNING` or `TERMINATED` state.
-   *
-   * If a cluster is rolled back while in a `RUNNING` state, it will be restarted so that the new attributes can take effect.
-   *
-   * If a cluster is rolled back while in a `TERMINATED` state, it will remain `TERMINATED`.
-   * The next time it is started using the `clusters/start` API, the new attributes will take effect.
-   * Any attempt to roll back a cluster in any other state will be rejected with an `INVALID_PARAMETER_VALUE` error code.
-   */
-  async rollbackCluster(
-    req: RollbackClusterRequest,
-    options?: CallOptions
-  ): Promise<ClusterRevision> {
-    const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}/rollback`;
-    const body = marshalRequest(req, marshalRollbackClusterRequestSchema);
-    let resp: ClusterRevision | undefined;
-    const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
-        headers.set('X-Databricks-Workspace-Id', workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalClusterRevisionSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('operation completed without a result.');
-    }
-    return resp;
   }
 
   /** Change the owner of the cluster. You must be an admin and the cluster must be terminated to perform this operation. The service principal application ID can be supplied as an argument to `owner_username`. */
