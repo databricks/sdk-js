@@ -156,13 +156,17 @@ describe('newDatabricksOidcTokenProvider', () => {
     clientId?: string;
     accountId?: string;
     audience?: string;
+    groupId?: string;
+    tokenCalls?: number;
     wantAudience: string;
     wantClientIdInBody: boolean;
+    wantAssumeGroup?: string;
   }[] = [
     {
-      name: 'WIF workspace uses configured audience and sends client_id',
+      name: 'WIF workspace uses configured audience without a group',
       clientId: 'client-id',
       audience: 'token-audience',
+      tokenCalls: 2,
       wantAudience: 'token-audience',
       wantClientIdInBody: true,
     },
@@ -193,6 +197,35 @@ describe('newDatabricksOidcTokenProvider', () => {
       wantAudience: 'token-audience',
       wantClientIdInBody: false,
     },
+    {
+      name: 'empty group ID omits group role assumption',
+      clientId: 'client-id',
+      audience: 'token-audience',
+      groupId: '',
+      tokenCalls: 2,
+      wantAudience: 'token-audience',
+      wantClientIdInBody: true,
+    },
+    {
+      name: 'group A is sent on every token exchange',
+      clientId: 'client-id',
+      audience: 'token-audience',
+      groupId: 'group-a',
+      tokenCalls: 2,
+      wantAudience: 'token-audience',
+      wantClientIdInBody: true,
+      wantAssumeGroup: 'group-a',
+    },
+    {
+      name: 'group B is sent on every token exchange',
+      clientId: 'client-id',
+      audience: 'token-audience',
+      groupId: 'group-b',
+      tokenCalls: 2,
+      wantAudience: 'token-audience',
+      wantClientIdInBody: true,
+      wantAssumeGroup: 'group-b',
+    },
   ];
 
   it.each(audienceCases)(
@@ -201,8 +234,11 @@ describe('newDatabricksOidcTokenProvider', () => {
       clientId,
       accountId,
       audience,
+      groupId,
+      tokenCalls = 1,
       wantAudience,
       wantClientIdInBody,
+      wantAssumeGroup,
     }) => {
       vi.setSystemTime(NOW);
       const {captured} = stubFetchJson(200, {
@@ -219,88 +255,38 @@ describe('newDatabricksOidcTokenProvider', () => {
         ...(clientId !== undefined && {clientId}),
         ...(accountId !== undefined && {accountId}),
         ...(audience !== undefined && {audience}),
-      });
-
-      const token = await ts.token();
-      expect(token.value).toBe('test-auth-token');
-      expect(token.type).toBe('access-token');
-      expect(token.expiry).toEqual(new Date(NOW + 3600 * 1000));
-
-      expect(audiences).toEqual([wantAudience]);
-
-      expect(captured).toHaveLength(1);
-      const first = captured[0];
-      expect(first.url).toBe(TOKEN_ENDPOINT);
-      const init = first.init;
-      if (init === undefined) {
-        expect.fail('expected fetch init to be provided');
-      }
-      expect(init.method).toBe('POST');
-      const headers = new Headers(init.headers);
-      expect(headers.get('Content-Type')).toBe(
-        'application/x-www-form-urlencoded'
-      );
-      const body = init.body;
-      if (typeof body !== 'string') {
-        expect.fail('expected body to be a string');
-      }
-      const params = new URLSearchParams(body);
-      if (wantClientIdInBody) {
-        expect(params.get('client_id')).toBe(clientId);
-      } else {
-        expect(params.has('client_id')).toBe(false);
-      }
-      expect(params.get('scope')).toBe('all-apis');
-      expect(params.get('subject_token_type')).toBe(
-        'urn:ietf:params:oauth:token-type:jwt'
-      );
-      expect(params.get('subject_token')).toBe(ID_TOKEN);
-      expect(params.get('grant_type')).toBe(
-        'urn:ietf:params:oauth:grant-type:token-exchange'
-      );
-    }
-  );
-
-  const groupAssumptionCases: {name: string; groupId?: string}[] = [
-    {
-      name: 'omits the group role when no group is configured',
-    },
-    {
-      name: 'omits the group role when the group ID is empty',
-      groupId: '',
-    },
-    {
-      name: 'requests group A',
-      groupId: 'group-a',
-    },
-    {
-      name: 'requests group B',
-      groupId: 'group-b',
-    },
-  ];
-
-  it.each(groupAssumptionCases)(
-    '$name on every token exchange',
-    async ({groupId}) => {
-      const {captured} = stubFetchJson(200, {access_token: 'token'});
-      const ts = newDatabricksOidcTokenProvider({
-        host: 'http://host.com',
-        tokenEndpointProvider: fixedEndpointProvider(),
-        idTokenProvider: staticIdTokenProvider(ID_TOKEN).provider,
-        clientId: 'client-id',
-        audience: 'token-audience',
         ...(groupId !== undefined && {groupId}),
       });
 
-      await ts.token();
-      await ts.token();
+      for (let call = 0; call < tokenCalls; call += 1) {
+        const token = await ts.token();
+        expect(token.value).toBe('test-auth-token');
+        expect(token.type).toBe('access-token');
+        expect(token.expiry).toEqual(new Date(NOW + 3600 * 1000));
+      }
 
-      expect(captured).toHaveLength(2);
-      const wantParams = [
-        ...expectedTokenExchangeParams('client-id', groupId).entries(),
-      ];
+      expect(audiences).toEqual(
+        Array.from({length: tokenCalls}, () => wantAudience)
+      );
+
+      expect(captured).toHaveLength(tokenCalls);
       for (const request of captured) {
-        expect([...requestParams(request).entries()]).toStrictEqual(wantParams);
+        expect(request.url).toBe(TOKEN_ENDPOINT);
+        const init = request.init;
+        if (init === undefined) {
+          expect.fail('expected fetch init to be provided');
+        }
+        expect(init.method).toBe('POST');
+        const headers = new Headers(init.headers);
+        expect(headers.get('Content-Type')).toBe(
+          'application/x-www-form-urlencoded'
+        );
+        const params = requestParams(request);
+        expect([...params.entries()]).toStrictEqual([
+          ...expectedTokenExchangeParams(clientId, groupId).entries(),
+        ]);
+        expect(params.has('client_id')).toBe(wantClientIdInBody);
+        expect(params.get('assume_group')).toBe(wantAssumeGroup ?? null);
       }
     }
   );

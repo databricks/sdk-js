@@ -42,10 +42,13 @@ function requestParams(request: CapturedRequest): URLSearchParams {
   return new URLSearchParams(body);
 }
 
-function expectedM2mParams(groupId?: string): URLSearchParams {
+function expectedM2mParams(
+  groupId?: string,
+  scope = 'all-apis'
+): URLSearchParams {
   return new URLSearchParams({
     grant_type: 'client_credentials',
-    scope: 'all-apis',
+    scope,
     ...(groupId !== undefined && groupId !== '' && {assume_group: groupId}),
   });
 }
@@ -104,6 +107,8 @@ describe('newM2mCredentials', () => {
     clientId?: string;
     clientSecret?: string;
     scopes?: string[];
+    groupId?: string;
+    tokenCalls?: number;
     tokenResponseBody: Record<string, unknown>;
     want: {
       basicAuth: string;
@@ -111,10 +116,12 @@ describe('newM2mCredentials', () => {
       tokenValue: string;
       tokenType: string | undefined;
       expiry: Date | undefined;
+      assumeGroup?: string;
     };
   }[] = [
     {
-      name: 'Bearer token with expiry and default scopes',
+      name: 'Bearer token with expiry, default scopes, and no group',
+      tokenCalls: 2,
       tokenResponseBody: {
         token_type: 'Bearer',
         access_token: 'test-token',
@@ -126,6 +133,47 @@ describe('newM2mCredentials', () => {
         tokenValue: 'test-token',
         tokenType: 'Bearer',
         expiry: new Date(NOW + 3600 * 1000),
+      },
+    },
+    {
+      name: 'empty group ID omits group role assumption',
+      groupId: '',
+      tokenCalls: 2,
+      tokenResponseBody: {access_token: 't'},
+      want: {
+        basicAuth: `Basic ${btoa('b:c')}`,
+        scope: 'all-apis',
+        tokenValue: 't',
+        tokenType: undefined,
+        expiry: undefined,
+      },
+    },
+    {
+      name: 'group A is sent on every token grant',
+      groupId: 'group-a',
+      tokenCalls: 2,
+      tokenResponseBody: {access_token: 't'},
+      want: {
+        basicAuth: `Basic ${btoa('b:c')}`,
+        scope: 'all-apis',
+        tokenValue: 't',
+        tokenType: undefined,
+        expiry: undefined,
+        assumeGroup: 'group-a',
+      },
+    },
+    {
+      name: 'group B is sent on every token grant',
+      groupId: 'group-b',
+      tokenCalls: 2,
+      tokenResponseBody: {access_token: 't'},
+      want: {
+        basicAuth: `Basic ${btoa('b:c')}`,
+        scope: 'all-apis',
+        tokenValue: 't',
+        tokenType: undefined,
+        expiry: undefined,
+        assumeGroup: 'group-b',
       },
     },
     {
@@ -203,7 +251,15 @@ describe('newM2mCredentials', () => {
 
   it.each(successCases)(
     '$name',
-    async ({clientId, clientSecret, scopes, tokenResponseBody, want}) => {
+    async ({
+      clientId,
+      clientSecret,
+      scopes,
+      groupId,
+      tokenCalls = 1,
+      tokenResponseBody,
+      want,
+    }) => {
       vi.setSystemTime(NOW);
       const {captured} = stubFetch({
         token: () => jsonResponse(200, tokenResponseBody),
@@ -214,79 +270,39 @@ describe('newM2mCredentials', () => {
         clientId: clientId ?? DEFAULT_CLIENT_ID,
         clientSecret: clientSecret ?? DEFAULT_CLIENT_SECRET,
         ...(scopes !== undefined && {scopes}),
+        ...(groupId !== undefined && {groupId}),
       });
       expect(creds.name()).toBe('oauth-m2m');
-      const token = await creds.token();
-
-      expect(token.value).toBe(want.tokenValue);
-      expect(token.type).toBe(want.tokenType);
-      expect(token.expiry).toEqual(want.expiry);
+      for (let call = 0; call < tokenCalls; call += 1) {
+        const token = await creds.token();
+        expect(token.value).toBe(want.tokenValue);
+        expect(token.type).toBe(want.tokenType);
+        expect(token.expiry).toEqual(want.expiry);
+      }
 
       expect(captured.map(c => c.url)).toStrictEqual([
         HOST_METADATA_URL,
         OAUTH_SERVER_URL,
-        TOKEN_ENDPOINT,
+        ...Array.from({length: tokenCalls}, () => TOKEN_ENDPOINT),
       ]);
-      const tokenRequest = captured[2];
-      const init = tokenRequest.init;
-      if (init === undefined) {
-        expect.fail('expected fetch init to be provided');
-      }
-      expect(init.method).toBe('POST');
-      const headers = new Headers(init.headers);
-      expect(headers.get('Authorization')).toBe(want.basicAuth);
-      expect(headers.get('Content-Type')).toBe(
-        'application/x-www-form-urlencoded'
-      );
-      const body = init.body;
-      if (typeof body !== 'string') {
-        expect.fail('expected body to be a string');
-      }
-      const params = new URLSearchParams(body);
-      expect(params.get('grant_type')).toBe('client_credentials');
-      expect(params.get('scope')).toBe(want.scope);
-    }
-  );
-
-  const groupAssumptionCases: {name: string; groupId?: string}[] = [
-    {
-      name: 'omits the group role when no group is configured',
-    },
-    {
-      name: 'omits the group role when the group ID is empty',
-      groupId: '',
-    },
-    {
-      name: 'requests group A',
-      groupId: 'group-a',
-    },
-    {
-      name: 'requests group B',
-      groupId: 'group-b',
-    },
-  ];
-
-  it.each(groupAssumptionCases)(
-    '$name on every token grant',
-    async ({groupId}) => {
-      const {captured} = stubFetch({
-        token: () => jsonResponse(200, {access_token: 't'}),
-      });
-      const creds = newM2mCredentials({
-        host: HOST,
-        clientId: DEFAULT_CLIENT_ID,
-        clientSecret: DEFAULT_CLIENT_SECRET,
-        ...(groupId !== undefined && {groupId}),
-      });
-
-      await creds.token();
-      await creds.token();
-
-      const tokenRequests = captured.filter(c => c.url === TOKEN_ENDPOINT);
-      expect(tokenRequests).toHaveLength(2);
-      const wantParams = [...expectedM2mParams(groupId).entries()];
-      for (const request of tokenRequests) {
-        expect([...requestParams(request).entries()]).toStrictEqual(wantParams);
+      for (const tokenRequest of captured.slice(2)) {
+        const init = tokenRequest.init;
+        if (init === undefined) {
+          expect.fail('expected fetch init to be provided');
+        }
+        expect(init.method).toBe('POST');
+        const headers = new Headers(init.headers);
+        expect(headers.get('Authorization')).toBe(want.basicAuth);
+        expect(headers.get('Content-Type')).toBe(
+          'application/x-www-form-urlencoded'
+        );
+        expect([...requestParams(tokenRequest).entries()]).toStrictEqual([
+          ...expectedM2mParams(groupId, want.scope).entries(),
+        ]);
+        expect(requestParams(tokenRequest).get('scope')).toBe(want.scope);
+        expect(requestParams(tokenRequest).get('assume_group')).toBe(
+          want.assumeGroup ?? null
+        );
       }
     }
   );
