@@ -4,6 +4,10 @@
 
 ### New Features and Improvements
 
+- Added group role assumption for OAuth M2M and OIDC token exchange, including
+  default credential configuration through `DATABRICKS_GROUP_ID` and profile
+  `group_id`.
+
 ### Bug Fixes
 
 ### Documentation

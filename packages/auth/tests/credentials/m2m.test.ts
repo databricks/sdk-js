@@ -34,6 +34,25 @@ function textResponse(status: number, text: string): Response {
   return new Response(text, {status});
 }
 
+function requestParams(request: CapturedRequest): URLSearchParams {
+  const body = request.init?.body;
+  if (typeof body !== 'string') {
+    expect.fail('expected body to be a string');
+  }
+  return new URLSearchParams(body);
+}
+
+function expectedM2mParams(
+  groupId?: string,
+  scope = 'all-apis'
+): URLSearchParams {
+  return new URLSearchParams({
+    grant_type: 'client_credentials',
+    scope,
+    ...(groupId !== undefined && groupId !== '' && {assume_group: groupId}),
+  });
+}
+
 const HOST = 'https://workspace.example';
 const HOST_METADATA_URL = `${HOST}/.well-known/databricks-config`;
 const OIDC_ROOT = `${HOST}/oidc`;
@@ -43,7 +62,7 @@ const TOKEN_ENDPOINT = `${OIDC_ROOT}/v1/token`;
 interface FetchStubs {
   hostMetadata?: () => Response;
   oauthServer?: () => Response;
-  token?: () => Response;
+  token?: (request: CapturedRequest) => Response;
 }
 
 function stubFetch(stubs: FetchStubs): {
@@ -65,7 +84,7 @@ function stubFetch(stubs: FetchStubs): {
       return Promise.resolve((stubs.oauthServer ?? defaultOauthServer)());
     }
     if (url === TOKEN_ENDPOINT && stubs.token !== undefined) {
-      return Promise.resolve(stubs.token());
+      return Promise.resolve(stubs.token({url, init}));
     }
     return Promise.resolve(textResponse(599, `unexpected url: ${url}`));
   });
@@ -88,6 +107,8 @@ describe('newM2mCredentials', () => {
     clientId?: string;
     clientSecret?: string;
     scopes?: string[];
+    groupId?: string;
+    tokenCalls?: number;
     tokenResponseBody: Record<string, unknown>;
     want: {
       basicAuth: string;
@@ -95,10 +116,12 @@ describe('newM2mCredentials', () => {
       tokenValue: string;
       tokenType: string | undefined;
       expiry: Date | undefined;
+      assumeGroup?: string;
     };
   }[] = [
     {
-      name: 'Bearer token with expiry and default scopes',
+      name: 'Bearer token with expiry, default scopes, and no group',
+      tokenCalls: 2,
       tokenResponseBody: {
         token_type: 'Bearer',
         access_token: 'test-token',
@@ -110,6 +133,47 @@ describe('newM2mCredentials', () => {
         tokenValue: 'test-token',
         tokenType: 'Bearer',
         expiry: new Date(NOW + 3600 * 1000),
+      },
+    },
+    {
+      name: 'empty group ID omits group role assumption',
+      groupId: '',
+      tokenCalls: 2,
+      tokenResponseBody: {access_token: 't'},
+      want: {
+        basicAuth: `Basic ${btoa('b:c')}`,
+        scope: 'all-apis',
+        tokenValue: 't',
+        tokenType: undefined,
+        expiry: undefined,
+      },
+    },
+    {
+      name: 'group A is sent on every token grant',
+      groupId: 'group-a',
+      tokenCalls: 2,
+      tokenResponseBody: {access_token: 't'},
+      want: {
+        basicAuth: `Basic ${btoa('b:c')}`,
+        scope: 'all-apis',
+        tokenValue: 't',
+        tokenType: undefined,
+        expiry: undefined,
+        assumeGroup: 'group-a',
+      },
+    },
+    {
+      name: 'group B is sent on every token grant',
+      groupId: 'group-b',
+      tokenCalls: 2,
+      tokenResponseBody: {access_token: 't'},
+      want: {
+        basicAuth: `Basic ${btoa('b:c')}`,
+        scope: 'all-apis',
+        tokenValue: 't',
+        tokenType: undefined,
+        expiry: undefined,
+        assumeGroup: 'group-b',
       },
     },
     {
@@ -187,7 +251,15 @@ describe('newM2mCredentials', () => {
 
   it.each(successCases)(
     '$name',
-    async ({clientId, clientSecret, scopes, tokenResponseBody, want}) => {
+    async ({
+      clientId,
+      clientSecret,
+      scopes,
+      groupId,
+      tokenCalls = 1,
+      tokenResponseBody,
+      want,
+    }) => {
       vi.setSystemTime(NOW);
       const {captured} = stubFetch({
         token: () => jsonResponse(200, tokenResponseBody),
@@ -198,37 +270,40 @@ describe('newM2mCredentials', () => {
         clientId: clientId ?? DEFAULT_CLIENT_ID,
         clientSecret: clientSecret ?? DEFAULT_CLIENT_SECRET,
         ...(scopes !== undefined && {scopes}),
+        ...(groupId !== undefined && {groupId}),
       });
       expect(creds.name()).toBe('oauth-m2m');
-      const token = await creds.token();
-
-      expect(token.value).toBe(want.tokenValue);
-      expect(token.type).toBe(want.tokenType);
-      expect(token.expiry).toEqual(want.expiry);
+      for (let call = 0; call < tokenCalls; call += 1) {
+        const token = await creds.token();
+        expect(token.value).toBe(want.tokenValue);
+        expect(token.type).toBe(want.tokenType);
+        expect(token.expiry).toEqual(want.expiry);
+      }
 
       expect(captured.map(c => c.url)).toStrictEqual([
         HOST_METADATA_URL,
         OAUTH_SERVER_URL,
-        TOKEN_ENDPOINT,
+        ...Array.from({length: tokenCalls}, () => TOKEN_ENDPOINT),
       ]);
-      const tokenRequest = captured[2];
-      const init = tokenRequest.init;
-      if (init === undefined) {
-        expect.fail('expected fetch init to be provided');
+      for (const tokenRequest of captured.slice(2)) {
+        const init = tokenRequest.init;
+        if (init === undefined) {
+          expect.fail('expected fetch init to be provided');
+        }
+        expect(init.method).toBe('POST');
+        const headers = new Headers(init.headers);
+        expect(headers.get('Authorization')).toBe(want.basicAuth);
+        expect(headers.get('Content-Type')).toBe(
+          'application/x-www-form-urlencoded'
+        );
+        expect([...requestParams(tokenRequest).entries()]).toStrictEqual([
+          ...expectedM2mParams(groupId, want.scope).entries(),
+        ]);
+        expect(requestParams(tokenRequest).get('scope')).toBe(want.scope);
+        expect(requestParams(tokenRequest).get('assume_group')).toBe(
+          want.assumeGroup ?? null
+        );
       }
-      expect(init.method).toBe('POST');
-      const headers = new Headers(init.headers);
-      expect(headers.get('Authorization')).toBe(want.basicAuth);
-      expect(headers.get('Content-Type')).toBe(
-        'application/x-www-form-urlencoded'
-      );
-      const body = init.body;
-      if (typeof body !== 'string') {
-        expect.fail('expected body to be a string');
-      }
-      const params = new URLSearchParams(body);
-      expect(params.get('grant_type')).toBe('client_credentials');
-      expect(params.get('scope')).toBe(want.scope);
     }
   );
 
@@ -250,6 +325,59 @@ describe('newM2mCredentials', () => {
       TOKEN_ENDPOINT,
       TOKEN_ENDPOINT,
     ]);
+  });
+
+  it('keeps group roles isolated between credential providers', async () => {
+    const {captured} = stubFetch({
+      token: request => {
+        const group = requestParams(request).get('assume_group') ?? 'normal';
+        return jsonResponse(200, {access_token: `${group}-token`});
+      },
+    });
+    const first = newM2mCredentials({
+      host: HOST,
+      clientId: DEFAULT_CLIENT_ID,
+      clientSecret: DEFAULT_CLIENT_SECRET,
+      groupId: 'group-a',
+    });
+    const second = newM2mCredentials({
+      host: HOST,
+      clientId: DEFAULT_CLIENT_ID,
+      clientSecret: DEFAULT_CLIENT_SECRET,
+      groupId: 'group-b',
+    });
+
+    await expect(first.token()).resolves.toMatchObject({
+      value: 'group-a-token',
+    });
+    await expect(second.token()).resolves.toMatchObject({
+      value: 'group-b-token',
+    });
+
+    const groups = captured
+      .filter(c => c.url === TOKEN_ENDPOINT)
+      .map(c => requestParams(c).get('assume_group'));
+    expect(groups).toEqual(['group-a', 'group-b']);
+  });
+
+  it('does not retry a rejected grouped token grant without the group', async () => {
+    const {captured} = stubFetch({token: () => textResponse(403, 'denied')});
+    const creds = newM2mCredentials({
+      host: HOST,
+      clientId: DEFAULT_CLIENT_ID,
+      clientSecret: DEFAULT_CLIENT_SECRET,
+      groupId: 'group-123',
+    });
+
+    await expect(creds.token()).rejects.toMatchObject({
+      code: 'TOKEN_REQUEST_FAILED',
+      message: 'token request failed with status 403: denied',
+    });
+    const tokenRequests = captured.filter(c => c.url === TOKEN_ENDPOINT);
+    expect(tokenRequests).toHaveLength(1);
+    expect(requestParams(tokenRequests[0]).get('assume_group')).toBe(
+      'group-123'
+    );
   });
 
   it('retries discovery after a failed first call', async () => {
@@ -346,6 +474,75 @@ describe('newM2mCredentials', () => {
         `${resolvedOidc}/.well-known/oauth-authorization-server`,
         resolvedTokenEndpoint,
       ]);
+    }
+  );
+
+  const groupedEndpointCases: {
+    name: string;
+    host: string;
+    oidcRoot: string;
+    hostMetadata: Record<string, string>;
+  }[] = [
+    {
+      name: 'workspace',
+      host: 'https://workspace.example',
+      oidcRoot: 'https://workspace.example/oidc',
+      hostMetadata: {oidc_endpoint: 'https://workspace.example/oidc'},
+    },
+    {
+      name: 'account or unified',
+      host: 'https://accounts.example',
+      oidcRoot: 'https://accounts.example/oidc/accounts/account-id',
+      hostMetadata: {
+        oidc_endpoint: 'https://accounts.example/oidc/accounts/{account_id}',
+        account_id: 'account-id',
+      },
+    },
+  ];
+
+  it.each(groupedEndpointCases)(
+    'sends group role to the $name token endpoint shape',
+    async ({host, oidcRoot, hostMetadata}) => {
+      const metadataUrl = `${host}/.well-known/databricks-config`;
+      const oauthServerUrl = `${oidcRoot}/.well-known/oauth-authorization-server`;
+      const tokenEndpoint = `${oidcRoot}/v1/token`;
+      const captured: CapturedRequest[] = [];
+      const fetchMock = vi.fn<typeof fetch>((input, init) => {
+        const request = {url: urlOf(input), init};
+        captured.push(request);
+        if (request.url === metadataUrl) {
+          return Promise.resolve(jsonResponse(200, hostMetadata));
+        }
+        if (request.url === oauthServerUrl) {
+          return Promise.resolve(
+            jsonResponse(200, {token_endpoint: tokenEndpoint})
+          );
+        }
+        if (request.url === tokenEndpoint) {
+          return Promise.resolve(jsonResponse(200, {access_token: 'token'}));
+        }
+        return Promise.resolve(
+          textResponse(599, `unexpected url: ${request.url}`)
+        );
+      });
+      vi.stubGlobal('fetch', fetchMock);
+      const credentials = newM2mCredentials({
+        host,
+        clientId: DEFAULT_CLIENT_ID,
+        clientSecret: DEFAULT_CLIENT_SECRET,
+        groupId: 'group-123',
+      });
+
+      await expect(credentials.token()).resolves.toMatchObject({
+        value: 'token',
+      });
+
+      expect(captured.map(request => request.url)).toEqual([
+        metadataUrl,
+        oauthServerUrl,
+        tokenEndpoint,
+      ]);
+      expect(requestParams(captured[2]).get('assume_group')).toBe('group-123');
     }
   );
 

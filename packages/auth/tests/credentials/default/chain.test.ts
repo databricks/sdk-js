@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest';
+import {afterEach, describe, expect, it, vi} from 'vitest';
 
 // Import Secret from the browser subpath so this test can run under both
 // the Node and browser runners (the default `/profiles` entry pulls in
@@ -59,6 +59,11 @@ const loaderFor =
 
 describe('DefaultCredentials chain', () => {
   const selectedError = new Error('selected provider failed');
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   const resolutionCases: {
     name: string;
     strategies: readonly Strategy[];
@@ -164,6 +169,52 @@ describe('DefaultCredentials chain', () => {
     await creds.authHeaders();
     await creds.authHeaders();
     expect(buildCount).toBe(1);
+  });
+
+  it('passes the configured group to the M2M token request', async () => {
+    const tokenEndpoint = `${HOST}/oidc/v1/token`;
+    const fetchMock = vi.fn<typeof fetch>((input, init) => {
+      const url = input instanceof Request ? input.url : input.toString();
+      if (url === `${HOST}/.well-known/databricks-config`) {
+        return Promise.resolve(
+          new Response(JSON.stringify({oidc_endpoint: `${HOST}/oidc`}), {
+            status: 200,
+          })
+        );
+      }
+      if (url === `${HOST}/oidc/.well-known/oauth-authorization-server`) {
+        return Promise.resolve(
+          new Response(JSON.stringify({token_endpoint: tokenEndpoint}), {
+            status: 200,
+          })
+        );
+      }
+      const body = init?.body;
+      if (typeof body !== 'string') {
+        expect.fail('expected body to be a string');
+      }
+      const params = new URLSearchParams(body);
+      expect(params.get('assume_group')).toBe('group-123');
+      return Promise.resolve(
+        new Response(JSON.stringify({access_token: 'token'}), {status: 200})
+      );
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const creds = new DefaultCredentials(
+      [patStrategy, m2mStrategy],
+      loaderFor({
+        host: HOST,
+        groupId: 'group-123',
+        token: new Secret('ignored-pat'),
+        clientId: 'client-id',
+        clientSecret: new Secret('client-secret'),
+      })
+    );
+
+    expect(await creds.authHeaders()).toEqual([
+      {key: 'Authorization', value: 'Bearer token'},
+    ]);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 
   it('invokes the profile loader exactly once', async () => {
