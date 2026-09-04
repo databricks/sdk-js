@@ -41,7 +41,6 @@ describe('profile-client example', () => {
     process.env.HOME = mkdtempSync(join(tmpdir(), 'sdkjs-profile-client-'));
     delete process.env.DATABRICKS_CONFIG_FILE;
     delete process.env.DATABRICKS_CONFIG_PROFILE;
-    process.env.DATABRICKS_HOST = 'https://profile-host.cloud.databricks.com';
     process.env.DATABRICKS_WORKSPACE_ID = 'ws-from-profile';
     process.env.DATABRICKS_TOKEN = 'pat-from-profile';
   });
@@ -56,30 +55,66 @@ describe('profile-client example', () => {
     }
   });
 
-  it('fills host and workspaceId from the resolved profile', async () => {
-    let seen: HttpRequest | undefined;
-    const httpClient: HttpClient = {
-      send(request: HttpRequest): Promise<HttpResponse> {
-        seen = request;
-        return Promise.resolve(jsonResponse({model: 'demo-model'}));
-      },
-    };
+  const hostCases: {
+    name: string;
+    environmentHost: string;
+    explicitHost?: string;
+    wantOrigin: string;
+  }[] = [
+    {
+      name: 'defaults a scheme-less environment host to HTTPS',
+      environmentHost: 'profile-host.cloud.databricks.com',
+      wantOrigin: 'https://profile-host.cloud.databricks.com',
+    },
+    {
+      name: 'defaults a scheme-less explicit host to HTTPS',
+      environmentHost: 'ignored.cloud.databricks.com',
+      explicitHost: 'explicit-host.cloud.databricks.com',
+      wantOrigin: 'https://explicit-host.cloud.databricks.com',
+    },
+    {
+      name: 'preserves an explicit HTTPS host',
+      environmentHost: 'ignored.cloud.databricks.com',
+      explicitHost: 'https://explicit-host.cloud.databricks.com/',
+      wantOrigin: 'https://explicit-host.cloud.databricks.com',
+    },
+    {
+      name: 'preserves an explicit HTTP host',
+      environmentHost: 'ignored.cloud.databricks.com',
+      explicitHost: ' http://localhost:8080/ ',
+      wantOrigin: 'http://localhost:8080',
+    },
+  ];
 
-    // Only a base transport is passed; host, workspaceId, and the PAT
-    // credentials all come from the profile and are layered on top of it.
-    await main({httpClient});
+  it.each(hostCases)(
+    '$name',
+    async ({environmentHost, explicitHost, wantOrigin}) => {
+      process.env.DATABRICKS_HOST = environmentHost;
+      let seen: HttpRequest | undefined;
+      const httpClient: HttpClient = {
+        send(request: HttpRequest): Promise<HttpResponse> {
+          seen = request;
+          return Promise.resolve(jsonResponse({model: 'demo-model'}));
+        },
+      };
 
-    if (seen === undefined) {
-      throw new Error('the client did not send a request');
+      await main({
+        httpClient,
+        ...(explicitHost !== undefined && {host: explicitHost}),
+      });
+
+      if (seen === undefined) {
+        throw new Error('The client did not send a request.');
+      }
+      const url = new URL(seen.url);
+      expect(url.origin).toBe(wantOrigin);
+      expect(url.pathname).toBe(
+        '/serving-endpoints/my-embeddings-endpoint/invocations'
+      );
+      expect(seen.headers.get('X-Databricks-Workspace-Id')).toBe(
+        'ws-from-profile'
+      );
+      expect(seen.headers.get('Authorization')).toBe('Bearer pat-from-profile');
     }
-    const url = new URL(seen.url);
-    expect(url.origin).toBe('https://profile-host.cloud.databricks.com');
-    expect(url.pathname).toBe(
-      '/serving-endpoints/my-embeddings-endpoint/invocations'
-    );
-    expect(seen.headers.get('X-Databricks-Workspace-Id')).toBe(
-      'ws-from-profile'
-    );
-    expect(seen.headers.get('Authorization')).toBe('Bearer pat-from-profile');
-  });
+  );
 });

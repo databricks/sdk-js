@@ -50,7 +50,7 @@ export async function resolveClientConfig(
 ): Promise<ResolvedClientConfig> {
   const profile: Profile = await resolve(options.profileOptions);
 
-  const host = options.host ?? profile.host;
+  const host = normalizeHost(options.host ?? profile.host);
   if (host === undefined) {
     throw new Error('Host is required.');
   }
@@ -60,7 +60,8 @@ export async function resolveClientConfig(
   // default credential chain reuses the profile resolved above so that the
   // same profileOptions govern host and authentication alike.
   const base = options.httpClient ?? newFetchHttpClient();
-  const credentials = options.credentials ?? defaultCredentials({profile});
+  const credentials =
+    options.credentials ?? defaultCredentials({profile: {...profile, host}});
   let httpClient: HttpClient = new AuthHttpClient(base, credentials);
   if (options.timeout !== undefined) {
     httpClient = new TimeoutHttpClient(httpClient, options.timeout);
@@ -70,11 +71,22 @@ export async function resolveClientConfig(
   const workspaceId = options.workspaceId ?? profile.workspaceId;
 
   return {
-    host: host.replace(/\/$/, ''),
+    host,
     httpClient,
     ...(accountId !== undefined && {accountId}),
     ...(workspaceId !== undefined && {workspaceId}),
   };
+}
+
+function normalizeHost(host: string | undefined): string | undefined {
+  const trimmed = host?.trim();
+  if (trimmed === undefined || trimmed === '') {
+    return undefined;
+  }
+  const absolute = /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+  return absolute.replace(/\/$/, '');
 }
 
 /** Wraps an HttpClient and adds authentication headers to requests. */
