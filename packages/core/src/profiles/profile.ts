@@ -28,6 +28,9 @@ export interface Profile {
   /** Databricks Account ID for Accounts API. */
   accountId?: string;
 
+  /** ID of the group whose role is assumed when obtaining OAuth tokens. */
+  groupId?: string;
+
   /** Personal access token for PAT authentication. */
   token?: Secret;
 
@@ -141,6 +144,15 @@ export const PROPERTY_DEFS: readonly PropertyDef[] = [
       p.accountId = v;
     },
     get: (p: Profile): string | undefined => p.accountId,
+  },
+  {
+    field: 'groupId',
+    envVar: 'DATABRICKS_GROUP_ID',
+    iniKey: 'group_id',
+    set: (p: Profile, v: string): void => {
+      p.groupId = v;
+    },
+    get: (p: Profile): string | undefined => p.groupId,
   },
   {
     field: 'token',

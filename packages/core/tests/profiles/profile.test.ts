@@ -14,6 +14,7 @@ function findDef(field: string): PropertyDef {
 }
 
 const STRING_DEF = findDef('host');
+const GROUP_ID_DEF = findDef('groupId');
 const SECRET_DEF = findDef('token');
 
 describe('property set and get', () => {
@@ -22,6 +23,7 @@ describe('property set and get', () => {
     def: PropertyDef;
     raw: string;
     wantGet: string;
+    wantNames?: {envVar: string; iniKey: string};
   }[] = [
     // String properties.
     {
@@ -35,6 +37,16 @@ describe('property set and get', () => {
       def: STRING_DEF,
       raw: 'https://x.com?a=1&b=2',
       wantGet: 'https://x.com?a=1&b=2',
+    },
+    {
+      name: 'group ID',
+      def: GROUP_ID_DEF,
+      raw: 'group-123',
+      wantGet: 'group-123',
+      wantNames: {
+        envVar: 'DATABRICKS_GROUP_ID',
+        iniKey: 'group_id',
+      },
     },
     // Secret properties.
     {
@@ -51,11 +63,17 @@ describe('property set and get', () => {
     },
   ];
 
-  it.each(roundTripCases)('should round-trip: $name', ({def, raw, wantGet}) => {
-    const profile: Profile = {};
-    def.set(profile, raw);
-    expect(def.get(profile)).toBe(wantGet);
-  });
+  it.each(roundTripCases)(
+    'should round-trip: $name',
+    ({def, raw, wantGet, wantNames}) => {
+      const profile: Profile = {};
+      def.set(profile, raw);
+      expect(def.get(profile)).toBe(wantGet);
+      if (wantNames !== undefined) {
+        expect(def).toMatchObject(wantNames);
+      }
+    }
+  );
 
   it('should wrap secret fields in Secret instances', () => {
     const profile: Profile = {};

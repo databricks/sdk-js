@@ -4,6 +4,9 @@
 
 ### New Features and Improvements
 
+- Added `groupId` profile resolution from `DATABRICKS_GROUP_ID` and profile
+  `group_id`.
+
 ### Bug Fixes
 
 ### Documentation

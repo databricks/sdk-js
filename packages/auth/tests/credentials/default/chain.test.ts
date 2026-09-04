@@ -6,7 +6,7 @@ import {describe, expect, it} from 'vitest';
 import {Secret} from '@databricks/sdk-core/profiles/browser';
 import type {Profile} from '@databricks/sdk-core/profiles/browser';
 
-import type {Header} from '../../../src/auth';
+import type {Credentials, Header} from '../../../src/auth';
 import {
   DefaultCredentials,
   m2mStrategy,
@@ -18,19 +18,38 @@ import type {DefaultCredentialsErrorCode} from '../../../src/credentials/default
 
 const HOST = 'https://workspace.example';
 
-function configuredStrategy(label: string): Strategy {
+function configuredStrategy(
+  label: string,
+  supportsGroupAssumption = true,
+  onConfigure?: (profile: Profile) => void
+): Strategy {
   return {
     name: label,
-    configure: () => ({
-      name: () => label,
-      authHeaders: () =>
-        Promise.resolve([{key: 'X-Test-Strategy', value: label}]),
-    }),
+    supportsGroupAssumption,
+    configure: (profile): Credentials => {
+      onConfigure?.(profile);
+      return {
+        name: () => label,
+        authHeaders: () =>
+          Promise.resolve([{key: 'X-Test-Strategy', value: label}]),
+      };
+    },
   };
 }
 
-function unconfiguredStrategy(label: string): Strategy {
-  return {name: label, configure: () => undefined};
+function unconfiguredStrategy(
+  label: string,
+  supportsGroupAssumption = true,
+  onConfigure?: () => void
+): Strategy {
+  return {
+    name: label,
+    supportsGroupAssumption,
+    configure: (): undefined => {
+      onConfigure?.();
+      return undefined;
+    },
+  };
 }
 
 const loaderFor =
@@ -39,17 +58,20 @@ const loaderFor =
     Promise.resolve(profile);
 
 describe('DefaultCredentials chain', () => {
+  const selectedError = new Error('selected provider failed');
   const resolutionCases: {
     name: string;
     strategies: readonly Strategy[];
     profile: Profile;
-    wantHeaders: Header[];
+    want: {headers: Header[]} | {error: Error};
   }[] = [
     {
       name: 'returns the first configured strategy',
       strategies: [patStrategy, configuredStrategy('oauth-m2m')],
       profile: {host: HOST, token: new Secret('dapi-abc')},
-      wantHeaders: [{key: 'Authorization', value: 'Bearer dapi-abc'}],
+      want: {
+        headers: [{key: 'Authorization', value: 'Bearer dapi-abc'}],
+      },
     },
     {
       name: 'falls through to the next strategy when earlier ones are unconfigured',
@@ -58,7 +80,9 @@ describe('DefaultCredentials chain', () => {
         configuredStrategy('oauth-m2m'),
       ],
       profile: {host: HOST},
-      wantHeaders: [{key: 'X-Test-Strategy', value: 'oauth-m2m'}],
+      want: {
+        headers: [{key: 'X-Test-Strategy', value: 'oauth-m2m'}],
+      },
     },
     {
       // PAT is configured and comes first, but authType pins oauth-m2m, so
@@ -70,23 +94,64 @@ describe('DefaultCredentials chain', () => {
         token: new Secret('dapi-abc'),
         authType: 'oauth-m2m',
       },
-      wantHeaders: [{key: 'X-Test-Strategy', value: 'oauth-m2m'}],
+      want: {
+        headers: [{key: 'X-Test-Strategy', value: 'oauth-m2m'}],
+      },
+    },
+    {
+      name: 'skips unsupported strategies when a group is configured',
+      strategies: [
+        configuredStrategy('pat', false),
+        configuredStrategy('oauth-m2m'),
+      ],
+      profile: {host: HOST, groupId: 'group-123'},
+      want: {
+        headers: [{key: 'X-Test-Strategy', value: 'oauth-m2m'}],
+      },
+    },
+    {
+      name: 'preserves normal strategy ordering when the group is empty',
+      strategies: [
+        configuredStrategy('pat', false),
+        configuredStrategy('oauth-m2m'),
+      ],
+      profile: {host: HOST, groupId: ''},
+      want: {headers: [{key: 'X-Test-Strategy', value: 'pat'}]},
+    },
+    {
+      name: 'does not configure a fallback after the selected strategy fails',
+      strategies: [
+        {
+          name: 'oauth-m2m',
+          supportsGroupAssumption: true,
+          configure: () => ({
+            name: () => 'oauth-m2m',
+            authHeaders: () => Promise.reject(selectedError),
+          }),
+        },
+        configuredStrategy('fallback', true, () => {
+          expect.fail('fallback strategy should not be configured');
+        }),
+      ],
+      profile: {host: HOST, groupId: 'group-123'},
+      want: {error: selectedError},
     },
   ];
 
-  it.each(resolutionCases)(
-    '$name',
-    async ({strategies, profile, wantHeaders}) => {
-      const creds = new DefaultCredentials(strategies, loaderFor(profile));
-      const headers = await creds.authHeaders();
-      expect(headers).toEqual(wantHeaders);
+  it.each(resolutionCases)('$name', async ({strategies, profile, want}) => {
+    const creds = new DefaultCredentials(strategies, loaderFor(profile));
+    if ('error' in want) {
+      await expect(creds.authHeaders()).rejects.toBe(want.error);
+    } else {
+      await expect(creds.authHeaders()).resolves.toEqual(want.headers);
     }
-  );
+  });
 
   it('caches the resolved strategy across calls', async () => {
     let buildCount = 0;
     const strategy: Strategy = {
       name: 'counting',
+      supportsGroupAssumption: true,
       configure: () => {
         buildCount += 1;
         return {
@@ -139,6 +204,37 @@ describe('DefaultCredentials chain', () => {
       name: 'throws NO_AUTH_CONFIGURED when the strategy named by authType is not configured',
       strategies: [patStrategy, configuredStrategy('oauth-m2m')],
       profile: {host: HOST, authType: 'pat'},
+      wantCode: 'NO_AUTH_CONFIGURED',
+    },
+    {
+      name: 'throws GROUP_ROLE_UNSUPPORTED for an explicitly selected PAT strategy',
+      strategies: [patStrategy, m2mStrategy],
+      profile: {
+        host: HOST,
+        token: new Secret('dapi-abc'),
+        groupId: 'group-123',
+        authType: 'pat',
+      },
+      wantCode: 'GROUP_ROLE_UNSUPPORTED',
+    },
+    {
+      name: 'throws GROUP_ROLE_UNSUPPORTED for an explicitly selected CLI strategy',
+      strategies: [configuredStrategy('databricks-cli', false)],
+      profile: {
+        host: HOST,
+        groupId: 'group-123',
+        authType: 'databricks-cli',
+      },
+      wantCode: 'GROUP_ROLE_UNSUPPORTED',
+    },
+    {
+      name: 'throws NO_AUTH_CONFIGURED when grouped strategies are exhausted',
+      strategies: [
+        configuredStrategy('pat', false),
+        unconfiguredStrategy('oauth-m2m'),
+        configuredStrategy('databricks-cli', false),
+      ],
+      profile: {host: HOST, groupId: 'group-123'},
       wantCode: 'NO_AUTH_CONFIGURED',
     },
   ];

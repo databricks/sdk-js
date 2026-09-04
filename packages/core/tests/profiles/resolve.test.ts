@@ -1,4 +1,4 @@
-import {mkdtempSync} from 'node:fs';
+import {mkdtempSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -15,6 +15,7 @@ import {PROPERTY_DEFS} from '../../src/profiles/profile';
 const TEST_DIR = dirname(fileURLToPath(import.meta.url));
 const TESTDATA = join(TEST_DIR, 'testdata');
 const CFG = join(TESTDATA, 'databrickscfg');
+const CFG_GROUP_ID = join(TESTDATA, 'databrickscfg_group_id');
 const CFG_NO_DEFAULT = join(TESTDATA, 'databrickscfg_no_default');
 const CFG_SETTINGS = join(TESTDATA, 'databrickscfg_settings');
 const CFG_SETTINGS_EMPTY = join(TESTDATA, 'databrickscfg_settings_empty');
@@ -65,6 +66,7 @@ describe('resolve', () => {
   const resolveCases: {
     name: string;
     options?: Parameters<typeof resolve>[0];
+    config?: string;
     env?: Record<string, string>;
     want: Profile;
     wantErr?: ProfileErrorCode;
@@ -234,6 +236,49 @@ describe('resolve', () => {
       },
     },
     {
+      name: 'group ID from profile',
+      options: {configFile: CFG_GROUP_ID, profile: 'workspace'},
+      want: {name: 'workspace', groupId: 'profile-group'},
+    },
+    {
+      name: 'group ID from environment',
+      options: {noProfile: true},
+      env: {DATABRICKS_GROUP_ID: 'env-group'},
+      want: {groupId: 'env-group'},
+    },
+    {
+      name: 'environment group ID overrides profile group ID',
+      options: {configFile: CFG_GROUP_ID, profile: 'workspace'},
+      env: {DATABRICKS_GROUP_ID: 'env-group'},
+      want: {name: 'workspace', groupId: 'env-group'},
+    },
+    {
+      name: 'absent group configuration does not set a group ID',
+      config: '[DEFAULT]\nhost = https://workspace.example\n',
+      want: {
+        name: 'DEFAULT',
+        host: 'https://workspace.example',
+      },
+    },
+    {
+      name: 'empty profile group preserves the empty group ID',
+      config: '[DEFAULT]\nhost = https://workspace.example\ngroup_id =\n',
+      want: {
+        name: 'DEFAULT',
+        host: 'https://workspace.example',
+        groupId: '',
+      },
+    },
+    {
+      name: 'empty environment group does not set a group ID',
+      config: '[DEFAULT]\nhost = https://workspace.example\n',
+      env: {DATABRICKS_GROUP_ID: ''},
+      want: {
+        name: 'DEFAULT',
+        host: 'https://workspace.example',
+      },
+    },
+    {
       name: 'extra keys',
       options: {configFile: CFG, profile: 'extra-keys'},
       want: {
@@ -314,22 +359,35 @@ describe('resolve', () => {
     },
   ];
 
-  it.each(resolveCases)('$name', async ({options, env, want, wantErr}) => {
-    if (env !== undefined) {
-      for (const [key, value] of Object.entries(env)) {
-        vi.stubEnv(key, value);
+  it.each(resolveCases)(
+    '$name',
+    async ({options, config, env, want, wantErr}) => {
+      if (env !== undefined) {
+        for (const [key, value] of Object.entries(env)) {
+          vi.stubEnv(key, value);
+        }
+      }
+
+      const configFile =
+        config === undefined
+          ? undefined
+          : join(mkdtempSync(join(tmpdir(), 'profile-test-')), 'databrickscfg');
+      if (configFile !== undefined) {
+        writeFileSync(configFile, config);
+      }
+      const resolvedOptions =
+        configFile === undefined ? options : {...options, configFile};
+
+      if (wantErr !== undefined) {
+        await expect(resolve(resolvedOptions)).rejects.toMatchObject({
+          code: wantErr,
+        });
+      } else {
+        const got = await resolve(resolvedOptions);
+        expectProfileEqual(got, want);
       }
     }
-
-    if (wantErr !== undefined) {
-      await expect(resolve(options)).rejects.toMatchObject({
-        code: wantErr,
-      });
-    } else {
-      const got = await resolve(options);
-      expectProfileEqual(got, want);
-    }
-  });
+  );
 });
 
 describe('listProfiles', () => {

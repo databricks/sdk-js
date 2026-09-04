@@ -10,6 +10,7 @@ import type {Strategy} from './chain';
  */
 export const u2mStrategy: Strategy = {
   name: 'databricks-cli',
+  supportsGroupAssumption: false,
   configure: profile => {
     if (profile.host === undefined) return undefined;
     if (profile.name === undefined) return undefined;
