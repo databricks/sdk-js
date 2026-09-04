@@ -53,16 +53,16 @@ export interface ColumnRelationship {
 }
 
 export interface CreateExternalLineageRelationshipRequest {
-  externalLineageRelationship?: CreateRequestExternalLineage | undefined;
+  externalLineageRelationship: CreateRequestExternalLineage;
 }
 
 export interface CreateRequestExternalLineage {
   /** Unique identifier of the external lineage relationship. */
   id?: string | undefined;
   /** Source object of the external lineage relationship. */
-  source?: ExternalLineageRelationshipObject | undefined;
+  source: ExternalLineageRelationshipObject;
   /** Target object of the external lineage relationship. */
-  target?: ExternalLineageRelationshipObject | undefined;
+  target: ExternalLineageRelationshipObject;
   /** List of column relationships between source and target objects. */
   columns?: ColumnRelationship[] | undefined;
   /** Key-value properties associated with the external lineage relationship. */
@@ -70,16 +70,16 @@ export interface CreateRequestExternalLineage {
 }
 
 export interface DeleteExternalLineageRelationshipRequest {
-  externalLineageRelationship?: DeleteRequestExternalLineage | undefined;
+  externalLineageRelationship: DeleteRequestExternalLineage;
 }
 
 export interface DeleteRequestExternalLineage {
   /** Unique identifier of the external lineage relationship. */
   id?: string | undefined;
   /** Source object of the external lineage relationship. */
-  source?: ExternalLineageRelationshipObject | undefined;
+  source: ExternalLineageRelationshipObject;
   /** Target object of the external lineage relationship. */
-  target?: ExternalLineageRelationshipObject | undefined;
+  target: ExternalLineageRelationshipObject;
   /** List of column relationships between source and target objects. */
   columns?: ColumnRelationship[] | undefined;
   /** Key-value properties associated with the external lineage relationship. */
@@ -108,9 +108,9 @@ export interface ExternalLineageRelationship {
   /** Unique identifier of the external lineage relationship. */
   id?: string | undefined;
   /** Source object of the external lineage relationship. */
-  source?: ExternalLineageRelationshipObject | undefined;
+  source: ExternalLineageRelationshipObject;
   /** Target object of the external lineage relationship. */
-  target?: ExternalLineageRelationshipObject | undefined;
+  target: ExternalLineageRelationshipObject;
   /** List of column relationships between source and target objects. */
   columns?: ColumnRelationship[] | undefined;
   /** Key-value properties associated with the external lineage relationship. */
@@ -203,9 +203,9 @@ export interface ListExternalLineageRelationshipsRequest {
    * Since this field is a query parameter, please flatten the nested fields. For example, if the object is a table, the query parameter should look like:
    * `object_info.table.name=main.sales.customers`
    */
-  objectInfo?: ExternalLineageRelationshipObject | undefined;
+  objectInfo: ExternalLineageRelationshipObject;
   /** The lineage direction to filter on. */
-  lineageDirection?: Direction_LineageDirection | undefined;
+  lineageDirection: Direction_LineageDirection;
   /**
    * Specifies the maximum number of external lineage relationships to return in a single response.
    * The value must be less than or equal to 1000.
@@ -221,17 +221,17 @@ export interface ListExternalLineageRelationshipsResponse {
 }
 
 export interface UpdateExternalLineageRelationshipRequest {
-  externalLineageRelationship?: UpdateRequestExternalLineage | undefined;
-  updateMask?: FieldMask<UpdateRequestExternalLineage> | undefined;
+  externalLineageRelationship: UpdateRequestExternalLineage;
+  updateMask: FieldMask<UpdateRequestExternalLineage>;
 }
 
 export interface UpdateRequestExternalLineage {
   /** Unique identifier of the external lineage relationship. */
   id?: string | undefined;
   /** Source object of the external lineage relationship. */
-  source?: ExternalLineageRelationshipObject | undefined;
+  source: ExternalLineageRelationshipObject;
   /** Target object of the external lineage relationship. */
-  target?: ExternalLineageRelationshipObject | undefined;
+  target: ExternalLineageRelationshipObject;
   /** List of column relationships between source and target objects. */
   columns?: ColumnRelationship[] | undefined;
   /** Key-value properties associated with the external lineage relationship. */
@@ -276,12 +276,8 @@ export const unmarshalExternalLineageRelationshipSchema: z.ZodType<ExternalLinea
   z
     .object({
       id: z.string().optional(),
-      source: z
-        .lazy(() => unmarshalExternalLineageRelationshipObjectSchema)
-        .optional(),
-      target: z
-        .lazy(() => unmarshalExternalLineageRelationshipObjectSchema)
-        .optional(),
+      source: z.lazy(() => unmarshalExternalLineageRelationshipObjectSchema),
+      target: z.lazy(() => unmarshalExternalLineageRelationshipObjectSchema),
       columns: z
         .array(z.lazy(() => unmarshalColumnRelationshipSchema))
         .optional(),
@@ -464,12 +460,8 @@ export const marshalColumnRelationshipSchema: z.ZodType = z
 export const marshalCreateRequestExternalLineageSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    source: z
-      .lazy(() => marshalExternalLineageRelationshipObjectSchema)
-      .optional(),
-    target: z
-      .lazy(() => marshalExternalLineageRelationshipObjectSchema)
-      .optional(),
+    source: z.lazy(() => marshalExternalLineageRelationshipObjectSchema),
+    target: z.lazy(() => marshalExternalLineageRelationshipObjectSchema),
     columns: z.array(z.lazy(() => marshalColumnRelationshipSchema)).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
@@ -484,12 +476,8 @@ export const marshalCreateRequestExternalLineageSchema: z.ZodType = z
 export const marshalDeleteRequestExternalLineageSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    source: z
-      .lazy(() => marshalExternalLineageRelationshipObjectSchema)
-      .optional(),
-    target: z
-      .lazy(() => marshalExternalLineageRelationshipObjectSchema)
-      .optional(),
+    source: z.lazy(() => marshalExternalLineageRelationshipObjectSchema),
+    target: z.lazy(() => marshalExternalLineageRelationshipObjectSchema),
     columns: z.array(z.lazy(() => marshalColumnRelationshipSchema)).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
@@ -575,12 +563,8 @@ export const marshalExternalLineageRelationshipTableSchema: z.ZodType = z
 export const marshalUpdateRequestExternalLineageSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
-    source: z
-      .lazy(() => marshalExternalLineageRelationshipObjectSchema)
-      .optional(),
-    target: z
-      .lazy(() => marshalExternalLineageRelationshipObjectSchema)
-      .optional(),
+    source: z.lazy(() => marshalExternalLineageRelationshipObjectSchema),
+    target: z.lazy(() => marshalExternalLineageRelationshipObjectSchema),
     columns: z.array(z.lazy(() => marshalColumnRelationshipSchema)).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })

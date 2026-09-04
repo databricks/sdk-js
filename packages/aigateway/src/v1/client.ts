@@ -87,8 +87,8 @@ export class AiGatewayClient {
   /**
    * Creates an MCP service in a Unity Catalog schema. An MCP (Model Context
    * Protocol) service is a governed securable that registers an MCP server and
-   * exposes its tools for discovery, access control, and invocation. The
-   * caller supplies the leaf name in `mcp_service_id`.
+   * exposes its tools for discovery, access control, and invocation. Specify
+   * its name in `mcp_service_id`.
    *
    * You must be the owner of the parent schema or have the `CREATE_SERVICE`
    * and `USE_SCHEMA` privileges on the parent schema and `USE_CATALOG` on the
@@ -141,14 +141,16 @@ export class AiGatewayClient {
 
   /**
    * Creates a model provider service in a Unity Catalog schema. A model
-   * provider service is a governed connection to an external model provider
-   * (for example OpenAI, Azure OpenAI, or Amazon Bedrock) that model services
-   * reference to invoke that provider. The caller supplies the leaf name in
+   * provider service stores authentication and request configuration for an
+   * external model provider, such as OpenAI, Azure OpenAI, or Amazon Bedrock.
+   * Model services reference it to invoke the provider. Specify its name in
    * `model_provider_service_id`.
    *
    * You must be the owner of the parent schema or have the `CREATE_SERVICE`
    * and `USE_SCHEMA` privileges on the parent schema and `USE_CATALOG` on the
-   * parent catalog.
+   * parent catalog. Inline credentials additionally require `CREATE_CONNECTION`
+   * on the parent schema. When using a Unity Catalog service credential, you
+   * must have `ACCESS` on that credential.
    */
   async createModelProviderService(
     req: CreateModelProviderServiceRequest,
@@ -200,12 +202,15 @@ export class AiGatewayClient {
   /**
    * Creates a model service in a Unity Catalog schema. A model service is a
    * governed AI Gateway endpoint that routes inference requests to one or more
-   * model destinations. The caller supplies the leaf name in
-   * `model_service_id`.
+   * model destinations. Specify its name in `model_service_id`.
    *
    * You must be the owner of the parent schema or have the `CREATE_SERVICE`
    * and `USE_SCHEMA` privileges on the parent schema and `USE_CATALOG` on the
-   * parent catalog.
+   * parent catalog. For every destination, you also need `USE_CATALOG` and
+   * `USE_SCHEMA` on its parent and `EXECUTE` on the referenced Unity Catalog
+   * model or model provider service. A provisioned-throughput destination
+   * additionally requires `CAN_MANAGE` on its Model Serving endpoint.
+   * Configuring an inference table additionally requires `CREATE_TABLE`.
    */
   async createModelService(
     req: CreateModelServiceRequest,
@@ -267,7 +272,10 @@ export class AiGatewayClient {
     const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
-      params.append('etag', String(req.etag));
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -304,7 +312,10 @@ export class AiGatewayClient {
     const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
-      params.append('etag', String(req.etag));
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -340,7 +351,10 @@ export class AiGatewayClient {
     const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
-      params.append('etag', String(req.etag));
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -683,6 +697,8 @@ export class AiGatewayClient {
    *
    * You must be the owner of the MCP service or have `MANAGE` on it, plus
    * `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent schema.
+   * When changing `config.source_connection.name`, the MCP service owner must
+   * also have `USE_CONNECTION` on the new connection.
    */
   async updateMcpService(
     req: UpdateMcpServiceRequest,
@@ -695,7 +711,10 @@ export class AiGatewayClient {
       params.append('update_mask', req.updateMask.toString());
     }
     if (req.etag !== undefined) {
-      params.append('etag', String(req.etag));
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -737,6 +756,10 @@ export class AiGatewayClient {
    * You must be the owner of the model provider service or have `MANAGE` on
    * it, plus `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the
    * parent schema.
+   *
+   * Updating `config.provider` cannot change the provider type or switch
+   * between Unity Catalog service-credential authentication and inline
+   * authentication.
    */
   async updateModelProviderService(
     req: UpdateModelProviderServiceRequest,
@@ -749,7 +772,10 @@ export class AiGatewayClient {
       params.append('update_mask', req.updateMask.toString());
     }
     if (req.etag !== undefined) {
-      params.append('etag', String(req.etag));
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -793,6 +819,12 @@ export class AiGatewayClient {
    *
    * You must be the owner of the model service or have `MANAGE` on it, plus
    * `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent schema.
+   * When changing destinations, both you and the model service owner need
+   * `USE_CATALOG` and `USE_SCHEMA` on each destination's parent and `EXECUTE`
+   * on the referenced Unity Catalog model or model provider service. A
+   * provisioned-throughput destination additionally requires `CAN_MANAGE` for
+   * you and `CAN_QUERY` for the model service owner. Adding an inference table
+   * additionally requires `CREATE_TABLE`.
    */
   async updateModelService(
     req: UpdateModelServiceRequest,
@@ -805,7 +837,10 @@ export class AiGatewayClient {
       params.append('update_mask', req.updateMask.toString());
     }
     if (req.etag !== undefined) {
-      params.append('etag', String(req.etag));
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;

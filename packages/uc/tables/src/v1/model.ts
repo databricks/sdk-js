@@ -206,6 +206,10 @@ export const SecurableType = {
   EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
   STAGING_TABLE: 'STAGING_TABLE',
+  MODEL: 'MODEL',
+  MODEL_SERVICE: 'MODEL_SERVICE',
+  MCP_SERVICE: 'MCP_SERVICE',
+  MODEL_PROVIDER_SERVICE: 'MODEL_PROVIDER_SERVICE',
 } as const;
 export type SecurableType =
   | (typeof SecurableType)[keyof typeof SecurableType]
@@ -312,9 +316,9 @@ export interface ColumnMask {
    */
   usingColumnNames?: string[] | undefined;
   /**
-   * The list of additional table columns or literals to be passed as additional arguments to
-   * a column mask function. This is the replacement of the deprecated using_column_names field and
-   * carries information about the types (alias or constant) of the arguments to the mask function.
+   * The list of table columns or literals to be passed as additional arguments to a column mask
+   * function, carrying the type (column reference vs constant literal) of each argument.
+   * Deprecated: use using_column_names instead.
    */
   usingArguments?: PolicyFunctionArgument[] | undefined;
 }
@@ -327,8 +331,8 @@ export interface ConnectionDependency {
 
 export interface CreateTableConstraintRequest {
   /** The full name of the table referenced by the constraint. */
-  fullNameArg?: string | undefined;
-  constraint?: TableConstraint | undefined;
+  fullNameArg: string;
+  constraint: TableConstraint;
 }
 
 export interface CreateTableRequest {
@@ -399,7 +403,7 @@ export interface CreateTableRequest {
   /** The array of __ColumnInfo__ definitions of the table's columns. */
   columns?: ColumnInfo[] | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
 }
 
 /** A credential that is dependent on a SQL object. */
@@ -410,14 +414,14 @@ export interface CredentialDependency {
 
 export interface DeleteTableConstraintRequest {
   /** Full name of the table referenced by the constraint. */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** The name of the constraint to delete. */
-  constraintName?: string | undefined;
+  constraintName: string;
   /**
    * If true, try deleting all child constraints of the current constraint.
    * If false, reject this operation if the current constraint has any child constraints.
    */
-  cascade?: boolean | undefined;
+  cascade: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -425,7 +429,7 @@ export interface DeleteTableConstraintResponse {}
 
 export interface DeleteTableRequest {
   /** Full name of the table. */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -437,7 +441,7 @@ export interface DeleteTableResponse {}
  */
 export interface DeltaRuntimePropertiesKvPairs {
   /** A map of key-value properties attached to the securable. */
-  deltaRuntimeProperties?: Record<string, string> | undefined;
+  deltaRuntimeProperties: Record<string, string>;
 }
 
 /**
@@ -461,7 +465,7 @@ export interface DependencyList {
 
 export interface EffectivePredictiveOptimizationFlag {
   /** Whether predictive optimization should be enabled for this object and objects under it. */
-  value?: string | undefined;
+  value: string;
   /** The type of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
   inheritedFromType?: string | undefined;
   /** The name of the object from which the flag was inherited. If there was no inheritance, this field is left blank. */
@@ -481,13 +485,13 @@ export interface EncryptionDetails {
 
 export interface ForeignKeyConstraint {
   /** The name of the constraint. */
-  name?: string | undefined;
+  name: string;
   /** Column names for this constraint. */
-  childColumns?: string[] | undefined;
+  childColumns: string[];
   /** The full name of the parent constraint. */
-  parentTable?: string | undefined;
+  parentTable: string;
   /** Column names for this constraint. */
-  parentColumns?: string[] | undefined;
+  parentColumns: string[];
   /** True if the constraint is RELY, false or unset if NORELY. */
   rely?: boolean | undefined;
 }
@@ -495,12 +499,12 @@ export interface ForeignKeyConstraint {
 /** A function that is dependent on a SQL object. */
 export interface FunctionDependency {
   /** Full name of the dependent function, in the form of __catalog_name__.__schema_name__.__function_name__. */
-  functionFullName?: string | undefined;
+  functionFullName: string;
 }
 
 export interface GetTableRequest {
   /** Full name of the table. */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** Whether delta metadata should be included in the response. */
   includeDeltaMetadata?: boolean | undefined;
   /** Whether to include tables in the response for which the principal can only access selective metadata for. */
@@ -511,7 +515,7 @@ export interface GetTableRequest {
 
 export interface ListTableSummariesRequest {
   /** Name of parent catalog for tables of interest. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /**
    * A sql LIKE pattern (% and _) for schema names.
    * All schemas will be returned if not set or empty.
@@ -548,9 +552,9 @@ export interface ListTableSummariesResponse {
 
 export interface ListTablesRequest {
   /** Name of parent catalog for tables of interest. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /** Parent schema of tables. */
-  schemaName?: string | undefined;
+  schemaName: string;
   /**
    * Maximum number of tables to return.
    * If not set, all the tables are returned (not recommended).
@@ -585,7 +589,7 @@ export interface ListTablesResponse {
 
 export interface NamedTableConstraint {
   /** The name of the constraint. */
-  name?: string | undefined;
+  name: string;
 }
 
 /**
@@ -652,9 +656,9 @@ export interface PolicyFunctionArgument {
 
 export interface PrimaryKeyConstraint {
   /** The name of the constraint. */
-  name?: string | undefined;
+  name: string;
   /** Column names for this constraint. */
-  childColumns?: string[] | undefined;
+  childColumns: string[];
   /** Column names that represent a timeseries. */
   timeseriesColumns?: string[] | undefined;
   /** True if the constraint is RELY, false or unset if NORELY. */
@@ -663,16 +667,16 @@ export interface PrimaryKeyConstraint {
 
 export interface RowFilter {
   /** The full name of the row filter SQL UDF. */
-  functionName?: string | undefined;
+  functionName: string;
   /**
    * The list of table columns to be passed as input to the row filter function. The column types
    * should match the types of the filter function arguments.
    */
-  inputColumnNames?: string[] | undefined;
+  inputColumnNames: string[];
   /**
-   * The list of additional table columns or literals to be passed as additional arguments to
-   * a row filter function. This is the replacement of the deprecated input_column_names field and
-   * carries information about the types (alias or constant) of the arguments to the filter function.
+   * The list of table columns or literals to be passed as additional arguments to a row filter
+   * function, carrying the type (column reference vs constant literal) of each argument.
+   * Deprecated: use input_column_names instead.
    */
   inputArguments?: PolicyFunctionArgument[] | undefined;
 }
@@ -726,12 +730,12 @@ export interface TableConstraint {
 /** A table that is dependent on a SQL object. */
 export interface TableDependency {
   /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
-  tableFullName?: string | undefined;
+  tableFullName: string;
 }
 
 export interface TableExistsRequest {
   /** Full name of the table. */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
 }
 
 export interface TableExistsResponse {
@@ -807,7 +811,7 @@ export interface TableInfo {
   /** The array of __ColumnInfo__ definitions of the table's columns. */
   columns?: ColumnInfo[] | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
 }
 
 export interface TableSummary {
@@ -820,7 +824,7 @@ export interface TableSummary {
 
 export interface UpdateTableRequest {
   /** Full name of the table. */
-  fullNameArg?: string | undefined;
+  fullNameArg: string;
   /** Name of table, relative to parent schema. */
   name?: string | undefined;
   /** Name of parent catalog. */
@@ -888,7 +892,7 @@ export interface UpdateTableRequest {
   /** The array of __ColumnInfo__ definitions of the table's columns. */
   columns?: ColumnInfo[] | undefined;
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -965,7 +969,7 @@ export const unmarshalDeleteTableResponseSchema: z.ZodType<DeleteTableResponse> 
 export const unmarshalDeltaRuntimePropertiesKvPairsSchema: z.ZodType<DeltaRuntimePropertiesKvPairs> =
   z
     .object({
-      delta_runtime_properties: z.record(z.string(), z.string()).optional(),
+      delta_runtime_properties: z.record(z.string(), z.string()),
     })
     .transform(d => ({
       deltaRuntimeProperties: d.delta_runtime_properties,
@@ -1002,7 +1006,7 @@ export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
 export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
   z
     .object({
-      value: z.string().optional(),
+      value: z.string(),
       inherited_from_type: z.string().optional(),
       inherited_from_name: z.string().optional(),
     })
@@ -1031,10 +1035,10 @@ export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
 export const unmarshalForeignKeyConstraintSchema: z.ZodType<ForeignKeyConstraint> =
   z
     .object({
-      name: z.string().optional(),
-      child_columns: z.array(z.string()).optional(),
-      parent_table: z.string().optional(),
-      parent_columns: z.array(z.string()).optional(),
+      name: z.string(),
+      child_columns: z.array(z.string()),
+      parent_table: z.string(),
+      parent_columns: z.array(z.string()),
       rely: z.boolean().optional(),
     })
     .transform(d => ({
@@ -1048,7 +1052,7 @@ export const unmarshalForeignKeyConstraintSchema: z.ZodType<ForeignKeyConstraint
 export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
   z
     .object({
-      function_full_name: z.string().optional(),
+      function_full_name: z.string(),
     })
     .transform(d => ({
       functionFullName: d.function_full_name,
@@ -1079,7 +1083,7 @@ export const unmarshalListTablesResponseSchema: z.ZodType<ListTablesResponse> =
 export const unmarshalNamedTableConstraintSchema: z.ZodType<NamedTableConstraint> =
   z
     .object({
-      name: z.string().optional(),
+      name: z.string(),
     })
     .transform(d => ({
       name: d.name,
@@ -1137,8 +1141,8 @@ export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgu
 export const unmarshalPrimaryKeyConstraintSchema: z.ZodType<PrimaryKeyConstraint> =
   z
     .object({
-      name: z.string().optional(),
-      child_columns: z.array(z.string()).optional(),
+      name: z.string(),
+      child_columns: z.array(z.string()),
       timeseries_columns: z.array(z.string()).optional(),
       rely: z.boolean().optional(),
     })
@@ -1151,8 +1155,8 @@ export const unmarshalPrimaryKeyConstraintSchema: z.ZodType<PrimaryKeyConstraint
 
 export const unmarshalRowFilterSchema: z.ZodType<RowFilter> = z
   .object({
-    function_name: z.string().optional(),
-    input_column_names: z.array(z.string()).optional(),
+    function_name: z.string(),
+    input_column_names: z.array(z.string()),
     input_arguments: z
       .array(z.lazy(() => unmarshalPolicyFunctionArgumentSchema))
       .optional(),
@@ -1225,7 +1229,7 @@ export const unmarshalTableConstraintSchema: z.ZodType<TableConstraint> = z
 
 export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
   .object({
-    table_full_name: z.string().optional(),
+    table_full_name: z.string(),
   })
   .transform(d => ({
     tableFullName: d.table_full_name,
@@ -1293,7 +1297,7 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
       .lazy(() => unmarshalSecurableKindManifestSchema)
       .optional(),
     columns: z.array(z.lazy(() => unmarshalColumnInfoSchema)).optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
   })
   .transform(d => ({
     name: d.name,
@@ -1403,8 +1407,8 @@ export const marshalConnectionDependencySchema: z.ZodType = z
 
 export const marshalCreateTableConstraintRequestSchema: z.ZodType = z
   .object({
-    fullNameArg: z.string().optional(),
-    constraint: z.lazy(() => marshalTableConstraintSchema).optional(),
+    fullNameArg: z.string(),
+    constraint: z.lazy(() => marshalTableConstraintSchema),
   })
   .transform(d => ({
     full_name_arg: d.fullNameArg,
@@ -1453,7 +1457,7 @@ export const marshalCreateTableRequestSchema: z.ZodType = z
       .lazy(() => marshalSecurableKindManifestSchema)
       .optional(),
     columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
   })
   .transform(d => ({
     name: d.name,
@@ -1502,7 +1506,7 @@ export const marshalCredentialDependencySchema: z.ZodType = z
 
 export const marshalDeltaRuntimePropertiesKvPairsSchema: z.ZodType = z
   .object({
-    deltaRuntimeProperties: z.record(z.string(), z.string()).optional(),
+    deltaRuntimeProperties: z.record(z.string(), z.string()),
   })
   .transform(d => ({
     delta_runtime_properties: d.deltaRuntimeProperties,
@@ -1548,7 +1552,7 @@ export const marshalDependencyListSchema: z.ZodType = z
 
 export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
   .object({
-    value: z.string().optional(),
+    value: z.string(),
     inheritedFromType: z.string().optional(),
     inheritedFromName: z.string().optional(),
   })
@@ -1577,10 +1581,10 @@ export const marshalEncryptionDetailsSchema: z.ZodType = z
 
 export const marshalForeignKeyConstraintSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    childColumns: z.array(z.string()).optional(),
-    parentTable: z.string().optional(),
-    parentColumns: z.array(z.string()).optional(),
+    name: z.string(),
+    childColumns: z.array(z.string()),
+    parentTable: z.string(),
+    parentColumns: z.array(z.string()),
     rely: z.boolean().optional(),
   })
   .transform(d => ({
@@ -1593,7 +1597,7 @@ export const marshalForeignKeyConstraintSchema: z.ZodType = z
 
 export const marshalFunctionDependencySchema: z.ZodType = z
   .object({
-    functionFullName: z.string().optional(),
+    functionFullName: z.string(),
   })
   .transform(d => ({
     function_full_name: d.functionFullName,
@@ -1601,7 +1605,7 @@ export const marshalFunctionDependencySchema: z.ZodType = z
 
 export const marshalNamedTableConstraintSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -1657,8 +1661,8 @@ export const marshalPolicyFunctionArgumentSchema: z.ZodType = z
 
 export const marshalPrimaryKeyConstraintSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    childColumns: z.array(z.string()).optional(),
+    name: z.string(),
+    childColumns: z.array(z.string()),
     timeseriesColumns: z.array(z.string()).optional(),
     rely: z.boolean().optional(),
   })
@@ -1671,8 +1675,8 @@ export const marshalPrimaryKeyConstraintSchema: z.ZodType = z
 
 export const marshalRowFilterSchema: z.ZodType = z
   .object({
-    functionName: z.string().optional(),
-    inputColumnNames: z.array(z.string()).optional(),
+    functionName: z.string(),
+    inputColumnNames: z.array(z.string()),
     inputArguments: z
       .array(z.lazy(() => marshalPolicyFunctionArgumentSchema))
       .optional(),
@@ -1742,7 +1746,7 @@ export const marshalTableConstraintSchema: z.ZodType = z
 
 export const marshalTableDependencySchema: z.ZodType = z
   .object({
-    tableFullName: z.string().optional(),
+    tableFullName: z.string(),
   })
   .transform(d => ({
     table_full_name: d.tableFullName,
@@ -1750,7 +1754,7 @@ export const marshalTableDependencySchema: z.ZodType = z
 
 export const marshalUpdateTableRequestSchema: z.ZodType = z
   .object({
-    fullNameArg: z.string().optional(),
+    fullNameArg: z.string(),
     name: z.string().optional(),
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
@@ -1791,7 +1795,7 @@ export const marshalUpdateTableRequestSchema: z.ZodType = z
       .lazy(() => marshalSecurableKindManifestSchema)
       .optional(),
     columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
   })
   .transform(d => ({
     full_name_arg: d.fullNameArg,

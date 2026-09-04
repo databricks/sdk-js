@@ -5,6 +5,512 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+/** Error codes returned by Databricks APIs to indicate specific failure conditions. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ErrorCode = {
+  /**
+   * Unknown error. This error generally should not be returned explicitly, but will be used
+   * as a fallback if the error enum is missing from the message for some reason.
+   *
+   * It's assigned tag 0 to follow the best practice from
+   * https://developers.google.com/protocol-buffers/docs/style#enums
+   *
+   * TODO(PLAT-55898): Add custom option to declare HTTP and gRPC mappings.
+   * Maps to:
+   * - google.rpc.Code: UNKNOWN = 2;
+   * - HTTP code: 500 Internal Server Error
+   */
+  UNKNOWN: 'UNKNOWN',
+  /**
+   * Internal error. This means that some invariants expected by the underlying system have been
+   * broken. This error code is reserved for serious errors, which generally cannot be resolved
+   * by the user.
+   *
+   * Prefer this over all kinds of detailed error messages (e.g IO_ERROR), unless there's some
+   * automation that relies on the custom error code.
+   *
+   * Maps to:
+   * - google.rpc.Code: INTERNAL = 13;
+   * - HTTP code: 500 Internal Server Error
+   */
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  /**
+   * The service is currently unavailable. This is most likely a transient condition, which can be
+   * corrected by retrying with a backoff. Note that it is not always safe to retry non-idempotent
+   * operations.
+   *
+   * Prefer this over SERVICE_UNDER_MAINTENANCE, WORKSPACE_TEMPORARILY_UNAVAILABLE.
+   *
+   * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
+   * for guideline on how to pick this vs RESOURCE_EXHAUSTED.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNAVAILABLE = 14;
+   * - HTTP code: 503 Service Unavailable
+   */
+  TEMPORARILY_UNAVAILABLE: 'TEMPORARILY_UNAVAILABLE',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * Indicates that an IOException has been internally thrown.
+   */
+  IO_ERROR: 'IO_ERROR',
+  /**
+   * The request is invalid. Prefer more specific error code whenever possible.
+   * Also see similar recommendation for the google.rpc.Code.FAILED_PRECONDITION.
+   *
+   * Prefer this error code over MALFORMED_REQUEST, INVALID_STATE, UNPARSEABLE_HTTP_ERROR.
+   *
+   * Maps to:
+   * - google.rpc.Code: FAILED_PRECONDITION = 9;
+   * - HTTP code: 400 Bad Request
+   */
+  BAD_REQUEST: 'BAD_REQUEST',
+  /**
+   * An external service is unavailable temporarily as it is being updated/re-deployed. Indicates
+   * gateway proxy to safely retry the request.
+   */
+  SERVICE_UNDER_MAINTENANCE: 'SERVICE_UNDER_MAINTENANCE',
+  /** A workspace is temporarily unavailable as the workspace is being re-assigned. */
+  WORKSPACE_TEMPORARILY_UNAVAILABLE: 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
+  /**
+   * The deadline expired before the operation could complete. For operations that change the state
+   * of the system, this error may be returned even if the operation has completed successfully.
+   * For example, a successful response from a server could have been delayed long enough for
+   * the deadline to expire. When possible - implementations should make sure further processing of
+   * the request is aborted, e.g. by throwing an exception instead of making the RPC request,
+   * making the database query, etc.
+   *
+   * Maps to:
+   * - google.rpc.Code: DEADLINE_EXCEEDED = 4;
+   * - HTTP code: 504 Gateway Timeout
+   */
+  DEADLINE_EXCEEDED: 'DEADLINE_EXCEEDED',
+  /**
+   * The operation was canceled by the caller. An example - client closed the connection without
+   * waiting for a response.
+   *
+   * Maps to:
+   * - google.rpc.Code: CANCELLED = 1;
+   * - HTTP code: 499 Client Closed Request
+   */
+  CANCELLED: 'CANCELLED',
+  /**
+   * The operation is rejected because of either rate limiting or resource quota,
+   * such as the client has sent too many requests recently or the client has allocated too many
+   * resources.
+   *
+   * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
+   * for guideline on how to pick this vs TEMPORARILY_UNAVAILABLE.
+   *
+   * Maps to:
+   * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
+   * - HTTP code: 429 Too Many Requests
+   */
+  RESOURCE_EXHAUSTED: 'RESOURCE_EXHAUSTED',
+  /**
+   * The operation was aborted, typically due to a concurrency issue such as a sequencer
+   * check failure, transaction abort, or transaction conflict.
+   *
+   * Maps to:
+   * - google.rpc.Code: ABORTED = 10;
+   * - HTTP code: 409 Conflict
+   */
+  ABORTED: 'ABORTED',
+  /**
+   * Operation was performed on a resource that does not exist,
+   * e.g. file or directory was not found.
+   *
+   * Maps to:
+   * - google.rpc.Code: NOT_FOUND = 5;
+   * - HTTP code: 404 Not Found
+   */
+  NOT_FOUND: 'NOT_FOUND',
+  /**
+   * Operation was rejected due a conflict with an existing resource, e.g. attempted to create
+   * file or directory that already exists.
+   *
+   * Prefer this over RESOURCE_CONFLICT.
+   *
+   * Maps to:
+   * - google.rpc.Code: ALREADY_EXISTS = 6;
+   * - HTTP code: 409 Conflict
+   */
+  ALREADY_EXISTS: 'ALREADY_EXISTS',
+  /**
+   * The request does not have valid authentication (AuthN) credentials for the operation.
+   *
+   * Prefer this over CUSTOMER_UNAUTHORIZED, unless you need to keep consistent behavior with legacy
+   * code.
+   * For authorization (AuthZ) errors use PERMISSION_DENIED.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNAUTHENTICATED = 16;
+   * - HTTP code: 401 Unauthorized
+   */
+  UNAUTHENTICATED: 'UNAUTHENTICATED',
+  /**
+   * The service is currently unavailable. Please note that the unavailability may or may not be transient.
+   * That means if this is a non-transient condition, retrying it does not work. If the unavailability
+   * is certainly a transient condition, pleases use `TEMPORARILY_UNAVAILABLE` which signals its transient
+   * nature explicitly.
+   * An example of this error code’s use case is that when DNS resolution fails, the DNS resolver does
+   * not know whether it is because the domain name is completely wrong (non-transient situation) or
+   * the domain name is valid but the DNS server does not have an entry for this domain name yet (transient
+   * situation). Hence, `UNAVAILABLE`  is suitable for this case.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNAVAILABLE = 14;
+   * - HTTP code: 503 Service Unavailable
+   */
+  UNAVAILABLE: 'UNAVAILABLE',
+  /**
+   * Supplied value for a parameter was invalid (e.g., giving a number for a string parameter).
+   *
+   * Maps to:
+   * - google.rpc.Code: INVALID_ARGUMENT = 3;
+   * - HTTP code: 400 Bad Request
+   */
+  INVALID_PARAMETER_VALUE: 'INVALID_PARAMETER_VALUE',
+  /**
+   * Indicates that the given API endpoint does not exist. Legacy, when possible - NOT_IMPLEMENTED
+   * should be used instead to indicate that API doesn't exist.
+   *
+   * Maps to:
+   * - google.rpc.Code: NOT_FOUND = 5;
+   * - HTTP code: 404 Not Found
+   */
+  ENDPOINT_NOT_FOUND: 'ENDPOINT_NOT_FOUND',
+  /** Indicates that the given API request was malformed. */
+  MALFORMED_REQUEST: 'MALFORMED_REQUEST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * If one or more of the inputs to a given RPC are not in a valid state for the action.
+   */
+  INVALID_STATE: 'INVALID_STATE',
+  /**
+   * The caller does not have permission to execute the specified operation.
+   * PERMISSION_DENIED must not be used for rejections caused by exhausting some resource,
+   * use RESOURCE_EXHAUSTED instead for those errors.
+   * PERMISSION_DENIED must not be used if the caller can not be identified,
+   * use CUSTOMER_UNAUTHORIZED instead for those errors.
+   * This error code does not imply the request is valid or the requested entity exists or
+   * satisfies other pre-conditions.
+   *
+   * Maps to:
+   * - google.rpc.Code: PERMISSION_DENIED = 7;
+   * - HTTP code: 403 Forbidden
+   */
+  PERMISSION_DENIED: 'PERMISSION_DENIED',
+  /**
+   * NOTE: Deprecated due to inconsistent mapping in legacy code, see
+   * https://docs.google.com/document/d/17TZIKX_Y39cJMBr333lc-d5dTvvBLSu3DPUyGU5eMJg/edit?disco=AAAAzVGt6FA.
+   * Prefer using NOT_FOUND or PERMISSION_DENIED.
+   *
+   * If a given user/entity is trying to use a feature which has been disabled.
+   *
+   * Maps to:
+   * - google.rpc.Code: NOT_FOUND = 5;
+   * - HTTP code: 404 Not Found
+   */
+  FEATURE_DISABLED: 'FEATURE_DISABLED',
+  /**
+   * The request does not have valid authentication (AuthN) credentials for the operation.
+   *
+   * For authentication (AuthN) errors prefer using UNAUTHENTICATED, unless you need to keep
+   * consistent behavior with legacy code.
+   * For authorization (AuthZ) errors use PERMISSION_DENIED.
+   *
+   * Important: name is confusing, this error code is for authentication (AuthN) errors, not
+   * authorization (AuthZ) errors. It maps to 401 Unauthorized and suffers from the same confusing
+   * naming. See https://datatracker.ietf.org/doc/html/rfc7235#section-3.1 - "[...] status code
+   * indicates that the request has not been applied because it lacks valid authentication
+   * credentials for the target resource. [...] If the request included authentication credentials,
+   * then the 401 response indicates that authorization has been refused for those credentials."
+   *
+   * Also, see https://stackoverflow.com/a/6937030/16352922, it covers it pretty well.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNAUTHENTICATED = 16;
+   * - HTTP code: 401 Unauthorized
+   */
+  CUSTOMER_UNAUTHORIZED: 'CUSTOMER_UNAUTHORIZED',
+  /**
+   * The operation is rejected because of request rate limit, for example rate limiting applied to
+   * users, workspaces, IP addresses, etc.
+   *
+   * Prefer a more generic RESOURCE_EXHAUSTED for the new use cases.
+   *
+   * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
+   * for guideline on the rate limiting vs throttling.
+   *
+   * Maps to:
+   * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
+   * - HTTP code: 429 Too Many Requests
+   */
+  REQUEST_LIMIT_EXCEEDED: 'REQUEST_LIMIT_EXCEEDED',
+  /** Indicates API request was rejected due a conflict with an existing resource. */
+  RESOURCE_CONFLICT: 'RESOURCE_CONFLICT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * Indicates that the HTTP response cannot be correctly deserialized.
+   * This currently is only used in DUST test clients, and not by any real service code.
+   */
+  UNPARSEABLE_HTTP_ERROR: 'UNPARSEABLE_HTTP_ERROR',
+  /**
+   * The operation is not implemented or is not supported/enabled in this service.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNIMPLEMENTED = 12;
+   * - HTTP code: 501 Not Implemented
+   */
+  NOT_IMPLEMENTED: 'NOT_IMPLEMENTED',
+  /**
+   * Unrecoverable data loss or corruption.
+   *
+   * One of the major use cases is to indicate that server failed to validate the integrity of
+   * the request. This error can occur when the checksum specified in the `X-Databricks-Checksum`
+   * request header (or trailer) doesn't match the actual request content checksum.
+   *
+   * Note, in case of the severe corruption that results in a malformed request, the server may
+   * send a generic `400 Bad Request` response rather than sending this error code.
+   *
+   * Maps to:
+   * - google.rpc.Code: DATA_LOSS = 15;
+   * - HTTP code: 500 Internal Server Error
+   */
+  DATA_LOSS: 'DATA_LOSS',
+  /** If the user attempts to perform an invalid state transition on a shard. */
+  INVALID_STATE_TRANSITION: 'INVALID_STATE_TRANSITION',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * Unable to perform the operation because the shard was locked by some other operation.
+   */
+  COULD_NOT_ACQUIRE_LOCK: 'COULD_NOT_ACQUIRE_LOCK',
+  /**
+   * NOTE: Deprecated, prefer using ALREADY_EXISTS.
+   * Unlike ALREADY_EXISTS - this maps to HTTP code 400 Bad Request due to legacy reasons,
+   * remapping will be a backwards incompatible change.
+   *
+   * Operation was performed on a resource that already exists.
+   */
+  RESOURCE_ALREADY_EXISTS: 'RESOURCE_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated, prefer using NOT_FOUND - see the note for the RESOURCE_ALREADY_EXISTS,
+   * because this pair of codes is related and RESOURCE_ALREADY_EXISTS has bad mapping to the HTTP
+   * codes we added new error codes NOT_FOUND and ALREADY_EXISTS, and recommend to use them instead.
+   *
+   * Operation was performed on a resource that does not exist.
+   */
+  RESOURCE_DOES_NOT_EXIST: 'RESOURCE_DOES_NOT_EXIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MAX_BLOCK_SIZE_EXCEEDED: 'MAX_BLOCK_SIZE_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MAX_READ_SIZE_EXCEEDED: 'MAX_READ_SIZE_EXCEEDED',
+  PARTIAL_DELETE: 'PARTIAL_DELETE',
+  MAX_LIST_SIZE_EXCEEDED: 'MAX_LIST_SIZE_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DRY_RUN_FAILED: 'DRY_RUN_FAILED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * Cluster request was rejected because it would exceed a resource limit.
+   */
+  RESOURCE_LIMIT_EXCEEDED: 'RESOURCE_LIMIT_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DIRECTORY_NOT_EMPTY: 'DIRECTORY_NOT_EMPTY',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DIRECTORY_PROTECTED: 'DIRECTORY_PROTECTED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MAX_NOTEBOOK_SIZE_EXCEEDED: 'MAX_NOTEBOOK_SIZE_EXCEEDED',
+  MAX_CHILD_NODE_SIZE_EXCEEDED: 'MAX_CHILD_NODE_SIZE_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SEARCH_QUERY_TOO_LONG: 'SEARCH_QUERY_TOO_LONG',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SEARCH_QUERY_TOO_SHORT: 'SEARCH_QUERY_TOO_SHORT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST:
+    'MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  PERMISSION_NOT_PROPAGATED: 'PERMISSION_NOT_PROPAGATED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DEPLOYMENT_TIMEOUT: 'DEPLOYMENT_TIMEOUT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_CONFLICT: 'GIT_CONFLICT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_UNKNOWN_REF: 'GIT_UNKNOWN_REF',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_SENSITIVE_TOKEN_DETECTED: 'GIT_SENSITIVE_TOKEN_DETECTED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_URL_NOT_ON_ALLOW_LIST: 'GIT_URL_NOT_ON_ALLOW_LIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_REMOTE_ERROR: 'GIT_REMOTE_ERROR',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  PROJECTS_OPERATION_TIMEOUT: 'PROJECTS_OPERATION_TIMEOUT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  IPYNB_FILE_IN_REPO: 'IPYNB_FILE_IN_REPO',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  INSECURE_PARTNER_RESPONSE: 'INSECURE_PARTNER_RESPONSE',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MALFORMED_PARTNER_RESPONSE: 'MALFORMED_PARTNER_RESPONSE',
+  METASTORE_DOES_NOT_EXIST: 'METASTORE_DOES_NOT_EXIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DAC_DOES_NOT_EXIST: 'DAC_DOES_NOT_EXIST',
+  CATALOG_DOES_NOT_EXIST: 'CATALOG_DOES_NOT_EXIST',
+  SCHEMA_DOES_NOT_EXIST: 'SCHEMA_DOES_NOT_EXIST',
+  TABLE_DOES_NOT_EXIST: 'TABLE_DOES_NOT_EXIST',
+  SHARE_DOES_NOT_EXIST: 'SHARE_DOES_NOT_EXIST',
+  RECIPIENT_DOES_NOT_EXIST: 'RECIPIENT_DOES_NOT_EXIST',
+  STORAGE_CREDENTIAL_DOES_NOT_EXIST: 'STORAGE_CREDENTIAL_DOES_NOT_EXIST',
+  EXTERNAL_LOCATION_DOES_NOT_EXIST: 'EXTERNAL_LOCATION_DOES_NOT_EXIST',
+  PRINCIPAL_DOES_NOT_EXIST: 'PRINCIPAL_DOES_NOT_EXIST',
+  PROVIDER_DOES_NOT_EXIST: 'PROVIDER_DOES_NOT_EXIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  METASTORE_ALREADY_EXISTS: 'METASTORE_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DAC_ALREADY_EXISTS: 'DAC_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  CATALOG_ALREADY_EXISTS: 'CATALOG_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SCHEMA_ALREADY_EXISTS: 'SCHEMA_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  TABLE_ALREADY_EXISTS: 'TABLE_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SHARE_ALREADY_EXISTS: 'SHARE_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  RECIPIENT_ALREADY_EXISTS: 'RECIPIENT_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  STORAGE_CREDENTIAL_ALREADY_EXISTS: 'STORAGE_CREDENTIAL_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  EXTERNAL_LOCATION_ALREADY_EXISTS: 'EXTERNAL_LOCATION_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  PROVIDER_ALREADY_EXISTS: 'PROVIDER_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  CATALOG_NOT_EMPTY: 'CATALOG_NOT_EMPTY',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SCHEMA_NOT_EMPTY: 'SCHEMA_NOT_EMPTY',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  METASTORE_NOT_EMPTY: 'METASTORE_NOT_EMPTY',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  PROVIDER_SHARE_NOT_ACCESSIBLE: 'PROVIDER_SHARE_NOT_ACCESSIBLE',
+} as const;
+export type ErrorCode =
+  | (typeof ErrorCode)[keyof typeof ErrorCode]
+  | (string & {});
+
 /**
  * Scalar data types for request-time field definitions.
  * Only flat (non-nested) types are supported.
@@ -26,6 +532,46 @@ export const ScalarDataType = {
 } as const;
 export type ScalarDataType =
   | (typeof ScalarDataType)[keyof typeof ScalarDataType]
+  | (string & {});
+
+/** Lifecycle state of a backfill. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const BackfillOperationMetadata_State = {
+  /** The backfill state is unspecified. */
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  /** The backfill is pending. */
+  PENDING: 'PENDING',
+  /** The backfill is running. */
+  RUNNING: 'RUNNING',
+  /** The backfill succeeded. */
+  SUCCEEDED: 'SUCCEEDED',
+  /** The backfill failed. */
+  FAILED: 'FAILED',
+  /** The backfill was cancelled. */
+  CANCELLED: 'CANCELLED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type BackfillOperationMetadata_State =
+  | (typeof BackfillOperationMetadata_State)[keyof typeof BackfillOperationMetadata_State]
+  | (string & {});
+
+/** The way a materialization schedule is arrived at. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CronSchedule_Mode = {
+  /** Default value, not used. Treated as MANUAL. */
+  MODE_UNSPECIFIED: 'MODE_UNSPECIFIED',
+  /** The schedule is the hand-written cron_expression on this message. */
+  MANUAL: 'MANUAL',
+  /**
+   * The schedule is derived from the time settings of the features being materialized, so the
+   * pipeline runs as soon as the data each window needs is expected to have all arrived. The
+   * caller leaves cron_expression empty; the derived expression is filled in on the response.
+   */
+  DERIVED: 'DERIVED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type CronSchedule_Mode =
+  | (typeof CronSchedule_Mode)[keyof typeof CronSchedule_Mode]
   | (string & {});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -111,10 +657,18 @@ export interface AggregationFunction {
   timeWindow?: TimeWindow | undefined;
 }
 
+/** Databricks Error that is returned by all Databricks APIs. */
+export interface ApiError {
+  errorCode?: ErrorCode | undefined;
+  message?: string | undefined;
+  stackTrace?: string | undefined;
+  details?: Record<string, unknown>[] | undefined;
+}
+
 /** Computes the approximate count of distinct values. */
 export interface ApproxCountDistinctFunction {
   /** The input column from which the approximate count of distinct values is computed. */
-  input?: string | undefined;
+  input: string;
   /** The maximum relative standard deviation allowed (default defined by Spark). */
   relativeSd?: number | undefined;
 }
@@ -122,9 +676,9 @@ export interface ApproxCountDistinctFunction {
 /** Computes the approximate percentile of values. */
 export interface ApproxPercentileFunction {
   /** The input column from which the approximate percentile is computed. */
-  input?: string | undefined;
+  input: string;
   /** The percentile value to compute (between 0 and 1). */
-  percentile?: number | undefined;
+  percentile: number;
   /** The accuracy parameter (higher is more accurate but slower). */
   accuracy?: bigint | undefined;
 }
@@ -152,7 +706,38 @@ export interface AvgFunction {
    * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
    * compatibility but is deprecated; migrate to dot notation.
    */
-  input?: string | undefined;
+  input: string;
+}
+
+export interface BackfillFeaturesRequest {
+  /** Full names of the features to backfill. */
+  featureFullNames: string[];
+  /** Output ranges to backfill. */
+  backfillRanges: BackfillRange[];
+  /** Idempotency token for the request. */
+  requestId?: string | undefined;
+}
+
+/** Result of a completed backfill. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface BackfillFeaturesResponse {}
+
+/** Progress and configuration for a backfill. */
+export interface BackfillOperationMetadata {
+  /** Full names of the features targeted by the backfill. */
+  featureFullNames?: string[] | undefined;
+  /** Output ranges targeted by the backfill. */
+  backfillRanges?: BackfillRange[] | undefined;
+  /** Current state of the backfill. */
+  state?: BackfillOperationMetadata_State | undefined;
+}
+
+/** A time range for a backfill. */
+export interface BackfillRange {
+  /** Start of the backfill range, inclusive. If unset, defaults to the earliest source timestamp of the feature. */
+  startTime?: Temporal.Instant | undefined;
+  /** End of the backfill range, exclusive. If unset, defaults to the current time. */
+  endTime?: Temporal.Instant | undefined;
 }
 
 export interface BackfillSource {
@@ -176,7 +761,7 @@ export interface BackfillSource {
 
 export interface BatchCreateMaterializedFeaturesRequest {
   /** The requests to create materialized features. */
-  requests?: CreateMaterializedFeatureRequest[] | undefined;
+  requests: CreateMaterializedFeatureRequest[];
 }
 
 export interface BatchCreateMaterializedFeaturesResponse {
@@ -184,10 +769,16 @@ export interface BatchCreateMaterializedFeaturesResponse {
   materializedFeatures?: MaterializedFeature[] | undefined;
 }
 
+/** The request message for `CancelOperation` method. */
+export interface CancelOperationRequest {
+  /** The name of the operation resource to be cancelled. */
+  name?: string | undefined;
+}
+
 /** A ColumnSelection function, equivalent to the LAST() record of an entity over a lifetime window */
 export interface ColumnSelection {
   /** Column name from source to select as the feature value. */
-  column?: string | undefined;
+  column: string;
 }
 
 /** Computes the count of values. */
@@ -198,33 +789,40 @@ export interface CountFunction {
    * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
    * compatibility but is deprecated; migrate to dot notation.
    */
-  input?: string | undefined;
+  input: string;
 }
 
 export interface CreateFeatureRequest {
   /** Feature to create. */
-  feature?: Feature | undefined;
+  feature: Feature;
 }
 
 export interface CreateKafkaConfigRequest {
-  kafkaConfig?: KafkaConfig | undefined;
+  kafkaConfig: KafkaConfig;
 }
 
 export interface CreateMaterializedFeatureRequest {
   /** The materialized feature to create. */
-  materializedFeature?: MaterializedFeature | undefined;
+  materializedFeature: MaterializedFeature;
 }
 
 /** Create a Stream, a governed UC entity representing an external streaming data source. */
 export interface CreateStreamRequest {
   /** The Stream to create. */
-  stream?: Stream | undefined;
+  stream: Stream;
 }
 
 /** A cron-based schedule trigger for the materialization pipeline. */
 export interface CronSchedule {
-  /** The cron expression defining the schedule (e.g., "0 0 * * *" for daily at midnight). */
+  /**
+   * The cron expression defining the schedule (e.g., "0 0 * * *" for daily at midnight). The
+   * schedule is interpreted in the UTC time zone. Required when mode is MANUAL (or unset). Left
+   * empty when mode is DERIVED, where the service computes it (aligned to UTC) from the features'
+   * window timing and fills it in on the response.
+   */
   cronExpression?: string | undefined;
+  /** How the schedule is determined. Defaults to MANUAL when unset. */
+  mode?: CronSchedule_Mode | undefined;
 }
 
 /**
@@ -233,7 +831,7 @@ export interface CronSchedule {
  */
 export interface CustomUdf {
   /** Fully qualified 3-part Unity Catalog path of the function to apply. */
-  functionPath?: string | undefined;
+  functionPath: string;
   /**
    * Binds each UC function parameter to a source column.
    * May be empty for zero-argument functions (e.g. a timestamp generator).
@@ -274,28 +872,28 @@ export interface DataSource {
 
 export interface DeleteFeatureRequest {
   /** Name of the feature to delete. */
-  fullName?: string | undefined;
+  fullName: string;
 }
 
 export interface DeleteKafkaConfigRequest {
   /** Name of the Kafka config to delete. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeleteMaterializedFeatureRequest {
   /** The ID of the materialized feature to delete. */
-  materializedFeatureId?: string | undefined;
+  materializedFeatureId: string;
 }
 
 /** Delete a Stream by its full three-part name (catalog.schema.stream). */
 export interface DeleteStreamRequest {
   /** Full three-part name (catalog.schema.stream) of the Stream to delete. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeltaTableSource {
   /** The full three-part (catalog, schema, table) name of the Delta table. */
-  fullName?: string | undefined;
+  fullName: string;
   /** Single WHERE clause to filter delta table before applying transformations. Will be row-wise evaluated, so should only include conditionals and projections. */
   filterCondition?: string | undefined;
   /**
@@ -318,9 +916,9 @@ export interface DeltaTableSource {
  */
 export interface DirectMtlsConfig {
   /** A comma-separated list of host:port pairs for the Kafka bootstrap servers. */
-  bootstrapServers?: string | undefined;
+  bootstrapServers: string;
   /** Mutual-TLS authentication configuration. */
-  mtlsConfig?: MtlsConfig | undefined;
+  mtlsConfig: MtlsConfig;
 }
 
 /**
@@ -349,7 +947,7 @@ export interface EntityColumn {
    * Colon-prefixed notation (e.g., "value:user_id") is supported for backwards
    * compatibility but is deprecated; migrate to dot notation.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface Feature {
@@ -358,11 +956,11 @@ export interface Feature {
    * feature's resource identifier; the catalog_name, schema_name, and name fields
    * below are OUTPUT_ONLY decomposed views of this value.
    */
-  fullName?: string | undefined;
+  fullName: string;
   /** The data source of the feature. */
-  source?: DataSource | undefined;
+  source: DataSource;
   /** The function by which the feature is computed. */
-  function?: Function | undefined;
+  function: Function;
   /** The description of the feature. */
   description?: string | undefined;
   /**
@@ -395,31 +993,31 @@ export interface Feature {
  */
 export interface FieldDefinition {
   /** The name of the field. */
-  name?: string | undefined;
+  name: string;
   /** The scalar data type of the field. */
-  dataType?: ScalarDataType | undefined;
+  dataType: ScalarDataType;
 }
 
 /** Returns the first N distinct values, ordered by the feature's timeseries column. */
 export interface FirstDistinctFunction {
   /** The input column from which the first N distinct values are returned. */
-  input?: string | undefined;
+  input: string;
   /** The number of distinct values to return. */
-  n?: bigint | undefined;
+  n: bigint;
 }
 
 /** Returns the first value. */
 export interface FirstFunction {
   /** The input column from which the first value is returned. */
-  input?: string | undefined;
+  input: string;
 }
 
 /** Returns the first N values, ordered by the feature's timeseries column. */
 export interface FirstNFunction {
   /** The input column from which the first N values are returned. */
-  input?: string | undefined;
+  input: string;
   /** The number of values to return. */
-  n?: bigint | undefined;
+  n: bigint;
 }
 
 /**
@@ -428,7 +1026,7 @@ export interface FirstNFunction {
  */
 export interface FlatSchema {
   /** The list of fields in this schema. */
-  fields?: FieldDefinition[] | undefined;
+  fields: FieldDefinition[];
 }
 
 export interface Function {
@@ -453,23 +1051,29 @@ export interface Function {
 
 export interface GetFeatureRequest {
   /** Name of the feature to get. */
-  fullName?: string | undefined;
+  fullName: string;
 }
 
 export interface GetKafkaConfigRequest {
   /** Name of the Kafka config to get. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetMaterializedFeatureRequest {
   /** The ID of the materialized feature. */
-  materializedFeatureId?: string | undefined;
+  materializedFeatureId: string;
+}
+
+/** The request message for `GetOperation` method. */
+export interface GetOperationRequest {
+  /** The name of the operation resource. */
+  name?: string | undefined;
 }
 
 /** Get a Stream by its full three-part name (catalog.schema.stream). */
 export interface GetStreamRequest {
   /** Full three-part name (catalog.schema.stream) of the Stream to get. */
-  name?: string | undefined;
+  name: string;
 }
 
 /**
@@ -482,11 +1086,12 @@ export interface IngestionConfig {
    * This table contains both 1) forward-filled data from the Stream and 2) backfilled data from the BackfillSource (if provided).
    * This table is created and managed by <Databricks> and is deleted when the Stream is deleted.
    */
-  ingestionDestination?: IngestionDestination | undefined;
+  ingestionDestination: IngestionDestination;
   /**
    * A user-provided source for backfilling data. Historical data is used when creating a training set from streaming features linked to this Stream.
    * The backfill data stored in this location will be copied into the ingestion table for offline querying and training.
-   * The schema for this source must match exactly that of the key and payload schemas specified for this Stream.
+   * The schema for this source must match exactly that of the key and payload schemas specified for this Stream,
+   * except that it may omit any columns listed in excluded_columns.
    */
   backfillSource?: BackfillSource | undefined;
   /**
@@ -520,9 +1125,9 @@ export interface IngestionDestination {
 /** Binds a single UC function parameter to a source column. */
 export interface InputBinding {
   /** Name of the UC function parameter. */
-  parameter?: string | undefined;
+  parameter: string;
   /** Source column whose value is passed for this parameter at execution time. */
-  column?: string | undefined;
+  column: string;
 }
 
 export interface JobContext {
@@ -537,13 +1142,13 @@ export interface KafkaConfig {
    * Name that uniquely identifies this Kafka config within the metastore. This will be the identifier used from the Feature object to reference these configs for a feature.
    * Can be distinct from topic name.
    */
-  name?: string | undefined;
+  name: string;
   /** A comma-separated list of host/port pairs pointing to Kafka cluster. */
-  bootstrapServers?: string | undefined;
+  bootstrapServers: string;
   /** Options to configure which Kafka topics to pull data from. */
-  subscriptionMode?: SubscriptionMode | undefined;
+  subscriptionMode: SubscriptionMode;
   /** Authentication configuration for connection to topics. */
-  authConfig?: AuthConfig | undefined;
+  authConfig: AuthConfig;
   /** Schema configuration for extracting message keys from topics. At least one of key_schema and value_schema must be provided. */
   keySchema?: SchemaConfig | undefined;
   /** Schema configuration for extracting message values from topics. At least one of key_schema and value_schema must be provided. */
@@ -565,7 +1170,7 @@ export interface KafkaConfig {
 
 export interface KafkaSource {
   /** Name of the Kafka source, used to identify it. This is used to look up the corresponding KafkaConfig object. Can be distinct from topic name. */
-  name?: string | undefined;
+  name: string;
   /** The filter condition applied to the source data before aggregation. */
   filterCondition?: string | undefined;
 }
@@ -573,7 +1178,7 @@ export interface KafkaSource {
 /** Kafka-specific configuration for a Stream. */
 export interface KafkaStreamConfig {
   /** Options to configure which Kafka topics to pull data from. */
-  subscriptionMode?: KafkaSubscriptionMode | undefined;
+  subscriptionMode: KafkaSubscriptionMode;
   /**
    * Optional Kafka source or consumer options, validated against a server-side
    * allowlist at request time. Allowed keys:
@@ -641,6 +1246,18 @@ export interface KinesisStreamConfig {
     | undefined;
   /**
    * Optional Kinesis source options, validated against a server-side allowlist at request time.
+   * Allowed keys:
+   * - `consumerMode`
+   * - `consumerNamePrefix`
+   * - `maxFetchRate`
+   * - `minFetchPeriod`
+   * - `maxFetchDuration`
+   * - `maxRecordsPerFetch`
+   * - `shardsPerTask`
+   * - `fetchBufferSize`
+   * - `shardFetchInterval`
+   * `consumerMode` must be `efo` or `polling` (case-insensitive).
+   * `maxRecordsPerFetch` applies only during ingestion and does not affect the materialization pipeline.
    * Auth and connection details belong on the parent Stream's `connection_config`, not here.
    */
   extraOptions?: Record<string, string> | undefined;
@@ -649,23 +1266,23 @@ export interface KinesisStreamConfig {
 /** Returns the last N distinct values, ordered by the feature's timeseries column. */
 export interface LastDistinctFunction {
   /** The input column from which the last N distinct values are returned. */
-  input?: string | undefined;
+  input: string;
   /** The number of distinct values to return. */
-  n?: bigint | undefined;
+  n: bigint;
 }
 
 /** Returns the last value. */
 export interface LastFunction {
   /** The input column from which the last value is returned. */
-  input?: string | undefined;
+  input: string;
 }
 
 /** Returns the last N values, ordered by the feature's timeseries column. */
 export interface LastNFunction {
   /** The input column from which the last N values are returned. */
-  input?: string | undefined;
+  input: string;
   /** The number of values to return. */
-  n?: bigint | undefined;
+  n: bigint;
 }
 
 /** Lineage context information for tracking where an API was invoked. This will allow us to track lineage, which currently uses caller entity information for use across the Lineage Client and Observability in Lumberjack. */
@@ -686,9 +1303,9 @@ export interface ListFeaturesRequest {
   /** The maximum number of results to return. */
   pageSize?: number | undefined;
   /** Name of parent catalog for features of interest. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /** Name of parent schema relative to its parent catalog. */
-  schemaName?: string | undefined;
+  schemaName: string;
 }
 
 export interface ListFeaturesResponse {
@@ -707,7 +1324,7 @@ export interface ListKafkaConfigsRequest {
 
 export interface ListKafkaConfigsResponse {
   /** List of Kafka configs. Schemas are not included in the response. */
-  kafkaConfigs?: KafkaConfig[] | undefined;
+  kafkaConfigs: KafkaConfig[];
   /** Pagination token to request the next page of results for this query. */
   nextPageToken?: string | undefined;
 }
@@ -771,7 +1388,7 @@ export interface MaterializedFeature {
   /** Server-assigned unique identifier for the materialized feature. */
   materializedFeatureId?: string | undefined;
   /** The full name of the feature in Unity Catalog. */
-  featureName?: string | undefined;
+  featureName: string;
   destination?:
     | {
         $case: 'offlineStoreConfig';
@@ -820,18 +1437,20 @@ export interface MaterializedFeature {
         streamingMode: StreamingMode;
       }
     | undefined;
+  /** Name of the latest backfill operation on this materialized feature. Format: operations/{operation_id}. */
+  latestBackfillOperation?: string | undefined;
 }
 
 /** Computes the maximum value. */
 export interface MaxFunction {
   /** The input column from which the maximum is computed. */
-  input?: string | undefined;
+  input: string;
 }
 
 /** Computes the minimum value. */
 export interface MinFunction {
   /** The input column from which the minimum is computed. */
-  input?: string | undefined;
+  input: string;
 }
 
 /**
@@ -853,23 +1472,23 @@ export interface MtlsConfig {
    * and private key. e.g. "/Volumes/<catalog>/<schema>/<volume>/client.jks". The
    * materialization compute must have read permission on this volume.
    */
-  keystoreLocation?: string | undefined;
+  keystoreLocation: string;
   /** Secret-scope reference for the JKS keystore password. */
-  keystorePasswordRef?: SecretScopeReference | undefined;
+  keystorePasswordRef: SecretScopeReference;
   /**
    * Secret-scope reference for the private key password. Often the same value as the
    * keystore password (keytool's default), but provided as a separate field because
    * Apache Kafka requires it as a distinct option (kafka.ssl.key.password).
    */
-  keyPasswordRef?: SecretScopeReference | undefined;
+  keyPasswordRef: SecretScopeReference;
   /**
    * Unity Catalog volume path to the JKS truststore file containing the CA certificate(s)
    * trusted to verify the Kafka broker's server certificate.
    * e.g. "/Volumes/<catalog>/<schema>/<volume>/truststore.jks".
    */
-  truststoreLocation?: string | undefined;
+  truststoreLocation: string;
   /** Secret-scope reference for the JKS truststore password. */
-  truststorePasswordRef?: SecretScopeReference | undefined;
+  truststorePasswordRef: SecretScopeReference;
   /**
    * Set to true only when the broker certificate's SAN intentionally does not match
    * the connection endpoint — for example when reaching the cluster through a
@@ -886,14 +1505,14 @@ export interface MtlsConfig {
 /** Configuration for offline store destination. */
 export interface OfflineStoreConfig {
   /** The Unity Catalog catalog name. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /** The Unity Catalog schema name. */
-  schemaName?: string | undefined;
+  schemaName: string;
   /**
    * Prefix for Unity Catalog table name.
    * The materialized feature will be stored in a table with this prefix and a generated postfix.
    */
-  tableNamePrefix?: string | undefined;
+  tableNamePrefix: string;
 }
 
 /** Configuration for online store destination. */
@@ -902,19 +1521,62 @@ export interface OnlineStoreConfig {
    * The Unity Catalog catalog name. This name is also used as the Lakebase logical database name.
    * Quoting is handled by the backend where needed, do not pre-quote it.
    */
-  catalogName?: string | undefined;
+  catalogName: string;
   /**
    * The Unity Catalog schema name. This name is also used as the Lakebase schema name under the database.
    * Quoting is handled by the backend where needed, do not pre-quote it.
    */
-  schemaName?: string | undefined;
+  schemaName: string;
   /**
    * Prefix for Unity Catalog table name.
    * The materialized feature will be stored in a Lakebase table with this prefix and a generated postfix.
    */
-  tableNamePrefix?: string | undefined;
+  tableNamePrefix: string;
   /** The name of the target online store. */
-  onlineStoreName?: string | undefined;
+  onlineStoreName: string;
+}
+
+/**
+ * This resource represents a long-running operation that is the result of a
+ * network API call.
+ */
+export interface Operation {
+  /**
+   * The server-assigned name, which is only unique within the same service that
+   * originally returns it. If you use the default HTTP mapping, the
+   * `name` should be a resource name ending with `operations/{unique_id}`.
+   */
+  name?: string | undefined;
+  /**
+   * Service-specific metadata associated with the operation.  It typically
+   * contains progress information and common metadata such as create time.
+   * Some services might not provide such metadata.
+   */
+  metadata?: Record<string, unknown> | undefined;
+  /**
+   * If the value is `false`, it means the operation is still in progress.
+   * If `true`, the operation is completed, and either `error` or `response` is
+   * available.
+   */
+  done?: boolean | undefined;
+  /**
+   * The operation result, which can be either an `error` or a valid `response`.
+   * If `done` == `false`, neither `error` nor `response` is set.
+   * If `done` == `true`, exactly one of `error` or `response` can be set.
+   * Some services might not provide the result.
+   */
+  result?:
+    | {
+        $case: 'error';
+        /** The error result of the operation in case of failure or cancellation. */
+        error: ApiError;
+      }
+    | {
+        $case: 'response';
+        /** The normal, successful response of the operation. */
+        response: Record<string, unknown>;
+      }
+    | undefined;
 }
 
 /**
@@ -926,14 +1588,14 @@ export interface ProtoSchemaSpec {
    * The raw .proto file text (proto2 and proto3 syntax supported, see
    * https://protobuf.dev/programming-guides/proto3/ and https://protobuf.dev/programming-guides/proto2/).
    */
-  schemaText?: string | undefined;
+  schemaText: string;
   /**
    * The fully-qualified name of the message within schema_text that describes the Kafka payload
    * (e.g. "Event" or "com.example.Event" if schema_text declares a package). Identifies which
    * message is used to decode each Kafka record — a .proto file may declare multiple messages
    * but only one represents the payload. Must not be empty.
    */
-  messageName?: string | undefined;
+  messageName: string;
 }
 
 /** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
@@ -1016,7 +1678,7 @@ export interface SchemaLocator {
       }
     | undefined;
   /** Serialization format for this schema. */
-  format?: SchemaLocator_Format | undefined;
+  format: SchemaLocator_Format;
 }
 
 /**
@@ -1033,7 +1695,7 @@ export interface SchemaLocator {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SchemaLocator_ConfluentSchema {
   /** The Confluent schema registry subject name. */
-  subject?: string | undefined;
+  subject: string;
 }
 
 /** Configuration for resolving a Stream's schema from an external schema registry (e.g. Confluent). */
@@ -1041,7 +1703,7 @@ export interface SchemaRegistryConfig {
   /** A Schema Registry UC Connection object. */
   ucConnection?: string | undefined;
   /** Reference to the schema registry API secret in a <Databricks> secret scope. */
-  apiSecretRef?: SecretScopeReference | undefined;
+  apiSecretRef: SecretScopeReference;
   /**
    * Schema locator for the message payload. For Kafka this is the value.
    * At least one of payload_schema_locator or key_schema_locator must be set.
@@ -1060,9 +1722,9 @@ export interface SchemaRegistryConfig {
  */
 export interface SecretScopeReference {
   /** The <Databricks> secret scope name. */
-  scope?: string | undefined;
+  scope: string;
   /** The key within the scope. */
-  key?: string | undefined;
+  key: string;
 }
 
 export interface SlidingWindow {
@@ -1072,7 +1734,7 @@ export interface SlidingWindow {
    */
   windowDuration?: Temporal.Duration | undefined;
   /** The slide duration (interval by which windows advance, must be positive and less than duration). */
-  slideDuration?: Temporal.Duration | undefined;
+  slideDuration: Temporal.Duration;
   /**
    * Non-negative analytic lag that evaluates the window this far in the past. Use this for timing
    * variations unrelated to source lateness, such as a 30-day count as of one week ago. If unset,
@@ -1107,13 +1769,13 @@ export interface StddevPopFunction {
    * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
    * compatibility but is deprecated; migrate to dot notation.
    */
-  input?: string | undefined;
+  input: string;
 }
 
 /** Computes the sample standard deviation. */
 export interface StddevSampFunction {
   /** The input column from which the sample standard deviation is computed. */
-  input?: string | undefined;
+  input: string;
 }
 
 /**
@@ -1122,20 +1784,35 @@ export interface StddevSampFunction {
  */
 export interface Stream {
   /** Full three-part (catalog.schema.stream) name of the stream. */
-  name?: string | undefined;
+  name: string;
   /** User-provided description. */
   description?: string | undefined;
   /** Source-specific configuration. Determines the streaming platform source. */
-  sourceConfig?: StreamSourceConfig | undefined;
+  sourceConfig: StreamSourceConfig;
   /** Specifies how to connect and authenticate to the stream platform. */
-  connectionConfig?: StreamConnectionConfig | undefined;
+  connectionConfig: StreamConnectionConfig;
   /**
    * Schema definitions for the stream, provided either directly on the Stream or
    * resolved from an external schema registry through a UC Connection.
    */
-  schemaConfig?: StreamSchemaConfig | undefined;
+  schemaConfig: StreamSchemaConfig;
   /** Configuration for streaming data ingestion: the managed table storing an offline copy of forward fill data and optional historical backfill. */
-  ingestionConfig?: IngestionConfig | undefined;
+  ingestionConfig: IngestionConfig;
+  /**
+   * Optional SQL predicate to filter which record types from a streaming channel (e.g. a topic for Kafka) belong to this Stream.
+   * Events that do not match are not written to the ingestion table and are not used in materialization.
+   * Example: "value.event_type = 'transaction'".
+   */
+  recordTypeFilter?: string | undefined;
+  /**
+   * Column paths (dot notation, e.g. "value.email" for Kafka) to drop.
+   * A path may reference a struct, in which case all of its nested fields are dropped (e.g. "value.address" drops "value.address.city" and "value.address.zip").
+   * These columns are not written to the ingestion table and cannot be referenced by any feature.
+   * They are dropped from ingestion, backfill, and materialization.
+   * For direct schemas, each column must exist in the relevant key or payload schema. With a schema registry, a column can be excluded before it exists.
+   * A column cannot also be a deduplication column in the ingestion_config.
+   */
+  excludedColumns?: string[] | undefined;
   /** Time at which this Stream was created. */
   createTime?: Temporal.Instant | undefined;
   /** Username of the Stream creator. */
@@ -1211,7 +1888,7 @@ export interface StreamSchemaConfig {
 /** A Stream entity used as a data source for a feature. */
 export interface StreamSource {
   /** Three-part full name of the Stream (catalog.schema.stream). */
-  fullName?: string | undefined;
+  fullName: string;
   /** The filter condition applied to the source data before aggregation. */
   filterCondition?: string | undefined;
   /**
@@ -1287,7 +1964,7 @@ export interface SumFunction {
    * Colon-prefixed notation (e.g., "value:amount") is supported for backwards
    * compatibility but is deprecated; migrate to dot notation.
    */
-  input?: string | undefined;
+  input: string;
 }
 
 /** A trigger that fires when the upstream source table changes. */
@@ -1313,6 +1990,7 @@ export interface TimeWindow {
    * tumbling and fixed-duration sliding windows first emit at an offset-aligned boundary after a
    * full window can be formed. If unset, lifetime sliding windows and rolling windows emit as soon as
    * eligible source data exists.
+   * Not currently supported for sawtooth windows or for Features with a stream source.
    */
   startTime?: Temporal.Instant | undefined;
 }
@@ -1326,12 +2004,12 @@ export interface TimeseriesColumn {
    * Colon-prefixed notation (e.g., "value:event_timestamp") is supported for
    * backwards compatibility but is deprecated; migrate to dot notation.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface TumblingWindow {
   /** The duration of each tumbling window (non-overlapping, fixed-duration windows). */
-  windowDuration?: Temporal.Duration | undefined;
+  windowDuration: Temporal.Duration;
   /**
    * Non-negative analytic lag that evaluates the window this far in the past. Use this for timing
    * variations unrelated to source lateness, such as a 30-day count as of one week ago. If unset,
@@ -1348,46 +2026,46 @@ export interface TumblingWindow {
 
 export interface UpdateFeatureRequest {
   /** Feature to update. */
-  feature?: Feature | undefined;
+  feature: Feature;
   /** The list of fields to update. */
-  updateMask?: FieldMask<Feature> | undefined;
+  updateMask: FieldMask<Feature>;
 }
 
 export interface UpdateKafkaConfigRequest {
   /** The Kafka config to update. */
-  kafkaConfig?: KafkaConfig | undefined;
+  kafkaConfig: KafkaConfig;
   /** The list of fields to update. */
-  updateMask?: FieldMask<KafkaConfig> | undefined;
+  updateMask: FieldMask<KafkaConfig>;
 }
 
 export interface UpdateMaterializedFeatureRequest {
   /** The materialized feature to update. */
-  materializedFeature?: MaterializedFeature | undefined;
+  materializedFeature: MaterializedFeature;
   /**
    * Provide the materialization feature fields which should be updated.
    * Currently, only the pipeline_state field can be updated.
    */
-  updateMask?: FieldMask<MaterializedFeature> | undefined;
+  updateMask: FieldMask<MaterializedFeature>;
 }
 
 /** Update a Stream. Only fields listed in `update_mask` are mutated. */
 export interface UpdateStreamRequest {
   /** The Stream to update. */
-  stream?: Stream | undefined;
+  stream: Stream;
   /** The list of fields to update. */
-  updateMask?: FieldMask<Stream> | undefined;
+  updateMask: FieldMask<Stream>;
 }
 
 /** Computes the population variance. */
 export interface VarPopFunction {
   /** The input column from which the population variance is computed. */
-  input?: string | undefined;
+  input: string;
 }
 
 /** Computes the sample variance. */
 export interface VarSampFunction {
   /** The input column from which the sample variance is computed. */
-  input?: string | undefined;
+  input: string;
 }
 
 export const unmarshalAggregationFunctionSchema: z.ZodType<AggregationFunction> =
@@ -1487,10 +2165,24 @@ export const unmarshalAggregationFunctionSchema: z.ZodType<AggregationFunction> 
       timeWindow: d.time_window,
     }));
 
+export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
+  .object({
+    error_code: z.string().optional(),
+    message: z.string().optional(),
+    stack_trace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    errorCode: d.error_code,
+    message: d.message,
+    stackTrace: d.stack_trace,
+    details: d.details,
+  }));
+
 export const unmarshalApproxCountDistinctFunctionSchema: z.ZodType<ApproxCountDistinctFunction> =
   z
     .object({
-      input: z.string().optional(),
+      input: z.string(),
       relative_sd: z.number().optional(),
     })
     .transform(d => ({
@@ -1501,8 +2193,8 @@ export const unmarshalApproxCountDistinctFunctionSchema: z.ZodType<ApproxCountDi
 export const unmarshalApproxPercentileFunctionSchema: z.ZodType<ApproxPercentileFunction> =
   z
     .object({
-      input: z.string().optional(),
-      percentile: z.number().optional(),
+      input: z.string(),
+      percentile: z.number(),
       accuracy: z
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
@@ -1533,10 +2225,44 @@ export const unmarshalAuthConfigSchema: z.ZodType<AuthConfig> = z
 
 export const unmarshalAvgFunctionSchema: z.ZodType<AvgFunction> = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
+  }));
+
+export const unmarshalBackfillFeaturesResponseSchema: z.ZodType<BackfillFeaturesResponse> =
+  z.object({});
+
+export const unmarshalBackfillOperationMetadataSchema: z.ZodType<BackfillOperationMetadata> =
+  z
+    .object({
+      feature_full_names: z.array(z.string()).optional(),
+      backfill_ranges: z
+        .array(z.lazy(() => unmarshalBackfillRangeSchema))
+        .optional(),
+      state: z.string().optional(),
+    })
+    .transform(d => ({
+      featureFullNames: d.feature_full_names,
+      backfillRanges: d.backfill_ranges,
+      state: d.state,
+    }));
+
+export const unmarshalBackfillRangeSchema: z.ZodType<BackfillRange> = z
+  .object({
+    start_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    end_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+  })
+  .transform(d => ({
+    startTime: d.start_time,
+    endTime: d.end_time,
   }));
 
 export const unmarshalBackfillSourceSchema: z.ZodType<BackfillSource> = z
@@ -1574,7 +2300,7 @@ export const unmarshalBatchCreateMaterializedFeaturesResponseSchema: z.ZodType<B
 
 export const unmarshalColumnSelectionSchema: z.ZodType<ColumnSelection> = z
   .object({
-    column: z.string().optional(),
+    column: z.string(),
   })
   .transform(d => ({
     column: d.column,
@@ -1582,7 +2308,7 @@ export const unmarshalColumnSelectionSchema: z.ZodType<ColumnSelection> = z
 
 export const unmarshalCountFunctionSchema: z.ZodType<CountFunction> = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -1591,14 +2317,16 @@ export const unmarshalCountFunctionSchema: z.ZodType<CountFunction> = z
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
     cron_expression: z.string().optional(),
+    mode: z.string().optional(),
   })
   .transform(d => ({
     cronExpression: d.cron_expression,
+    mode: d.mode,
   }));
 
 export const unmarshalCustomUdfSchema: z.ZodType<CustomUdf> = z
   .object({
-    function_path: z.string().optional(),
+    function_path: z.string(),
     input_bindings: z
       .array(z.lazy(() => unmarshalInputBindingSchema))
       .optional(),
@@ -1637,7 +2365,7 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
 
 export const unmarshalDeltaTableSourceSchema: z.ZodType<DeltaTableSource> = z
   .object({
-    full_name: z.string().optional(),
+    full_name: z.string(),
     filter_condition: z.string().optional(),
     transformation_sql: z.string().optional(),
     dataframe_schema: z.string().optional(),
@@ -1651,8 +2379,8 @@ export const unmarshalDeltaTableSourceSchema: z.ZodType<DeltaTableSource> = z
 
 export const unmarshalDirectMtlsConfigSchema: z.ZodType<DirectMtlsConfig> = z
   .object({
-    bootstrap_servers: z.string().optional(),
-    mtls_config: z.lazy(() => unmarshalMtlsConfigSchema).optional(),
+    bootstrap_servers: z.string(),
+    mtls_config: z.lazy(() => unmarshalMtlsConfigSchema),
   })
   .transform(d => ({
     bootstrapServers: d.bootstrap_servers,
@@ -1671,7 +2399,7 @@ export const unmarshalDirectSchemasSchema: z.ZodType<DirectSchemas> = z
 
 export const unmarshalEntityColumnSchema: z.ZodType<EntityColumn> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -1679,9 +2407,9 @@ export const unmarshalEntityColumnSchema: z.ZodType<EntityColumn> = z
 
 export const unmarshalFeatureSchema: z.ZodType<Feature> = z
   .object({
-    full_name: z.string().optional(),
-    source: z.lazy(() => unmarshalDataSourceSchema).optional(),
-    function: z.lazy(() => unmarshalFunctionSchema).optional(),
+    full_name: z.string(),
+    source: z.lazy(() => unmarshalDataSourceSchema),
+    function: z.lazy(() => unmarshalFunctionSchema),
     description: z.string().optional(),
     lineage_context: z.lazy(() => unmarshalLineageContextSchema).optional(),
     entities: z.array(z.lazy(() => unmarshalEntityColumnSchema)).optional(),
@@ -1712,8 +2440,8 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
 
 export const unmarshalFieldDefinitionSchema: z.ZodType<FieldDefinition> = z
   .object({
-    name: z.string().optional(),
-    data_type: z.string().optional(),
+    name: z.string(),
+    data_type: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -1723,11 +2451,10 @@ export const unmarshalFieldDefinitionSchema: z.ZodType<FieldDefinition> = z
 export const unmarshalFirstDistinctFunctionSchema: z.ZodType<FirstDistinctFunction> =
   z
     .object({
-      input: z.string().optional(),
+      input: z.string(),
       n: z
         .union([z.number(), z.bigint(), z.string()])
-        .transform(v => BigInt(v))
-        .optional(),
+        .transform(v => BigInt(v)),
     })
     .transform(d => ({
       input: d.input,
@@ -1736,7 +2463,7 @@ export const unmarshalFirstDistinctFunctionSchema: z.ZodType<FirstDistinctFuncti
 
 export const unmarshalFirstFunctionSchema: z.ZodType<FirstFunction> = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -1744,11 +2471,8 @@ export const unmarshalFirstFunctionSchema: z.ZodType<FirstFunction> = z
 
 export const unmarshalFirstNFunctionSchema: z.ZodType<FirstNFunction> = z
   .object({
-    input: z.string().optional(),
-    n: z
-      .union([z.number(), z.bigint(), z.string()])
-      .transform(v => BigInt(v))
-      .optional(),
+    input: z.string(),
+    n: z.union([z.number(), z.bigint(), z.string()]).transform(v => BigInt(v)),
   })
   .transform(d => ({
     input: d.input,
@@ -1757,7 +2481,7 @@ export const unmarshalFirstNFunctionSchema: z.ZodType<FirstNFunction> = z
 
 export const unmarshalFlatSchemaSchema: z.ZodType<FlatSchema> = z
   .object({
-    fields: z.array(z.lazy(() => unmarshalFieldDefinitionSchema)).optional(),
+    fields: z.array(z.lazy(() => unmarshalFieldDefinitionSchema)),
   })
   .transform(d => ({
     fields: d.fields,
@@ -1790,9 +2514,7 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
 
 export const unmarshalIngestionConfigSchema: z.ZodType<IngestionConfig> = z
   .object({
-    ingestion_destination: z
-      .lazy(() => unmarshalIngestionDestinationSchema)
-      .optional(),
+    ingestion_destination: z.lazy(() => unmarshalIngestionDestinationSchema),
     backfill_source: z.lazy(() => unmarshalBackfillSourceSchema).optional(),
     deduplication_columns: z.array(z.string()).optional(),
     ingestion_pipeline_id: z.string().optional(),
@@ -1831,8 +2553,8 @@ export const unmarshalIngestionDestinationSchema: z.ZodType<IngestionDestination
 
 export const unmarshalInputBindingSchema: z.ZodType<InputBinding> = z
   .object({
-    parameter: z.string().optional(),
-    column: z.string().optional(),
+    parameter: z.string(),
+    column: z.string(),
   })
   .transform(d => ({
     parameter: d.parameter,
@@ -1857,10 +2579,10 @@ export const unmarshalJobContextSchema: z.ZodType<JobContext> = z
 
 export const unmarshalKafkaConfigSchema: z.ZodType<KafkaConfig> = z
   .object({
-    name: z.string().optional(),
-    bootstrap_servers: z.string().optional(),
-    subscription_mode: z.lazy(() => unmarshalSubscriptionModeSchema).optional(),
-    auth_config: z.lazy(() => unmarshalAuthConfigSchema).optional(),
+    name: z.string(),
+    bootstrap_servers: z.string(),
+    subscription_mode: z.lazy(() => unmarshalSubscriptionModeSchema),
+    auth_config: z.lazy(() => unmarshalAuthConfigSchema),
     key_schema: z.lazy(() => unmarshalSchemaConfigSchema).optional(),
     value_schema: z.lazy(() => unmarshalSchemaConfigSchema).optional(),
     extra_options: z.record(z.string(), z.string()).optional(),
@@ -1881,7 +2603,7 @@ export const unmarshalKafkaConfigSchema: z.ZodType<KafkaConfig> = z
 
 export const unmarshalKafkaSourceSchema: z.ZodType<KafkaSource> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     filter_condition: z.string().optional(),
   })
   .transform(d => ({
@@ -1891,9 +2613,7 @@ export const unmarshalKafkaSourceSchema: z.ZodType<KafkaSource> = z
 
 export const unmarshalKafkaStreamConfigSchema: z.ZodType<KafkaStreamConfig> = z
   .object({
-    subscription_mode: z
-      .lazy(() => unmarshalKafkaSubscriptionModeSchema)
-      .optional(),
+    subscription_mode: z.lazy(() => unmarshalKafkaSubscriptionModeSchema),
     extra_options: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -1942,11 +2662,10 @@ export const unmarshalKinesisStreamConfigSchema: z.ZodType<KinesisStreamConfig> 
 export const unmarshalLastDistinctFunctionSchema: z.ZodType<LastDistinctFunction> =
   z
     .object({
-      input: z.string().optional(),
+      input: z.string(),
       n: z
         .union([z.number(), z.bigint(), z.string()])
-        .transform(v => BigInt(v))
-        .optional(),
+        .transform(v => BigInt(v)),
     })
     .transform(d => ({
       input: d.input,
@@ -1955,7 +2674,7 @@ export const unmarshalLastDistinctFunctionSchema: z.ZodType<LastDistinctFunction
 
 export const unmarshalLastFunctionSchema: z.ZodType<LastFunction> = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -1963,11 +2682,8 @@ export const unmarshalLastFunctionSchema: z.ZodType<LastFunction> = z
 
 export const unmarshalLastNFunctionSchema: z.ZodType<LastNFunction> = z
   .object({
-    input: z.string().optional(),
-    n: z
-      .union([z.number(), z.bigint(), z.string()])
-      .transform(v => BigInt(v))
-      .optional(),
+    input: z.string(),
+    n: z.union([z.number(), z.bigint(), z.string()]).transform(v => BigInt(v)),
   })
   .transform(d => ({
     input: d.input,
@@ -2001,9 +2717,7 @@ export const unmarshalListFeaturesResponseSchema: z.ZodType<ListFeaturesResponse
 export const unmarshalListKafkaConfigsResponseSchema: z.ZodType<ListKafkaConfigsResponse> =
   z
     .object({
-      kafka_configs: z
-        .array(z.lazy(() => unmarshalKafkaConfigSchema))
-        .optional(),
+      kafka_configs: z.array(z.lazy(() => unmarshalKafkaConfigSchema)),
       next_page_token: z.string().optional(),
     })
     .transform(d => ({
@@ -2039,7 +2753,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
   z
     .object({
       materialized_feature_id: z.string().optional(),
-      feature_name: z.string().optional(),
+      feature_name: z.string(),
       offline_store_config: z
         .lazy(() => unmarshalOfflineStoreConfigSchema)
         .optional(),
@@ -2058,6 +2772,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
         .optional(),
       table_trigger: z.lazy(() => unmarshalTableTriggerSchema).optional(),
       streaming_mode: z.lazy(() => unmarshalStreamingModeSchema).optional(),
+      latest_backfill_operation: z.string().optional(),
     })
     .transform(d => ({
       materializedFeatureId: d.materialized_feature_id,
@@ -2092,11 +2807,12 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
                   streamingMode: d.streaming_mode,
                 }
               : undefined,
+      latestBackfillOperation: d.latest_backfill_operation,
     }));
 
 export const unmarshalMaxFunctionSchema: z.ZodType<MaxFunction> = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -2104,7 +2820,7 @@ export const unmarshalMaxFunctionSchema: z.ZodType<MaxFunction> = z
 
 export const unmarshalMinFunctionSchema: z.ZodType<MinFunction> = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -2112,17 +2828,11 @@ export const unmarshalMinFunctionSchema: z.ZodType<MinFunction> = z
 
 export const unmarshalMtlsConfigSchema: z.ZodType<MtlsConfig> = z
   .object({
-    keystore_location: z.string().optional(),
-    keystore_password_ref: z
-      .lazy(() => unmarshalSecretScopeReferenceSchema)
-      .optional(),
-    key_password_ref: z
-      .lazy(() => unmarshalSecretScopeReferenceSchema)
-      .optional(),
-    truststore_location: z.string().optional(),
-    truststore_password_ref: z
-      .lazy(() => unmarshalSecretScopeReferenceSchema)
-      .optional(),
+    keystore_location: z.string(),
+    keystore_password_ref: z.lazy(() => unmarshalSecretScopeReferenceSchema),
+    key_password_ref: z.lazy(() => unmarshalSecretScopeReferenceSchema),
+    truststore_location: z.string(),
+    truststore_password_ref: z.lazy(() => unmarshalSecretScopeReferenceSchema),
     disable_hostname_verification: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2137,9 +2847,9 @@ export const unmarshalMtlsConfigSchema: z.ZodType<MtlsConfig> = z
 export const unmarshalOfflineStoreConfigSchema: z.ZodType<OfflineStoreConfig> =
   z
     .object({
-      catalog_name: z.string().optional(),
-      schema_name: z.string().optional(),
-      table_name_prefix: z.string().optional(),
+      catalog_name: z.string(),
+      schema_name: z.string(),
+      table_name_prefix: z.string(),
     })
     .transform(d => ({
       catalogName: d.catalog_name,
@@ -2149,10 +2859,10 @@ export const unmarshalOfflineStoreConfigSchema: z.ZodType<OfflineStoreConfig> =
 
 export const unmarshalOnlineStoreConfigSchema: z.ZodType<OnlineStoreConfig> = z
   .object({
-    catalog_name: z.string().optional(),
-    schema_name: z.string().optional(),
-    table_name_prefix: z.string().optional(),
-    online_store_name: z.string().optional(),
+    catalog_name: z.string(),
+    schema_name: z.string(),
+    table_name_prefix: z.string(),
+    online_store_name: z.string(),
   })
   .transform(d => ({
     catalogName: d.catalog_name,
@@ -2161,10 +2871,30 @@ export const unmarshalOnlineStoreConfigSchema: z.ZodType<OnlineStoreConfig> = z
     onlineStoreName: d.online_store_name,
   }));
 
+export const unmarshalOperationSchema: z.ZodType<Operation> = z
+  .object({
+    name: z.string().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+    done: z.boolean().optional(),
+    error: z.lazy(() => unmarshalApiErrorSchema).optional(),
+    response: z.record(z.string(), z.unknown()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    metadata: d.metadata,
+    done: d.done,
+    result:
+      d.error !== undefined
+        ? {$case: 'error' as const, error: d.error}
+        : d.response !== undefined
+          ? {$case: 'response' as const, response: d.response}
+          : undefined,
+  }));
+
 export const unmarshalProtoSchemaSpecSchema: z.ZodType<ProtoSchemaSpec> = z
   .object({
-    schema_text: z.string().optional(),
-    message_name: z.string().optional(),
+    schema_text: z.string(),
+    message_name: z.string(),
   })
   .transform(d => ({
     schemaText: d.schema_text,
@@ -2236,7 +2966,7 @@ export const unmarshalSchemaLocatorSchema: z.ZodType<SchemaLocator> = z
     confluent_schema: z
       .lazy(() => unmarshalSchemaLocator_ConfluentSchemaSchema)
       .optional(),
-    format: z.string().optional(),
+    format: z.string(),
   })
   .transform(d => ({
     registrySchema:
@@ -2253,7 +2983,7 @@ export const unmarshalSchemaLocatorSchema: z.ZodType<SchemaLocator> = z
 export const unmarshalSchemaLocator_ConfluentSchemaSchema: z.ZodType<SchemaLocator_ConfluentSchema> =
   z
     .object({
-      subject: z.string().optional(),
+      subject: z.string(),
     })
     .transform(d => ({
       subject: d.subject,
@@ -2263,9 +2993,7 @@ export const unmarshalSchemaRegistryConfigSchema: z.ZodType<SchemaRegistryConfig
   z
     .object({
       uc_connection: z.string().optional(),
-      api_secret_ref: z
-        .lazy(() => unmarshalSecretScopeReferenceSchema)
-        .optional(),
+      api_secret_ref: z.lazy(() => unmarshalSecretScopeReferenceSchema),
       payload_schema_locator: z
         .lazy(() => unmarshalSchemaLocatorSchema)
         .optional(),
@@ -2281,8 +3009,8 @@ export const unmarshalSchemaRegistryConfigSchema: z.ZodType<SchemaRegistryConfig
 export const unmarshalSecretScopeReferenceSchema: z.ZodType<SecretScopeReference> =
   z
     .object({
-      scope: z.string().optional(),
-      key: z.string().optional(),
+      scope: z.string(),
+      key: z.string(),
     })
     .transform(d => ({
       scope: d.scope,
@@ -2297,8 +3025,7 @@ export const unmarshalSlidingWindowSchema: z.ZodType<SlidingWindow> = z
       .optional(),
     slide_duration: z
       .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase())),
     delay: z
       .string()
       .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
@@ -2328,7 +3055,7 @@ export const unmarshalSourceLatenessSchema: z.ZodType<SourceLateness> = z
 
 export const unmarshalStddevPopFunctionSchema: z.ZodType<StddevPopFunction> = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -2337,7 +3064,7 @@ export const unmarshalStddevPopFunctionSchema: z.ZodType<StddevPopFunction> = z
 export const unmarshalStddevSampFunctionSchema: z.ZodType<StddevSampFunction> =
   z
     .object({
-      input: z.string().optional(),
+      input: z.string(),
     })
     .transform(d => ({
       input: d.input,
@@ -2345,14 +3072,14 @@ export const unmarshalStddevSampFunctionSchema: z.ZodType<StddevSampFunction> =
 
 export const unmarshalStreamSchema: z.ZodType<Stream> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
-    source_config: z.lazy(() => unmarshalStreamSourceConfigSchema).optional(),
-    connection_config: z
-      .lazy(() => unmarshalStreamConnectionConfigSchema)
-      .optional(),
-    schema_config: z.lazy(() => unmarshalStreamSchemaConfigSchema).optional(),
-    ingestion_config: z.lazy(() => unmarshalIngestionConfigSchema).optional(),
+    source_config: z.lazy(() => unmarshalStreamSourceConfigSchema),
+    connection_config: z.lazy(() => unmarshalStreamConnectionConfigSchema),
+    schema_config: z.lazy(() => unmarshalStreamSchemaConfigSchema),
+    ingestion_config: z.lazy(() => unmarshalIngestionConfigSchema),
+    record_type_filter: z.string().optional(),
+    excluded_columns: z.array(z.string()).optional(),
     create_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -2372,6 +3099,8 @@ export const unmarshalStreamSchema: z.ZodType<Stream> = z
     connectionConfig: d.connection_config,
     schemaConfig: d.schema_config,
     ingestionConfig: d.ingestion_config,
+    recordTypeFilter: d.record_type_filter,
+    excludedColumns: d.excluded_columns,
     createTime: d.create_time,
     createdBy: d.created_by,
     updateTime: d.update_time,
@@ -2440,7 +3169,7 @@ export const unmarshalStreamSchemaConfigSchema: z.ZodType<StreamSchemaConfig> =
 
 export const unmarshalStreamSourceSchema: z.ZodType<StreamSource> = z
   .object({
-    full_name: z.string().optional(),
+    full_name: z.string(),
     filter_condition: z.string().optional(),
     transformation_sql: z.string().optional(),
     dataframe_schema: z.string().optional(),
@@ -2509,7 +3238,7 @@ export const unmarshalSubscriptionModeSchema: z.ZodType<SubscriptionMode> = z
 
 export const unmarshalSumFunctionSchema: z.ZodType<SumFunction> = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -2546,7 +3275,7 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
 
 export const unmarshalTimeseriesColumnSchema: z.ZodType<TimeseriesColumn> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -2556,8 +3285,7 @@ export const unmarshalTumblingWindowSchema: z.ZodType<TumblingWindow> = z
   .object({
     window_duration: z
       .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase())),
     delay: z
       .string()
       .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
@@ -2575,7 +3303,7 @@ export const unmarshalTumblingWindowSchema: z.ZodType<TumblingWindow> = z
 
 export const unmarshalVarPopFunctionSchema: z.ZodType<VarPopFunction> = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -2583,7 +3311,7 @@ export const unmarshalVarPopFunctionSchema: z.ZodType<VarPopFunction> = z
 
 export const unmarshalVarSampFunctionSchema: z.ZodType<VarSampFunction> = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -2704,7 +3432,7 @@ export const marshalAggregationFunctionSchema: z.ZodType = z
 
 export const marshalApproxCountDistinctFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
     relativeSd: z.number().optional(),
   })
   .transform(d => ({
@@ -2714,8 +3442,8 @@ export const marshalApproxCountDistinctFunctionSchema: z.ZodType = z
 
 export const marshalApproxPercentileFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
-    percentile: z.number().optional(),
+    input: z.string(),
+    percentile: z.number(),
     accuracy: z.bigint().optional(),
   })
   .transform(d => ({
@@ -2750,10 +3478,38 @@ export const marshalAuthConfigSchema: z.ZodType = z
 
 export const marshalAvgFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
+  }));
+
+export const marshalBackfillFeaturesRequestSchema: z.ZodType = z
+  .object({
+    featureFullNames: z.array(z.string()),
+    backfillRanges: z.array(z.lazy(() => marshalBackfillRangeSchema)),
+    requestId: z.string().optional(),
+  })
+  .transform(d => ({
+    feature_full_names: d.featureFullNames,
+    backfill_ranges: d.backfillRanges,
+    request_id: d.requestId,
+  }));
+
+export const marshalBackfillRangeSchema: z.ZodType = z
+  .object({
+    startTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    endTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    start_time: d.startTime,
+    end_time: d.endTime,
   }));
 
 export const marshalBackfillSourceSchema: z.ZodType = z
@@ -2782,17 +3538,25 @@ export const marshalBackfillSourceSchema: z.ZodType = z
 
 export const marshalBatchCreateMaterializedFeaturesRequestSchema: z.ZodType = z
   .object({
-    requests: z
-      .array(z.lazy(() => marshalCreateMaterializedFeatureRequestSchema))
-      .optional(),
+    requests: z.array(
+      z.lazy(() => marshalCreateMaterializedFeatureRequestSchema)
+    ),
   })
   .transform(d => ({
     requests: d.requests,
   }));
 
+export const marshalCancelOperationRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalColumnSelectionSchema: z.ZodType = z
   .object({
-    column: z.string().optional(),
+    column: z.string(),
   })
   .transform(d => ({
     column: d.column,
@@ -2800,7 +3564,7 @@ export const marshalColumnSelectionSchema: z.ZodType = z
 
 export const marshalCountFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -2808,9 +3572,7 @@ export const marshalCountFunctionSchema: z.ZodType = z
 
 export const marshalCreateMaterializedFeatureRequestSchema: z.ZodType = z
   .object({
-    materializedFeature: z
-      .lazy(() => marshalMaterializedFeatureSchema)
-      .optional(),
+    materializedFeature: z.lazy(() => marshalMaterializedFeatureSchema),
   })
   .transform(d => ({
     materialized_feature: d.materializedFeature,
@@ -2819,14 +3581,16 @@ export const marshalCreateMaterializedFeatureRequestSchema: z.ZodType = z
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     cronExpression: z.string().optional(),
+    mode: z.string().optional(),
   })
   .transform(d => ({
     cron_expression: d.cronExpression,
+    mode: d.mode,
   }));
 
 export const marshalCustomUdfSchema: z.ZodType = z
   .object({
-    functionPath: z.string().optional(),
+    functionPath: z.string(),
     inputBindings: z.array(z.lazy(() => marshalInputBindingSchema)).optional(),
   })
   .transform(d => ({
@@ -2876,7 +3640,7 @@ export const marshalDataSourceSchema: z.ZodType = z
 
 export const marshalDeltaTableSourceSchema: z.ZodType = z
   .object({
-    fullName: z.string().optional(),
+    fullName: z.string(),
     filterCondition: z.string().optional(),
     transformationSql: z.string().optional(),
     dataframeSchema: z.string().optional(),
@@ -2890,8 +3654,8 @@ export const marshalDeltaTableSourceSchema: z.ZodType = z
 
 export const marshalDirectMtlsConfigSchema: z.ZodType = z
   .object({
-    bootstrapServers: z.string().optional(),
-    mtlsConfig: z.lazy(() => marshalMtlsConfigSchema).optional(),
+    bootstrapServers: z.string(),
+    mtlsConfig: z.lazy(() => marshalMtlsConfigSchema),
   })
   .transform(d => ({
     bootstrap_servers: d.bootstrapServers,
@@ -2910,7 +3674,7 @@ export const marshalDirectSchemasSchema: z.ZodType = z
 
 export const marshalEntityColumnSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -2918,9 +3682,9 @@ export const marshalEntityColumnSchema: z.ZodType = z
 
 export const marshalFeatureSchema: z.ZodType = z
   .object({
-    fullName: z.string().optional(),
-    source: z.lazy(() => marshalDataSourceSchema).optional(),
-    function: z.lazy(() => marshalFunctionSchema).optional(),
+    fullName: z.string(),
+    source: z.lazy(() => marshalDataSourceSchema),
+    function: z.lazy(() => marshalFunctionSchema),
     description: z.string().optional(),
     lineageContext: z.lazy(() => marshalLineageContextSchema).optional(),
     entities: z.array(z.lazy(() => marshalEntityColumnSchema)).optional(),
@@ -2951,8 +3715,8 @@ export const marshalFeatureSchema: z.ZodType = z
 
 export const marshalFieldDefinitionSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    dataType: z.string().optional(),
+    name: z.string(),
+    dataType: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -2961,8 +3725,8 @@ export const marshalFieldDefinitionSchema: z.ZodType = z
 
 export const marshalFirstDistinctFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
-    n: z.bigint().optional(),
+    input: z.string(),
+    n: z.bigint(),
   })
   .transform(d => ({
     input: d.input,
@@ -2971,7 +3735,7 @@ export const marshalFirstDistinctFunctionSchema: z.ZodType = z
 
 export const marshalFirstFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -2979,8 +3743,8 @@ export const marshalFirstFunctionSchema: z.ZodType = z
 
 export const marshalFirstNFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
-    n: z.bigint().optional(),
+    input: z.string(),
+    n: z.bigint(),
   })
   .transform(d => ({
     input: d.input,
@@ -2989,7 +3753,7 @@ export const marshalFirstNFunctionSchema: z.ZodType = z
 
 export const marshalFlatSchemaSchema: z.ZodType = z
   .object({
-    fields: z.array(z.lazy(() => marshalFieldDefinitionSchema)).optional(),
+    fields: z.array(z.lazy(() => marshalFieldDefinitionSchema)),
   })
   .transform(d => ({
     fields: d.fields,
@@ -3028,9 +3792,7 @@ export const marshalFunctionSchema: z.ZodType = z
 
 export const marshalIngestionConfigSchema: z.ZodType = z
   .object({
-    ingestionDestination: z
-      .lazy(() => marshalIngestionDestinationSchema)
-      .optional(),
+    ingestionDestination: z.lazy(() => marshalIngestionDestinationSchema),
     backfillSource: z.lazy(() => marshalBackfillSourceSchema).optional(),
     deduplicationColumns: z.array(z.string()).optional(),
     ingestionPipelineId: z.string().optional(),
@@ -3065,8 +3827,8 @@ export const marshalIngestionDestinationSchema: z.ZodType = z
 
 export const marshalInputBindingSchema: z.ZodType = z
   .object({
-    parameter: z.string().optional(),
-    column: z.string().optional(),
+    parameter: z.string(),
+    column: z.string(),
   })
   .transform(d => ({
     parameter: d.parameter,
@@ -3085,10 +3847,10 @@ export const marshalJobContextSchema: z.ZodType = z
 
 export const marshalKafkaConfigSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    bootstrapServers: z.string().optional(),
-    subscriptionMode: z.lazy(() => marshalSubscriptionModeSchema).optional(),
-    authConfig: z.lazy(() => marshalAuthConfigSchema).optional(),
+    name: z.string(),
+    bootstrapServers: z.string(),
+    subscriptionMode: z.lazy(() => marshalSubscriptionModeSchema),
+    authConfig: z.lazy(() => marshalAuthConfigSchema),
     keySchema: z.lazy(() => marshalSchemaConfigSchema).optional(),
     valueSchema: z.lazy(() => marshalSchemaConfigSchema).optional(),
     extraOptions: z.record(z.string(), z.string()).optional(),
@@ -3109,7 +3871,7 @@ export const marshalKafkaConfigSchema: z.ZodType = z
 
 export const marshalKafkaSourceSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     filterCondition: z.string().optional(),
   })
   .transform(d => ({
@@ -3119,9 +3881,7 @@ export const marshalKafkaSourceSchema: z.ZodType = z
 
 export const marshalKafkaStreamConfigSchema: z.ZodType = z
   .object({
-    subscriptionMode: z
-      .lazy(() => marshalKafkaSubscriptionModeSchema)
-      .optional(),
+    subscriptionMode: z.lazy(() => marshalKafkaSubscriptionModeSchema),
     extraOptions: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -3182,8 +3942,8 @@ export const marshalKinesisStreamConfigSchema: z.ZodType = z
 
 export const marshalLastDistinctFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
-    n: z.bigint().optional(),
+    input: z.string(),
+    n: z.bigint(),
   })
   .transform(d => ({
     input: d.input,
@@ -3192,7 +3952,7 @@ export const marshalLastDistinctFunctionSchema: z.ZodType = z
 
 export const marshalLastFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -3200,8 +3960,8 @@ export const marshalLastFunctionSchema: z.ZodType = z
 
 export const marshalLastNFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
-    n: z.bigint().optional(),
+    input: z.string(),
+    n: z.bigint(),
   })
   .transform(d => ({
     input: d.input,
@@ -3221,7 +3981,7 @@ export const marshalLineageContextSchema: z.ZodType = z
 export const marshalMaterializedFeatureSchema: z.ZodType = z
   .object({
     materializedFeatureId: z.string().optional(),
-    featureName: z.string().optional(),
+    featureName: z.string(),
     destination: z
       .discriminatedUnion('$case', [
         z.object({
@@ -3257,6 +4017,7 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
         }),
       ])
       .optional(),
+    latestBackfillOperation: z.string().optional(),
   })
   .transform(d => ({
     materialized_feature_id: d.materializedFeatureId,
@@ -3280,11 +4041,12 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     ...(d.trigger?.$case === 'streamingMode' && {
       streaming_mode: d.trigger.streamingMode,
     }),
+    latest_backfill_operation: d.latestBackfillOperation,
   }));
 
 export const marshalMaxFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -3292,7 +4054,7 @@ export const marshalMaxFunctionSchema: z.ZodType = z
 
 export const marshalMinFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -3300,15 +4062,11 @@ export const marshalMinFunctionSchema: z.ZodType = z
 
 export const marshalMtlsConfigSchema: z.ZodType = z
   .object({
-    keystoreLocation: z.string().optional(),
-    keystorePasswordRef: z
-      .lazy(() => marshalSecretScopeReferenceSchema)
-      .optional(),
-    keyPasswordRef: z.lazy(() => marshalSecretScopeReferenceSchema).optional(),
-    truststoreLocation: z.string().optional(),
-    truststorePasswordRef: z
-      .lazy(() => marshalSecretScopeReferenceSchema)
-      .optional(),
+    keystoreLocation: z.string(),
+    keystorePasswordRef: z.lazy(() => marshalSecretScopeReferenceSchema),
+    keyPasswordRef: z.lazy(() => marshalSecretScopeReferenceSchema),
+    truststoreLocation: z.string(),
+    truststorePasswordRef: z.lazy(() => marshalSecretScopeReferenceSchema),
     disableHostnameVerification: z.boolean().optional(),
   })
   .transform(d => ({
@@ -3322,9 +4080,9 @@ export const marshalMtlsConfigSchema: z.ZodType = z
 
 export const marshalOfflineStoreConfigSchema: z.ZodType = z
   .object({
-    catalogName: z.string().optional(),
-    schemaName: z.string().optional(),
-    tableNamePrefix: z.string().optional(),
+    catalogName: z.string(),
+    schemaName: z.string(),
+    tableNamePrefix: z.string(),
   })
   .transform(d => ({
     catalog_name: d.catalogName,
@@ -3334,10 +4092,10 @@ export const marshalOfflineStoreConfigSchema: z.ZodType = z
 
 export const marshalOnlineStoreConfigSchema: z.ZodType = z
   .object({
-    catalogName: z.string().optional(),
-    schemaName: z.string().optional(),
-    tableNamePrefix: z.string().optional(),
-    onlineStoreName: z.string().optional(),
+    catalogName: z.string(),
+    schemaName: z.string(),
+    tableNamePrefix: z.string(),
+    onlineStoreName: z.string(),
   })
   .transform(d => ({
     catalog_name: d.catalogName,
@@ -3348,8 +4106,8 @@ export const marshalOnlineStoreConfigSchema: z.ZodType = z
 
 export const marshalProtoSchemaSpecSchema: z.ZodType = z
   .object({
-    schemaText: z.string().optional(),
-    messageName: z.string().optional(),
+    schemaText: z.string(),
+    messageName: z.string(),
   })
   .transform(d => ({
     schema_text: d.schemaText,
@@ -3436,7 +4194,7 @@ export const marshalSchemaLocatorSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    format: z.string().optional(),
+    format: z.string(),
   })
   .transform(d => ({
     ...(d.registrySchema?.$case === 'confluentSchema' && {
@@ -3448,7 +4206,7 @@ export const marshalSchemaLocatorSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalSchemaLocator_ConfluentSchemaSchema: z.ZodType = z
   .object({
-    subject: z.string().optional(),
+    subject: z.string(),
   })
   .transform(d => ({
     subject: d.subject,
@@ -3457,7 +4215,7 @@ export const marshalSchemaLocator_ConfluentSchemaSchema: z.ZodType = z
 export const marshalSchemaRegistryConfigSchema: z.ZodType = z
   .object({
     ucConnection: z.string().optional(),
-    apiSecretRef: z.lazy(() => marshalSecretScopeReferenceSchema).optional(),
+    apiSecretRef: z.lazy(() => marshalSecretScopeReferenceSchema),
     payloadSchemaLocator: z.lazy(() => marshalSchemaLocatorSchema).optional(),
     keySchemaLocator: z.lazy(() => marshalSchemaLocatorSchema).optional(),
   })
@@ -3470,8 +4228,8 @@ export const marshalSchemaRegistryConfigSchema: z.ZodType = z
 
 export const marshalSecretScopeReferenceSchema: z.ZodType = z
   .object({
-    scope: z.string().optional(),
-    key: z.string().optional(),
+    scope: z.string(),
+    key: z.string(),
   })
   .transform(d => ({
     scope: d.scope,
@@ -3486,8 +4244,7 @@ export const marshalSlidingWindowSchema: z.ZodType = z
       .optional(),
     slideDuration: z
       .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()),
     delay: z
       .any()
       .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
@@ -3517,7 +4274,7 @@ export const marshalSourceLatenessSchema: z.ZodType = z
 
 export const marshalStddevPopFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -3525,7 +4282,7 @@ export const marshalStddevPopFunctionSchema: z.ZodType = z
 
 export const marshalStddevSampFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -3533,14 +4290,14 @@ export const marshalStddevSampFunctionSchema: z.ZodType = z
 
 export const marshalStreamSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     description: z.string().optional(),
-    sourceConfig: z.lazy(() => marshalStreamSourceConfigSchema).optional(),
-    connectionConfig: z
-      .lazy(() => marshalStreamConnectionConfigSchema)
-      .optional(),
-    schemaConfig: z.lazy(() => marshalStreamSchemaConfigSchema).optional(),
-    ingestionConfig: z.lazy(() => marshalIngestionConfigSchema).optional(),
+    sourceConfig: z.lazy(() => marshalStreamSourceConfigSchema),
+    connectionConfig: z.lazy(() => marshalStreamConnectionConfigSchema),
+    schemaConfig: z.lazy(() => marshalStreamSchemaConfigSchema),
+    ingestionConfig: z.lazy(() => marshalIngestionConfigSchema),
+    recordTypeFilter: z.string().optional(),
+    excludedColumns: z.array(z.string()).optional(),
     createTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -3560,6 +4317,8 @@ export const marshalStreamSchema: z.ZodType = z
     connection_config: d.connectionConfig,
     schema_config: d.schemaConfig,
     ingestion_config: d.ingestionConfig,
+    record_type_filter: d.recordTypeFilter,
+    excluded_columns: d.excludedColumns,
     create_time: d.createTime,
     created_by: d.createdBy,
     update_time: d.updateTime,
@@ -3633,7 +4392,7 @@ export const marshalStreamSchemaConfigSchema: z.ZodType = z
 
 export const marshalStreamSourceSchema: z.ZodType = z
   .object({
-    fullName: z.string().optional(),
+    fullName: z.string(),
     filterCondition: z.string().optional(),
     transformationSql: z.string().optional(),
     dataframeSchema: z.string().optional(),
@@ -3706,7 +4465,7 @@ export const marshalSubscriptionModeSchema: z.ZodType = z
 
 export const marshalSumFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -3755,7 +4514,7 @@ export const marshalTimeWindowSchema: z.ZodType = z
 
 export const marshalTimeseriesColumnSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -3765,8 +4524,7 @@ export const marshalTumblingWindowSchema: z.ZodType = z
   .object({
     windowDuration: z
       .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()),
     delay: z
       .any()
       .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
@@ -3784,7 +4542,7 @@ export const marshalTumblingWindowSchema: z.ZodType = z
 
 export const marshalVarPopFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -3792,7 +4550,7 @@ export const marshalVarPopFunctionSchema: z.ZodType = z
 
 export const marshalVarSampFunctionSchema: z.ZodType = z
   .object({
-    input: z.string().optional(),
+    input: z.string(),
   })
   .transform(d => ({
     input: d.input,
@@ -3878,6 +4636,7 @@ const countFunctionFieldMaskSchema: FieldMaskSchema = {
 
 const cronScheduleFieldMaskSchema: FieldMaskSchema = {
   cronExpression: {wire: 'cron_expression'},
+  mode: {wire: 'mode'},
 };
 
 const customUdfFieldMaskSchema: FieldMaskSchema = {
@@ -4092,6 +4851,7 @@ const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
   featureName: {wire: 'feature_name'},
   isOnline: {wire: 'is_online'},
   lastMaterializationTime: {wire: 'last_materialization_time'},
+  latestBackfillOperation: {wire: 'latest_backfill_operation'},
   materializedFeatureId: {wire: 'materialized_feature_id'},
   offlineStoreConfig: {
     wire: 'offline_store_config',
@@ -4251,11 +5011,13 @@ const streamFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   createdBy: {wire: 'created_by'},
   description: {wire: 'description'},
+  excludedColumns: {wire: 'excluded_columns'},
   ingestionConfig: {
     wire: 'ingestion_config',
     children: () => ingestionConfigFieldMaskSchema,
   },
   name: {wire: 'name'},
+  recordTypeFilter: {wire: 'record_type_filter'},
   schemaConfig: {
     wire: 'schema_config',
     children: () => streamSchemaConfigFieldMaskSchema,

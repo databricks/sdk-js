@@ -3,11 +3,11 @@
 import {z} from 'zod';
 
 export interface CreateStorageConfigurationRequest {
-  accountId?: string | undefined;
+  accountId: string;
   /** The human-readable name of the storage configuration. */
-  storageConfigurationName?: string | undefined;
+  storageConfigurationName: string;
   /** Root S3 bucket information. */
-  rootBucketInfo?: RootBucketInfo | undefined;
+  rootBucketInfo: RootBucketInfo;
   /**
    * Optional IAM role that is used to access the workspace catalog which is created during workspace creation
    * for UC by Default. If a storage configuration with this field populated is used to create a workspace,
@@ -18,17 +18,17 @@ export interface CreateStorageConfigurationRequest {
 }
 
 export interface DeleteStorageConfigurationRequest {
-  storageConfigurationId?: string | undefined;
-  accountId?: string | undefined;
+  storageConfigurationId: string;
+  accountId: string;
 }
 
 export interface GetStorageConfigurationRequest {
-  storageConfigurationId?: string | undefined;
-  accountId?: string | undefined;
+  storageConfigurationId: string;
+  accountId: string;
 }
 
 export interface ListStorageConfigurationRequest {
-  accountId?: string | undefined;
+  accountId: string;
 }
 
 export interface ListStorageConfigurationResponse {
@@ -92,9 +92,9 @@ export const unmarshalStorageConfigurationSchema: z.ZodType<StorageConfiguration
 
 export const marshalCreateStorageConfigurationRequestSchema: z.ZodType = z
   .object({
-    accountId: z.string().optional(),
-    storageConfigurationName: z.string().optional(),
-    rootBucketInfo: z.lazy(() => marshalRootBucketInfoSchema).optional(),
+    accountId: z.string(),
+    storageConfigurationName: z.string(),
+    rootBucketInfo: z.lazy(() => marshalRootBucketInfoSchema),
     roleArn: z.string().optional(),
   })
   .transform(d => ({

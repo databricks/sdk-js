@@ -110,25 +110,25 @@ export interface Actor {
 }
 
 export interface CheckPolicyRequest {
-  actor?: Actor | undefined;
-  permission?: string | undefined;
+  actor: Actor;
+  permission: string;
   /**
    * Ex: (servicePrincipal/use, accounts/<account-id>/servicePrincipals/<sp-id>)
    * Ex: (servicePrincipal.ruleSet/update, accounts/<account-id>/servicePrincipals/<sp-id>/ruleSets/default)
    */
-  resource?: string | undefined;
-  consistencyToken?: ConsistencyToken | undefined;
-  authzIdentity?: RequestAuthzIdentity | undefined;
+  resource: string;
+  consistencyToken: ConsistencyToken;
+  authzIdentity: RequestAuthzIdentity;
   resourceInfo?: ResourceInfo | undefined;
 }
 
 export interface CheckPolicyResponse {
   isPermitted?: boolean | undefined;
-  consistencyToken?: ConsistencyToken | undefined;
+  consistencyToken: ConsistencyToken;
 }
 
 export interface ConsistencyToken {
-  value?: string | undefined;
+  value: string;
 }
 
 /** Removes all permission assignments for a workspace given a principal. */
@@ -164,7 +164,7 @@ export interface GetRuleSetRequest {
    * `name=accounts/<ACCOUNT_ID>/servicePrincipals/<SERVICE_PRINCIPAL_APPLICATION_ID>/ruleSets/default` | A name for a rule set on the service principal.
    * `name=accounts/<ACCOUNT_ID>/tagPolicies/<TAG_POLICY_ID>/ruleSets/default` | A name for a rule set on the tag policy.
    */
-  name?: string | undefined;
+  name: string;
   /**
    * Etag used for versioning. The response is at least as fresh as the eTag provided. Etag is used for optimistic
    * concurrency control as a way to help prevent simultaneous updates of a rule set from overwriting each other. It is
@@ -177,7 +177,7 @@ export interface GetRuleSetRequest {
    * `etag=` | An empty etag can only be used in GET to indicate no freshness requirements.
    * `etag=RENUAAABhSweA4NvVmmUYdiU717H3Tgy0UJdor3gE4a+mq/oj9NjAf8ZsQ==` | An etag encoded a specific version of the rule set to get or to be updated.
    */
-  etag?: string | undefined;
+  etag: string;
 }
 
 export interface GrantRule {
@@ -191,7 +191,7 @@ export interface GrantRule {
    */
   principals?: string[] | undefined;
   /** Role that is assigned to the list of principals. */
-  role?: string | undefined;
+  role: string;
 }
 
 export interface ListAssignableRolesForResourceRequest {
@@ -207,7 +207,7 @@ export interface ListAssignableRolesForResourceRequest {
    * `resource=accounts/<ACCOUNT_ID>/servicePrincipals/<SP_ID>` | A resource name for the service principal.
    * `resource=accounts/<ACCOUNT_ID>/tagPolicies/<TAG_POLICY_ID>` | A resource name for the tag policy.
    */
-  resource?: string | undefined;
+  resource: string;
 }
 
 export interface ListAssignableRolesForResourceResponse {
@@ -301,7 +301,7 @@ export interface PrincipalOutput {
 
 export interface ResourceInfo {
   /** Id of the current resource. */
-  id?: string | undefined;
+  id: string;
   /** Parent resource info for the current resource. The parent may have another parent. */
   parentResourceInfo?: ResourceInfo | undefined;
   /** The legacy acl path of the current resource. */
@@ -310,12 +310,12 @@ export interface ResourceInfo {
 
 export interface Role {
   /** Role to assign to a principal or a list of principals on a resource. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface RuleSet {
   /** Name of the rule set. */
-  name?: string | undefined;
+  name: string;
   /**
    * Identifies the version of the rule set returned.
    * Etag used for versioning. The response is at least as fresh as the eTag provided.
@@ -325,13 +325,13 @@ export interface RuleSet {
    * order to avoid race conditions that is get an etag from a GET rule set request, and pass it
    * with the PUT update request to identify the rule set version you are updating.
    */
-  etag?: string | undefined;
+  etag: string;
   grantRules?: GrantRule[] | undefined;
 }
 
 export interface RuleSetUpdateRequest {
   /** Name of the rule set. */
-  name?: string | undefined;
+  name: string;
   /**
    * Identifies the version of the rule set returned.
    * Etag used for versioning. The response is at least as fresh as the eTag provided.
@@ -341,7 +341,7 @@ export interface RuleSetUpdateRequest {
    * order to avoid race conditions that is get an etag from a GET rule set request, and pass it
    * with the PUT update request to identify the rule set version you are updating.
    */
-  etag?: string | undefined;
+  etag: string;
   grantRules?: GrantRule[] | undefined;
 }
 
@@ -365,8 +365,8 @@ export interface UpdateRuleSetRequest {
   /** <Databricks> account ID. */
   accountId?: string | undefined;
   /** Name of the rule set. */
-  name?: string | undefined;
-  ruleSet?: RuleSetUpdateRequest | undefined;
+  name: string;
+  ruleSet: RuleSetUpdateRequest;
 }
 
 export interface UpdateWorkspacePermissionAssignmentRequest {
@@ -430,9 +430,7 @@ export const unmarshalCheckPolicyResponseSchema: z.ZodType<CheckPolicyResponse> 
   z
     .object({
       is_permitted: z.boolean().optional(),
-      consistency_token: z
-        .lazy(() => unmarshalConsistencyTokenSchema)
-        .optional(),
+      consistency_token: z.lazy(() => unmarshalConsistencyTokenSchema),
     })
     .transform(d => ({
       isPermitted: d.is_permitted,
@@ -441,7 +439,7 @@ export const unmarshalCheckPolicyResponseSchema: z.ZodType<CheckPolicyResponse> 
 
 export const unmarshalConsistencyTokenSchema: z.ZodType<ConsistencyToken> = z
   .object({
-    value: z.string().optional(),
+    value: z.string(),
   })
   .transform(d => ({
     value: d.value,
@@ -453,7 +451,7 @@ export const unmarshalDeleteWorkspacePermissionAssignmentResponseSchema: z.ZodTy
 export const unmarshalGrantRuleSchema: z.ZodType<GrantRule> = z
   .object({
     principals: z.array(z.string()).optional(),
-    role: z.string().optional(),
+    role: z.string(),
   })
   .transform(d => ({
     principals: d.principals,
@@ -579,7 +577,7 @@ export const unmarshalPrincipalOutputSchema: z.ZodType<PrincipalOutput> = z
 
 export const unmarshalRoleSchema: z.ZodType<Role> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
   })
   .transform(d => ({
     name: d.name,
@@ -587,8 +585,8 @@ export const unmarshalRoleSchema: z.ZodType<Role> = z
 
 export const unmarshalRuleSetSchema: z.ZodType<RuleSet> = z
   .object({
-    name: z.string().optional(),
-    etag: z.string().optional(),
+    name: z.string(),
+    etag: z.string(),
     grant_rules: z.array(z.lazy(() => unmarshalGrantRuleSchema)).optional(),
   })
   .transform(d => ({
@@ -651,7 +649,7 @@ export const marshalActorSchema: z.ZodType = z
 
 export const marshalConsistencyTokenSchema: z.ZodType = z
   .object({
-    value: z.string().optional(),
+    value: z.string(),
   })
   .transform(d => ({
     value: d.value,
@@ -660,7 +658,7 @@ export const marshalConsistencyTokenSchema: z.ZodType = z
 export const marshalGrantRuleSchema: z.ZodType = z
   .object({
     principals: z.array(z.string()).optional(),
-    role: z.string().optional(),
+    role: z.string(),
   })
   .transform(d => ({
     principals: d.principals,
@@ -669,7 +667,7 @@ export const marshalGrantRuleSchema: z.ZodType = z
 
 export const marshalResourceInfoSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
+    id: z.string(),
     parentResourceInfo: z.lazy(() => marshalResourceInfoSchema).optional(),
     legacyAclPath: z.string().optional(),
   })
@@ -681,8 +679,8 @@ export const marshalResourceInfoSchema: z.ZodType = z
 
 export const marshalRuleSetUpdateRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    etag: z.string().optional(),
+    name: z.string(),
+    etag: z.string(),
     grantRules: z.array(z.lazy(() => marshalGrantRuleSchema)).optional(),
   })
   .transform(d => ({
@@ -722,8 +720,8 @@ export const marshalUpdateObjectPermissionsRequestSchema: z.ZodType = z
 export const marshalUpdateRuleSetRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
-    name: z.string().optional(),
-    ruleSet: z.lazy(() => marshalRuleSetUpdateRequestSchema).optional(),
+    name: z.string(),
+    ruleSet: z.lazy(() => marshalRuleSetUpdateRequestSchema),
   })
   .transform(d => ({
     account_id: d.accountId,

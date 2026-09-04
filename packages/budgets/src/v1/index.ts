@@ -25,6 +25,8 @@ export type {
   BudgetConfigurationFilter_TagClause,
   BudgetConfigurationFilter_WorkspaceIdClause,
   CreateBudgetConfigurationBudget,
+  CreateBudgetConfigurationBudgetActionConfigurations,
+  CreateBudgetConfigurationBudgetAlertConfigurations,
   CreateBudgetConfigurationRequest,
   CreateBudgetConfigurationResponse,
   DeleteBudgetConfigurationRequest,

@@ -427,9 +427,9 @@ export interface CleanRoomAsset {
    * For notebooks, the name is the notebook file name.
    * For jar analyses, the name is the jar analysis name.
    */
-  name?: string | undefined;
+  name: string;
   /** The type of the asset. */
-  assetType?: CleanRoomAsset_AssetType | undefined;
+  assetType: CleanRoomAsset_AssetType;
   /** When the asset is added to the clean room, in epoch milliseconds. */
   addedAt?: bigint | undefined;
   /** Status of the asset */
@@ -442,7 +442,7 @@ export interface CleanRoomAsset {
         $case: 'tableLocalDetails';
         /**
          * Local details for a table that are only available to its owner.
-         * Present if and only if **asset_type** is **TABLE**
+         * Present if and only if **asset_type** is **TABLE** or **STREAMING_TABLE**
          */
         tableLocalDetails: CleanRoomAsset_TableLocalDetails;
       }
@@ -477,7 +477,7 @@ export interface CleanRoomAsset {
         $case: 'table';
         /**
          * Table details available to all collaborators of the clean room.
-         * Present if and only if **asset_type** is **TABLE**
+         * Present if and only if **asset_type** is **TABLE** or **STREAMING_TABLE**
          */
         table: CleanRoomAsset_Table;
       }
@@ -528,7 +528,7 @@ export interface CleanRoomAsset_ForeignTableLocalDetails {
    * The fully qualified name of the foreign table in its owner's local metastore,
    * in the format of *catalog*.*schema*.*foreign_table_name*
    */
-  localName?: string | undefined;
+  localName: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -566,7 +566,7 @@ export interface CleanRoomAsset_Notebook {
    * Base 64 representation of the notebook contents.
    * This is the same format as returned by [workspace/export](https://docs.databricks.com/api/workspace/workspace/export) with the format of **HTML**.
    */
-  notebookContent?: string | undefined;
+  notebookContent: string;
   /** Server generated etag that represents the notebook version. */
   etag?: string | undefined;
   /** Aliases of collaborators that can run the notebook. */
@@ -599,7 +599,7 @@ export interface CleanRoomAsset_TableLocalDetails {
    * The fully qualified name of the table in its owner's local metastore,
    * in the format of *catalog*.*schema*.*table_name*
    */
-  localName?: string | undefined;
+  localName: string;
   /** Partition filtering specification for a shared table. */
   partitions?: PartitionSpecification_Partition[] | undefined;
 }
@@ -616,7 +616,7 @@ export interface CleanRoomAsset_ViewLocalDetails {
    * The fully qualified name of the view in its owner's local metastore,
    * in the format of *catalog*.*schema*.*view_name*
    */
-  localName?: string | undefined;
+  localName: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -625,7 +625,7 @@ export interface CleanRoomAsset_VolumeLocalDetails {
    * The fully qualified name of the volume in its owner's local metastore,
    * in the format of *catalog*.*schema*.*volume_name*
    */
-  localName?: string | undefined;
+  localName: string;
 }
 
 export interface CleanRoomAutoApprovalRule {
@@ -692,7 +692,7 @@ export interface CleanRoomCollaborator {
    * multiple values internally such as catalog alias and clean room name for single metastore clean rooms.
    * It should follow [UC securable naming requirements](https://docs.databricks.com/en/data-governance/unity-catalog/index.html#securable-object-naming-requirements).
    */
-  collaboratorAlias?: string | undefined;
+  collaboratorAlias: string;
   /**
    * Generated display name for the collaborator. In the case of a single metastore clean room, it is the clean
    * room name. For x-metastore clean rooms, it is the organization name of the metastore. It is not restricted to
@@ -912,9 +912,9 @@ export interface ColumnMask {
    */
   usingColumnNames?: string[] | undefined;
   /**
-   * The list of additional table columns or literals to be passed as additional arguments to
-   * a column mask function. This is the replacement of the deprecated using_column_names field and
-   * carries information about the types (alias or constant) of the arguments to the mask function.
+   * The list of table columns or literals to be passed as additional arguments to a column mask
+   * function, carrying the type (column reference vs constant literal) of each argument.
+   * Deprecated: use using_column_names instead.
    */
   usingArguments?: PolicyFunctionArgument[] | undefined;
 }
@@ -928,16 +928,16 @@ export interface ComplianceSecurityProfile {
 }
 
 export interface CreateCleanRoomAssetRequest {
-  asset?: CleanRoomAsset | undefined;
+  asset: CleanRoomAsset;
 }
 
 export interface CreateCleanRoomAssetReviewRequest {
   /** Name of the clean room */
-  cleanRoomName?: string | undefined;
+  cleanRoomName: string;
   /** Name of the asset */
-  name?: string | undefined;
+  name: string;
   /** Asset type. Can either be NOTEBOOK_FILE or JAR_ANALYSIS. */
-  assetType?: CleanRoomAsset_AssetType | undefined;
+  assetType: CleanRoomAsset_AssetType;
   review?:
     | {$case: 'notebookReview'; notebookReview: NotebookVersionReview}
     | {$case: 'jarAnalysisReview'; jarAnalysisReview: JarAnalysisVersionReview}
@@ -964,17 +964,17 @@ export interface CreateCleanRoomAssetReviewResponse {
 }
 
 export interface CreateCleanRoomAutoApprovalRuleRequest {
-  autoApprovalRule?: CleanRoomAutoApprovalRule | undefined;
+  autoApprovalRule: CleanRoomAutoApprovalRule;
 }
 
 export interface CreateCleanRoomOutputCatalogRequest {
   /** Name of the clean room. */
-  cleanRoomName?: string | undefined;
-  outputCatalog?: CleanRoomOutputCatalog | undefined;
+  cleanRoomName: string;
+  outputCatalog: CleanRoomOutputCatalog;
 }
 
 export interface CreateCleanRoomOutputCatalogResponse {
-  outputCatalog?: CleanRoomOutputCatalog | undefined;
+  outputCatalog: CleanRoomOutputCatalog;
 }
 
 export interface CreateCleanRoomRequest {
@@ -983,11 +983,11 @@ export interface CreateCleanRoomRequest {
 
 export interface DeleteCleanRoomAssetRequest {
   /** Name of the clean room. */
-  cleanRoomName?: string | undefined;
+  cleanRoomName: string;
   /** The type of the asset. */
-  assetType?: CleanRoomAsset_AssetType | undefined;
+  assetType: CleanRoomAsset_AssetType;
   /** The fully qualified name of the asset, it is same as the name field in CleanRoomAsset. */
-  name?: string | undefined;
+  name: string;
 }
 
 /**
@@ -998,13 +998,13 @@ export interface DeleteCleanRoomAssetRequest {
 export interface DeleteCleanRoomAssetResponse {}
 
 export interface DeleteCleanRoomAutoApprovalRuleRequest {
-  cleanRoomName?: string | undefined;
-  ruleId?: string | undefined;
+  cleanRoomName: string;
+  ruleId: string;
 }
 
 export interface DeleteCleanRoomRequest {
   /** Name of the clean room. */
-  name?: string | undefined;
+  name: string;
 }
 
 /**
@@ -1078,49 +1078,49 @@ export interface EgressNetworkPolicy_InternetAccessPolicy_StorageDestination {
 
 export interface GetCleanRoomAssetRequest {
   /** Name of the clean room. */
-  cleanRoomName?: string | undefined;
+  cleanRoomName: string;
   /** The type of the asset. */
-  assetType?: CleanRoomAsset_AssetType | undefined;
+  assetType: CleanRoomAsset_AssetType;
   /** The fully qualified name of the asset, it is same as the name field in CleanRoomAsset. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetCleanRoomAssetRevisionRequest {
   /** Name of the clean room. */
-  cleanRoomName?: string | undefined;
+  cleanRoomName: string;
   /** Name of the asset. */
-  name?: string | undefined;
+  name: string;
   /** Asset type. Only NOTEBOOK_FILE is supported. */
-  assetType?: CleanRoomAsset_AssetType | undefined;
+  assetType: CleanRoomAsset_AssetType;
   /** Revision etag to fetch. If not provided, the latest revision will be returned. */
   etag?: string | undefined;
 }
 
 export interface GetCleanRoomAutoApprovalRuleRequest {
-  cleanRoomName?: string | undefined;
-  ruleId?: string | undefined;
+  cleanRoomName: string;
+  ruleId: string;
 }
 
 export interface GetCleanRoomRequest {
-  name?: string | undefined;
+  name: string;
 }
 
 export interface JarAnalysisVersionReview {
   /** Etag identifying the jar analysis version, with its value being a hash of an internally-generated UUID */
-  etag?: string | undefined;
+  etag: string;
   /** Review outcome */
-  reviewState?: CleanRoomJarAnalysisReview_JarAnalysisReviewState | undefined;
+  reviewState: CleanRoomJarAnalysisReview_JarAnalysisReviewState;
   /** Review comment */
   comment?: string | undefined;
 }
 
 export interface ListCleanRoomAssetRevisionsRequest {
   /** Name of the clean room. */
-  cleanRoomName?: string | undefined;
+  cleanRoomName: string;
   /** Name of the asset. */
-  name?: string | undefined;
+  name: string;
   /** Asset type. Only NOTEBOOK_FILE is supported. */
-  assetType?: CleanRoomAsset_AssetType | undefined;
+  assetType: CleanRoomAsset_AssetType;
   /** Maximum number of asset revisions to return. Defaults to 10. */
   pageSize?: number | undefined;
   /** Opaque pagination token to go to next page based on the previous query. */
@@ -1134,7 +1134,7 @@ export interface ListCleanRoomAssetRevisionsResponse {
 
 export interface ListCleanRoomAssetsRequest {
   /** Name of the clean room. */
-  cleanRoomName?: string | undefined;
+  cleanRoomName: string;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string | undefined;
 }
@@ -1150,7 +1150,7 @@ export interface ListCleanRoomAssetsResponse {
 }
 
 export interface ListCleanRoomAutoApprovalRulesRequest {
-  cleanRoomName?: string | undefined;
+  cleanRoomName: string;
   /** Maximum number of auto-approval rules to return. Defaults to 100. */
   pageSize?: number | undefined;
   /** Opaque pagination token to go to next page based on previous query. */
@@ -1168,7 +1168,7 @@ export interface ListCleanRoomAutoApprovalRulesResponse {
 
 export interface ListCleanRoomNotebookTaskRunsRequest {
   /** Name of the clean room. */
-  cleanRoomName?: string | undefined;
+  cleanRoomName: string;
   /** Notebook name */
   notebookName?: string | undefined;
   /** The maximum number of task runs to return. Currently ignored - all runs will be returned. */
@@ -1189,7 +1189,7 @@ export interface ListCleanRoomNotebookTaskRunsResponse {
 
 export interface ListCleanRoomTaskRunsRequest {
   /** Name of the clean room. */
-  cleanRoomName?: string | undefined;
+  cleanRoomName: string;
   /** Executable name. */
   name?: string | undefined;
   /** Filter by the type of Clean Room task. */
@@ -1228,9 +1228,9 @@ export interface ListCleanRoomsResponse {
 
 export interface NotebookVersionReview {
   /** Etag identifying the notebook version */
-  etag?: string | undefined;
+  etag: string;
   /** Review outcome */
-  reviewState?: CleanRoomNotebookReview_NotebookReviewState | undefined;
+  reviewState: CleanRoomNotebookReview_NotebookReviewState;
   /** Review comment */
   comment?: string | undefined;
 }
@@ -1297,7 +1297,7 @@ export interface UpdateCleanRoomAssetRequest {
    * The asset to update.
    * The asset's `name` and `asset_type` fields are used to identify the asset to update.
    */
-  asset?: CleanRoomAsset | undefined;
+  asset: CleanRoomAsset;
 }
 
 export interface UpdateCleanRoomAutoApprovalRuleRequest {
@@ -1307,7 +1307,7 @@ export interface UpdateCleanRoomAutoApprovalRuleRequest {
 
 export interface UpdateCleanRoomRequest {
   /** Name of the clean room. */
-  name?: string | undefined;
+  name: string;
   cleanRoom?: CleanRoom | undefined;
 }
 
@@ -1352,8 +1352,8 @@ export const unmarshalCleanRoomSchema: z.ZodType<CleanRoom> = z
 export const unmarshalCleanRoomAssetSchema: z.ZodType<CleanRoomAsset> = z
   .object({
     clean_room_name: z.string().optional(),
-    name: z.string().optional(),
-    asset_type: z.string().optional(),
+    name: z.string(),
+    asset_type: z.string(),
     added_at: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -1439,7 +1439,7 @@ export const unmarshalCleanRoomAsset_ForeignTableSchema: z.ZodType<CleanRoomAsse
 export const unmarshalCleanRoomAsset_ForeignTableLocalDetailsSchema: z.ZodType<CleanRoomAsset_ForeignTableLocalDetails> =
   z
     .object({
-      local_name: z.string().optional(),
+      local_name: z.string(),
     })
     .transform(d => ({
       localName: d.local_name,
@@ -1475,7 +1475,7 @@ export const unmarshalCleanRoomAsset_JarAnalysisSchema: z.ZodType<CleanRoomAsset
 export const unmarshalCleanRoomAsset_NotebookSchema: z.ZodType<CleanRoomAsset_Notebook> =
   z
     .object({
-      notebook_content: z.string().optional(),
+      notebook_content: z.string(),
       etag: z.string().optional(),
       runner_collaborator_aliases: z.array(z.string()).optional(),
       reviews: z
@@ -1509,7 +1509,7 @@ export const unmarshalCleanRoomAsset_TableSchema: z.ZodType<CleanRoomAsset_Table
 export const unmarshalCleanRoomAsset_TableLocalDetailsSchema: z.ZodType<CleanRoomAsset_TableLocalDetails> =
   z
     .object({
-      local_name: z.string().optional(),
+      local_name: z.string(),
       partitions: z
         .array(z.lazy(() => unmarshalPartitionSpecification_PartitionSchema))
         .optional(),
@@ -1533,7 +1533,7 @@ export const unmarshalCleanRoomAsset_ViewSchema: z.ZodType<CleanRoomAsset_View> 
 export const unmarshalCleanRoomAsset_ViewLocalDetailsSchema: z.ZodType<CleanRoomAsset_ViewLocalDetails> =
   z
     .object({
-      local_name: z.string().optional(),
+      local_name: z.string(),
     })
     .transform(d => ({
       localName: d.local_name,
@@ -1543,7 +1543,7 @@ export const unmarshalCleanRoomAsset_ViewLocalDetailsSchema: z.ZodType<CleanRoom
 export const unmarshalCleanRoomAsset_VolumeLocalDetailsSchema: z.ZodType<CleanRoomAsset_VolumeLocalDetails> =
   z
     .object({
-      local_name: z.string().optional(),
+      local_name: z.string(),
     })
     .transform(d => ({
       localName: d.local_name,
@@ -1596,7 +1596,7 @@ export const unmarshalCleanRoomCollaboratorSchema: z.ZodType<CleanRoomCollaborat
         .transform(v => BigInt(v))
         .optional(),
       invite_recipient_email: z.string().optional(),
-      collaborator_alias: z.string().optional(),
+      collaborator_alias: z.string(),
       display_name: z.string().optional(),
     })
     .transform(d => ({
@@ -1935,9 +1935,7 @@ export const unmarshalCreateCleanRoomAssetReviewResponseSchema: z.ZodType<Create
 export const unmarshalCreateCleanRoomOutputCatalogResponseSchema: z.ZodType<CreateCleanRoomOutputCatalogResponse> =
   z
     .object({
-      output_catalog: z
-        .lazy(() => unmarshalCleanRoomOutputCatalogSchema)
-        .optional(),
+      output_catalog: z.lazy(() => unmarshalCleanRoomOutputCatalogSchema),
     })
     .transform(d => ({
       outputCatalog: d.output_catalog,
@@ -2194,8 +2192,8 @@ export const marshalCleanRoomSchema: z.ZodType = z
 export const marshalCleanRoomAssetSchema: z.ZodType = z
   .object({
     cleanRoomName: z.string().optional(),
-    name: z.string().optional(),
-    assetType: z.string().optional(),
+    name: z.string(),
+    assetType: z.string(),
     addedAt: z.bigint().optional(),
     status: z.string().optional(),
     ownerCollaboratorAlias: z.string().optional(),
@@ -2294,7 +2292,7 @@ export const marshalCleanRoomAsset_ForeignTableSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalCleanRoomAsset_ForeignTableLocalDetailsSchema: z.ZodType = z
   .object({
-    localName: z.string().optional(),
+    localName: z.string(),
   })
   .transform(d => ({
     local_name: d.localName,
@@ -2328,7 +2326,7 @@ export const marshalCleanRoomAsset_JarAnalysisSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalCleanRoomAsset_NotebookSchema: z.ZodType = z
   .object({
-    notebookContent: z.string().optional(),
+    notebookContent: z.string(),
     etag: z.string().optional(),
     runnerCollaboratorAliases: z.array(z.string()).optional(),
     reviews: z
@@ -2360,7 +2358,7 @@ export const marshalCleanRoomAsset_TableSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalCleanRoomAsset_TableLocalDetailsSchema: z.ZodType = z
   .object({
-    localName: z.string().optional(),
+    localName: z.string(),
     partitions: z
       .array(z.lazy(() => marshalPartitionSpecification_PartitionSchema))
       .optional(),
@@ -2382,7 +2380,7 @@ export const marshalCleanRoomAsset_ViewSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalCleanRoomAsset_ViewLocalDetailsSchema: z.ZodType = z
   .object({
-    localName: z.string().optional(),
+    localName: z.string(),
   })
   .transform(d => ({
     local_name: d.localName,
@@ -2391,7 +2389,7 @@ export const marshalCleanRoomAsset_ViewLocalDetailsSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalCleanRoomAsset_VolumeLocalDetailsSchema: z.ZodType = z
   .object({
-    localName: z.string().optional(),
+    localName: z.string(),
   })
   .transform(d => ({
     local_name: d.localName,
@@ -2443,7 +2441,7 @@ export const marshalCleanRoomCollaboratorSchema: z.ZodType = z
     organizationName: z.string().optional(),
     inviteRecipientWorkspaceId: z.bigint().optional(),
     inviteRecipientEmail: z.string().optional(),
-    collaboratorAlias: z.string().optional(),
+    collaboratorAlias: z.string(),
     displayName: z.string().optional(),
   })
   .transform(d => ({
@@ -2583,9 +2581,9 @@ export const marshalComplianceSecurityProfileSchema: z.ZodType = z
 
 export const marshalCreateCleanRoomAssetReviewRequestSchema: z.ZodType = z
   .object({
-    cleanRoomName: z.string().optional(),
-    name: z.string().optional(),
-    assetType: z.string().optional(),
+    cleanRoomName: z.string(),
+    name: z.string(),
+    assetType: z.string(),
     review: z
       .discriminatedUnion('$case', [
         z.object({
@@ -2615,9 +2613,7 @@ export const marshalCreateCleanRoomAssetReviewRequestSchema: z.ZodType = z
 
 export const marshalCreateCleanRoomAutoApprovalRuleRequestSchema: z.ZodType = z
   .object({
-    autoApprovalRule: z
-      .lazy(() => marshalCleanRoomAutoApprovalRuleSchema)
-      .optional(),
+    autoApprovalRule: z.lazy(() => marshalCleanRoomAutoApprovalRuleSchema),
   })
   .transform(d => ({
     auto_approval_rule: d.autoApprovalRule,
@@ -2720,8 +2716,8 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationS
 
 export const marshalJarAnalysisVersionReviewSchema: z.ZodType = z
   .object({
-    etag: z.string().optional(),
-    reviewState: z.string().optional(),
+    etag: z.string(),
+    reviewState: z.string(),
     comment: z.string().optional(),
   })
   .transform(d => ({
@@ -2732,8 +2728,8 @@ export const marshalJarAnalysisVersionReviewSchema: z.ZodType = z
 
 export const marshalNotebookVersionReviewSchema: z.ZodType = z
   .object({
-    etag: z.string().optional(),
-    reviewState: z.string().optional(),
+    etag: z.string(),
+    reviewState: z.string(),
     comment: z.string().optional(),
   })
   .transform(d => ({
@@ -2789,7 +2785,7 @@ export const marshalPolicyFunctionArgumentSchema: z.ZodType = z
 
 export const marshalUpdateCleanRoomRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     cleanRoom: z.lazy(() => marshalCleanRoomSchema).optional(),
   })
   .transform(d => ({

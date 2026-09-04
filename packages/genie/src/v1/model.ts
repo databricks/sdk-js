@@ -926,9 +926,9 @@ export interface ColumnMask {
    */
   usingColumnNames?: string[] | undefined;
   /**
-   * The list of additional table columns or literals to be passed as additional arguments to
-   * a column mask function. This is the replacement of the deprecated using_column_names field and
-   * carries information about the types (alias or constant) of the arguments to the mask function.
+   * The list of table columns or literals to be passed as additional arguments to a column mask
+   * function, carrying the type (column reference vs constant literal) of each argument.
+   * Deprecated: use using_column_names instead.
    */
   usingArguments?: PolicyFunctionArgument[] | undefined;
 }
@@ -950,7 +950,7 @@ export interface DownloadMessageAttachmentVisualizationRequest {
    * The resource name of the attachment to render, in the format
    * `spaces/{space_id}/conversations/{conversation_id}/messages/{message_id}/attachments/{attachment_id}`.
    */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DownloadMessageAttachmentVisualizationResponse {
@@ -1038,6 +1038,16 @@ export interface GenieAttachment {
   attachmentId?: string | undefined;
 }
 
+/** Request to cancel an in-flight agent-mode response. */
+export interface GenieCancelResponseRequest {
+  /** The ID of the Genie agent (synonymous with the Genie space ID). */
+  agentId: string;
+  /** The ID of the conversation containing the response. */
+  conversationId: string;
+  /** The ID of the response to cancel (the id from the `response.created` event). */
+  responseId: string;
+}
+
 export interface GenieConversation {
   /**
    * Conversation ID.
@@ -1045,7 +1055,7 @@ export interface GenieConversation {
    */
   id?: string | undefined;
   /** Genie space ID */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** ID of the user who created the conversation */
   userId?: bigint | undefined;
   /** Timestamp when the message was created */
@@ -1053,13 +1063,13 @@ export interface GenieConversation {
   /** Timestamp when the message was last updated */
   lastUpdatedTimestamp?: bigint | undefined;
   /** Conversation title */
-  title?: string | undefined;
+  title: string;
   /** Conversation ID */
-  conversationId?: string | undefined;
+  conversationId: string;
 }
 
 export interface GenieConversationSummary {
-  conversationId?: string | undefined;
+  conversationId: string;
   title?: string | undefined;
   createdTimestamp?: bigint | undefined;
   /**
@@ -1071,36 +1081,36 @@ export interface GenieConversationSummary {
 
 export interface GenieCreateConversationMessageRequest {
   /** The ID associated with the Genie space where the conversation is started. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The ID associated with the conversation. */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** User message content. */
-  content?: string | undefined;
+  content: string;
   /** Enable visualization generation. */
   enableVisualization?: boolean | undefined;
 }
 
 export interface GenieCreateEvalRunRequest {
   /** The ID associated with the Genie space where the evaluations will be executed. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** List of benchmark question IDs to evaluate. These questions must exist in the specified Genie space. If none are specified, then all benchmark questions are evaluated. */
   benchmarkQuestionIds?: string[] | undefined;
 }
 
 export interface GenieCreateMessageCommentRequest {
   /** The ID associated with the Genie space. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The ID associated with the conversation. */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** The ID associated with the message. */
-  messageId?: string | undefined;
+  messageId: string;
   /** Comment text content. */
-  content?: string | undefined;
+  content: string;
 }
 
 export interface GenieCreateSpaceRequest {
   /** Warehouse to associate with the new space */
-  warehouseId?: string | undefined;
+  warehouseId: string;
   /** Parent folder path where the space will be registered */
   parentPath?: string | undefined;
   /**
@@ -1108,7 +1118,7 @@ export interface GenieCreateSpaceRequest {
    * Use the [Get Genie Space](:method:genie/getspace) API to retrieve an example response, which includes the `serialized_space` field.
    * This field provides the structure of the JSON string that represents the space's layout and components.
    */
-  serializedSpace?: string | undefined;
+  serializedSpace: string;
   /** Optional title override */
   title?: string | undefined;
   /** Optional description */
@@ -1117,18 +1127,18 @@ export interface GenieCreateSpaceRequest {
 
 export interface GenieDeleteConversationMessageRequest {
   /** The ID associated with the Genie space where the message is located. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The ID associated with the conversation. */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** The ID associated with the message to delete. */
-  messageId?: string | undefined;
+  messageId: string;
 }
 
 export interface GenieDeleteConversationRequest {
   /** The ID associated with the Genie space where the conversation is located. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The ID of the conversation to delete. */
-  conversationId?: string | undefined;
+  conversationId: string;
 }
 
 export interface GenieEvalResponse {
@@ -1146,11 +1156,11 @@ export interface GenieEvalResponse {
  */
 export interface GenieEvalResult {
   /** Unique identifier for this evaluation result. */
-  resultId?: string | undefined;
+  resultId: string;
   /** The ID of the space the evaluation result belongs to. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The ID of the benchmark question that was evaluated. */
-  benchmarkQuestionId?: string | undefined;
+  benchmarkQuestionId: string;
   /** Current status of this evaluation result. */
   status?: EvaluationStatusType | undefined;
   /** Stored snapshot of original benchmark question text. */
@@ -1164,11 +1174,11 @@ export interface GenieEvalResult {
 /** Shows detailed information for an evaluation result. */
 export interface GenieEvalResultDetails {
   /** The unique identifier for the evaluation result. */
-  resultId?: string | undefined;
+  resultId: string;
   /** The ID of the space the evaluation result belongs to. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The ID of the benchmark question that was evaluated. */
-  benchmarkQuestionId?: string | undefined;
+  benchmarkQuestionId: string;
   /** Current status of the evaluation run. */
   evalRunStatus?: EvaluationStatusType | undefined;
   /** Assessment of the evaluation result: good, bad, or needs review */
@@ -1220,7 +1230,7 @@ export interface GenieEvalResultDetails {
 
 export interface GenieEvalRunResponse {
   /** The unique identifier for the evaluation run. */
-  evalRunId?: string | undefined;
+  evalRunId: string;
   /** Current status of the evaluation run. */
   evalRunStatus?: EvaluationStatusType | undefined;
   /** User ID who initiated the evaluation run. */
@@ -1241,22 +1251,22 @@ export interface GenieEvalRunResponse {
 
 export interface GenieExecuteMessageAttachmentQueryRequest {
   /** Message ID */
-  messageId?: string | undefined;
+  messageId: string;
   /** Genie space ID */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** Conversation ID */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** Attachment ID */
-  attachmentId?: string | undefined;
+  attachmentId: string;
 }
 
 export interface GenieExecuteMessageQueryRequest {
   /** Message ID */
-  messageId?: string | undefined;
+  messageId: string;
   /** Genie space ID */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** Conversation ID */
-  conversationId?: string | undefined;
+  conversationId: string;
 }
 
 /** Feedback containing rating and optional comment */
@@ -1269,13 +1279,13 @@ export interface GenieFeedback {
 
 export interface GenieGenerateDownloadFullQueryResultRequest {
   /** Genie space ID */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** Conversation ID */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** Message ID */
-  messageId?: string | undefined;
+  messageId: string;
   /** Attachment ID */
-  attachmentId?: string | undefined;
+  attachmentId: string;
 }
 
 export interface GenieGenerateDownloadFullQueryResultResponse {
@@ -1287,26 +1297,26 @@ export interface GenieGenerateDownloadFullQueryResultResponse {
 
 export interface GenieGetConversationMessageRequest {
   /** The ID associated with the Genie space where the target conversation is located. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The ID associated with the target conversation. */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** The ID associated with the target message from the identified conversation. */
-  messageId?: string | undefined;
+  messageId: string;
 }
 
 export interface GenieGetDownloadFullQueryResultRequest {
   /** Genie space ID */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** Conversation ID */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** Message ID */
-  messageId?: string | undefined;
+  messageId: string;
   /** Attachment ID */
-  attachmentId?: string | undefined;
+  attachmentId: string;
   /** Download ID. This ID is provided by the [Generate Download endpoint](:method:genie/generateDownloadFullQueryResult) */
-  downloadId?: string | undefined;
+  downloadId: string;
   /** JWT signature for the download_id to ensure secure access to query results */
-  downloadIdSignature?: string | undefined;
+  downloadIdSignature: string;
 }
 
 export interface GenieGetDownloadFullQueryResultResponse {
@@ -1316,37 +1326,37 @@ export interface GenieGetDownloadFullQueryResultResponse {
 
 export interface GenieGetEvalResultDetailsRequest {
   /** The ID associated with the Genie space where the evaluation run is located. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The unique identifier for the evaluation run. */
-  evalRunId?: string | undefined;
+  evalRunId: string;
   /** The unique identifier for the evaluation result. */
-  resultId?: string | undefined;
+  resultId: string;
 }
 
 export interface GenieGetEvalRunRequest {
   /** The ID associated with the Genie space where the evaluation run is located. */
-  spaceId?: string | undefined;
-  evalRunId?: string | undefined;
+  spaceId: string;
+  evalRunId: string;
 }
 
 export interface GenieGetMessageAttachmentQueryResultRequest {
   /** Message ID */
-  messageId?: string | undefined;
+  messageId: string;
   /** Genie space ID */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** Conversation ID */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** Attachment ID */
-  attachmentId?: string | undefined;
+  attachmentId: string;
 }
 
 export interface GenieGetMessageQueryResultRequest {
   /** Message ID */
-  messageId?: string | undefined;
+  messageId: string;
   /** Genie space ID */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** Conversation ID */
-  conversationId?: string | undefined;
+  conversationId: string;
 }
 
 export interface GenieGetMessageQueryResultResponse {
@@ -1356,18 +1366,18 @@ export interface GenieGetMessageQueryResultResponse {
 
 export interface GenieGetQueryResultByAttachmentRequest {
   /** Message ID */
-  messageId?: string | undefined;
+  messageId: string;
   /** Genie space ID */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** Conversation ID */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** Attachment ID */
-  attachmentId?: string | undefined;
+  attachmentId: string;
 }
 
 export interface GenieGetSpaceRequest {
   /** The ID associated with the Genie space */
-  spaceId?: string | undefined;
+  spaceId: string;
   /**
    * Whether to include the serialized space export in the response.
    * Requires at least CAN EDIT permission on the space.
@@ -1377,9 +1387,9 @@ export interface GenieGetSpaceRequest {
 
 export interface GenieListConversationCommentsRequest {
   /** The ID associated with the Genie space. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The ID associated with the conversation. */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** Maximum number of comments to return per page. */
   pageSize?: number | undefined;
   /** Pagination token for getting the next page of results. */
@@ -1395,9 +1405,9 @@ export interface GenieListConversationCommentsResponse {
 
 export interface GenieListConversationMessagesRequest {
   /** The ID associated with the Genie space where the conversation is located */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The ID of the conversation to list messages from */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** Maximum number of messages to return per page */
   pageSize?: number | undefined;
   /** Token to get the next page of results */
@@ -1413,7 +1423,7 @@ export interface GenieListConversationMessagesResponse {
 
 export interface GenieListConversationsRequest {
   /** The ID of the Genie space to retrieve conversations from. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** Maximum number of conversations to return per page */
   pageSize?: number | undefined;
   /** Token to get the next page of results */
@@ -1434,9 +1444,9 @@ export interface GenieListConversationsResponse {
 
 export interface GenieListEvalResultsRequest {
   /** The ID associated with the Genie space where the evaluation run is located. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The unique identifier for the evaluation run. */
-  evalRunId?: string | undefined;
+  evalRunId: string;
   /** Maximum number of eval results to return per page. */
   pageSize?: number | undefined;
   /** Opaque token to retrieve the next page of results. */
@@ -1452,7 +1462,7 @@ export interface GenieListEvalResultsResponse {
 
 export interface GenieListEvalRunsRequest {
   /** The ID associated with the Genie space where the evaluation run is located. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** Maximum number of evaluation runs to return per page */
   pageSize?: number | undefined;
   /** Token to get the next page of results */
@@ -1468,11 +1478,11 @@ export interface GenieListEvalRunsResponse {
 
 export interface GenieListMessageCommentsRequest {
   /** The ID associated with the Genie space. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The ID associated with the conversation. */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** The ID associated with the message. */
-  messageId?: string | undefined;
+  messageId: string;
   /** Maximum number of comments to return per page. */
   pageSize?: number | undefined;
   /** Pagination token for getting the next page of results. */
@@ -1507,9 +1517,9 @@ export interface GenieMessage {
    */
   id?: string | undefined;
   /** Genie space ID */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** Conversation ID */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** ID of the user who created the message */
   userId?: bigint | undefined;
   /** Timestamp when the message was created */
@@ -1518,7 +1528,7 @@ export interface GenieMessage {
   lastUpdatedTimestamp?: bigint | undefined;
   status?: MessageStatus_MessageStatus | undefined;
   /** User message content */
-  content?: string | undefined;
+  content: string;
   /** AI-generated response to the message */
   attachments?: GenieAttachment[] | undefined;
   /**
@@ -1529,7 +1539,7 @@ export interface GenieMessage {
   /** Error message if Genie failed to respond to the message */
   error?: MessageError | undefined;
   /** Message ID */
-  messageId?: string | undefined;
+  messageId: string;
   /** User feedback for the message if provided */
   feedback?: GenieFeedback | undefined;
 }
@@ -1537,17 +1547,17 @@ export interface GenieMessage {
 /** A comment on a Genie conversation message. */
 export interface GenieMessageComment {
   /** Genie space ID */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** Conversation ID */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** Message ID */
-  messageId?: string | undefined;
+  messageId: string;
   /** Comment ID */
-  messageCommentId?: string | undefined;
+  messageCommentId: string;
   /** ID of the user who created the comment */
   userId?: bigint | undefined;
   /** Comment text content */
-  content?: string | undefined;
+  content: string;
   /** Timestamp when the comment was created */
   createdTimestamp?: bigint | undefined;
 }
@@ -1580,22 +1590,22 @@ export interface GenieResultMetadata {
 
 export interface GenieSendMessageFeedbackRequest {
   /** The ID associated with the Genie space where the message is located. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The ID associated with the conversation. */
-  conversationId?: string | undefined;
+  conversationId: string;
   /** The ID associated with the message to provide feedback for. */
-  messageId?: string | undefined;
+  messageId: string;
   /** The rating (POSITIVE, NEGATIVE, or NONE). */
-  rating?: GenieFeedbackRating | undefined;
+  rating: GenieFeedbackRating;
   /** Optional text feedback that will be stored as a comment. */
   comment?: string | undefined;
 }
 
 export interface GenieSpace {
   /** Genie space ID */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** Title of the Genie Space */
-  title?: string | undefined;
+  title: string;
   /** Description of the Genie Space */
   description?: string | undefined;
   /** Warehouse associated with the Genie Space */
@@ -1622,19 +1632,19 @@ export interface GenieSpace {
 
 export interface GenieStartConversationRequest {
   /** The ID associated with the Genie space where you want to start a conversation. */
-  spaceId?: string | undefined;
+  spaceId: string;
   /** The text of the message that starts the conversation. */
-  content?: string | undefined;
+  content: string;
   /** Enable visualization generation. */
   enableVisualization?: boolean | undefined;
 }
 
 export interface GenieStartConversationResponse {
   /** Message ID */
-  messageId?: string | undefined;
+  messageId: string;
   message?: GenieMessage | undefined;
   /** Conversation ID */
-  conversationId?: string | undefined;
+  conversationId: string;
   conversation?: GenieConversation | undefined;
 }
 
@@ -1646,12 +1656,12 @@ export interface GenieSuggestedQuestionsAttachment {
 
 export interface GenieTrashSpaceRequest {
   /** The ID associated with the Genie space to be sent to the trash. */
-  spaceId?: string | undefined;
+  spaceId: string;
 }
 
 export interface GenieUpdateSpaceRequest {
   /** Genie space ID */
-  spaceId?: string | undefined;
+  spaceId: string;
   /**
    * The contents of the Genie Space in serialized string form (full replacement).
    * Use the [Get Genie Space](:method:genie/getspace) API to retrieve an example response, which includes the `serialized_space` field.
@@ -1754,9 +1764,9 @@ export interface Result {
  * Contains the result data of a single chunk when using `INLINE` disposition. When using
  * `EXTERNAL_LINKS` disposition, the array `external_links` is used instead to provide
  * URLs to the result data
- * in cloud storage. Exactly one of these alternatives is used. (While the `external_links`
- * array prepares the API to return multiple links in a single response. Currently only a single
- * link is returned.)
+ * in cloud storage. Exactly one of these alternatives is used. Calls to `getResultData` return
+ * the link for the requested chunk; `executeStatement` and `getStatementResult` responses can
+ * contain links for multiple chunks.
  */
 export interface ResultData {
   externalLinks?: ExternalLink[] | undefined;
@@ -2089,7 +2099,7 @@ export const unmarshalGenieAttachmentSchema: z.ZodType<GenieAttachment> = z
 export const unmarshalGenieConversationSchema: z.ZodType<GenieConversation> = z
   .object({
     id: z.string().optional(),
-    space_id: z.string().optional(),
+    space_id: z.string(),
     user_id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -2102,8 +2112,8 @@ export const unmarshalGenieConversationSchema: z.ZodType<GenieConversation> = z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
-    title: z.string().optional(),
-    conversation_id: z.string().optional(),
+    title: z.string(),
+    conversation_id: z.string(),
   })
   .transform(d => ({
     id: d.id,
@@ -2118,7 +2128,7 @@ export const unmarshalGenieConversationSchema: z.ZodType<GenieConversation> = z
 export const unmarshalGenieConversationSummarySchema: z.ZodType<GenieConversationSummary> =
   z
     .object({
-      conversation_id: z.string().optional(),
+      conversation_id: z.string(),
       title: z.string().optional(),
       created_timestamp: z
         .union([z.number(), z.bigint(), z.string()])
@@ -2149,9 +2159,9 @@ export const unmarshalGenieEvalResponseSchema: z.ZodType<GenieEvalResponse> = z
 
 export const unmarshalGenieEvalResultSchema: z.ZodType<GenieEvalResult> = z
   .object({
-    result_id: z.string().optional(),
-    space_id: z.string().optional(),
-    benchmark_question_id: z.string().optional(),
+    result_id: z.string(),
+    space_id: z.string(),
+    benchmark_question_id: z.string(),
     status: z.string().optional(),
     question: z.string().optional(),
     benchmark_answer: z.string().optional(),
@@ -2173,9 +2183,9 @@ export const unmarshalGenieEvalResultSchema: z.ZodType<GenieEvalResult> = z
 export const unmarshalGenieEvalResultDetailsSchema: z.ZodType<GenieEvalResultDetails> =
   z
     .object({
-      result_id: z.string().optional(),
-      space_id: z.string().optional(),
-      benchmark_question_id: z.string().optional(),
+      result_id: z.string(),
+      space_id: z.string(),
+      benchmark_question_id: z.string(),
       eval_run_status: z.string().optional(),
       assessment: z.string().optional(),
       manual_assessment: z.boolean().optional(),
@@ -2202,7 +2212,7 @@ export const unmarshalGenieEvalResultDetailsSchema: z.ZodType<GenieEvalResultDet
 export const unmarshalGenieEvalRunResponseSchema: z.ZodType<GenieEvalRunResponse> =
   z
     .object({
-      eval_run_id: z.string().optional(),
+      eval_run_id: z.string(),
       eval_run_status: z.string().optional(),
       run_by_user: z
         .union([z.number(), z.bigint(), z.string()])
@@ -2378,8 +2388,8 @@ export const unmarshalGenieListSpacesResponseSchema: z.ZodType<GenieListSpacesRe
 export const unmarshalGenieMessageSchema: z.ZodType<GenieMessage> = z
   .object({
     id: z.string().optional(),
-    space_id: z.string().optional(),
-    conversation_id: z.string().optional(),
+    space_id: z.string(),
+    conversation_id: z.string(),
     user_id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -2393,13 +2403,13 @@ export const unmarshalGenieMessageSchema: z.ZodType<GenieMessage> = z
       .transform(v => BigInt(v))
       .optional(),
     status: z.string().optional(),
-    content: z.string().optional(),
+    content: z.string(),
     attachments: z
       .array(z.lazy(() => unmarshalGenieAttachmentSchema))
       .optional(),
     query_result: z.lazy(() => unmarshalResultSchema).optional(),
     error: z.lazy(() => unmarshalMessageErrorSchema).optional(),
-    message_id: z.string().optional(),
+    message_id: z.string(),
     feedback: z.lazy(() => unmarshalGenieFeedbackSchema).optional(),
   })
   .transform(d => ({
@@ -2421,15 +2431,15 @@ export const unmarshalGenieMessageSchema: z.ZodType<GenieMessage> = z
 export const unmarshalGenieMessageCommentSchema: z.ZodType<GenieMessageComment> =
   z
     .object({
-      space_id: z.string().optional(),
-      conversation_id: z.string().optional(),
-      message_id: z.string().optional(),
-      message_comment_id: z.string().optional(),
+      space_id: z.string(),
+      conversation_id: z.string(),
+      message_id: z.string(),
+      message_comment_id: z.string(),
       user_id: z
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
-      content: z.string().optional(),
+      content: z.string(),
       created_timestamp: z
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
@@ -2493,8 +2503,8 @@ export const unmarshalGenieResultMetadataSchema: z.ZodType<GenieResultMetadata> 
 
 export const unmarshalGenieSpaceSchema: z.ZodType<GenieSpace> = z
   .object({
-    space_id: z.string().optional(),
-    title: z.string().optional(),
+    space_id: z.string(),
+    title: z.string(),
     description: z.string().optional(),
     warehouse_id: z.string().optional(),
     parent_path: z.string().optional(),
@@ -2524,9 +2534,9 @@ export const unmarshalGenieSpaceSchema: z.ZodType<GenieSpace> = z
 export const unmarshalGenieStartConversationResponseSchema: z.ZodType<GenieStartConversationResponse> =
   z
     .object({
-      message_id: z.string().optional(),
+      message_id: z.string(),
       message: z.lazy(() => unmarshalGenieMessageSchema).optional(),
-      conversation_id: z.string().optional(),
+      conversation_id: z.string(),
       conversation: z.lazy(() => unmarshalGenieConversationSchema).optional(),
     })
     .transform(d => ({
@@ -2785,11 +2795,23 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
                   : undefined,
   }));
 
+export const marshalGenieCancelResponseRequestSchema: z.ZodType = z
+  .object({
+    agentId: z.string(),
+    conversationId: z.string(),
+    responseId: z.string(),
+  })
+  .transform(d => ({
+    agent_id: d.agentId,
+    conversation_id: d.conversationId,
+    response_id: d.responseId,
+  }));
+
 export const marshalGenieCreateConversationMessageRequestSchema: z.ZodType = z
   .object({
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
-    content: z.string().optional(),
+    spaceId: z.string(),
+    conversationId: z.string(),
+    content: z.string(),
     enableVisualization: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2801,7 +2823,7 @@ export const marshalGenieCreateConversationMessageRequestSchema: z.ZodType = z
 
 export const marshalGenieCreateEvalRunRequestSchema: z.ZodType = z
   .object({
-    spaceId: z.string().optional(),
+    spaceId: z.string(),
     benchmarkQuestionIds: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -2811,10 +2833,10 @@ export const marshalGenieCreateEvalRunRequestSchema: z.ZodType = z
 
 export const marshalGenieCreateMessageCommentRequestSchema: z.ZodType = z
   .object({
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
-    messageId: z.string().optional(),
-    content: z.string().optional(),
+    spaceId: z.string(),
+    conversationId: z.string(),
+    messageId: z.string(),
+    content: z.string(),
   })
   .transform(d => ({
     space_id: d.spaceId,
@@ -2825,9 +2847,9 @@ export const marshalGenieCreateMessageCommentRequestSchema: z.ZodType = z
 
 export const marshalGenieCreateSpaceRequestSchema: z.ZodType = z
   .object({
-    warehouseId: z.string().optional(),
+    warehouseId: z.string(),
     parentPath: z.string().optional(),
-    serializedSpace: z.string().optional(),
+    serializedSpace: z.string(),
     title: z.string().optional(),
     description: z.string().optional(),
   })
@@ -2842,10 +2864,10 @@ export const marshalGenieCreateSpaceRequestSchema: z.ZodType = z
 export const marshalGenieExecuteMessageAttachmentQueryRequestSchema: z.ZodType =
   z
     .object({
-      messageId: z.string().optional(),
-      spaceId: z.string().optional(),
-      conversationId: z.string().optional(),
-      attachmentId: z.string().optional(),
+      messageId: z.string(),
+      spaceId: z.string(),
+      conversationId: z.string(),
+      attachmentId: z.string(),
     })
     .transform(d => ({
       message_id: d.messageId,
@@ -2856,9 +2878,9 @@ export const marshalGenieExecuteMessageAttachmentQueryRequestSchema: z.ZodType =
 
 export const marshalGenieExecuteMessageQueryRequestSchema: z.ZodType = z
   .object({
-    messageId: z.string().optional(),
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
+    messageId: z.string(),
+    spaceId: z.string(),
+    conversationId: z.string(),
   })
   .transform(d => ({
     message_id: d.messageId,
@@ -2869,10 +2891,10 @@ export const marshalGenieExecuteMessageQueryRequestSchema: z.ZodType = z
 export const marshalGenieGenerateDownloadFullQueryResultRequestSchema: z.ZodType =
   z
     .object({
-      spaceId: z.string().optional(),
-      conversationId: z.string().optional(),
-      messageId: z.string().optional(),
-      attachmentId: z.string().optional(),
+      spaceId: z.string(),
+      conversationId: z.string(),
+      messageId: z.string(),
+      attachmentId: z.string(),
     })
     .transform(d => ({
       space_id: d.spaceId,
@@ -2883,10 +2905,10 @@ export const marshalGenieGenerateDownloadFullQueryResultRequestSchema: z.ZodType
 
 export const marshalGenieSendMessageFeedbackRequestSchema: z.ZodType = z
   .object({
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
-    messageId: z.string().optional(),
-    rating: z.string().optional(),
+    spaceId: z.string(),
+    conversationId: z.string(),
+    messageId: z.string(),
+    rating: z.string(),
     comment: z.string().optional(),
   })
   .transform(d => ({
@@ -2899,8 +2921,8 @@ export const marshalGenieSendMessageFeedbackRequestSchema: z.ZodType = z
 
 export const marshalGenieStartConversationRequestSchema: z.ZodType = z
   .object({
-    spaceId: z.string().optional(),
-    content: z.string().optional(),
+    spaceId: z.string(),
+    content: z.string(),
     enableVisualization: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2911,7 +2933,7 @@ export const marshalGenieStartConversationRequestSchema: z.ZodType = z
 
 export const marshalGenieUpdateSpaceRequestSchema: z.ZodType = z
   .object({
-    spaceId: z.string().optional(),
+    spaceId: z.string(),
     serializedSpace: z.string().optional(),
     title: z.string().optional(),
     description: z.string().optional(),

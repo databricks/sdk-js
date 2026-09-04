@@ -11,7 +11,7 @@ export interface CreateSecretRequest {
    * The secret object to create. The **name**, **catalog_name**, **schema_name**, and **value**
    * fields are required.
    */
-  secret?: Secret | undefined;
+  secret: Secret;
 }
 
 /** Request message for DeleteSecret. */
@@ -20,7 +20,7 @@ export interface DeleteSecretRequest {
    * The three-level (fully qualified) name of the secret
    * (for example, **catalog_name.schema_name.secret_name**).
    */
-  fullName?: string | undefined;
+  fullName: string;
 }
 
 /** Request message for GetSecret. */
@@ -29,7 +29,7 @@ export interface GetSecretRequest {
    * The three-level (fully qualified) name of the secret
    * (for example, **catalog_name.schema_name.secret_name**).
    */
-  fullName?: string | undefined;
+  fullName: string;
   /**
    * Whether to include the secret value in the response. Defaults to false. Requires the
    * **READ_SECRET** privilege.
@@ -83,7 +83,7 @@ export interface ListSecretsResponse {
  */
 export interface Secret {
   /** The name of the secret, relative to its parent schema. */
-  name?: string | undefined;
+  name: string;
   /**
    * The owner of the secret. Defaults to the creating principal on creation. Can be updated to
    * transfer ownership of the secret to another principal.
@@ -109,16 +109,16 @@ export interface Secret {
   /** The three-level (fully qualified) name of the secret, in the form of **catalog_name.schema_name.secret_name**. */
   fullName?: string | undefined;
   /** The name of the catalog where the schema and the secret reside. */
-  catalogName?: string | undefined;
+  catalogName: string;
   /** The name of the schema where the secret resides. */
-  schemaName?: string | undefined;
+  schemaName: string;
   /**
    * The secret value to store. This field is input-only and is not returned in responses — use
    * the **effective_value** field (via GetSecret with **include_value** set to true) to read the
    * secret value. The maximum size is 60 KiB (pre-encryption). Accepted content includes
    * passwords, tokens, keys, and other sensitive credential data.
    */
-  value?: string | undefined;
+  value: string;
   /**
    * The secret value. Only populated in responses when you have the **READ_SECRET**
    * privilege and **include_value** is set to true in the request. The maximum size is 60 KiB.
@@ -138,12 +138,12 @@ export interface UpdateSecretRequest {
    * The three-level (fully qualified) name of the secret
    * (for example, **catalog_name.schema_name.secret_name**).
    */
-  fullName?: string | undefined;
+  fullName: string;
   /**
    * The secret object containing the fields to update. Only fields specified in **update_mask**
    * will be updated.
    */
-  secret?: Secret | undefined;
+  secret: Secret;
   /**
    * The field mask specifying which fields of the secret to update.
    * - If **update_mask** is **"*"**, all fields specified in **secret** are updated.
@@ -152,7 +152,7 @@ export interface UpdateSecretRequest {
    * Supported fields: **value**, **comment**, **owner**, **expire_time**. To change the secret
    * name, delete and recreate the secret.
    */
-  updateMask?: FieldMask<Secret> | undefined;
+  updateMask: FieldMask<Secret>;
 }
 
 export const unmarshalListSecretsResponseSchema: z.ZodType<ListSecretsResponse> =
@@ -168,7 +168,7 @@ export const unmarshalListSecretsResponseSchema: z.ZodType<ListSecretsResponse> 
 
 export const unmarshalSecretSchema: z.ZodType<Secret> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     owner: z.string().optional(),
     effective_owner: z.string().optional(),
     metastore_id: z.string().optional(),
@@ -184,9 +184,9 @@ export const unmarshalSecretSchema: z.ZodType<Secret> = z
     updated_by: z.string().optional(),
     comment: z.string().optional(),
     full_name: z.string().optional(),
-    catalog_name: z.string().optional(),
-    schema_name: z.string().optional(),
-    value: z.string().optional(),
+    catalog_name: z.string(),
+    schema_name: z.string(),
+    value: z.string(),
     effective_value: z.string().optional(),
     expire_time: z
       .string()
@@ -213,7 +213,7 @@ export const unmarshalSecretSchema: z.ZodType<Secret> = z
 
 export const marshalSecretSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     owner: z.string().optional(),
     effectiveOwner: z.string().optional(),
     metastoreId: z.string().optional(),
@@ -229,9 +229,9 @@ export const marshalSecretSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     comment: z.string().optional(),
     fullName: z.string().optional(),
-    catalogName: z.string().optional(),
-    schemaName: z.string().optional(),
-    value: z.string().optional(),
+    catalogName: z.string(),
+    schemaName: z.string(),
+    value: z.string(),
     effectiveValue: z.string().optional(),
     expireTime: z
       .any()

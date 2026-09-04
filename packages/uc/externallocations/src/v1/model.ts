@@ -58,11 +58,11 @@ export interface CreateExternalLocationRequest {
   /** Skips validation of the storage credential associated with the external location. */
   skipValidation?: boolean | undefined;
   /** Name of the external location. */
-  name?: string | undefined;
+  name: string;
   /** Path URL of the external location. */
-  url?: string | undefined;
+  url: string;
   /** Name of the storage credential used with this location. */
-  credentialName?: string | undefined;
+  credentialName: string;
   /** Indicates whether the external location is read-only. */
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
@@ -107,7 +107,7 @@ export interface CreateExternalLocationRequest {
 
 export interface DeleteExternalLocationRequest {
   /** Name of the external location. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /** Force deletion even if there are dependent external tables or mounts. */
   force?: boolean | undefined;
 }
@@ -128,11 +128,11 @@ export interface EncryptionDetails {
 
 export interface ExternalLocationInfo {
   /** Name of the external location. */
-  name?: string | undefined;
+  name: string;
   /** Path URL of the external location. */
-  url?: string | undefined;
+  url: string;
   /** Name of the storage credential used with this location. */
-  credentialName?: string | undefined;
+  credentialName: string;
   /** Indicates whether the external location is read-only. */
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
@@ -200,7 +200,7 @@ export interface GcpPubsub {
 
 export interface GetExternalLocationRequest {
   /** Name of the external location. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /** Whether to include external locations in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
@@ -248,7 +248,7 @@ export interface SseEncryptionDetails {
 
 export interface UpdateExternalLocationRequest {
   /** Name of the external location. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /** New name for the external location. */
   newName?: string | undefined;
   /** Force update even if changing url invalidates dependent external tables or mounts. */
@@ -256,11 +256,11 @@ export interface UpdateExternalLocationRequest {
   /** Skips validation of the storage credential associated with the external location. */
   skipValidation?: boolean | undefined;
   /** Name of the external location. */
-  name?: string | undefined;
+  name: string;
   /** Path URL of the external location. */
-  url?: string | undefined;
+  url: string;
   /** Name of the storage credential used with this location. */
-  credentialName?: string | undefined;
+  credentialName: string;
   /** Indicates whether the external location is read-only. */
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
@@ -349,9 +349,9 @@ export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
 export const unmarshalExternalLocationInfoSchema: z.ZodType<ExternalLocationInfo> =
   z
     .object({
-      name: z.string().optional(),
-      url: z.string().optional(),
-      credential_name: z.string().optional(),
+      name: z.string(),
+      url: z.string(),
+      credential_name: z.string(),
       read_only: z.boolean().optional(),
       comment: z.string().optional(),
       enable_file_events: z.boolean().optional(),
@@ -495,9 +495,9 @@ export const marshalAzureQueueStorageSchema: z.ZodType = z
 export const marshalCreateExternalLocationRequestSchema: z.ZodType = z
   .object({
     skipValidation: z.boolean().optional(),
-    name: z.string().optional(),
-    url: z.string().optional(),
-    credentialName: z.string().optional(),
+    name: z.string(),
+    url: z.string(),
+    credentialName: z.string(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
     enableFileEvents: z.boolean().optional(),
@@ -637,13 +637,13 @@ export const marshalSseEncryptionDetailsSchema: z.ZodType = z
 
 export const marshalUpdateExternalLocationRequestSchema: z.ZodType = z
   .object({
-    nameArg: z.string().optional(),
+    nameArg: z.string(),
     newName: z.string().optional(),
     force: z.boolean().optional(),
     skipValidation: z.boolean().optional(),
-    name: z.string().optional(),
-    url: z.string().optional(),
-    credentialName: z.string().optional(),
+    name: z.string(),
+    url: z.string(),
+    credentialName: z.string(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
     enableFileEvents: z.boolean().optional(),

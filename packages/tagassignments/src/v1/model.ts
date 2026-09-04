@@ -5,32 +5,32 @@ import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface CreateTagAssignmentRequest {
-  tagAssignment?: TagAssignment | undefined;
+  tagAssignment: TagAssignment;
 }
 
 export interface DeleteTagAssignmentRequest {
   /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks */
-  entityType?: string | undefined;
+  entityType: string;
   /** The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name */
-  entityId?: string | undefined;
+  entityId: string;
   /** The key of the tag. The characters , . : / - = and leading/trailing spaces are not allowed */
-  tagKey?: string | undefined;
+  tagKey: string;
 }
 
 export interface GetTagAssignmentRequest {
   /** The type of entity to which the tag is assigned.  Allowed values are apps, dashboards, geniespaces, notebooks */
-  entityType?: string | undefined;
+  entityType: string;
   /** The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name */
-  entityId?: string | undefined;
+  entityId: string;
   /** The key of the tag. The characters , . : / - = and leading/trailing spaces are not allowed */
-  tagKey?: string | undefined;
+  tagKey: string;
 }
 
 export interface ListTagAssignmentsRequest {
   /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks */
-  entityType?: string | undefined;
+  entityType: string;
   /** The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name */
-  entityId?: string | undefined;
+  entityId: string;
   /** Optional. Maximum number of tag assignments to return in a single page */
   pageSize?: number | undefined;
   /** Pagination token to go to the next page of tag assignments. Requests first page if absent. */
@@ -45,18 +45,18 @@ export interface ListTagAssignmentsResponse {
 
 export interface TagAssignment {
   /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks */
-  entityType?: string | undefined;
+  entityType: string;
   /** The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name */
-  entityId?: string | undefined;
+  entityId: string;
   /** The key of the tag. The characters , . : / - = and leading/trailing spaces are not allowed */
-  tagKey?: string | undefined;
+  tagKey: string;
   /** The value of the tag */
   tagValue?: string | undefined;
 }
 
 export interface UpdateTagAssignmentRequest {
-  tagAssignment?: TagAssignment | undefined;
-  updateMask?: FieldMask<TagAssignment> | undefined;
+  tagAssignment: TagAssignment;
+  updateMask: FieldMask<TagAssignment>;
 }
 
 export const unmarshalListTagAssignmentsResponseSchema: z.ZodType<ListTagAssignmentsResponse> =
@@ -74,9 +74,9 @@ export const unmarshalListTagAssignmentsResponseSchema: z.ZodType<ListTagAssignm
 
 export const unmarshalTagAssignmentSchema: z.ZodType<TagAssignment> = z
   .object({
-    entity_type: z.string().optional(),
-    entity_id: z.string().optional(),
-    tag_key: z.string().optional(),
+    entity_type: z.string(),
+    entity_id: z.string(),
+    tag_key: z.string(),
     tag_value: z.string().optional(),
   })
   .transform(d => ({
@@ -88,9 +88,9 @@ export const unmarshalTagAssignmentSchema: z.ZodType<TagAssignment> = z
 
 export const marshalTagAssignmentSchema: z.ZodType = z
   .object({
-    entityType: z.string().optional(),
-    entityId: z.string().optional(),
-    tagKey: z.string().optional(),
+    entityType: z.string(),
+    entityId: z.string(),
+    tagKey: z.string(),
     tagValue: z.string().optional(),
   })
   .transform(d => ({

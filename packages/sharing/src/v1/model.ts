@@ -257,14 +257,14 @@ export interface CreateShareRequest {
 
 export interface DeleteFederationPolicyRequest {
   /** Name of the recipient. This is the name of the recipient for which the policy is being deleted. */
-  recipientName?: string | undefined;
+  recipientName: string;
   /** Name of the policy. This is the name of the policy to be deleted. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface DeleteProviderRequest {
   /** Name of the provider. */
-  nameArg?: string | undefined;
+  nameArg: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -272,7 +272,7 @@ export interface DeleteProviderResponse {}
 
 export interface DeleteRecipientRequest {
   /** Name of the recipient. */
-  name?: string | undefined;
+  name: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -280,7 +280,7 @@ export interface DeleteRecipientResponse {}
 
 export interface DeleteShareRequest {
   /** The name of the share. */
-  name?: string | undefined;
+  name: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -399,7 +399,7 @@ export interface FunctionParameterInfos {
 
 export interface GetActivationUrlInfoRequest {
   /** The one time activation url. It also accepts activation token. */
-  activationUrl?: string | undefined;
+  activationUrl: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -407,19 +407,19 @@ export interface GetActivationUrlInfoResponse {}
 
 export interface GetFederationPolicyRequest {
   /** Name of the recipient. This is the name of the recipient for which the policy is being retrieved. */
-  recipientName?: string | undefined;
+  recipientName: string;
   /** Name of the policy. This is the name of the policy to be retrieved. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetProviderRequest {
   /** Name of the provider. */
-  nameArg?: string | undefined;
+  nameArg: string;
 }
 
 export interface GetRecipientRequest {
   /** Name of the recipient. */
-  name?: string | undefined;
+  name: string;
 }
 
 export interface GetRecipientSharePermissionsResponse {
@@ -444,7 +444,7 @@ export interface GetSharePermissionsResponse {
 
 export interface GetShareRequest {
   /** The name of the share. */
-  name?: string | undefined;
+  name: string;
   /** Query for data to include in the share. */
   includeSharedData?: boolean | undefined;
 }
@@ -456,7 +456,7 @@ export interface IpAccessList {
 
 export interface ListFederationPoliciesRequest {
   /** Name of the recipient. This is the name of the recipient for which the policies are being listed. */
-  recipientName?: string | undefined;
+  recipientName: string;
   maxResults?: number | undefined;
   pageToken?: string | undefined;
 }
@@ -469,9 +469,9 @@ export interface ListFederationPoliciesResponse {
 /** Request to fetch the list of assets of a share that is shared with the recipient. */
 export interface ListProviderShareAssetsRequest {
   /** The name of the provider who owns the share. */
-  providerNameArg?: string | undefined;
+  providerNameArg: string;
   /** The name of the share. */
-  shareNameArg?: string | undefined;
+  shareNameArg: string;
   /** Maximum number of tables to return. */
   tableMaxResults?: number | undefined;
   /** Maximum number of functions to return. */
@@ -498,7 +498,7 @@ export interface ListProviderShareAssetsResponse {
 
 export interface ListProviderSharesRequest {
   /** Name of the provider in which to list shares. */
-  providerNameArg?: string | undefined;
+  providerNameArg: string;
   /**
    * Maximum number of shares to return.
    * - when set to 0, the page length is set to a server configured value (recommended);
@@ -555,7 +555,7 @@ export interface ListProvidersResponse {
 
 export interface ListRecipientSharePermissionsRequest {
   /** The name of the Recipient. */
-  name?: string | undefined;
+  name: string;
   /**
    * Maximum number of permissions to return.
    * - when set to 0, the page length is set to a server configured value (recommended);
@@ -602,7 +602,7 @@ export interface ListRecipientsResponse {
 
 export interface ListSharePermissionsRequest {
   /** The name of the share. */
-  name?: string | undefined;
+  name: string;
   /**
    * Maximum number of permissions to return.
    * - when set to 0, the page length is set to a server configured value (recommended);
@@ -663,7 +663,7 @@ export interface NotebookFile {
  */
 export interface OidcFederationPolicy {
   /** The required token issuer, as specified in the 'iss' claim of federated tokens. */
-  issuer?: string | undefined;
+  issuer: string;
   /**
    * The claim that contains the subject of the token.
    * Depending on the identity provider and the use case (U2M or M2M), this can vary:
@@ -679,7 +679,7 @@ export interface OidcFederationPolicy {
    * - `groups`: Object ID of the group.
    * - `sub`: Subject identifier for other use cases.
    */
-  subjectClaim?: string | undefined;
+  subjectClaim: string;
   /**
    * The required token subject, as specified in the subject claim of federated tokens.
    * The subject claim identifies the identity of the user or machine accessing the resource.
@@ -688,7 +688,7 @@ export interface OidcFederationPolicy {
    * - U2M flow (user access): If the subject claim is `oid`, this must be the Object ID of the user in Entra ID.
    * - M2M flow (OAuth App access): If the subject claim is `azp`, this must be the client ID of the OAuth app registered in Entra ID.
    */
-  subject?: string | undefined;
+  subject: string;
   /**
    * The allowed token audiences, as specified in the 'aud' claim of federated tokens.
    * The audience identifier is intended to represent the recipient of the token.
@@ -758,7 +758,7 @@ export interface PrivilegeAssignment {
 /** An object with __properties__ containing map of key-value properties attached to the securable. */
 export interface PropertiesKvPairs {
   /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string> | undefined;
+  properties: Record<string, string>;
 }
 
 export interface ProviderInfo {
@@ -893,7 +893,7 @@ export interface RegisteredModelAlias {
 
 export interface RetrieveTokenRequest {
   /** The one time activation url. It also accepts activation token. */
-  activationUrl?: string | undefined;
+  activationUrl: string;
 }
 
 export interface RetrieveTokenResponse {
@@ -909,13 +909,13 @@ export interface RetrieveTokenResponse {
 
 export interface RotateRecipientTokenRequest {
   /** The name of the Recipient. */
-  name?: string | undefined;
+  name: string;
   /**
    * The expiration time of the bearer token in ISO 8601 format. This will set the expiration_time
    * of existing token only to a smaller timestamp, it cannot extend the expiration_time. Use 0 to
    * expire the existing token immediately, negative number will return an error.
    */
-  existingTokenExpireInSeconds?: bigint | undefined;
+  existingTokenExpireInSeconds: bigint;
 }
 
 export interface Share {
@@ -958,7 +958,7 @@ export interface SharedDataObject {
    * A fully qualified name that uniquely identifies a data object.
    * For example, a table's fully qualified name is in the format of `<catalog>.<schema>.<table>`,
    */
-  name?: string | undefined;
+  name: string;
   /** The type of the data object. */
   dataObjectType?: string | undefined;
   /** The time when this data object is added to the share, in epoch milliseconds. */
@@ -1090,7 +1090,7 @@ export interface TagKeyValue {
 
 export interface UpdateProviderRequest {
   /** Name of the provider. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /** New name for the provider. */
   newName?: string | undefined;
   /** The name of the Provider. */
@@ -1124,7 +1124,7 @@ export interface UpdateProviderRequest {
 
 export interface UpdateRecipientRequest {
   /** Name of the recipient. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /**
    * New name for the recipient.
    * .
@@ -1193,7 +1193,7 @@ export interface UpdateRecipientRequest {
 
 export interface UpdateSharePermissionsRequest {
   /** The name of the share. */
-  name?: string | undefined;
+  name: string;
   /** Optional. Whether to return the latest permissions list of the share in the response. */
   omitPermissionsList?: boolean | undefined;
   /** Array of permissions change objects. */
@@ -1207,7 +1207,7 @@ export interface UpdateSharePermissionsResponse {
 
 export interface UpdateShareRequest {
   /** The name of the share. */
-  nameArg?: string | undefined;
+  nameArg: string;
   /** New name for the share. */
   newName?: string | undefined;
   /** Array of shared data object updates. */
@@ -1550,9 +1550,9 @@ export const unmarshalNotebookFileSchema: z.ZodType<NotebookFile> = z
 export const unmarshalOidcFederationPolicySchema: z.ZodType<OidcFederationPolicy> =
   z
     .object({
-      issuer: z.string().optional(),
-      subject_claim: z.string().optional(),
-      subject: z.string().optional(),
+      issuer: z.string(),
+      subject_claim: z.string(),
+      subject: z.string(),
       audiences: z.array(z.string()).optional(),
     })
     .transform(d => ({
@@ -1607,7 +1607,7 @@ export const unmarshalPrivilegeAssignmentSchema: z.ZodType<PrivilegeAssignment> 
 
 export const unmarshalPropertiesKvPairsSchema: z.ZodType<PropertiesKvPairs> = z
   .object({
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
   })
   .transform(d => ({
     properties: d.properties,
@@ -1846,7 +1846,7 @@ export const unmarshalShareToPrivilegeAssignmentSchema: z.ZodType<ShareToPrivile
 
 export const unmarshalSharedDataObjectSchema: z.ZodType<SharedDataObject> = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     data_object_type: z.string().optional(),
     added_at: z
       .union([z.number(), z.bigint(), z.string()])
@@ -2106,9 +2106,9 @@ export const marshalIpAccessListSchema: z.ZodType = z
 
 export const marshalOidcFederationPolicySchema: z.ZodType = z
   .object({
-    issuer: z.string().optional(),
-    subjectClaim: z.string().optional(),
-    subject: z.string().optional(),
+    issuer: z.string(),
+    subjectClaim: z.string(),
+    subject: z.string(),
     audiences: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -2163,7 +2163,7 @@ export const marshalPermissionsChangeSchema: z.ZodType = z
 
 export const marshalPropertiesKvPairsSchema: z.ZodType = z
   .object({
-    properties: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()),
   })
   .transform(d => ({
     properties: d.properties,
@@ -2203,8 +2203,8 @@ export const marshalRecipientTokenInfoSchema: z.ZodType = z
 
 export const marshalRotateRecipientTokenRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
-    existingTokenExpireInSeconds: z.bigint().optional(),
+    name: z.string(),
+    existingTokenExpireInSeconds: z.bigint(),
   })
   .transform(d => ({
     name: d.name,
@@ -2213,7 +2213,7 @@ export const marshalRotateRecipientTokenRequestSchema: z.ZodType = z
 
 export const marshalSharedDataObjectSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     dataObjectType: z.string().optional(),
     addedAt: z.bigint().optional(),
     addedBy: z.string().optional(),
@@ -2247,7 +2247,7 @@ export const marshalSharedDataObjectSchema: z.ZodType = z
 
 export const marshalUpdateProviderRequestSchema: z.ZodType = z
   .object({
-    nameArg: z.string().optional(),
+    nameArg: z.string(),
     newName: z.string().optional(),
     name: z.string().optional(),
     authenticationType: z.string().optional(),
@@ -2285,7 +2285,7 @@ export const marshalUpdateProviderRequestSchema: z.ZodType = z
 
 export const marshalUpdateRecipientRequestSchema: z.ZodType = z
   .object({
-    nameArg: z.string().optional(),
+    nameArg: z.string(),
     newName: z.string().optional(),
     name: z.string().optional(),
     authenticationType: z.string().optional(),
@@ -2335,7 +2335,7 @@ export const marshalUpdateRecipientRequestSchema: z.ZodType = z
 
 export const marshalUpdateSharePermissionsRequestSchema: z.ZodType = z
   .object({
-    name: z.string().optional(),
+    name: z.string(),
     omitPermissionsList: z.boolean().optional(),
     changes: z.array(z.lazy(() => marshalPermissionsChangeSchema)).optional(),
   })
@@ -2347,7 +2347,7 @@ export const marshalUpdateSharePermissionsRequestSchema: z.ZodType = z
 
 export const marshalUpdateShareRequestSchema: z.ZodType = z
   .object({
-    nameArg: z.string().optional(),
+    nameArg: z.string(),
     newName: z.string().optional(),
     updates: z
       .array(

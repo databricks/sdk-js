@@ -26,9 +26,9 @@ export interface AutoTaggingConfig {
    * The Classification Tag. For built-in classes this is a system tag (e.g., "class.name",
    * "class.location"); for custom classes it is a user-defined governance tag key.
    */
-  classificationTag?: string | undefined;
+  classificationTag: string;
   /** Whether auto-tagging is enabled or disabled for this classification tag. */
-  autoTaggingMode?: AutoTaggingConfig_AutoTaggingMode | undefined;
+  autoTaggingMode: AutoTaggingConfig_AutoTaggingMode;
 }
 
 /**
@@ -72,7 +72,7 @@ export interface CatalogConfig {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CatalogConfig_SchemaNames {
   /** Schema names, each relative to the parent catalog. Must not be empty. */
-  names?: string[] | undefined;
+  names: string[];
 }
 
 /**
@@ -81,7 +81,7 @@ export interface CatalogConfig_SchemaNames {
  */
 export interface CreateCatalogConfigRequest {
   /** Parent resource in the format: catalogs/{catalog_name} */
-  parent?: string | undefined;
+  parent: string;
   /** The configuration to create. */
   catalogConfig?: CatalogConfig | undefined;
 }
@@ -92,13 +92,13 @@ export interface CreateCatalogConfigRequest {
  */
 export interface DeleteCatalogConfigRequest {
   /** Resource name in the format: catalogs/{catalog_name}/config */
-  name?: string | undefined;
+  name: string;
 }
 
 /** Get Data Classification configuration for a catalog. */
 export interface GetCatalogConfigRequest {
   /** Resource name in the format: catalogs/{catalog_name}/config */
-  name?: string | undefined;
+  name: string;
 }
 
 /**
@@ -112,15 +112,15 @@ export interface UpdateCatalogConfigRequest {
    * The configuration to apply to the catalog.
    * The name field in catalog_config identifies which resource to update.
    */
-  catalogConfig?: CatalogConfig | undefined;
+  catalogConfig: CatalogConfig;
   /** Field mask specifying which fields to update. */
-  updateMask?: FieldMask<CatalogConfig> | undefined;
+  updateMask: FieldMask<CatalogConfig>;
 }
 
 export const unmarshalAutoTaggingConfigSchema: z.ZodType<AutoTaggingConfig> = z
   .object({
-    classification_tag: z.string().optional(),
-    auto_tagging_mode: z.string().optional(),
+    classification_tag: z.string(),
+    auto_tagging_mode: z.string(),
   })
   .transform(d => ({
     classificationTag: d.classification_tag,
@@ -161,7 +161,7 @@ export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
 export const unmarshalCatalogConfig_SchemaNamesSchema: z.ZodType<CatalogConfig_SchemaNames> =
   z
     .object({
-      names: z.array(z.string()).optional(),
+      names: z.array(z.string()),
     })
     .transform(d => ({
       names: d.names,
@@ -169,8 +169,8 @@ export const unmarshalCatalogConfig_SchemaNamesSchema: z.ZodType<CatalogConfig_S
 
 export const marshalAutoTaggingConfigSchema: z.ZodType = z
   .object({
-    classificationTag: z.string().optional(),
-    autoTaggingMode: z.string().optional(),
+    classificationTag: z.string(),
+    autoTaggingMode: z.string(),
   })
   .transform(d => ({
     classification_tag: d.classificationTag,
@@ -210,7 +210,7 @@ export const marshalCatalogConfigSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalCatalogConfig_SchemaNamesSchema: z.ZodType = z
   .object({
-    names: z.array(z.string()).optional(),
+    names: z.array(z.string()),
   })
   .transform(d => ({
     names: d.names,
