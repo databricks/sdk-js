@@ -1493,6 +1493,12 @@ export interface Space {
   usagePolicyId?: string | undefined;
   /** The effective usage policy ID used by apps in the space. */
   effectiveUsagePolicyId?: string | undefined;
+  /**
+   * The group whose permissions users assume via Role Authorization for apps in this space. When
+   * set, user tokens assume the role of this group instead of doing regular obo token downscoping.
+   * Set only at space creation.
+   */
+  assumeGroupId?: string | undefined;
 }
 
 export interface SpaceStatus {
@@ -2275,6 +2281,7 @@ export const unmarshalSpaceSchema: z.ZodType<Space> = z
     service_principal_client_id: z.string().optional(),
     usage_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    assume_group_id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2293,6 +2300,7 @@ export const unmarshalSpaceSchema: z.ZodType<Space> = z
     servicePrincipalClientId: d.service_principal_client_id,
     usagePolicyId: d.usage_policy_id,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    assumeGroupId: d.assume_group_id,
   }));
 
 export const unmarshalSpaceStatusSchema: z.ZodType<SpaceStatus> = z
@@ -2983,6 +2991,7 @@ export const marshalSpaceSchema: z.ZodType = z
     servicePrincipalClientId: z.string().optional(),
     usagePolicyId: z.string().optional(),
     effectiveUsagePolicyId: z.string().optional(),
+    assumeGroupId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3001,6 +3010,7 @@ export const marshalSpaceSchema: z.ZodType = z
     service_principal_client_id: d.servicePrincipalClientId,
     usage_policy_id: d.usagePolicyId,
     effective_usage_policy_id: d.effectiveUsagePolicyId,
+    assume_group_id: d.assumeGroupId,
   }));
 
 export const marshalSpaceStatusSchema: z.ZodType = z
@@ -3187,6 +3197,7 @@ const gitSourceFieldMaskSchema: FieldMaskSchema = {
 };
 
 const spaceFieldMaskSchema: FieldMaskSchema = {
+  assumeGroupId: {wire: 'assume_group_id'},
   createTime: {wire: 'create_time'},
   creator: {wire: 'creator'},
   description: {wire: 'description'},

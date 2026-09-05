@@ -37,6 +37,10 @@ export const SecurableType = {
   EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
   STAGING_TABLE: 'STAGING_TABLE',
+  MODEL: 'MODEL',
+  MODEL_SERVICE: 'MODEL_SERVICE',
+  MCP_SERVICE: 'MCP_SERVICE',
+  MODEL_PROVIDER_SERVICE: 'MODEL_PROVIDER_SERVICE',
 } as const;
 export type SecurableType =
   | (typeof SecurableType)[keyof typeof SecurableType]
@@ -63,6 +67,14 @@ export interface ColumnMaskOptions {
   using?: FunctionArgument[] | undefined;
 }
 
+/** Extracts the value of a column-level tag: get_column_tag_value(col, "tagKey"). */
+export interface ColumnTagValueExtraction {
+  /** The alias from MATCH COLUMNS that identifies the column. */
+  columnAlias?: string | undefined;
+  /** 1024 matches the max_length on FunctionArgument.constant above. */
+  tagKey?: string | undefined;
+}
+
 export interface CreatePolicyRequest {
   /** Required. The policy to create. */
   policyInfo?: PolicyInfo | undefined;
@@ -80,6 +92,20 @@ export interface DeletePolicyRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeletePolicyResponse {}
 
+/**
+ * An expression that is evaluated at query time against per-request context.
+ * New variants (e.g., identity attributes) are added as additional oneof cases.
+ */
+export interface FunctionArgExpression {
+  expr?:
+    | {
+        $case: 'tagIntrospection';
+        /** An expression that introspects tags at query time. */
+        tagIntrospection: TagIntrospectionExpression;
+      }
+    | undefined;
+}
+
 export interface FunctionArgument {
   /** A positional argument pass to a row filter or column mask function. */
   arg?:
@@ -92,6 +118,15 @@ export interface FunctionArgument {
         $case: 'constant';
         /** A constant literal. */
         constant: string;
+      }
+    | {
+        $case: 'functionArgExpression';
+        /**
+         * An expression evaluated at query time. Wraps per-request expression variants
+         * (e.g., tag introspection) so new variants can be added without extending the
+         * FunctionArgument oneof.
+         */
+        functionArgExpression: FunctionArgExpression;
       }
     | undefined;
 }
@@ -253,6 +288,29 @@ export interface RowFilterOptions {
   using?: FunctionArgument[] | undefined;
 }
 
+/** An expression that introspects tags at query time. */
+export interface TagIntrospectionExpression {
+  /** The tag introspection variant to evaluate at query time. */
+  expr?:
+    | {
+        $case: 'tagValue';
+        /** Extracts the value of a securable-level tag. */
+        tagValue: TagValueExtraction;
+      }
+    | {
+        $case: 'columnTagValue';
+        /** Extracts the value of a column-level tag. */
+        columnTagValue: ColumnTagValueExtraction;
+      }
+    | undefined;
+}
+
+/** Extracts the value of a securable-level tag: get_tag_value("tagKey"). */
+export interface TagValueExtraction {
+  /** 1024 matches the max_length on FunctionArgument.constant above. */
+  tagKey?: string | undefined;
+}
+
 export interface UpdatePolicyRequest {
   /** Required. The type of the securable to update the policy for. */
   onSecurableType?: string | undefined;
@@ -289,13 +347,44 @@ export const unmarshalColumnMaskOptionsSchema: z.ZodType<ColumnMaskOptions> = z
     using: d.using,
   }));
 
+export const unmarshalColumnTagValueExtractionSchema: z.ZodType<ColumnTagValueExtraction> =
+  z
+    .object({
+      column_alias: z.string().optional(),
+      tag_key: z.string().optional(),
+    })
+    .transform(d => ({
+      columnAlias: d.column_alias,
+      tagKey: d.tag_key,
+    }));
+
 export const unmarshalDeletePolicyResponseSchema: z.ZodType<DeletePolicyResponse> =
   z.object({});
+
+export const unmarshalFunctionArgExpressionSchema: z.ZodType<FunctionArgExpression> =
+  z
+    .object({
+      tag_introspection: z
+        .lazy(() => unmarshalTagIntrospectionExpressionSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      expr:
+        d.tag_introspection !== undefined
+          ? {
+              $case: 'tagIntrospection' as const,
+              tagIntrospection: d.tag_introspection,
+            }
+          : undefined,
+    }));
 
 export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
   .object({
     alias: z.string().optional(),
     constant: z.string().optional(),
+    function_arg_expression: z
+      .lazy(() => unmarshalFunctionArgExpressionSchema)
+      .optional(),
   })
   .transform(d => ({
     arg:
@@ -303,7 +392,12 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
         ? {$case: 'alias' as const, alias: d.alias}
         : d.constant !== undefined
           ? {$case: 'constant' as const, constant: d.constant}
-          : undefined,
+          : d.function_arg_expression !== undefined
+            ? {
+                $case: 'functionArgExpression' as const,
+                functionArgExpression: d.function_arg_expression,
+              }
+            : undefined,
   }));
 
 export const unmarshalGrantOptionsSchema: z.ZodType<GrantOptions> = z
@@ -398,6 +492,35 @@ export const unmarshalRowFilterOptionsSchema: z.ZodType<RowFilterOptions> = z
     using: d.using,
   }));
 
+export const unmarshalTagIntrospectionExpressionSchema: z.ZodType<TagIntrospectionExpression> =
+  z
+    .object({
+      tag_value: z.lazy(() => unmarshalTagValueExtractionSchema).optional(),
+      column_tag_value: z
+        .lazy(() => unmarshalColumnTagValueExtractionSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      expr:
+        d.tag_value !== undefined
+          ? {$case: 'tagValue' as const, tagValue: d.tag_value}
+          : d.column_tag_value !== undefined
+            ? {
+                $case: 'columnTagValue' as const,
+                columnTagValue: d.column_tag_value,
+              }
+            : undefined,
+    }));
+
+export const unmarshalTagValueExtractionSchema: z.ZodType<TagValueExtraction> =
+  z
+    .object({
+      tag_key: z.string().optional(),
+    })
+    .transform(d => ({
+      tagKey: d.tag_key,
+    }));
+
 export const marshalColumnMaskOptionsSchema: z.ZodType = z
   .object({
     functionName: z.string().optional(),
@@ -410,18 +533,56 @@ export const marshalColumnMaskOptionsSchema: z.ZodType = z
     using: d.using,
   }));
 
+export const marshalColumnTagValueExtractionSchema: z.ZodType = z
+  .object({
+    columnAlias: z.string().optional(),
+    tagKey: z.string().optional(),
+  })
+  .transform(d => ({
+    column_alias: d.columnAlias,
+    tag_key: d.tagKey,
+  }));
+
+export const marshalFunctionArgExpressionSchema: z.ZodType = z
+  .object({
+    expr: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('tagIntrospection'),
+          tagIntrospection: z.lazy(
+            () => marshalTagIntrospectionExpressionSchema
+          ),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.expr?.$case === 'tagIntrospection' && {
+      tag_introspection: d.expr.tagIntrospection,
+    }),
+  }));
+
 export const marshalFunctionArgumentSchema: z.ZodType = z
   .object({
     arg: z
       .discriminatedUnion('$case', [
         z.object({$case: z.literal('alias'), alias: z.string()}),
         z.object({$case: z.literal('constant'), constant: z.string()}),
+        z.object({
+          $case: z.literal('functionArgExpression'),
+          functionArgExpression: z.lazy(
+            () => marshalFunctionArgExpressionSchema
+          ),
+        }),
       ])
       .optional(),
   })
   .transform(d => ({
     ...(d.arg?.$case === 'alias' && {alias: d.arg.alias}),
     ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
+    ...(d.arg?.$case === 'functionArgExpression' && {
+      function_arg_expression: d.arg.functionArgExpression,
+    }),
   }));
 
 export const marshalGrantOptionsSchema: z.ZodType = z
@@ -507,6 +668,36 @@ export const marshalRowFilterOptionsSchema: z.ZodType = z
   .transform(d => ({
     function_name: d.functionName,
     using: d.using,
+  }));
+
+export const marshalTagIntrospectionExpressionSchema: z.ZodType = z
+  .object({
+    expr: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('tagValue'),
+          tagValue: z.lazy(() => marshalTagValueExtractionSchema),
+        }),
+        z.object({
+          $case: z.literal('columnTagValue'),
+          columnTagValue: z.lazy(() => marshalColumnTagValueExtractionSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.expr?.$case === 'tagValue' && {tag_value: d.expr.tagValue}),
+    ...(d.expr?.$case === 'columnTagValue' && {
+      column_tag_value: d.expr.columnTagValue,
+    }),
+  }));
+
+export const marshalTagValueExtractionSchema: z.ZodType = z
+  .object({
+    tagKey: z.string().optional(),
+  })
+  .transform(d => ({
+    tag_key: d.tagKey,
   }));
 
 const columnMaskOptionsFieldMaskSchema: FieldMaskSchema = {

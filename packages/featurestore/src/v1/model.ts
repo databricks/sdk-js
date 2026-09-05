@@ -111,6 +111,12 @@ export interface PublishSpec {
   onlineTableName?: string | undefined;
   /** The publish mode of the pipeline that syncs the online table with the source table. */
   publishMode?: PublishSpec_PublishMode | undefined;
+  /**
+   * Full Unity Catalog name of one of the features materialized in the source table, used to
+   * derive the synced online table's entity and timeseries columns. Required for view sources
+   * without a UC PrimaryKeyConstraint; ignored when the source already has one.
+   */
+  fullFeatureName?: string | undefined;
 }
 
 export interface PublishTableRequest {
@@ -209,11 +215,13 @@ export const marshalPublishSpecSchema: z.ZodType = z
     onlineStore: z.string().optional(),
     onlineTableName: z.string().optional(),
     publishMode: z.string().optional(),
+    fullFeatureName: z.string().optional(),
   })
   .transform(d => ({
     online_store: d.onlineStore,
     online_table_name: d.onlineTableName,
     publish_mode: d.publishMode,
+    full_feature_name: d.fullFeatureName,
   }));
 
 export const marshalPublishTableRequestSchema: z.ZodType = z

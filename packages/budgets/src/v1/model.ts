@@ -158,16 +158,12 @@ export interface BudgetConfigurationFilter_WorkspaceIdClause {
 }
 
 export interface CreateBudgetConfigurationBudget {
-  /** <Databricks> budget configuration ID. */
-  budgetConfigurationId?: string | undefined;
   /** <Databricks> account ID. */
   accountId?: string | undefined;
-  /** Creation time of this budget configuration. */
-  createTime?: bigint | undefined;
-  /** Update time of this budget configuration. */
-  updateTime?: bigint | undefined;
   /** Alerts to configure when this budget is in a triggered state. Budgets must have exactly one alert configuration. */
-  alertConfigurations?: AlertConfiguration[] | undefined;
+  alertConfigurations?:
+    | CreateBudgetConfigurationBudgetAlertConfigurations[]
+    | undefined;
   /**
    * Configured filters for this budget. These are applied to your account's usage to limit the scope of what is considered for this budget.
    * Leave empty to include all usage for this account. All provided filters must be matched for usage to be included.
@@ -177,6 +173,32 @@ export interface CreateBudgetConfigurationBudget {
   displayName?: string | undefined;
   /** The resource scope for this budget. Determines whether the budget tracks all resources or a specific resource. */
   resourceType?: BudgetResourceType | undefined;
+}
+
+export interface CreateBudgetConfigurationBudgetActionConfigurations {
+  /** The type of the action. */
+  actionType?: ActionConfigurationType | undefined;
+  /** Target for the action. For example, an email address. */
+  target?: string | undefined;
+}
+
+export interface CreateBudgetConfigurationBudgetAlertConfigurations {
+  /** The time window of usage data for the budget. */
+  timePeriod?: AlertConfigurationTimePeriod | undefined;
+  /** The evaluation method to determine when this budget alert is in a triggered state. */
+  triggerType?: AlertConfigurationTriggerType | undefined;
+  /** The way to calculate cost for this budget alert. This is what `quantity_threshold` is measured in. */
+  quantityType?: AlertConfigurationQuantityType | undefined;
+  /** The threshold for the budget alert to determine if it is in a triggered state. The number is evaluated based on `quantity_type`. */
+  quantityThreshold?: string | undefined;
+  /** Configured actions for this alert. These define what happens when an alert enters a triggered state. */
+  actionConfigurations?:
+    | CreateBudgetConfigurationBudgetActionConfigurations[]
+    | undefined;
+  /** How the alert threshold is evaluated. Determines whether spend is tracked in aggregate or per individual user. */
+  scopeType?: AlertConfigurationScopeType | undefined;
+  /** Per-principal threshold overrides for this alert. Only applies to per-user alerts (`scope_type` = `ALERT_CONFIGURATION_SCOPE_TYPE_PER_USER`); ignored for shared alerts. */
+  principalOverrides?: PrincipalOverride[] | undefined;
 }
 
 export interface CreateBudgetConfigurationRequest {
@@ -208,7 +230,6 @@ export interface GetBudgetConfigurationRequest {
   budgetId?: string | undefined;
   /** <Databricks> account ID. */
   accountId?: string | undefined;
-  includeSpendStatus?: boolean | undefined;
 }
 
 export interface GetBudgetConfigurationResponse {
@@ -223,8 +244,6 @@ export interface ListBudgetConfigurationsRequest {
    * Requests first page if absent.
    */
   pageToken?: string | undefined;
-  includeSpendStatus?: boolean | undefined;
-  includeWorkspaceBudgets?: boolean | undefined;
 }
 
 export interface ListBudgetConfigurationsResponse {
@@ -246,10 +265,6 @@ export interface UpdateBudgetConfigurationBudget {
   budgetConfigurationId?: string | undefined;
   /** <Databricks> account ID. */
   accountId?: string | undefined;
-  /** Creation time of this budget configuration. */
-  createTime?: bigint | undefined;
-  /** Update time of this budget configuration. */
-  updateTime?: bigint | undefined;
   /** Alerts to configure when this budget is in a triggered state. Budgets must have exactly one alert configuration. */
   alertConfigurations?: AlertConfiguration[] | undefined;
   /**
@@ -551,27 +566,66 @@ export const marshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodType
 
 export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
   .object({
-    budgetConfigurationId: z.string().optional(),
     accountId: z.string().optional(),
-    createTime: z.bigint().optional(),
-    updateTime: z.bigint().optional(),
     alertConfigurations: z
-      .array(z.lazy(() => marshalAlertConfigurationSchema))
+      .array(
+        z.lazy(
+          () => marshalCreateBudgetConfigurationBudgetAlertConfigurationsSchema
+        )
+      )
       .optional(),
     filter: z.lazy(() => marshalBudgetConfigurationFilterSchema).optional(),
     displayName: z.string().optional(),
     resourceType: z.string().optional(),
   })
   .transform(d => ({
-    budget_configuration_id: d.budgetConfigurationId,
     account_id: d.accountId,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     alert_configurations: d.alertConfigurations,
     filter: d.filter,
     display_name: d.displayName,
     resource_type: d.resourceType,
   }));
+
+export const marshalCreateBudgetConfigurationBudgetActionConfigurationsSchema: z.ZodType =
+  z
+    .object({
+      actionType: z.string().optional(),
+      target: z.string().optional(),
+    })
+    .transform(d => ({
+      action_type: d.actionType,
+      target: d.target,
+    }));
+
+export const marshalCreateBudgetConfigurationBudgetAlertConfigurationsSchema: z.ZodType =
+  z
+    .object({
+      timePeriod: z.string().optional(),
+      triggerType: z.string().optional(),
+      quantityType: z.string().optional(),
+      quantityThreshold: z.string().optional(),
+      actionConfigurations: z
+        .array(
+          z.lazy(
+            () =>
+              marshalCreateBudgetConfigurationBudgetActionConfigurationsSchema
+          )
+        )
+        .optional(),
+      scopeType: z.string().optional(),
+      principalOverrides: z
+        .array(z.lazy(() => marshalPrincipalOverrideSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      time_period: d.timePeriod,
+      trigger_type: d.triggerType,
+      quantity_type: d.quantityType,
+      quantity_threshold: d.quantityThreshold,
+      action_configurations: d.actionConfigurations,
+      scope_type: d.scopeType,
+      principal_overrides: d.principalOverrides,
+    }));
 
 export const marshalCreateBudgetConfigurationRequestSchema: z.ZodType = z
   .object({
@@ -597,8 +651,6 @@ export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
   .object({
     budgetConfigurationId: z.string().optional(),
     accountId: z.string().optional(),
-    createTime: z.bigint().optional(),
-    updateTime: z.bigint().optional(),
     alertConfigurations: z
       .array(z.lazy(() => marshalAlertConfigurationSchema))
       .optional(),
@@ -609,8 +661,6 @@ export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
   .transform(d => ({
     budget_configuration_id: d.budgetConfigurationId,
     account_id: d.accountId,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     alert_configurations: d.alertConfigurations,
     filter: d.filter,
     display_name: d.displayName,

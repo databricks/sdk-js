@@ -442,7 +442,7 @@ export interface CleanRoomAsset {
         $case: 'tableLocalDetails';
         /**
          * Local details for a table that are only available to its owner.
-         * Present if and only if **asset_type** is **TABLE**
+         * Present if and only if **asset_type** is **TABLE** or **STREAMING_TABLE**
          */
         tableLocalDetails: CleanRoomAsset_TableLocalDetails;
       }
@@ -477,7 +477,7 @@ export interface CleanRoomAsset {
         $case: 'table';
         /**
          * Table details available to all collaborators of the clean room.
-         * Present if and only if **asset_type** is **TABLE**
+         * Present if and only if **asset_type** is **TABLE** or **STREAMING_TABLE**
          */
         table: CleanRoomAsset_Table;
       }
@@ -912,9 +912,9 @@ export interface ColumnMask {
    */
   usingColumnNames?: string[] | undefined;
   /**
-   * The list of additional table columns or literals to be passed as additional arguments to
-   * a column mask function. This is the replacement of the deprecated using_column_names field and
-   * carries information about the types (alias or constant) of the arguments to the mask function.
+   * The list of table columns or literals to be passed as additional arguments to a column mask
+   * function, carrying the type (column reference vs constant literal) of each argument.
+   * Deprecated: use using_column_names instead.
    */
   usingArguments?: PolicyFunctionArgument[] | undefined;
 }

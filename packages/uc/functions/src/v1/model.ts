@@ -144,7 +144,10 @@ export interface CreateFunction {
   comment?: string | undefined;
   /** JSON-serialized key-value pair map, encoded (escaped) as a string. */
   properties?: string | undefined;
-  /** function dependencies. */
+  /**
+   * Function dependencies. For external UDFs, dependencies may
+   * contain only credential, secret, or volume objects.
+   */
   routineDependencies?: DependencyList | undefined;
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
@@ -253,7 +256,10 @@ export interface FunctionInfo {
   comment?: string | undefined;
   /** JSON-serialized key-value pair map, encoded (escaped) as a string. */
   properties?: string | undefined;
-  /** function dependencies. */
+  /**
+   * Function dependencies. For external UDFs, dependencies may
+   * contain only credential, secret, or volume objects.
+   */
   routineDependencies?: DependencyList | undefined;
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
@@ -391,7 +397,10 @@ export interface UpdateFunctionRequest {
   comment?: string | undefined;
   /** JSON-serialized key-value pair map, encoded (escaped) as a string. */
   properties?: string | undefined;
-  /** function dependencies. */
+  /**
+   * Function dependencies. For external UDFs, dependencies may
+   * contain only credential, secret, or volume objects.
+   */
   routineDependencies?: DependencyList | undefined;
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;

@@ -31,6 +31,33 @@ export const CdfState = {
 } as const;
 export type CdfState = (typeof CdfState)[keyof typeof CdfState] | (string & {});
 
+/** The day of the week on which a weekly snapshot is taken. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DayOfWeek = {
+  /**
+   * Default value; a WeeklySchedule with this value is rejected with
+   * INVALID_PARAMETER_VALUE.
+   */
+  DAY_OF_WEEK_UNSPECIFIED: 'DAY_OF_WEEK_UNSPECIFIED',
+  /** Monday. */
+  MONDAY: 'MONDAY',
+  /** Tuesday. */
+  TUESDAY: 'TUESDAY',
+  /** Wednesday. */
+  WEDNESDAY: 'WEDNESDAY',
+  /** Thursday. */
+  THURSDAY: 'THURSDAY',
+  /** Friday. */
+  FRIDAY: 'FRIDAY',
+  /** Saturday. */
+  SATURDAY: 'SATURDAY',
+  /** Sunday. */
+  SUNDAY: 'SUNDAY',
+} as const;
+export type DayOfWeek =
+  | (typeof DayOfWeek)[keyof typeof DayOfWeek]
+  | (string & {});
+
 /** The compute endpoint type. Either `read_write` or `read_only`. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EndpointType = {
@@ -920,6 +947,14 @@ export interface BranchSpec {
         noExpiry: boolean;
       }
     | undefined;
+  /**
+   * The snapshot this branch was created from. When set, the branch's data
+   * comes from the snapshot rather than a source branch, so source_branch,
+   * source_branch_lsn, and source_branch_time must be empty. The snapshot must
+   * be AVAILABLE and belong to this branch's project.
+   * Format: projects/{project_id}/snapshots/{snapshot_id}
+   */
+  sourceSnapshot?: string | undefined;
 }
 
 export interface BranchStatus {
@@ -958,6 +993,12 @@ export interface BranchStatus {
    * Empty if the branch is not deleted, otherwise set to a timestamp in the future.
    */
   purgeTime?: Temporal.Instant | undefined;
+  /**
+   * The snapshot this branch was restored from. Set only for branches created by
+   * restoring a snapshot; unset for all other branches.
+   * Format: projects/{project_id}/snapshots/{snapshot_id}
+   */
+  sourceSnapshot?: string | undefined;
 }
 
 export interface Catalog {
@@ -1285,6 +1326,12 @@ export interface CreateSyncedTableRequest {
    */
   syncedTableId?: string | undefined;
   syncedTable?: SyncedTable | undefined;
+}
+
+/** Take a snapshot once per day, at the configured hour. */
+export interface DailySchedule {
+  /** The hour of the day, in UTC, at which to take the snapshot, in [0, 23]. */
+  hour?: number | undefined;
 }
 
 /**
@@ -1860,6 +1907,15 @@ export interface GetSnapshotRequest {
   name?: string | undefined;
 }
 
+/** Request to retrieve the snapshot schedule for a branch. */
+export interface GetSnapshotScheduleRequest {
+  /**
+   * The resource name of the branch's snapshot schedule.
+   * Format: projects/{project_id}/branches/{branch_id}/snapshot-schedule
+   */
+  name?: string | undefined;
+}
+
 export interface GetSyncedTableRequest {
   /**
    * The Full resource name of the synced table.
@@ -2082,6 +2138,18 @@ export interface ListSnapshotsResponse {
   snapshots?: Snapshot[] | undefined;
   /** Token to retrieve the next page; empty if there are no more pages. */
   nextPageToken?: string | undefined;
+}
+
+/** Take a snapshot once per month, on the configured day at the configured hour. */
+export interface MonthlySchedule {
+  /**
+   * The day of the month on which to take the snapshot, in [1, 31]. In shorter
+   * months the snapshot is taken on the last day instead (day 31 runs on Feb 28
+   * or 29, and on Apr 30), so every month gets exactly one snapshot.
+   */
+  day?: number | undefined;
+  /** The hour of the day, in UTC, at which to take the snapshot, in [0, 23]. */
+  hour?: number | undefined;
 }
 
 export interface NewPipelineSpec {
@@ -2417,6 +2485,37 @@ export interface Role_RoleStatus {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RoleOperationMetadata {}
 
+/** One cadence at which automatic snapshots are taken. */
+export interface ScheduleCadence {
+  /**
+   * The recurrence pattern. Exactly one arm must be set; an unset cadence is
+   * rejected with INVALID_PARAMETER_VALUE.
+   */
+  schedule?:
+    | {
+        $case: 'dailySchedule';
+        /** Take a snapshot once per day. */
+        dailySchedule: DailySchedule;
+      }
+    | {
+        $case: 'weeklySchedule';
+        /** Take a snapshot once per week. */
+        weeklySchedule: WeeklySchedule;
+      }
+    | {
+        $case: 'monthlySchedule';
+        /** Take a snapshot once per month. */
+        monthlySchedule: MonthlySchedule;
+      }
+    | undefined;
+  /**
+   * How long snapshots from this cadence are kept before automatic deletion.
+   * Must be at least 1 hour. Applied when a snapshot is taken; not retroactive,
+   * so changing it affects only later snapshots.
+   */
+  retention?: Temporal.Duration | undefined;
+}
+
 /**
  * An immutable, point-in-time copy of a branch's data within a project. It
  * remains available after the source branch is deleted.
@@ -2442,6 +2541,31 @@ export interface Snapshot {
 /** Metadata for the long-running snapshot Create and Delete operations. */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SnapshotOperationMetadata {}
+
+/**
+ * The automatic snapshot cadences for a branch. There is exactly one schedule
+ * per branch (singleton); it is configured in place, not created or deleted.
+ *
+ * Name: projects/{project_id}/branches/{branch_id}/snapshot-schedule
+ */
+export interface SnapshotSchedule {
+  /**
+   * The resource name of the branch's snapshot schedule.
+   * Format: projects/{project_id}/branches/{branch_id}/snapshot-schedule
+   */
+  name?: string | undefined;
+  /**
+   * The cadences at which automatic snapshots are taken. Update replaces the
+   * whole set; an empty set disables automatic snapshots. Order is not
+   * significant. When several cadences fire together, one snapshot is taken,
+   * retained for the longest of their retentions.
+   */
+  schedule?: ScheduleCadence[] | undefined;
+}
+
+/** Metadata for the long-running snapshot schedule Update operation. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface SnapshotScheduleOperationMetadata {}
 
 /** Client-provided configuration of the snapshot. */
 export interface SnapshotSpec {
@@ -2815,6 +2939,31 @@ export interface UpdateRoleRequest {
   updateMask?: FieldMask<Role> | undefined;
 }
 
+/**
+ * Request to set the snapshot schedule for a branch. Returns a completed
+ * long-running operation whose response is the persisted snapshot schedule.
+ */
+export interface UpdateSnapshotScheduleRequest {
+  /**
+   * The snapshot schedule to set. Its `name` identifies the branch.
+   * Format: projects/{project_id}/branches/{branch_id}/snapshot-schedule
+   */
+  snapshotSchedule?: SnapshotSchedule | undefined;
+  /**
+   * Fields to update. The only updatable path is `schedule`, which replaces the
+   * entire set of cadences.
+   */
+  updateMask?: FieldMask<SnapshotSchedule> | undefined;
+}
+
+/** Take a snapshot once per week, on the configured day at the configured hour. */
+export interface WeeklySchedule {
+  /** The day of the week on which to take the snapshot. */
+  dayOfWeek?: DayOfWeek | undefined;
+  /** The hour of the day, in UTC, at which to take the snapshot, in [0, 23]. */
+  hour?: number | undefined;
+}
+
 export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
   .object({
     error_code: z.string().optional(),
@@ -2878,6 +3027,7 @@ export const unmarshalBranchSpecSchema: z.ZodType<BranchSpec> = z
       .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
       .optional(),
     no_expiry: z.boolean().optional(),
+    source_snapshot: z.string().optional(),
   })
   .transform(d => ({
     sourceBranch: d.source_branch,
@@ -2892,6 +3042,7 @@ export const unmarshalBranchSpecSchema: z.ZodType<BranchSpec> = z
           : d.no_expiry !== undefined
             ? {$case: 'noExpiry' as const, noExpiry: d.no_expiry}
             : undefined,
+    sourceSnapshot: d.source_snapshot,
   }));
 
 export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
@@ -2927,6 +3078,7 @@ export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
+    source_snapshot: z.string().optional(),
   })
   .transform(d => ({
     sourceBranch: d.source_branch,
@@ -2942,6 +3094,7 @@ export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
     branchId: d.branch_id,
     deleteTime: d.delete_time,
     purgeTime: d.purge_time,
+    sourceSnapshot: d.source_snapshot,
   }));
 
 export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
@@ -3051,6 +3204,14 @@ export const unmarshalCdfStatusSchema: z.ZodType<CdfStatus> = z
     lastSyncTime: d.last_sync_time,
     createTime: d.create_time,
     statusDetail: d.status_detail,
+  }));
+
+export const unmarshalDailyScheduleSchema: z.ZodType<DailySchedule> = z
+  .object({
+    hour: z.number().optional(),
+  })
+  .transform(d => ({
+    hour: d.hour,
   }));
 
 export const unmarshalDataApiSchema: z.ZodType<DataApi> = z
@@ -3496,6 +3657,16 @@ export const unmarshalListSnapshotsResponseSchema: z.ZodType<ListSnapshotsRespon
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalMonthlyScheduleSchema: z.ZodType<MonthlySchedule> = z
+  .object({
+    day: z.number().optional(),
+    hour: z.number().optional(),
+  })
+  .transform(d => ({
+    day: d.day,
+    hour: d.hour,
+  }));
+
 export const unmarshalNewPipelineSpecSchema: z.ZodType<NewPipelineSpec> = z
   .object({
     storage_catalog: z.string().optional(),
@@ -3769,6 +3940,34 @@ export const unmarshalRole_RoleStatusSchema: z.ZodType<Role_RoleStatus> = z
 export const unmarshalRoleOperationMetadataSchema: z.ZodType<RoleOperationMetadata> =
   z.object({});
 
+export const unmarshalScheduleCadenceSchema: z.ZodType<ScheduleCadence> = z
+  .object({
+    daily_schedule: z.lazy(() => unmarshalDailyScheduleSchema).optional(),
+    weekly_schedule: z.lazy(() => unmarshalWeeklyScheduleSchema).optional(),
+    monthly_schedule: z.lazy(() => unmarshalMonthlyScheduleSchema).optional(),
+    retention: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+  })
+  .transform(d => ({
+    schedule:
+      d.daily_schedule !== undefined
+        ? {$case: 'dailySchedule' as const, dailySchedule: d.daily_schedule}
+        : d.weekly_schedule !== undefined
+          ? {
+              $case: 'weeklySchedule' as const,
+              weeklySchedule: d.weekly_schedule,
+            }
+          : d.monthly_schedule !== undefined
+            ? {
+                $case: 'monthlySchedule' as const,
+                monthlySchedule: d.monthly_schedule,
+              }
+            : undefined,
+    retention: d.retention,
+  }));
+
 export const unmarshalSnapshotSchema: z.ZodType<Snapshot> = z
   .object({
     name: z.string().optional(),
@@ -3791,6 +3990,19 @@ export const unmarshalSnapshotSchema: z.ZodType<Snapshot> = z
   }));
 
 export const unmarshalSnapshotOperationMetadataSchema: z.ZodType<SnapshotOperationMetadata> =
+  z.object({});
+
+export const unmarshalSnapshotScheduleSchema: z.ZodType<SnapshotSchedule> = z
+  .object({
+    name: z.string().optional(),
+    schedule: z.array(z.lazy(() => unmarshalScheduleCadenceSchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    schedule: d.schedule,
+  }));
+
+export const unmarshalSnapshotScheduleOperationMetadataSchema: z.ZodType<SnapshotScheduleOperationMetadata> =
   z.object({});
 
 export const unmarshalSnapshotSpecSchema: z.ZodType<SnapshotSpec> = z
@@ -4051,6 +4263,16 @@ export const unmarshalSyncedTablePositionSchema: z.ZodType<SyncedTablePosition> 
           : undefined,
     }));
 
+export const unmarshalWeeklyScheduleSchema: z.ZodType<WeeklySchedule> = z
+  .object({
+    day_of_week: z.string().optional(),
+    hour: z.number().optional(),
+  })
+  .transform(d => ({
+    dayOfWeek: d.day_of_week,
+    hour: d.hour,
+  }));
+
 export const marshalBranchSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -4105,6 +4327,7 @@ export const marshalBranchSpecSchema: z.ZodType = z
         z.object({$case: z.literal('noExpiry'), noExpiry: z.boolean()}),
       ])
       .optional(),
+    sourceSnapshot: z.string().optional(),
   })
   .transform(d => ({
     source_branch: d.sourceBranch,
@@ -4118,6 +4341,7 @@ export const marshalBranchSpecSchema: z.ZodType = z
     ...(d.expiration?.$case === 'noExpiry' && {
       no_expiry: d.expiration.noExpiry,
     }),
+    source_snapshot: d.sourceSnapshot,
   }));
 
 export const marshalBranchStatusSchema: z.ZodType = z
@@ -4150,6 +4374,7 @@ export const marshalBranchStatusSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
+    sourceSnapshot: z.string().optional(),
   })
   .transform(d => ({
     source_branch: d.sourceBranch,
@@ -4165,6 +4390,7 @@ export const marshalBranchStatusSchema: z.ZodType = z
     branch_id: d.branchId,
     delete_time: d.deleteTime,
     purge_time: d.purgeTime,
+    source_snapshot: d.sourceSnapshot,
   }));
 
 export const marshalCatalogSchema: z.ZodType = z
@@ -4238,6 +4464,14 @@ export const marshalCdfConfigSchema: z.ZodType = z
     create_time: d.createTime,
     cdf_config_id: d.cdfConfigId,
     postgres_schema: d.postgresSchema,
+  }));
+
+export const marshalDailyScheduleSchema: z.ZodType = z
+  .object({
+    hour: z.number().optional(),
+  })
+  .transform(d => ({
+    hour: d.hour,
   }));
 
 export const marshalDataApiSchema: z.ZodType = z
@@ -4603,6 +4837,16 @@ export const marshalInitialEndpointSpecSchema: z.ZodType = z
     }),
   }));
 
+export const marshalMonthlyScheduleSchema: z.ZodType = z
+  .object({
+    day: z.number().optional(),
+    hour: z.number().optional(),
+  })
+  .transform(d => ({
+    day: d.day,
+    hour: d.hour,
+  }));
+
 export const marshalNewPipelineSpecSchema: z.ZodType = z
   .object({
     storageCatalog: z.string().optional(),
@@ -4866,6 +5110,42 @@ export const marshalRole_RoleStatusSchema: z.ZodType = z
     role_id: d.roleId,
   }));
 
+export const marshalScheduleCadenceSchema: z.ZodType = z
+  .object({
+    schedule: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('dailySchedule'),
+          dailySchedule: z.lazy(() => marshalDailyScheduleSchema),
+        }),
+        z.object({
+          $case: z.literal('weeklySchedule'),
+          weeklySchedule: z.lazy(() => marshalWeeklyScheduleSchema),
+        }),
+        z.object({
+          $case: z.literal('monthlySchedule'),
+          monthlySchedule: z.lazy(() => marshalMonthlyScheduleSchema),
+        }),
+      ])
+      .optional(),
+    retention: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.schedule?.$case === 'dailySchedule' && {
+      daily_schedule: d.schedule.dailySchedule,
+    }),
+    ...(d.schedule?.$case === 'weeklySchedule' && {
+      weekly_schedule: d.schedule.weeklySchedule,
+    }),
+    ...(d.schedule?.$case === 'monthlySchedule' && {
+      monthly_schedule: d.schedule.monthlySchedule,
+    }),
+    retention: d.retention,
+  }));
+
 export const marshalSnapshotSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -4885,6 +5165,16 @@ export const marshalSnapshotSchema: z.ZodType = z
     spec: d.spec,
     status: d.status,
     snapshot_id: d.snapshotId,
+  }));
+
+export const marshalSnapshotScheduleSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    schedule: z.array(z.lazy(() => marshalScheduleCadenceSchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    schedule: d.schedule,
   }));
 
 export const marshalSnapshotSpecSchema: z.ZodType = z
@@ -5144,6 +5434,16 @@ export const marshalUndeleteProjectRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
+export const marshalWeeklyScheduleSchema: z.ZodType = z
+  .object({
+    dayOfWeek: z.string().optional(),
+    hour: z.number().optional(),
+  })
+  .transform(d => ({
+    day_of_week: d.dayOfWeek,
+    hour: d.hour,
+  }));
+
 const branchFieldMaskSchema: FieldMaskSchema = {
   branchId: {wire: 'branch_id'},
   createTime: {wire: 'create_time'},
@@ -5166,6 +5466,7 @@ const branchSpecFieldMaskSchema: FieldMaskSchema = {
   sourceBranch: {wire: 'source_branch'},
   sourceBranchLsn: {wire: 'source_branch_lsn'},
   sourceBranchTime: {wire: 'source_branch_time'},
+  sourceSnapshot: {wire: 'source_snapshot'},
   ttl: {wire: 'ttl'},
 };
 
@@ -5182,6 +5483,7 @@ const branchStatusFieldMaskSchema: FieldMaskSchema = {
   sourceBranch: {wire: 'source_branch'},
   sourceBranchLsn: {wire: 'source_branch_lsn'},
   sourceBranchTime: {wire: 'source_branch_time'},
+  sourceSnapshot: {wire: 'source_snapshot'},
   stateChangeTime: {wire: 'state_change_time'},
 };
 
@@ -5445,3 +5747,17 @@ const role_RoleStatusFieldMaskSchema: FieldMaskSchema = {
   postgresRole: {wire: 'postgres_role'},
   roleId: {wire: 'role_id'},
 };
+
+const snapshotScheduleFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+  schedule: {wire: 'schedule'},
+};
+
+export function snapshotScheduleFieldMask(
+  ...paths: string[]
+): FieldMask<SnapshotSchedule> {
+  return FieldMask.build<SnapshotSchedule>(
+    paths,
+    snapshotScheduleFieldMaskSchema
+  );
+}

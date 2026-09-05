@@ -926,9 +926,9 @@ export interface ColumnMask {
    */
   usingColumnNames?: string[] | undefined;
   /**
-   * The list of additional table columns or literals to be passed as additional arguments to
-   * a column mask function. This is the replacement of the deprecated using_column_names field and
-   * carries information about the types (alias or constant) of the arguments to the mask function.
+   * The list of table columns or literals to be passed as additional arguments to a column mask
+   * function, carrying the type (column reference vs constant literal) of each argument.
+   * Deprecated: use using_column_names instead.
    */
   usingArguments?: PolicyFunctionArgument[] | undefined;
 }
@@ -1036,6 +1036,16 @@ export interface GenieAttachment {
     | undefined;
   /** Attachment ID */
   attachmentId?: string | undefined;
+}
+
+/** Request to cancel an in-flight agent-mode response. */
+export interface GenieCancelResponseRequest {
+  /** The ID of the Genie agent (synonymous with the Genie space ID). */
+  agentId?: string | undefined;
+  /** The ID of the conversation containing the response. */
+  conversationId?: string | undefined;
+  /** The ID of the response to cancel (the id from the `response.created` event). */
+  responseId?: string | undefined;
 }
 
 export interface GenieConversation {
@@ -1754,9 +1764,9 @@ export interface Result {
  * Contains the result data of a single chunk when using `INLINE` disposition. When using
  * `EXTERNAL_LINKS` disposition, the array `external_links` is used instead to provide
  * URLs to the result data
- * in cloud storage. Exactly one of these alternatives is used. (While the `external_links`
- * array prepares the API to return multiple links in a single response. Currently only a single
- * link is returned.)
+ * in cloud storage. Exactly one of these alternatives is used. Calls to `getResultData` return
+ * the link for the requested chunk; `executeStatement` and `getStatementResult` responses can
+ * contain links for multiple chunks.
  */
 export interface ResultData {
   externalLinks?: ExternalLink[] | undefined;
@@ -2783,6 +2793,18 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
                 : d.list_value !== undefined
                   ? {$case: 'listValue' as const, listValue: d.list_value}
                   : undefined,
+  }));
+
+export const marshalGenieCancelResponseRequestSchema: z.ZodType = z
+  .object({
+    agentId: z.string().optional(),
+    conversationId: z.string().optional(),
+    responseId: z.string().optional(),
+  })
+  .transform(d => ({
+    agent_id: d.agentId,
+    conversation_id: d.conversationId,
+    response_id: d.responseId,
   }));
 
 export const marshalGenieCreateConversationMessageRequestSchema: z.ZodType = z

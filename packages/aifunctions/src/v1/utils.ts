@@ -1,7 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import type {Options} from '@databricks/sdk-core/ops';
-import {execute, retryOn} from '@databricks/sdk-core/ops';
+import {execute} from '@databricks/sdk-core/ops';
 import {ApiError} from '@databricks/sdk-core/apierror';
 import type {
   HttpClient,
@@ -10,7 +10,6 @@ import type {
 } from '@databricks/sdk-core/http';
 import type {Logger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
-import type {LroOptions} from '@databricks/sdk-options/lro';
 import JSONBig from 'json-bigint';
 import type {z} from 'zod';
 
@@ -40,29 +39,6 @@ export async function executeCall(
       rateLimiter: options.rateLimiter,
     }),
     ...(options?.timeout !== undefined && {timeout: options.timeout}),
-  };
-  return execute(options?.signal, call, opts);
-}
-
-/**
- * Sentinel thrown by a polling call to signal that the operation has not
- * yet reached a terminal state. {@link executeWait} treats this error as
- * retriable; any other error aborts the wait.
- */
-export class StillRunningError extends Error {}
-
-/**
- * Polls until the call returns without throwing {@link StillRunningError}.
- * Abort and overall-deadline behavior come from the supplied LroOptions.
- */
-export async function executeWait(
-  call: (signal?: AbortSignal) => Promise<void>,
-  options?: LroOptions
-): Promise<void> {
-  const opts: Options = {
-    ...(options?.timeout !== undefined && {timeout: options.timeout}),
-    retrier: () =>
-      retryOn({}, (err: Error) => err instanceof StillRunningError),
   };
   return execute(options?.signal, call, opts);
 }

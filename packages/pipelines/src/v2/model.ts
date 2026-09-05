@@ -1280,11 +1280,9 @@ export interface IngestionPipelineDefinition_SchemaSpec {
   /** The source catalog name. Might be optional depending on the type of source. */
   sourceCatalog?: string | undefined;
   /**
-   * Schema name in the source database. Currently required; this field will become optional in
-   * an upcoming release, since some source types (for example streaming / message-bus connectors)
-   * do not use it. When that change ships, this field's type in the generated SDKs and CLI will
-   * change from required to optional (nullable); clients that assume it is always present should
-   * handle its absence.
+   * Schema name in the source database. Optional: some source types (for example streaming or
+   * message-bus connectors) do not use it, so it may be absent from a pipeline's definition.
+   * Clients that assume it is always present should handle its absence.
    */
   sourceSchema?: string | undefined;
   /** Required. Destination catalog to store tables. */
@@ -1313,11 +1311,9 @@ export interface IngestionPipelineDefinition_TableSpec {
   /** Schema name in the source database. Might be optional depending on the type of source. */
   sourceSchema?: string | undefined;
   /**
-   * Table name in the source database. Currently required; this field will become optional in
-   * an upcoming release, since some source types (for example streaming / message-bus connectors)
-   * do not use it. When that change ships, this field's type in the generated SDKs and CLI will
-   * change from required to optional (nullable); clients that assume it is always present should
-   * handle its absence.
+   * Table name in the source database. Optional: some source types (for example streaming or
+   * message-bus connectors) do not use it, so it may be absent from a pipeline's definition.
+   * Clients that assume it is always present should handle its absence.
    */
   sourceTable?: string | undefined;
   /** Required. Destination catalog to store table. */
@@ -1958,7 +1954,7 @@ export interface PathPattern {
 }
 
 export interface PipelineCluster {
-  /** A label for the cluster specification, either `default` to configure the default cluster, or `maintenance` to configure the maintenance cluster. This field is optional. The default value is `default`. */
+  /** A label for the cluster specification, either `default` to configure the default cluster settings applied to both the update and maintenance clusters, `updates` to configure the update cluster, or `maintenance` to configure the maintenance cluster. This field is optional. The default value is `default`. */
   label?: string | undefined;
   /** Note: This field won't be persisted. Only API users will check this field. */
   applyPolicyDefaultValues?: boolean | undefined;
