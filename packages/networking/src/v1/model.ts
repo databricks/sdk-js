@@ -234,9 +234,24 @@ export type IngressNetworkPolicy_AuthenticationIdentity_PrincipalType =
   | (typeof IngressNetworkPolicy_AuthenticationIdentity_PrincipalType)[keyof typeof IngressNetworkPolicy_AuthenticationIdentity_PrincipalType]
   | (string & {});
 
+/**
+ * The restriction mode for cross-workspace access. In FULL_ACCESS mode, requests from any
+ * source workspace (in any account) are allowed, and deny rules and allow rules cannot be set.
+ * In RESTRICTED_ACCESS mode, access is restricted based on deny rules and allow rules;
+ * requests that do not match any allow rule are denied. In LEGACY_MODE, cross-workspace
+ * ingress is not governed by this policy.
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const IngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode = {
+  /**
+   * Allows requests from any source workspace, regardless of account. Deny rules and allow
+   * rules cannot be set in this mode.
+   */
   FULL_ACCESS: 'FULL_ACCESS',
+  /**
+   * Restricts access based on deny rules and allow rules. Requests that do not match any
+   * allow rule are denied.
+   */
   RESTRICTED_ACCESS: 'RESTRICTED_ACCESS',
   /**
    * Cross-workspace ingress is not governed by this policy. Traffic from other workspaces is
@@ -1119,17 +1134,44 @@ export interface IngressNetworkPolicy_AuthenticationIdentity {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngressNetworkPolicy_CrossWorkspaceAccess {
+  /** The restriction mode for cross-workspace access. */
   restrictionMode?:
     | IngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode
     | undefined;
+  /**
+   * Deny rules are evaluated first. A request matching any deny rule is denied,
+   * regardless of allow rules. Only applies when restriction_mode is RESTRICTED_ACCESS.
+   */
   denyRules?: IngressNetworkPolicy_CrossWorkspaceIngressRule[] | undefined;
+  /**
+   * Allow rules are evaluated after deny rules. A request matching any allow rule is
+   * allowed; a request matching no rule is denied by default. Only applies when
+   * restriction_mode is RESTRICTED_ACCESS.
+   */
   allowRules?: IngressNetworkPolicy_CrossWorkspaceIngressRule[] | undefined;
 }
 
+/**
+ * An ingress rule is enforced when a request satisfies all
+ * specified attributes — including request origin, destination, and authentication.
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngressNetworkPolicy_CrossWorkspaceIngressRule {
+  /**
+   * The origin the request must match — the source workspace the request comes from,
+   * either specific source workspaces or any source workspace in any account. See
+   * CrossWorkspaceRequestOrigin.
+   */
   origin?: IngressNetworkPolicy_CrossWorkspaceRequestOrigin | undefined;
+  /**
+   * The destination the request must match — the resource being accessed, for example
+   * the workspace UI or workspace APIs. See RequestDestination.
+   */
   destination?: IngressNetworkPolicy_RequestDestination | undefined;
+  /**
+   * The authenticated identity the request must match. When unset, the rule matches
+   * all users and service principals.
+   */
   authentication?: IngressNetworkPolicy_Authentication | undefined;
   /** The label for this ingress rule. */
   label?: string | undefined;

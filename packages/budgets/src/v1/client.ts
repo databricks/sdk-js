@@ -141,17 +141,11 @@ export class BudgetsClient {
   ): Promise<GetBudgetConfigurationResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.includeSpendStatus !== undefined) {
-      params.append('include_spend_status', String(req.includeSpendStatus));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetBudgetConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient,
@@ -179,15 +173,6 @@ export class BudgetsClient {
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
-    }
-    if (req.includeSpendStatus !== undefined) {
-      params.append('include_spend_status', String(req.includeSpendStatus));
-    }
-    if (req.includeWorkspaceBudgets !== undefined) {
-      params.append(
-        'include_workspace_budgets',
-        String(req.includeWorkspaceBudgets)
-      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;

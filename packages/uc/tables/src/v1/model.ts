@@ -206,6 +206,10 @@ export const SecurableType = {
   EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
   STAGING_TABLE: 'STAGING_TABLE',
+  MODEL: 'MODEL',
+  MODEL_SERVICE: 'MODEL_SERVICE',
+  MCP_SERVICE: 'MCP_SERVICE',
+  MODEL_PROVIDER_SERVICE: 'MODEL_PROVIDER_SERVICE',
 } as const;
 export type SecurableType =
   | (typeof SecurableType)[keyof typeof SecurableType]
@@ -312,9 +316,9 @@ export interface ColumnMask {
    */
   usingColumnNames?: string[] | undefined;
   /**
-   * The list of additional table columns or literals to be passed as additional arguments to
-   * a column mask function. This is the replacement of the deprecated using_column_names field and
-   * carries information about the types (alias or constant) of the arguments to the mask function.
+   * The list of table columns or literals to be passed as additional arguments to a column mask
+   * function, carrying the type (column reference vs constant literal) of each argument.
+   * Deprecated: use using_column_names instead.
    */
   usingArguments?: PolicyFunctionArgument[] | undefined;
 }
@@ -670,9 +674,9 @@ export interface RowFilter {
    */
   inputColumnNames?: string[] | undefined;
   /**
-   * The list of additional table columns or literals to be passed as additional arguments to
-   * a row filter function. This is the replacement of the deprecated input_column_names field and
-   * carries information about the types (alias or constant) of the arguments to the filter function.
+   * The list of table columns or literals to be passed as additional arguments to a row filter
+   * function, carrying the type (column reference vs constant literal) of each argument.
+   * Deprecated: use input_column_names instead.
    */
   inputArguments?: PolicyFunctionArgument[] | undefined;
 }

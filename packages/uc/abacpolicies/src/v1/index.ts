@@ -10,9 +10,11 @@ export {PolicyType, SecurableType} from './model';
 
 export type {
   ColumnMaskOptions,
+  ColumnTagValueExtraction,
   CreatePolicyRequest,
   DeletePolicyRequest,
   DeletePolicyResponse,
+  FunctionArgExpression,
   FunctionArgument,
   GetPolicyRequest,
   GrantOptions,
@@ -21,6 +23,8 @@ export type {
   MatchColumn,
   PolicyInfo,
   RowFilterOptions,
+  TagIntrospectionExpression,
+  TagValueExtraction,
   UpdatePolicyRequest,
 } from './model';
 

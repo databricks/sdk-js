@@ -1,6 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -22,24 +21,6 @@ export const PolicySortColumn = {
 export type PolicySortColumn =
   | (typeof PolicySortColumn)[keyof typeof PolicySortColumn]
   | (string & {});
-
-/**
- * Represents a cluster policy revision.
- *
- * Only the 100 most recent revisions are stored for each cluster policy.
- */
-export interface ClusterPolicyRevision {
-  /** ID of the cluster policy revision. */
-  revisionId?: string | undefined;
-  /** Time when the cluster policy revision was created. */
-  createTime?: Temporal.Instant | undefined;
-  /** Settings used to create/edit the policy. */
-  settings?: PolicyOwnAttributes | undefined;
-  /** Name of the user who edited this policy. */
-  editUser?: string | undefined;
-  /** Whether this is the current revision. */
-  isCurrent?: boolean | undefined;
-}
 
 export interface CreatePolicyRequest {
   /**
@@ -123,15 +104,6 @@ export interface EditPolicyRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface EditPolicyResponse {}
 
-/** Request to get a cluster policy revision by ID. */
-export interface GetClusterPolicyRevisionRequest {
-  /**
-   * The fully qualified resource name of the cluster policy revision.
-   * Format: cluster-policies/{policy_id}/revisions/{revision_id}.
-   */
-  name?: string | undefined;
-}
-
 export interface GetPolicyRequest {
   /** Canonical unique identifier for the Cluster Policy. */
   policyId?: string | undefined;
@@ -196,27 +168,6 @@ export interface Library {
         requirements: string;
       }
     | undefined;
-}
-
-/** Request to list cluster policy revisions. */
-export interface ListClusterPolicyRevisionsRequest {
-  /**
-   * The fully qualified resource name of the parent cluster.
-   * Format: cluster-policies/{policy_id}.
-   */
-  parent?: string | undefined;
-  /** Maximum number of cluster policy revisions to return per page. */
-  pageSize?: number | undefined;
-  /** Pagination token from a previous list cluster policy revisions request. */
-  pageToken?: string | undefined;
-}
-
-/** Response when listing cluster policy revisions. */
-export interface ListClusterPolicyRevisionsResponse {
-  /** Cluster policy revisions in the current page. */
-  clusterPolicyRevisions?: ClusterPolicyRevision[] | undefined;
-  /** Token for fetching the next page. Empty when there are no more results. */
-  nextPageToken?: string | undefined;
 }
 
 export interface ListPoliciesRequest {
@@ -303,38 +254,6 @@ export interface Policy {
   libraries?: Library[] | undefined;
 }
 
-export interface PolicyOwnAttributes {
-  /**
-   * Cluster Policy name requested by the user. This has to be unique. Length must be between 1 and 100
-   * characters.
-   */
-  name?: string | undefined;
-  /** Policy definition document expressed in [Databricks Cluster Policy Definition Language](https://docs.databricks.com/administration-guide/clusters/policy-definition.html). */
-  definition?: string | undefined;
-  /** Additional human-readable description of the cluster policy. */
-  description?: string | undefined;
-  /**
-   * ID of the policy family. The cluster policy's policy definition inherits the policy
-   * family's policy definition.
-   *
-   * Cannot be used with `definition`. Use `policy_family_definition_overrides` instead to
-   * customize the policy definition.
-   */
-  policyFamilyId?: string | undefined;
-  /**
-   * Policy definition JSON document expressed in [Databricks Policy Definition Language](https://docs.databricks.com/administration-guide/clusters/policy-definition.html).
-   * The JSON document must be passed as a string and cannot be embedded in the requests.
-   *
-   * You can use this to customize the policy definition inherited from the policy family.
-   * Policy rules specified here are merged into the inherited policy definition.
-   */
-  policyFamilyDefinitionOverrides?: string | undefined;
-  /** Max number of clusters per user that can be active using this policy. If not present, there is no max limit. */
-  maxClustersPerUser?: bigint | undefined;
-  /** A list of libraries to be installed on the next cluster restart that uses this policy. The maximum number of libraries is 500. */
-  libraries?: Library[] | undefined;
-}
-
 export interface PythonPyPiLibrary {
   /**
    * The name of the pypi package to install. An optional exact version specification is also
@@ -354,35 +273,6 @@ export interface RCranLibrary {
   /** The repository where the package can be found. If not specified, the default CRAN repo is used. */
   repo?: string | undefined;
 }
-
-/** Request to roll back cluster policy. */
-export interface RollbackClusterPolicyRequest {
-  /**
-   * The fully qualified resource name of the cluster policy revision.
-   * Format: cluster-policies/{policy_id}/revisions/{revision_id}.
-   */
-  name?: string | undefined;
-}
-
-export const unmarshalClusterPolicyRevisionSchema: z.ZodType<ClusterPolicyRevision> =
-  z
-    .object({
-      revision_id: z.string().optional(),
-      create_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      settings: z.lazy(() => unmarshalPolicyOwnAttributesSchema).optional(),
-      edit_user: z.string().optional(),
-      is_current: z.boolean().optional(),
-    })
-    .transform(d => ({
-      revisionId: d.revision_id,
-      createTime: d.create_time,
-      settings: d.settings,
-      editUser: d.edit_user,
-      isCurrent: d.is_current,
-    }));
 
 export const unmarshalCreatePolicyResponseSchema: z.ZodType<CreatePolicyResponse> =
   z
@@ -430,19 +320,6 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
                       }
                     : undefined,
   }));
-
-export const unmarshalListClusterPolicyRevisionsResponseSchema: z.ZodType<ListClusterPolicyRevisionsResponse> =
-  z
-    .object({
-      cluster_policy_revisions: z
-        .array(z.lazy(() => unmarshalClusterPolicyRevisionSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      clusterPolicyRevisions: d.cluster_policy_revisions,
-      nextPageToken: d.next_page_token,
-    }));
 
 export const unmarshalListPoliciesResponseSchema: z.ZodType<ListPoliciesResponse> =
   z
@@ -498,30 +375,6 @@ export const unmarshalPolicySchema: z.ZodType<Policy> = z
     maxClustersPerUser: d.max_clusters_per_user,
     libraries: d.libraries,
   }));
-
-export const unmarshalPolicyOwnAttributesSchema: z.ZodType<PolicyOwnAttributes> =
-  z
-    .object({
-      name: z.string().optional(),
-      definition: z.string().optional(),
-      description: z.string().optional(),
-      policy_family_id: z.string().optional(),
-      policy_family_definition_overrides: z.string().optional(),
-      max_clusters_per_user: z
-        .union([z.number(), z.bigint(), z.string()])
-        .transform(v => BigInt(v))
-        .optional(),
-      libraries: z.array(z.lazy(() => unmarshalLibrarySchema)).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      definition: d.definition,
-      description: d.description,
-      policyFamilyId: d.policy_family_id,
-      policyFamilyDefinitionOverrides: d.policy_family_definition_overrides,
-      maxClustersPerUser: d.max_clusters_per_user,
-      libraries: d.libraries,
-    }));
 
 export const unmarshalPythonPyPiLibrarySchema: z.ZodType<PythonPyPiLibrary> = z
   .object({
@@ -656,12 +509,4 @@ export const marshalRCranLibrarySchema: z.ZodType = z
   .transform(d => ({
     package: d.package,
     repo: d.repo,
-  }));
-
-export const marshalRollbackClusterPolicyRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
   }));

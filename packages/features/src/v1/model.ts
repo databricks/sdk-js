@@ -5,6 +5,512 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+/** Error codes returned by Databricks APIs to indicate specific failure conditions. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ErrorCode = {
+  /**
+   * Unknown error. This error generally should not be returned explicitly, but will be used
+   * as a fallback if the error enum is missing from the message for some reason.
+   *
+   * It's assigned tag 0 to follow the best practice from
+   * https://developers.google.com/protocol-buffers/docs/style#enums
+   *
+   * TODO(PLAT-55898): Add custom option to declare HTTP and gRPC mappings.
+   * Maps to:
+   * - google.rpc.Code: UNKNOWN = 2;
+   * - HTTP code: 500 Internal Server Error
+   */
+  UNKNOWN: 'UNKNOWN',
+  /**
+   * Internal error. This means that some invariants expected by the underlying system have been
+   * broken. This error code is reserved for serious errors, which generally cannot be resolved
+   * by the user.
+   *
+   * Prefer this over all kinds of detailed error messages (e.g IO_ERROR), unless there's some
+   * automation that relies on the custom error code.
+   *
+   * Maps to:
+   * - google.rpc.Code: INTERNAL = 13;
+   * - HTTP code: 500 Internal Server Error
+   */
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  /**
+   * The service is currently unavailable. This is most likely a transient condition, which can be
+   * corrected by retrying with a backoff. Note that it is not always safe to retry non-idempotent
+   * operations.
+   *
+   * Prefer this over SERVICE_UNDER_MAINTENANCE, WORKSPACE_TEMPORARILY_UNAVAILABLE.
+   *
+   * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
+   * for guideline on how to pick this vs RESOURCE_EXHAUSTED.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNAVAILABLE = 14;
+   * - HTTP code: 503 Service Unavailable
+   */
+  TEMPORARILY_UNAVAILABLE: 'TEMPORARILY_UNAVAILABLE',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * Indicates that an IOException has been internally thrown.
+   */
+  IO_ERROR: 'IO_ERROR',
+  /**
+   * The request is invalid. Prefer more specific error code whenever possible.
+   * Also see similar recommendation for the google.rpc.Code.FAILED_PRECONDITION.
+   *
+   * Prefer this error code over MALFORMED_REQUEST, INVALID_STATE, UNPARSEABLE_HTTP_ERROR.
+   *
+   * Maps to:
+   * - google.rpc.Code: FAILED_PRECONDITION = 9;
+   * - HTTP code: 400 Bad Request
+   */
+  BAD_REQUEST: 'BAD_REQUEST',
+  /**
+   * An external service is unavailable temporarily as it is being updated/re-deployed. Indicates
+   * gateway proxy to safely retry the request.
+   */
+  SERVICE_UNDER_MAINTENANCE: 'SERVICE_UNDER_MAINTENANCE',
+  /** A workspace is temporarily unavailable as the workspace is being re-assigned. */
+  WORKSPACE_TEMPORARILY_UNAVAILABLE: 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
+  /**
+   * The deadline expired before the operation could complete. For operations that change the state
+   * of the system, this error may be returned even if the operation has completed successfully.
+   * For example, a successful response from a server could have been delayed long enough for
+   * the deadline to expire. When possible - implementations should make sure further processing of
+   * the request is aborted, e.g. by throwing an exception instead of making the RPC request,
+   * making the database query, etc.
+   *
+   * Maps to:
+   * - google.rpc.Code: DEADLINE_EXCEEDED = 4;
+   * - HTTP code: 504 Gateway Timeout
+   */
+  DEADLINE_EXCEEDED: 'DEADLINE_EXCEEDED',
+  /**
+   * The operation was canceled by the caller. An example - client closed the connection without
+   * waiting for a response.
+   *
+   * Maps to:
+   * - google.rpc.Code: CANCELLED = 1;
+   * - HTTP code: 499 Client Closed Request
+   */
+  CANCELLED: 'CANCELLED',
+  /**
+   * The operation is rejected because of either rate limiting or resource quota,
+   * such as the client has sent too many requests recently or the client has allocated too many
+   * resources.
+   *
+   * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
+   * for guideline on how to pick this vs TEMPORARILY_UNAVAILABLE.
+   *
+   * Maps to:
+   * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
+   * - HTTP code: 429 Too Many Requests
+   */
+  RESOURCE_EXHAUSTED: 'RESOURCE_EXHAUSTED',
+  /**
+   * The operation was aborted, typically due to a concurrency issue such as a sequencer
+   * check failure, transaction abort, or transaction conflict.
+   *
+   * Maps to:
+   * - google.rpc.Code: ABORTED = 10;
+   * - HTTP code: 409 Conflict
+   */
+  ABORTED: 'ABORTED',
+  /**
+   * Operation was performed on a resource that does not exist,
+   * e.g. file or directory was not found.
+   *
+   * Maps to:
+   * - google.rpc.Code: NOT_FOUND = 5;
+   * - HTTP code: 404 Not Found
+   */
+  NOT_FOUND: 'NOT_FOUND',
+  /**
+   * Operation was rejected due a conflict with an existing resource, e.g. attempted to create
+   * file or directory that already exists.
+   *
+   * Prefer this over RESOURCE_CONFLICT.
+   *
+   * Maps to:
+   * - google.rpc.Code: ALREADY_EXISTS = 6;
+   * - HTTP code: 409 Conflict
+   */
+  ALREADY_EXISTS: 'ALREADY_EXISTS',
+  /**
+   * The request does not have valid authentication (AuthN) credentials for the operation.
+   *
+   * Prefer this over CUSTOMER_UNAUTHORIZED, unless you need to keep consistent behavior with legacy
+   * code.
+   * For authorization (AuthZ) errors use PERMISSION_DENIED.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNAUTHENTICATED = 16;
+   * - HTTP code: 401 Unauthorized
+   */
+  UNAUTHENTICATED: 'UNAUTHENTICATED',
+  /**
+   * The service is currently unavailable. Please note that the unavailability may or may not be transient.
+   * That means if this is a non-transient condition, retrying it does not work. If the unavailability
+   * is certainly a transient condition, pleases use `TEMPORARILY_UNAVAILABLE` which signals its transient
+   * nature explicitly.
+   * An example of this error code’s use case is that when DNS resolution fails, the DNS resolver does
+   * not know whether it is because the domain name is completely wrong (non-transient situation) or
+   * the domain name is valid but the DNS server does not have an entry for this domain name yet (transient
+   * situation). Hence, `UNAVAILABLE`  is suitable for this case.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNAVAILABLE = 14;
+   * - HTTP code: 503 Service Unavailable
+   */
+  UNAVAILABLE: 'UNAVAILABLE',
+  /**
+   * Supplied value for a parameter was invalid (e.g., giving a number for a string parameter).
+   *
+   * Maps to:
+   * - google.rpc.Code: INVALID_ARGUMENT = 3;
+   * - HTTP code: 400 Bad Request
+   */
+  INVALID_PARAMETER_VALUE: 'INVALID_PARAMETER_VALUE',
+  /**
+   * Indicates that the given API endpoint does not exist. Legacy, when possible - NOT_IMPLEMENTED
+   * should be used instead to indicate that API doesn't exist.
+   *
+   * Maps to:
+   * - google.rpc.Code: NOT_FOUND = 5;
+   * - HTTP code: 404 Not Found
+   */
+  ENDPOINT_NOT_FOUND: 'ENDPOINT_NOT_FOUND',
+  /** Indicates that the given API request was malformed. */
+  MALFORMED_REQUEST: 'MALFORMED_REQUEST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * If one or more of the inputs to a given RPC are not in a valid state for the action.
+   */
+  INVALID_STATE: 'INVALID_STATE',
+  /**
+   * The caller does not have permission to execute the specified operation.
+   * PERMISSION_DENIED must not be used for rejections caused by exhausting some resource,
+   * use RESOURCE_EXHAUSTED instead for those errors.
+   * PERMISSION_DENIED must not be used if the caller can not be identified,
+   * use CUSTOMER_UNAUTHORIZED instead for those errors.
+   * This error code does not imply the request is valid or the requested entity exists or
+   * satisfies other pre-conditions.
+   *
+   * Maps to:
+   * - google.rpc.Code: PERMISSION_DENIED = 7;
+   * - HTTP code: 403 Forbidden
+   */
+  PERMISSION_DENIED: 'PERMISSION_DENIED',
+  /**
+   * NOTE: Deprecated due to inconsistent mapping in legacy code, see
+   * https://docs.google.com/document/d/17TZIKX_Y39cJMBr333lc-d5dTvvBLSu3DPUyGU5eMJg/edit?disco=AAAAzVGt6FA.
+   * Prefer using NOT_FOUND or PERMISSION_DENIED.
+   *
+   * If a given user/entity is trying to use a feature which has been disabled.
+   *
+   * Maps to:
+   * - google.rpc.Code: NOT_FOUND = 5;
+   * - HTTP code: 404 Not Found
+   */
+  FEATURE_DISABLED: 'FEATURE_DISABLED',
+  /**
+   * The request does not have valid authentication (AuthN) credentials for the operation.
+   *
+   * For authentication (AuthN) errors prefer using UNAUTHENTICATED, unless you need to keep
+   * consistent behavior with legacy code.
+   * For authorization (AuthZ) errors use PERMISSION_DENIED.
+   *
+   * Important: name is confusing, this error code is for authentication (AuthN) errors, not
+   * authorization (AuthZ) errors. It maps to 401 Unauthorized and suffers from the same confusing
+   * naming. See https://datatracker.ietf.org/doc/html/rfc7235#section-3.1 - "[...] status code
+   * indicates that the request has not been applied because it lacks valid authentication
+   * credentials for the target resource. [...] If the request included authentication credentials,
+   * then the 401 response indicates that authorization has been refused for those credentials."
+   *
+   * Also, see https://stackoverflow.com/a/6937030/16352922, it covers it pretty well.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNAUTHENTICATED = 16;
+   * - HTTP code: 401 Unauthorized
+   */
+  CUSTOMER_UNAUTHORIZED: 'CUSTOMER_UNAUTHORIZED',
+  /**
+   * The operation is rejected because of request rate limit, for example rate limiting applied to
+   * users, workspaces, IP addresses, etc.
+   *
+   * Prefer a more generic RESOURCE_EXHAUSTED for the new use cases.
+   *
+   * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
+   * for guideline on the rate limiting vs throttling.
+   *
+   * Maps to:
+   * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
+   * - HTTP code: 429 Too Many Requests
+   */
+  REQUEST_LIMIT_EXCEEDED: 'REQUEST_LIMIT_EXCEEDED',
+  /** Indicates API request was rejected due a conflict with an existing resource. */
+  RESOURCE_CONFLICT: 'RESOURCE_CONFLICT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * Indicates that the HTTP response cannot be correctly deserialized.
+   * This currently is only used in DUST test clients, and not by any real service code.
+   */
+  UNPARSEABLE_HTTP_ERROR: 'UNPARSEABLE_HTTP_ERROR',
+  /**
+   * The operation is not implemented or is not supported/enabled in this service.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNIMPLEMENTED = 12;
+   * - HTTP code: 501 Not Implemented
+   */
+  NOT_IMPLEMENTED: 'NOT_IMPLEMENTED',
+  /**
+   * Unrecoverable data loss or corruption.
+   *
+   * One of the major use cases is to indicate that server failed to validate the integrity of
+   * the request. This error can occur when the checksum specified in the `X-Databricks-Checksum`
+   * request header (or trailer) doesn't match the actual request content checksum.
+   *
+   * Note, in case of the severe corruption that results in a malformed request, the server may
+   * send a generic `400 Bad Request` response rather than sending this error code.
+   *
+   * Maps to:
+   * - google.rpc.Code: DATA_LOSS = 15;
+   * - HTTP code: 500 Internal Server Error
+   */
+  DATA_LOSS: 'DATA_LOSS',
+  /** If the user attempts to perform an invalid state transition on a shard. */
+  INVALID_STATE_TRANSITION: 'INVALID_STATE_TRANSITION',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * Unable to perform the operation because the shard was locked by some other operation.
+   */
+  COULD_NOT_ACQUIRE_LOCK: 'COULD_NOT_ACQUIRE_LOCK',
+  /**
+   * NOTE: Deprecated, prefer using ALREADY_EXISTS.
+   * Unlike ALREADY_EXISTS - this maps to HTTP code 400 Bad Request due to legacy reasons,
+   * remapping will be a backwards incompatible change.
+   *
+   * Operation was performed on a resource that already exists.
+   */
+  RESOURCE_ALREADY_EXISTS: 'RESOURCE_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated, prefer using NOT_FOUND - see the note for the RESOURCE_ALREADY_EXISTS,
+   * because this pair of codes is related and RESOURCE_ALREADY_EXISTS has bad mapping to the HTTP
+   * codes we added new error codes NOT_FOUND and ALREADY_EXISTS, and recommend to use them instead.
+   *
+   * Operation was performed on a resource that does not exist.
+   */
+  RESOURCE_DOES_NOT_EXIST: 'RESOURCE_DOES_NOT_EXIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MAX_BLOCK_SIZE_EXCEEDED: 'MAX_BLOCK_SIZE_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MAX_READ_SIZE_EXCEEDED: 'MAX_READ_SIZE_EXCEEDED',
+  PARTIAL_DELETE: 'PARTIAL_DELETE',
+  MAX_LIST_SIZE_EXCEEDED: 'MAX_LIST_SIZE_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DRY_RUN_FAILED: 'DRY_RUN_FAILED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * Cluster request was rejected because it would exceed a resource limit.
+   */
+  RESOURCE_LIMIT_EXCEEDED: 'RESOURCE_LIMIT_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DIRECTORY_NOT_EMPTY: 'DIRECTORY_NOT_EMPTY',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DIRECTORY_PROTECTED: 'DIRECTORY_PROTECTED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MAX_NOTEBOOK_SIZE_EXCEEDED: 'MAX_NOTEBOOK_SIZE_EXCEEDED',
+  MAX_CHILD_NODE_SIZE_EXCEEDED: 'MAX_CHILD_NODE_SIZE_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SEARCH_QUERY_TOO_LONG: 'SEARCH_QUERY_TOO_LONG',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SEARCH_QUERY_TOO_SHORT: 'SEARCH_QUERY_TOO_SHORT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST:
+    'MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  PERMISSION_NOT_PROPAGATED: 'PERMISSION_NOT_PROPAGATED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DEPLOYMENT_TIMEOUT: 'DEPLOYMENT_TIMEOUT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_CONFLICT: 'GIT_CONFLICT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_UNKNOWN_REF: 'GIT_UNKNOWN_REF',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_SENSITIVE_TOKEN_DETECTED: 'GIT_SENSITIVE_TOKEN_DETECTED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_URL_NOT_ON_ALLOW_LIST: 'GIT_URL_NOT_ON_ALLOW_LIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_REMOTE_ERROR: 'GIT_REMOTE_ERROR',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  PROJECTS_OPERATION_TIMEOUT: 'PROJECTS_OPERATION_TIMEOUT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  IPYNB_FILE_IN_REPO: 'IPYNB_FILE_IN_REPO',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  INSECURE_PARTNER_RESPONSE: 'INSECURE_PARTNER_RESPONSE',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MALFORMED_PARTNER_RESPONSE: 'MALFORMED_PARTNER_RESPONSE',
+  METASTORE_DOES_NOT_EXIST: 'METASTORE_DOES_NOT_EXIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DAC_DOES_NOT_EXIST: 'DAC_DOES_NOT_EXIST',
+  CATALOG_DOES_NOT_EXIST: 'CATALOG_DOES_NOT_EXIST',
+  SCHEMA_DOES_NOT_EXIST: 'SCHEMA_DOES_NOT_EXIST',
+  TABLE_DOES_NOT_EXIST: 'TABLE_DOES_NOT_EXIST',
+  SHARE_DOES_NOT_EXIST: 'SHARE_DOES_NOT_EXIST',
+  RECIPIENT_DOES_NOT_EXIST: 'RECIPIENT_DOES_NOT_EXIST',
+  STORAGE_CREDENTIAL_DOES_NOT_EXIST: 'STORAGE_CREDENTIAL_DOES_NOT_EXIST',
+  EXTERNAL_LOCATION_DOES_NOT_EXIST: 'EXTERNAL_LOCATION_DOES_NOT_EXIST',
+  PRINCIPAL_DOES_NOT_EXIST: 'PRINCIPAL_DOES_NOT_EXIST',
+  PROVIDER_DOES_NOT_EXIST: 'PROVIDER_DOES_NOT_EXIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  METASTORE_ALREADY_EXISTS: 'METASTORE_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DAC_ALREADY_EXISTS: 'DAC_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  CATALOG_ALREADY_EXISTS: 'CATALOG_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SCHEMA_ALREADY_EXISTS: 'SCHEMA_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  TABLE_ALREADY_EXISTS: 'TABLE_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SHARE_ALREADY_EXISTS: 'SHARE_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  RECIPIENT_ALREADY_EXISTS: 'RECIPIENT_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  STORAGE_CREDENTIAL_ALREADY_EXISTS: 'STORAGE_CREDENTIAL_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  EXTERNAL_LOCATION_ALREADY_EXISTS: 'EXTERNAL_LOCATION_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  PROVIDER_ALREADY_EXISTS: 'PROVIDER_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  CATALOG_NOT_EMPTY: 'CATALOG_NOT_EMPTY',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SCHEMA_NOT_EMPTY: 'SCHEMA_NOT_EMPTY',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  METASTORE_NOT_EMPTY: 'METASTORE_NOT_EMPTY',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  PROVIDER_SHARE_NOT_ACCESSIBLE: 'PROVIDER_SHARE_NOT_ACCESSIBLE',
+} as const;
+export type ErrorCode =
+  | (typeof ErrorCode)[keyof typeof ErrorCode]
+  | (string & {});
+
 /**
  * Scalar data types for request-time field definitions.
  * Only flat (non-nested) types are supported.
@@ -26,6 +532,46 @@ export const ScalarDataType = {
 } as const;
 export type ScalarDataType =
   | (typeof ScalarDataType)[keyof typeof ScalarDataType]
+  | (string & {});
+
+/** Lifecycle state of a backfill. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const BackfillOperationMetadata_State = {
+  /** The backfill state is unspecified. */
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  /** The backfill is pending. */
+  PENDING: 'PENDING',
+  /** The backfill is running. */
+  RUNNING: 'RUNNING',
+  /** The backfill succeeded. */
+  SUCCEEDED: 'SUCCEEDED',
+  /** The backfill failed. */
+  FAILED: 'FAILED',
+  /** The backfill was cancelled. */
+  CANCELLED: 'CANCELLED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type BackfillOperationMetadata_State =
+  | (typeof BackfillOperationMetadata_State)[keyof typeof BackfillOperationMetadata_State]
+  | (string & {});
+
+/** The way a materialization schedule is arrived at. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CronSchedule_Mode = {
+  /** Default value, not used. Treated as MANUAL. */
+  MODE_UNSPECIFIED: 'MODE_UNSPECIFIED',
+  /** The schedule is the hand-written cron_expression on this message. */
+  MANUAL: 'MANUAL',
+  /**
+   * The schedule is derived from the time settings of the features being materialized, so the
+   * pipeline runs as soon as the data each window needs is expected to have all arrived. The
+   * caller leaves cron_expression empty; the derived expression is filled in on the response.
+   */
+  DERIVED: 'DERIVED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type CronSchedule_Mode =
+  | (typeof CronSchedule_Mode)[keyof typeof CronSchedule_Mode]
   | (string & {});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -111,6 +657,14 @@ export interface AggregationFunction {
   timeWindow?: TimeWindow | undefined;
 }
 
+/** Databricks Error that is returned by all Databricks APIs. */
+export interface ApiError {
+  errorCode?: ErrorCode | undefined;
+  message?: string | undefined;
+  stackTrace?: string | undefined;
+  details?: Record<string, unknown>[] | undefined;
+}
+
 /** Computes the approximate count of distinct values. */
 export interface ApproxCountDistinctFunction {
   /** The input column from which the approximate count of distinct values is computed. */
@@ -155,6 +709,37 @@ export interface AvgFunction {
   input?: string | undefined;
 }
 
+export interface BackfillFeaturesRequest {
+  /** Full names of the features to backfill. */
+  featureFullNames?: string[] | undefined;
+  /** Output ranges to backfill. */
+  backfillRanges?: BackfillRange[] | undefined;
+  /** Idempotency token for the request. */
+  requestId?: string | undefined;
+}
+
+/** Result of a completed backfill. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface BackfillFeaturesResponse {}
+
+/** Progress and configuration for a backfill. */
+export interface BackfillOperationMetadata {
+  /** Full names of the features targeted by the backfill. */
+  featureFullNames?: string[] | undefined;
+  /** Output ranges targeted by the backfill. */
+  backfillRanges?: BackfillRange[] | undefined;
+  /** Current state of the backfill. */
+  state?: BackfillOperationMetadata_State | undefined;
+}
+
+/** A time range for a backfill. */
+export interface BackfillRange {
+  /** Start of the backfill range, inclusive. If unset, defaults to the earliest source timestamp of the feature. */
+  startTime?: Temporal.Instant | undefined;
+  /** End of the backfill range, exclusive. If unset, defaults to the current time. */
+  endTime?: Temporal.Instant | undefined;
+}
+
 export interface BackfillSource {
   backfillSource?:
     | {
@@ -182,6 +767,12 @@ export interface BatchCreateMaterializedFeaturesRequest {
 export interface BatchCreateMaterializedFeaturesResponse {
   /** The created materialized features with assigned IDs. */
   materializedFeatures?: MaterializedFeature[] | undefined;
+}
+
+/** The request message for `CancelOperation` method. */
+export interface CancelOperationRequest {
+  /** The name of the operation resource to be cancelled. */
+  name?: string | undefined;
 }
 
 /** A ColumnSelection function, equivalent to the LAST() record of an entity over a lifetime window */
@@ -223,8 +814,15 @@ export interface CreateStreamRequest {
 
 /** A cron-based schedule trigger for the materialization pipeline. */
 export interface CronSchedule {
-  /** The cron expression defining the schedule (e.g., "0 0 * * *" for daily at midnight). */
+  /**
+   * The cron expression defining the schedule (e.g., "0 0 * * *" for daily at midnight). The
+   * schedule is interpreted in the UTC time zone. Required when mode is MANUAL (or unset). Left
+   * empty when mode is DERIVED, where the service computes it (aligned to UTC) from the features'
+   * window timing and fills it in on the response.
+   */
   cronExpression?: string | undefined;
+  /** How the schedule is determined. Defaults to MANUAL when unset. */
+  mode?: CronSchedule_Mode | undefined;
 }
 
 /**
@@ -363,6 +961,7 @@ export interface Feature {
   source?: DataSource | undefined;
   /** The function by which the feature is computed. */
   function?: Function | undefined;
+  timeWindow?: TimeWindow | undefined;
   /** The description of the feature. */
   description?: string | undefined;
   /**
@@ -466,6 +1065,12 @@ export interface GetMaterializedFeatureRequest {
   materializedFeatureId?: string | undefined;
 }
 
+/** The request message for `GetOperation` method. */
+export interface GetOperationRequest {
+  /** The name of the operation resource. */
+  name?: string | undefined;
+}
+
 /** Get a Stream by its full three-part name (catalog.schema.stream). */
 export interface GetStreamRequest {
   /** Full three-part name (catalog.schema.stream) of the Stream to get. */
@@ -486,7 +1091,8 @@ export interface IngestionConfig {
   /**
    * A user-provided source for backfilling data. Historical data is used when creating a training set from streaming features linked to this Stream.
    * The backfill data stored in this location will be copied into the ingestion table for offline querying and training.
-   * The schema for this source must match exactly that of the key and payload schemas specified for this Stream.
+   * The schema for this source must match exactly that of the key and payload schemas specified for this Stream,
+   * except that it may omit any columns listed in excluded_columns.
    */
   backfillSource?: BackfillSource | undefined;
   /**
@@ -641,6 +1247,18 @@ export interface KinesisStreamConfig {
     | undefined;
   /**
    * Optional Kinesis source options, validated against a server-side allowlist at request time.
+   * Allowed keys:
+   * - `consumerMode`
+   * - `consumerNamePrefix`
+   * - `maxFetchRate`
+   * - `minFetchPeriod`
+   * - `maxFetchDuration`
+   * - `maxRecordsPerFetch`
+   * - `shardsPerTask`
+   * - `fetchBufferSize`
+   * - `shardFetchInterval`
+   * `consumerMode` must be `efo` or `polling` (case-insensitive).
+   * `maxRecordsPerFetch` applies only during ingestion and does not affect the materialization pipeline.
    * Auth and connection details belong on the parent Stream's `connection_config`, not here.
    */
   extraOptions?: Record<string, string> | undefined;
@@ -820,6 +1438,8 @@ export interface MaterializedFeature {
         streamingMode: StreamingMode;
       }
     | undefined;
+  /** Name of the latest backfill operation on this materialized feature. Format: operations/{operation_id}. */
+  latestBackfillOperation?: string | undefined;
 }
 
 /** Computes the maximum value. */
@@ -915,6 +1535,49 @@ export interface OnlineStoreConfig {
   tableNamePrefix?: string | undefined;
   /** The name of the target online store. */
   onlineStoreName?: string | undefined;
+}
+
+/**
+ * This resource represents a long-running operation that is the result of a
+ * network API call.
+ */
+export interface Operation {
+  /**
+   * The server-assigned name, which is only unique within the same service that
+   * originally returns it. If you use the default HTTP mapping, the
+   * `name` should be a resource name ending with `operations/{unique_id}`.
+   */
+  name?: string | undefined;
+  /**
+   * Service-specific metadata associated with the operation.  It typically
+   * contains progress information and common metadata such as create time.
+   * Some services might not provide such metadata.
+   */
+  metadata?: Record<string, unknown> | undefined;
+  /**
+   * If the value is `false`, it means the operation is still in progress.
+   * If `true`, the operation is completed, and either `error` or `response` is
+   * available.
+   */
+  done?: boolean | undefined;
+  /**
+   * The operation result, which can be either an `error` or a valid `response`.
+   * If `done` == `false`, neither `error` nor `response` is set.
+   * If `done` == `true`, exactly one of `error` or `response` can be set.
+   * Some services might not provide the result.
+   */
+  result?:
+    | {
+        $case: 'error';
+        /** The error result of the operation in case of failure or cancellation. */
+        error: ApiError;
+      }
+    | {
+        $case: 'response';
+        /** The normal, successful response of the operation. */
+        response: Record<string, unknown>;
+      }
+    | undefined;
 }
 
 /**
@@ -1136,6 +1799,21 @@ export interface Stream {
   schemaConfig?: StreamSchemaConfig | undefined;
   /** Configuration for streaming data ingestion: the managed table storing an offline copy of forward fill data and optional historical backfill. */
   ingestionConfig?: IngestionConfig | undefined;
+  /**
+   * Optional SQL predicate to filter which record types from a streaming channel (e.g. a topic for Kafka) belong to this Stream.
+   * Events that do not match are not written to the ingestion table and are not used in materialization.
+   * Example: "value.event_type = 'transaction'".
+   */
+  recordTypeFilter?: string | undefined;
+  /**
+   * Column paths (dot notation, e.g. "value.email" for Kafka) to drop.
+   * A path may reference a struct, in which case all of its nested fields are dropped (e.g. "value.address" drops "value.address.city" and "value.address.zip").
+   * These columns are not written to the ingestion table and cannot be referenced by any feature.
+   * They are dropped from ingestion, backfill, and materialization.
+   * For direct schemas, each column must exist in the relevant key or payload schema. With a schema registry, a column can be excluded before it exists.
+   * A column cannot also be a deduplication column in the ingestion_config.
+   */
+  excludedColumns?: string[] | undefined;
   /** Time at which this Stream was created. */
   createTime?: Temporal.Instant | undefined;
   /** Username of the Stream creator. */
@@ -1313,6 +1991,7 @@ export interface TimeWindow {
    * tumbling and fixed-duration sliding windows first emit at an offset-aligned boundary after a
    * full window can be formed. If unset, lifetime sliding windows and rolling windows emit as soon as
    * eligible source data exists.
+   * Not currently supported for sawtooth windows or for Features with a stream source.
    */
   startTime?: Temporal.Instant | undefined;
 }
@@ -1487,6 +2166,20 @@ export const unmarshalAggregationFunctionSchema: z.ZodType<AggregationFunction> 
       timeWindow: d.time_window,
     }));
 
+export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
+  .object({
+    error_code: z.string().optional(),
+    message: z.string().optional(),
+    stack_trace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    errorCode: d.error_code,
+    message: d.message,
+    stackTrace: d.stack_trace,
+    details: d.details,
+  }));
+
 export const unmarshalApproxCountDistinctFunctionSchema: z.ZodType<ApproxCountDistinctFunction> =
   z
     .object({
@@ -1537,6 +2230,40 @@ export const unmarshalAvgFunctionSchema: z.ZodType<AvgFunction> = z
   })
   .transform(d => ({
     input: d.input,
+  }));
+
+export const unmarshalBackfillFeaturesResponseSchema: z.ZodType<BackfillFeaturesResponse> =
+  z.object({});
+
+export const unmarshalBackfillOperationMetadataSchema: z.ZodType<BackfillOperationMetadata> =
+  z
+    .object({
+      feature_full_names: z.array(z.string()).optional(),
+      backfill_ranges: z
+        .array(z.lazy(() => unmarshalBackfillRangeSchema))
+        .optional(),
+      state: z.string().optional(),
+    })
+    .transform(d => ({
+      featureFullNames: d.feature_full_names,
+      backfillRanges: d.backfill_ranges,
+      state: d.state,
+    }));
+
+export const unmarshalBackfillRangeSchema: z.ZodType<BackfillRange> = z
+  .object({
+    start_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    end_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+  })
+  .transform(d => ({
+    startTime: d.start_time,
+    endTime: d.end_time,
   }));
 
 export const unmarshalBackfillSourceSchema: z.ZodType<BackfillSource> = z
@@ -1591,9 +2318,11 @@ export const unmarshalCountFunctionSchema: z.ZodType<CountFunction> = z
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
     cron_expression: z.string().optional(),
+    mode: z.string().optional(),
   })
   .transform(d => ({
     cronExpression: d.cron_expression,
+    mode: d.mode,
   }));
 
 export const unmarshalCustomUdfSchema: z.ZodType<CustomUdf> = z
@@ -1682,6 +2411,7 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
     full_name: z.string().optional(),
     source: z.lazy(() => unmarshalDataSourceSchema).optional(),
     function: z.lazy(() => unmarshalFunctionSchema).optional(),
+    time_window: z.lazy(() => unmarshalTimeWindowSchema).optional(),
     description: z.string().optional(),
     lineage_context: z.lazy(() => unmarshalLineageContextSchema).optional(),
     entities: z.array(z.lazy(() => unmarshalEntityColumnSchema)).optional(),
@@ -1699,6 +2429,7 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
     fullName: d.full_name,
     source: d.source,
     function: d.function,
+    timeWindow: d.time_window,
     description: d.description,
     lineageContext: d.lineage_context,
     entities: d.entities,
@@ -2058,6 +2789,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
         .optional(),
       table_trigger: z.lazy(() => unmarshalTableTriggerSchema).optional(),
       streaming_mode: z.lazy(() => unmarshalStreamingModeSchema).optional(),
+      latest_backfill_operation: z.string().optional(),
     })
     .transform(d => ({
       materializedFeatureId: d.materialized_feature_id,
@@ -2092,6 +2824,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
                   streamingMode: d.streaming_mode,
                 }
               : undefined,
+      latestBackfillOperation: d.latest_backfill_operation,
     }));
 
 export const unmarshalMaxFunctionSchema: z.ZodType<MaxFunction> = z
@@ -2159,6 +2892,26 @@ export const unmarshalOnlineStoreConfigSchema: z.ZodType<OnlineStoreConfig> = z
     schemaName: d.schema_name,
     tableNamePrefix: d.table_name_prefix,
     onlineStoreName: d.online_store_name,
+  }));
+
+export const unmarshalOperationSchema: z.ZodType<Operation> = z
+  .object({
+    name: z.string().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+    done: z.boolean().optional(),
+    error: z.lazy(() => unmarshalApiErrorSchema).optional(),
+    response: z.record(z.string(), z.unknown()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    metadata: d.metadata,
+    done: d.done,
+    result:
+      d.error !== undefined
+        ? {$case: 'error' as const, error: d.error}
+        : d.response !== undefined
+          ? {$case: 'response' as const, response: d.response}
+          : undefined,
   }));
 
 export const unmarshalProtoSchemaSpecSchema: z.ZodType<ProtoSchemaSpec> = z
@@ -2353,6 +3106,8 @@ export const unmarshalStreamSchema: z.ZodType<Stream> = z
       .optional(),
     schema_config: z.lazy(() => unmarshalStreamSchemaConfigSchema).optional(),
     ingestion_config: z.lazy(() => unmarshalIngestionConfigSchema).optional(),
+    record_type_filter: z.string().optional(),
+    excluded_columns: z.array(z.string()).optional(),
     create_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -2372,6 +3127,8 @@ export const unmarshalStreamSchema: z.ZodType<Stream> = z
     connectionConfig: d.connection_config,
     schemaConfig: d.schema_config,
     ingestionConfig: d.ingestion_config,
+    recordTypeFilter: d.record_type_filter,
+    excludedColumns: d.excluded_columns,
     createTime: d.create_time,
     createdBy: d.created_by,
     updateTime: d.update_time,
@@ -2756,6 +3513,36 @@ export const marshalAvgFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
+export const marshalBackfillFeaturesRequestSchema: z.ZodType = z
+  .object({
+    featureFullNames: z.array(z.string()).optional(),
+    backfillRanges: z
+      .array(z.lazy(() => marshalBackfillRangeSchema))
+      .optional(),
+    requestId: z.string().optional(),
+  })
+  .transform(d => ({
+    feature_full_names: d.featureFullNames,
+    backfill_ranges: d.backfillRanges,
+    request_id: d.requestId,
+  }));
+
+export const marshalBackfillRangeSchema: z.ZodType = z
+  .object({
+    startTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    endTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    start_time: d.startTime,
+    end_time: d.endTime,
+  }));
+
 export const marshalBackfillSourceSchema: z.ZodType = z
   .object({
     backfillSource: z
@@ -2790,6 +3577,14 @@ export const marshalBatchCreateMaterializedFeaturesRequestSchema: z.ZodType = z
     requests: d.requests,
   }));
 
+export const marshalCancelOperationRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalColumnSelectionSchema: z.ZodType = z
   .object({
     column: z.string().optional(),
@@ -2819,9 +3614,11 @@ export const marshalCreateMaterializedFeatureRequestSchema: z.ZodType = z
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     cronExpression: z.string().optional(),
+    mode: z.string().optional(),
   })
   .transform(d => ({
     cron_expression: d.cronExpression,
+    mode: d.mode,
   }));
 
 export const marshalCustomUdfSchema: z.ZodType = z
@@ -2921,6 +3718,7 @@ export const marshalFeatureSchema: z.ZodType = z
     fullName: z.string().optional(),
     source: z.lazy(() => marshalDataSourceSchema).optional(),
     function: z.lazy(() => marshalFunctionSchema).optional(),
+    timeWindow: z.lazy(() => marshalTimeWindowSchema).optional(),
     description: z.string().optional(),
     lineageContext: z.lazy(() => marshalLineageContextSchema).optional(),
     entities: z.array(z.lazy(() => marshalEntityColumnSchema)).optional(),
@@ -2938,6 +3736,7 @@ export const marshalFeatureSchema: z.ZodType = z
     full_name: d.fullName,
     source: d.source,
     function: d.function,
+    time_window: d.timeWindow,
     description: d.description,
     lineage_context: d.lineageContext,
     entities: d.entities,
@@ -3257,6 +4056,7 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
         }),
       ])
       .optional(),
+    latestBackfillOperation: z.string().optional(),
   })
   .transform(d => ({
     materialized_feature_id: d.materializedFeatureId,
@@ -3280,6 +4080,7 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     ...(d.trigger?.$case === 'streamingMode' && {
       streaming_mode: d.trigger.streamingMode,
     }),
+    latest_backfill_operation: d.latestBackfillOperation,
   }));
 
 export const marshalMaxFunctionSchema: z.ZodType = z
@@ -3541,6 +4342,8 @@ export const marshalStreamSchema: z.ZodType = z
       .optional(),
     schemaConfig: z.lazy(() => marshalStreamSchemaConfigSchema).optional(),
     ingestionConfig: z.lazy(() => marshalIngestionConfigSchema).optional(),
+    recordTypeFilter: z.string().optional(),
+    excludedColumns: z.array(z.string()).optional(),
     createTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -3560,6 +4363,8 @@ export const marshalStreamSchema: z.ZodType = z
     connection_config: d.connectionConfig,
     schema_config: d.schemaConfig,
     ingestion_config: d.ingestionConfig,
+    record_type_filter: d.recordTypeFilter,
+    excluded_columns: d.excludedColumns,
     create_time: d.createTime,
     created_by: d.createdBy,
     update_time: d.updateTime,
@@ -3878,6 +4683,7 @@ const countFunctionFieldMaskSchema: FieldMaskSchema = {
 
 const cronScheduleFieldMaskSchema: FieldMaskSchema = {
   cronExpression: {wire: 'cron_expression'},
+  mode: {wire: 'mode'},
 };
 
 const customUdfFieldMaskSchema: FieldMaskSchema = {
@@ -3940,6 +4746,7 @@ const featureFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
   schemaName: {wire: 'schema_name'},
   source: {wire: 'source', children: () => dataSourceFieldMaskSchema},
+  timeWindow: {wire: 'time_window', children: () => timeWindowFieldMaskSchema},
   timeseriesColumn: {
     wire: 'timeseries_column',
     children: () => timeseriesColumnFieldMaskSchema,
@@ -4092,6 +4899,7 @@ const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
   featureName: {wire: 'feature_name'},
   isOnline: {wire: 'is_online'},
   lastMaterializationTime: {wire: 'last_materialization_time'},
+  latestBackfillOperation: {wire: 'latest_backfill_operation'},
   materializedFeatureId: {wire: 'materialized_feature_id'},
   offlineStoreConfig: {
     wire: 'offline_store_config',
@@ -4251,11 +5059,13 @@ const streamFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   createdBy: {wire: 'created_by'},
   description: {wire: 'description'},
+  excludedColumns: {wire: 'excluded_columns'},
   ingestionConfig: {
     wire: 'ingestion_config',
     children: () => ingestionConfigFieldMaskSchema,
   },
   name: {wire: 'name'},
+  recordTypeFilter: {wire: 'record_type_filter'},
   schemaConfig: {
     wire: 'schema_config',
     children: () => streamSchemaConfigFieldMaskSchema,

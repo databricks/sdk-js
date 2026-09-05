@@ -151,6 +151,30 @@ export type DataSecurityMode =
   | (typeof DataSecurityMode)[keyof typeof DataSecurityMode]
   | (string & {});
 
+/** Days of week that can be referenced by Jobs scheduling settings. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DayOfWeek = {
+  /** No specific day of week is specified. */
+  DAY_OF_WEEK_UNSPECIFIED: 'DAY_OF_WEEK_UNSPECIFIED',
+  /** The day of week is Monday. */
+  MONDAY: 'MONDAY',
+  /** The day of week is Tuesday. */
+  TUESDAY: 'TUESDAY',
+  /** The day of week is Wednesday. */
+  WEDNESDAY: 'WEDNESDAY',
+  /** The day of week is Thursday. */
+  THURSDAY: 'THURSDAY',
+  /** The day of week is Friday. */
+  FRIDAY: 'FRIDAY',
+  /** The day of week is Saturday. */
+  SATURDAY: 'SATURDAY',
+  /** The day of week is Sunday. */
+  SUNDAY: 'SUNDAY',
+} as const;
+export type DayOfWeek =
+  | (typeof DayOfWeek)[keyof typeof DayOfWeek]
+  | (string & {});
+
 /** Response enumeration from calling the dbt platform API, for inclusion in output */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DbtPlatformRunStatus = {
@@ -231,6 +255,10 @@ export const HardwareAcceleratorType = {
   GPU_1X_A10: 'GPU_1xA10',
   /** GPU_8xH100: 8x H100 GPU configuration. */
   GPU_8X_H100: 'GPU_8xH100',
+  /** GPU_1xH100: Single H100 GPU configuration. */
+  GPU_1X_H100: 'GPU_1xH100',
+  /** GPU_8xB300: 8x B300 GPU configuration. */
+  GPU_8X_B300: 'GPU_8xB300',
 } as const;
 export type HardwareAcceleratorType =
   | (typeof HardwareAcceleratorType)[keyof typeof HardwareAcceleratorType]
@@ -432,6 +460,7 @@ export type TaskRetryMode =
  * * `TABLE`: Indicates a run that is triggered by a table update.
  * * `CONTINUOUS_RESTART`: Indicates a run created by user to manually restart a continuous job run.
  * * `MODEL`: Indicates a run that is triggered by a model update.
+ * * `JOB_COMPLETION`: Indicates a run that is triggered by an upstream job completion.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const TriggerType = {
@@ -1048,6 +1077,15 @@ export interface AlertTask {
    * The number of subscriptions is limited to 100.
    */
   subscribers?: AlertTaskSubscriber[] | undefined;
+  /**
+   * Per-run parameter overrides, keyed by parameter name, applied onto the alert's stored
+   * query parameters before the query is executed. Only scalar values are supported. Values
+   * may reference job parameters with `{{job.parameters.*}}`, which are resolved before the
+   * task runs. An override whose key does not match a stored parameter fails the task run.
+   * Limited to 10000 characters when serialized as JSON; keys must be 1-100 characters and
+   * contain only letters, digits, underscores, dashes, and periods.
+   */
+  parameters?: Record<string, string> | undefined;
 }
 
 export interface AlertTaskOutput {
@@ -1708,6 +1746,13 @@ export interface ComputeSpec {
    * (8 GPUs per node).
    */
   acceleratorCount?: number | undefined;
+  /**
+   * Optional ID of a pre-provisioned accelerator capacity reservation to run
+   * this AI Runtime workload on. When set, the workload is scheduled onto the
+   * referenced reserved capacity instead of the on-demand capacity shared among
+   * all <Databricks> customers.
+   */
+  provisionedCapacityId?: string | undefined;
 }
 
 export interface ConditionTask {
@@ -1731,6 +1776,8 @@ export interface ContinuousSettings {
   pauseStatus?: SchedulePauseStatus | undefined;
   /** Indicate whether the continuous job is applying task level retries or not. Defaults to NEVER. */
   taskRetryMode?: TaskRetryMode | undefined;
+  /** Defines when platform-initiated maintenance may run for this job. If unspecified, maintenance may run at any time. */
+  maintenanceWindow?: MaintenanceWindow | undefined;
 }
 
 /**
@@ -1740,6 +1787,11 @@ export interface ContinuousSettings {
 export interface ContinuousTriggerConfiguration {
   /** Whether the continuous job applies task-level retries. Defaults to NEVER. */
   taskRetryMode?: TaskRetryMode | undefined;
+  /**
+   * Defines when platform-initiated maintenance may run for this trigger. If unspecified,
+   * maintenance may run at any time.
+   */
+  maintenanceWindow?: MaintenanceWindow | undefined;
 }
 
 export interface ContinuousTriggerState {
@@ -3222,6 +3274,23 @@ export interface LogAnalyticsInfo {
   logAnalyticsPrimaryKey?: string | undefined;
 }
 
+/**
+ * A recurring weekly time window during which platform-initiated maintenance is
+ * allowed to run for a continuous job.
+ */
+export interface MaintenanceWindow {
+  /**
+   * An integer between 0 and 23 denoting the start hour for the maintenance window in the 24-hour day.
+   * Platform-initiated maintenance is triggered only within a one-hour window starting at this hour.
+   * This field is required.
+   */
+  startHour?: number | undefined;
+  /** The day of week on which maintenance is allowed to happen. This field is required. */
+  dayOfWeek?: DayOfWeek | undefined;
+  /** A Java timezone ID. The maintenance window is resolved with respect to this timezone. See [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details. This field is required. */
+  timezoneId?: string | undefined;
+}
+
 export interface MavenLibrary {
   /** Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2". */
   coordinates?: string | undefined;
@@ -3273,6 +3342,11 @@ export interface ModelTriggerState {}
 export interface NodeTypeFlexibility {
   /** A list of node type IDs to use as fallbacks when the primary node type is unavailable. */
   alternateNodeTypeIds?: string[] | undefined;
+  /**
+   * The AWS Context ID for EC2 Fleet.
+   * When set (non-empty), the value is passed to AWS CreateFleet API to create the EC2 Fleet.
+   */
+  awsContextId?: string | undefined;
 }
 
 export interface NotebookTask {
@@ -3348,7 +3422,7 @@ export interface OutputSchemaInfo {
  */
 export interface PerTriggerState {
   /**
-   * (-- Next ID: 9. --)
+   * (-- Next ID: 10. --)
    * Runtime-state variant for the corresponding trigger; exactly one field is set,
    * matching the trigger's type in `TriggerConfiguration`.
    */
@@ -5258,9 +5332,9 @@ export interface TerminationType {}
 
 /**
  * A single trigger attached to a job via `JobSettings.triggers`. Exactly one of the trigger-type fields
- * (`periodic`, `schedule`, `continuous`, `file_arrival`, `table_update`, `model`) must be set; mutual exclusivity
- * is enforced in the API handler rather than via `oneof` so that codegen, validation, and JSON serialization
- * across SDKs and Terraform behave consistently.
+ * (`periodic`, `schedule`, `continuous`, `file_arrival`, `table_update`, `model`, `job_completion`) must be set;
+ * mutual exclusivity is enforced in the API handler rather than via `oneof` so that codegen, validation, and JSON
+ * serialization across SDKs and Terraform behave consistently.
  */
 export interface TriggerConfiguration {
   /** Whether this trigger is paused. Defaults to UNPAUSED when unset; the server always returns an explicit value on read. */
@@ -5339,7 +5413,7 @@ export interface TriggerSettings {
 }
 
 export interface TriggerState {
-  /** (-- Next ID: 7. --) */
+  /** (-- Next ID: 8. --) */
   triggerType?:
     | {$case: 'table'; table: TableTriggerState}
     | {$case: 'fileArrival'; fileArrival: FileArrivalTriggerState}
@@ -5490,12 +5564,14 @@ export const unmarshalAlertTaskSchema: z.ZodType<AlertTask> = z
     subscribers: z
       .array(z.lazy(() => unmarshalAlertTaskSubscriberSchema))
       .optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
     alertId: d.alert_id,
     warehouseId: d.warehouse_id,
     workspacePath: d.workspace_path,
     subscribers: d.subscribers,
+    parameters: d.parameters,
   }));
 
 export const unmarshalAlertTaskOutputSchema: z.ZodType<AlertTaskOutput> = z
@@ -5943,10 +6019,12 @@ export const unmarshalComputeSpecSchema: z.ZodType<ComputeSpec> = z
   .object({
     accelerator_type: z.string().optional(),
     accelerator_count: z.number().optional(),
+    provisioned_capacity_id: z.string().optional(),
   })
   .transform(d => ({
     acceleratorType: d.accelerator_type,
     acceleratorCount: d.accelerator_count,
+    provisionedCapacityId: d.provisioned_capacity_id,
   }));
 
 export const unmarshalConditionTaskSchema: z.ZodType<ConditionTask> = z
@@ -5968,19 +6046,27 @@ export const unmarshalContinuousSettingsSchema: z.ZodType<ContinuousSettings> =
     .object({
       pause_status: z.string().optional(),
       task_retry_mode: z.string().optional(),
+      maintenance_window: z
+        .lazy(() => unmarshalMaintenanceWindowSchema)
+        .optional(),
     })
     .transform(d => ({
       pauseStatus: d.pause_status,
       taskRetryMode: d.task_retry_mode,
+      maintenanceWindow: d.maintenance_window,
     }));
 
 export const unmarshalContinuousTriggerConfigurationSchema: z.ZodType<ContinuousTriggerConfiguration> =
   z
     .object({
       task_retry_mode: z.string().optional(),
+      maintenance_window: z
+        .lazy(() => unmarshalMaintenanceWindowSchema)
+        .optional(),
     })
     .transform(d => ({
       taskRetryMode: d.task_retry_mode,
+      maintenanceWindow: d.maintenance_window,
     }));
 
 export const unmarshalContinuousTriggerStateSchema: z.ZodType<ContinuousTriggerState> =
@@ -7035,6 +7121,18 @@ export const unmarshalLogAnalyticsInfoSchema: z.ZodType<LogAnalyticsInfo> = z
     logAnalyticsPrimaryKey: d.log_analytics_primary_key,
   }));
 
+export const unmarshalMaintenanceWindowSchema: z.ZodType<MaintenanceWindow> = z
+  .object({
+    start_hour: z.number().optional(),
+    day_of_week: z.string().optional(),
+    timezone_id: z.string().optional(),
+  })
+  .transform(d => ({
+    startHour: d.start_hour,
+    dayOfWeek: d.day_of_week,
+    timezoneId: d.timezone_id,
+  }));
+
 export const unmarshalMavenLibrarySchema: z.ZodType<MavenLibrary> = z
   .object({
     coordinates: z.string().optional(),
@@ -7071,9 +7169,11 @@ export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> 
   z
     .object({
       alternate_node_type_ids: z.array(z.string()).optional(),
+      aws_context_id: z.string().optional(),
     })
     .transform(d => ({
       alternateNodeTypeIds: d.alternate_node_type_ids,
+      awsContextId: d.aws_context_id,
     }));
 
 export const unmarshalNotebookTaskSchema: z.ZodType<NotebookTask> = z
@@ -8994,12 +9094,14 @@ export const marshalAlertTaskSchema: z.ZodType = z
     subscribers: z
       .array(z.lazy(() => marshalAlertTaskSubscriberSchema))
       .optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
     alert_id: d.alertId,
     warehouse_id: d.warehouseId,
     workspace_path: d.workspacePath,
     subscribers: d.subscribers,
+    parameters: d.parameters,
   }));
 
 export const marshalAlertTaskSubscriberSchema: z.ZodType = z
@@ -9244,10 +9346,12 @@ export const marshalComputeSpecSchema: z.ZodType = z
   .object({
     acceleratorType: z.string().optional(),
     acceleratorCount: z.number().optional(),
+    provisionedCapacityId: z.string().optional(),
   })
   .transform(d => ({
     accelerator_type: d.acceleratorType,
     accelerator_count: d.acceleratorCount,
+    provisioned_capacity_id: d.provisionedCapacityId,
   }));
 
 export const marshalConditionTaskSchema: z.ZodType = z
@@ -9268,18 +9372,22 @@ export const marshalContinuousSettingsSchema: z.ZodType = z
   .object({
     pauseStatus: z.string().optional(),
     taskRetryMode: z.string().optional(),
+    maintenanceWindow: z.lazy(() => marshalMaintenanceWindowSchema).optional(),
   })
   .transform(d => ({
     pause_status: d.pauseStatus,
     task_retry_mode: d.taskRetryMode,
+    maintenance_window: d.maintenanceWindow,
   }));
 
 export const marshalContinuousTriggerConfigurationSchema: z.ZodType = z
   .object({
     taskRetryMode: z.string().optional(),
+    maintenanceWindow: z.lazy(() => marshalMaintenanceWindowSchema).optional(),
   })
   .transform(d => ({
     task_retry_mode: d.taskRetryMode,
+    maintenance_window: d.maintenanceWindow,
   }));
 
 export const marshalCreateJobRequestSchema: z.ZodType = z
@@ -9954,6 +10062,18 @@ export const marshalLogAnalyticsInfoSchema: z.ZodType = z
     log_analytics_primary_key: d.logAnalyticsPrimaryKey,
   }));
 
+export const marshalMaintenanceWindowSchema: z.ZodType = z
+  .object({
+    startHour: z.number().optional(),
+    dayOfWeek: z.string().optional(),
+    timezoneId: z.string().optional(),
+  })
+  .transform(d => ({
+    start_hour: d.startHour,
+    day_of_week: d.dayOfWeek,
+    timezone_id: d.timezoneId,
+  }));
+
 export const marshalMavenLibrarySchema: z.ZodType = z
   .object({
     coordinates: z.string().optional(),
@@ -9985,9 +10105,11 @@ export const marshalModelTriggerConfigurationSchema: z.ZodType = z
 export const marshalNodeTypeFlexibilitySchema: z.ZodType = z
   .object({
     alternateNodeTypeIds: z.array(z.string()).optional(),
+    awsContextId: z.string().optional(),
   })
   .transform(d => ({
     alternate_node_type_ids: d.alternateNodeTypeIds,
+    aws_context_id: d.awsContextId,
   }));
 
 export const marshalNotebookTaskSchema: z.ZodType = z

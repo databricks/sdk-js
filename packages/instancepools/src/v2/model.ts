@@ -680,6 +680,11 @@ export interface ListInstancePoolsResponse {
 export interface NodeTypeFlexibility {
   /** A list of node type IDs to use as fallbacks when the primary node type is unavailable. */
   alternateNodeTypeIds?: string[] | undefined;
+  /**
+   * The AWS Context ID for EC2 Fleet.
+   * When set (non-empty), the value is passed to AWS CreateFleet API to create the EC2 Fleet.
+   */
+  awsContextId?: string | undefined;
 }
 
 /** Error message of a failed pending instances */
@@ -960,9 +965,11 @@ export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> 
   z
     .object({
       alternate_node_type_ids: z.array(z.string()).optional(),
+      aws_context_id: z.string().optional(),
     })
     .transform(d => ({
       alternateNodeTypeIds: d.alternate_node_type_ids,
+      awsContextId: d.aws_context_id,
     }));
 
 export const unmarshalPendingInstanceErrorSchema: z.ZodType<PendingInstanceError> =
@@ -1192,7 +1199,9 @@ export const marshalInstancePoolGcpAttributesSchema: z.ZodType = z
 export const marshalNodeTypeFlexibilitySchema: z.ZodType = z
   .object({
     alternateNodeTypeIds: z.array(z.string()).optional(),
+    awsContextId: z.string().optional(),
   })
   .transform(d => ({
     alternate_node_type_ids: d.alternateNodeTypeIds,
+    aws_context_id: d.awsContextId,
   }));

@@ -17,17 +17,20 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  AccessRequestDestinations,
-  BatchCreateAccessRequestsRequest,
-  BatchCreateAccessRequestsResponse,
-  GetAccessRequestDestinationsRequest,
-  UpdateAccessRequestDestinationsRequest,
+  AiClassifyRequest,
+  AiClassifyResponse,
+  AiExtractRequest,
+  AiExtractResponse,
+  AiParseDocumentRequest,
+  AiParseDocumentResponse,
 } from './model';
 import {
-  marshalAccessRequestDestinationsSchema,
-  marshalBatchCreateAccessRequestsRequestSchema,
-  unmarshalAccessRequestDestinationsSchema,
-  unmarshalBatchCreateAccessRequestsResponseSchema,
+  marshalAiClassifyRequestSchema,
+  marshalAiExtractRequestSchema,
+  marshalAiParseDocumentRequestSchema,
+  unmarshalAiClassifyResponseSchema,
+  unmarshalAiExtractResponseSchema,
+  unmarshalAiParseDocumentResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -36,7 +39,7 @@ const PACKAGE_SEGMENT = {
   value: pkgJson.version,
 };
 
-export class RfaClient {
+export class AiFunctionsClient {
   private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -63,26 +66,15 @@ export class RfaClient {
     return this.config;
   }
 
-  /**
-   * Creates access requests for Unity Catalog permissions for a specified principal on a securable object.
-   * This Batch API can take in multiple principals, securable objects,
-   * and permissions as the input and returns the access request destinations for each.
-   * Principals must be unique across the API call.
-   *
-   * The supported securable types are: "metastore", "catalog", "schema", "table",
-   * "external_location", "connection", "credential", "function", "registered_model", and "volume".
-   */
-  async batchCreateAccessRequests(
-    req: BatchCreateAccessRequestsRequest,
+  /** Classifies content according to a set of provided labels. */
+  async aiClassify(
+    req: AiClassifyRequest,
     options?: CallOptions
-  ): Promise<BatchCreateAccessRequestsResponse> {
+  ): Promise<AiClassifyResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/3.0/rfa/requests`;
-    const body = marshalRequest(
-      req,
-      marshalBatchCreateAccessRequestsRequestSchema
-    );
-    let resp: BatchCreateAccessRequestsResponse | undefined;
+    const url = `${host}/api/2.0/ai-functions/ai-classify`;
+    const body = marshalRequest(req, marshalAiClassifyRequestSchema);
+    let resp: AiClassifyResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (workspaceId !== undefined) {
@@ -95,10 +87,7 @@ export class RfaClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(
-        respBody,
-        unmarshalBatchCreateAccessRequestsResponseSchema
-      );
+      resp = parseResponse(respBody, unmarshalAiClassifyResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -107,87 +96,58 @@ export class RfaClient {
     return resp;
   }
 
-  /**
-   * Gets an array of access request destinations for the specified securable.
-   * Any caller can see URL destinations or the destinations on the metastore.
-   * Otherwise, only those with **BROWSE** permissions on the securable can see destinations.
-   *
-   * The supported securable types are: "metastore", "catalog", "schema", "table",
-   * "external_location", "connection", "credential", "function", "registered_model", and "volume".
-   */
-  async getAccessRequestDestinations(
-    req: GetAccessRequestDestinationsRequest,
+  /** Extracts structured data from text and documents according to a provided schema. */
+  async aiExtract(
+    req: AiExtractRequest,
     options?: CallOptions
-  ): Promise<AccessRequestDestinations> {
+  ): Promise<AiExtractResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/3.0/rfa/destinations/${req.securableType ?? ''}/${req.fullName ?? ''}`;
-    let resp: AccessRequestDestinations | undefined;
-    const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (workspaceId !== undefined) {
-        headers.set('X-Databricks-Workspace-Id', workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalAccessRequestDestinationsSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('operation completed without a result.');
-    }
-    return resp;
-  }
-
-  /**
-   * Updates the access request destinations for the given securable.
-   * The caller must be a metastore admin, the owner of the securable, or a user that has the **MANAGE** privilege on the securable in order to assign destinations.
-   * A maximum of 5 emails and 5 external notification destinations (Slack, Microsoft Teams, Generic Webhook, and Databricks App Slack/Teams destinations) can be assigned to a securable.
-   * If a URL destination is assigned, no other destinations can be set.
-   *
-   * The supported securable types are: "metastore", "catalog", "schema", "table",
-   * "external_location", "connection", "credential", "function", "registered_model", and "volume".
-   */
-  async updateAccessRequestDestinations(
-    req: UpdateAccessRequestDestinationsRequest,
-    options?: CallOptions
-  ): Promise<AccessRequestDestinations> {
-    const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/3.0/rfa/destinations`;
-    const params = new URLSearchParams();
-    if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask.toString());
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.accessRequestDestinations,
-      marshalAccessRequestDestinationsSchema
-    );
-    let resp: AccessRequestDestinations | undefined;
+    const url = `${host}/api/2.0/ai-functions/ai-extract`;
+    const body = marshalRequest(req, marshalAiExtractRequestSchema);
+    let resp: AiExtractResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (workspaceId !== undefined) {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalAccessRequestDestinationsSchema);
+      resp = parseResponse(respBody, unmarshalAiExtractResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Parse structured content from unstructured documents. */
+  async aiParseDocument(
+    req: AiParseDocumentRequest,
+    options?: CallOptions
+  ): Promise<AiParseDocumentResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/ai-functions/ai-parse-document`;
+    const body = marshalRequest(req, marshalAiParseDocumentRequestSchema);
+    let resp: AiParseDocumentResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalAiParseDocumentResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

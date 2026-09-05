@@ -46,6 +46,10 @@ export const SecurableType = {
   EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
   STAGING_TABLE: 'STAGING_TABLE',
+  MODEL: 'MODEL',
+  MODEL_SERVICE: 'MODEL_SERVICE',
+  MCP_SERVICE: 'MCP_SERVICE',
+  MODEL_PROVIDER_SERVICE: 'MODEL_PROVIDER_SERVICE',
 } as const;
 export type SecurableType =
   | (typeof SecurableType)[keyof typeof SecurableType]

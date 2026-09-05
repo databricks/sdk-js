@@ -31,6 +31,8 @@ export const ConnectionType = {
   META_MARKETING: 'META_MARKETING',
   HUBSPOT: 'HUBSPOT',
   ZENDESK: 'ZENDESK',
+  AWS_SECRETS_MANAGER: 'AWS_SECRETS_MANAGER',
+  AZURE_KEY_VAULT: 'AZURE_KEY_VAULT',
   GITHUB: 'GITHUB',
   OUTLOOK: 'OUTLOOK',
   SMARTSHEET: 'SMARTSHEET',
@@ -83,6 +85,10 @@ export const SecurableType = {
   EXTERNAL_METADATA: 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
   STAGING_TABLE: 'STAGING_TABLE',
+  MODEL: 'MODEL',
+  MODEL_SERVICE: 'MODEL_SERVICE',
+  MCP_SERVICE: 'MCP_SERVICE',
+  MODEL_PROVIDER_SERVICE: 'MODEL_PROVIDER_SERVICE',
 } as const;
 export type SecurableType =
   | (typeof SecurableType)[keyof typeof SecurableType]
