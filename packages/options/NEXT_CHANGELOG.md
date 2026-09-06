@@ -6,6 +6,8 @@
 
 ### Bug Fixes
 
+- Normalize Databricks hosts without a URL scheme to HTTPS.
+
 ### Documentation
 
 ### Internal Changes
