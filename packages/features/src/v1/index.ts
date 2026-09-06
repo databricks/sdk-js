@@ -8,6 +8,7 @@ export {FeaturesClient, BackfillFeaturesOperation} from './client';
 
 export {
   ErrorCode,
+  FunctionFunctionType,
   ScalarDataType,
   BackfillOperationMetadata_State,
   CronSchedule_Mode,
@@ -31,7 +32,9 @@ export type {
   BatchCreateMaterializedFeaturesRequest,
   BatchCreateMaterializedFeaturesResponse,
   CancelOperationRequest,
+  ColumnIdentifier,
   ColumnSelection,
+  ContinuousWindow,
   CountFunction,
   CreateFeatureRequest,
   CreateKafkaConfigRequest,
@@ -55,6 +58,7 @@ export type {
   FirstNFunction,
   FlatSchema,
   Function,
+  FunctionExtraParameter,
   GetFeatureRequest,
   GetKafkaConfigRequest,
   GetMaterializedFeatureRequest,
