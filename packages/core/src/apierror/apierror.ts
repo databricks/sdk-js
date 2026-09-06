@@ -141,17 +141,20 @@ export class ApiError extends Error {
       });
     }
 
-    // Decode the body to a string for JSON parsing.
+    // Decode the body once; it doubles as the JSON source and as a readable
+    // fallback message for non-JSON or non-conforming bodies.
+    const decoded = new TextDecoder().decode(body);
+
     let parsed: unknown;
     try {
-      parsed = JSON.parse(new TextDecoder().decode(body));
+      parsed = JSON.parse(decoded);
     } catch (e: unknown) {
-      // The JSON error is simply swallowed, this typically happens when the
-      // error does not come directly from a Databricks API. A typical example
-      // is when the error is returned by a proxy.
+      // The body is not JSON; this typically happens when the error does not
+      // come directly from a Databricks API (e.g. a proxy). Surface the decoded
+      // body as the message so the failure is debuggable instead of empty.
       return new ApiError({
         code: Code.UNKNOWN,
-        message: '',
+        message: decoded,
         details: emptyDetails,
         httpStatusCode: statusCode,
         httpHeader: header,
@@ -162,9 +165,11 @@ export class ApiError extends Error {
 
     const result = errorResponseSchema.safeParse(parsed);
     if (!result.success) {
+      // The body parsed as JSON but does not match the error schema. Surface
+      // the decoded body as the message so the failure is debuggable.
       return new ApiError({
         code: Code.UNKNOWN,
-        message: '',
+        message: decoded,
         details: emptyDetails,
         httpStatusCode: statusCode,
         httpHeader: header,
