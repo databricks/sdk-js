@@ -1,0 +1,39 @@
+# Naming Audit: connections
+
+**Path:** `packages/uc/connections/src/v1/`
+**Versions audited:** v1
+**Total weird names flagged:** 4
+
+## Summary
+| Severity | Count |
+| --- | --- |
+| High | 1 |
+| Medium | 3 |
+
+## High severity
+
+### 1. `ConnectionInfo` — `src/v1/model.ts:105`
+- **Why weird:** `Info` is the central domain entity — every type holds info about something. The Go SDK uses `XxxInfo` widely as a Go-style noun, but in TS the type would simply be `Connection`. `typescript.mdc` lists `Info` as a vague suffix.
+- **Category:** 1 (vague suffix), 8 (redundant type suffix).
+- **Suggested name:** `Connection`.
+- **Rationale:** The domain noun is "connection". Stripping `Info` improves every reference (`connection.connectionType` → `Connection.connectionType`).
+
+## Medium severity
+
+### 2. `ConnectionInfo.securableType: SecurableType` — `src/v1/model.ts:136`
+- **Why weird:** The value is *always* `SecurableType.CONNECTION` since this is a Connection, so the field is essentially constant.
+- **Category:** 16 (field type contradicts domain — a connection's securable_type can only be CONNECTION).
+- **Suggested name:** Drop the field (it's always `CONNECTION`), or document why a non-`CONNECTION` value would ever appear.
+- **Rationale:** Constant fields on response shapes are usually generator leaks. Worth pushing back upstream.
+
+### 3. `SecurableType.STAGING_TABLE` and TODO comment — `src/v1/model.ts:83-84`
+- **Why weird:** Enum value pinned by inline TODO: "Staging tables aren't full-fleged securables yet." Internal SDK TODOs in user-facing enum values.
+- **Category:** 6 (misleading — value advertised but not actually a securable yet).
+- **Suggested name:** Hide until promotion or mark `@experimental`.
+- **Rationale:** Public SDK enums shouldn't carry "not really a thing yet" entries.
+
+### 4. `ProvisioningInfo_State` — `src/v1/model.ts:91`
+- **Why weird:** Proto-architectural-leak naming. Underscore-joined identifier (`ProvisioningInfo_State`) is a proto nested-enum name (`ProvisioningInfo.State`) emitted verbatim into TS. The enum is suppressed via `eslint-disable @typescript-eslint/naming-convention`, confirming it breaks TS conventions. Standalone TS would name this `ProvisioningState` (or merge into `ProvisioningInfo`).
+- **Category:** Proto-architectural leak (`_State` underscore-joined nested enum name).
+- **Suggested name:** `ProvisioningState`.
+- **Rationale:** Proto nesting has no analogue in TS modules; the underscore is a wire-name artefact.
