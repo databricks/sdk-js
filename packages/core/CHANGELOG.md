@@ -1,5 +1,13 @@
 # Version changelog
 
+## Release v0.50.0 (2026-09-07)
+
+### New Features and Improvements
+
+- Added `groupId` profile resolution from `DATABRICKS_GROUP_ID` and profile
+  `group_id`.
+
+
 ## Release v0.49.0 (2026-09-03)
 
 
