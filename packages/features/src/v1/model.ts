@@ -611,6 +611,44 @@ export type MaterializedFeature_PipelineScheduleState =
   | (typeof MaterializedFeature_PipelineScheduleState)[keyof typeof MaterializedFeature_PipelineScheduleState]
   | (string & {});
 
+/** Lifecycle state of a feature entity purge. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PurgeFeatureEntitiesMetadata_State = {
+  /** The feature entity purge state is unspecified. */
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  /** The feature entity purge is pending. */
+  PENDING: 'PENDING',
+  /** The feature entity purge is running. */
+  RUNNING: 'RUNNING',
+  /** The feature entity purge succeeded. */
+  SUCCEEDED: 'SUCCEEDED',
+  /** The feature entity purge failed. */
+  FAILED: 'FAILED',
+  /** The feature entity purge was cancelled. */
+  CANCELLED: 'CANCELLED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type PurgeFeatureEntitiesMetadata_State =
+  | (typeof PurgeFeatureEntitiesMetadata_State)[keyof typeof PurgeFeatureEntitiesMetadata_State]
+  | (string & {});
+
+/** Terminal state of a purge for one store type. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PurgeFeatureEntitiesResult_State = {
+  /** The purge result state is unspecified. */
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  /** The purge succeeded. */
+  SUCCEEDED: 'SUCCEEDED',
+  /** The purge failed. */
+  FAILED: 'FAILED',
+  /** The purge did not apply to this store type for this feature. */
+  NOT_APPLICABLE: 'NOT_APPLICABLE',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type PurgeFeatureEntitiesResult_State =
+  | (typeof PurgeFeatureEntitiesResult_State)[keyof typeof PurgeFeatureEntitiesResult_State]
+  | (string & {});
+
 /** Supported serialization formats for a schema registry schema. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SchemaLocator_Format = {
@@ -1156,6 +1194,21 @@ export interface IngestionConfig {
   ingestionJobId?: bigint | undefined;
   /** The ID of the Databricks Job that performs the historical backfill of the ingestion Delta table. */
   backfillJobId?: bigint | undefined;
+  /**
+   * Custom tags to associate with this stream's managed ingestion. They are applied to the
+   * ingestion pipeline and its forward-fill and backfill jobs, and forwarded to the underlying
+   * compute as cluster tags, so ingestion cost can be attributed in the billing system tables.
+   * These tags apply only to the managed ingestion compute; they are not applied to the Stream
+   * entity itself, and are distinct from any Unity Catalog tags on the Stream.
+   * A maximum of 25 tags is supported; keys and values are subject to the same limitations as
+   * cluster tags.
+   */
+  tags?: Record<string, string> | undefined;
+  /**
+   * The ID of the budget policy used to attribute the serverless compute cost of this stream's
+   * managed ingestion. If not specified, a default budget policy may be applied.
+   */
+  budgetPolicyId?: string | undefined;
 }
 
 /** Destination for the <Databricks>-managed Delta table that holds an offline copy of the streaming data for querying and training. */
@@ -1489,6 +1542,21 @@ export interface MaterializedFeature {
     | undefined;
   /** Name of the latest backfill operation on this materialized feature. Format: operations/{operation_id}. */
   latestBackfillOperation?: string | undefined;
+  /**
+   * Custom tags to associate with this materialization. They are applied to the materialization
+   * job (for batch features) or pipeline (for streaming features) and forwarded to the underlying
+   * compute as cluster tags, so materialization cost can be attributed in the billing system
+   * tables. These tags apply only to the materialization compute; they are not applied to the
+   * Unity Catalog Feature resource itself, whose tags are managed separately through the Unity
+   * Catalog tagging API. A maximum of 25 tags is supported; keys and values are subject to the
+   * same limitations as cluster tags.
+   */
+  tags?: Record<string, string> | undefined;
+  /**
+   * The ID of the budget policy used to attribute the serverless compute cost of this
+   * materialization. If not specified, a default budget policy may be applied.
+   */
+  budgetPolicyId?: string | undefined;
 }
 
 /** Computes the maximum value. */
@@ -1646,6 +1714,69 @@ export interface ProtoSchemaSpec {
    * but only one represents the payload. Must not be empty.
    */
   messageName?: string | undefined;
+}
+
+/** Progress and configuration for a feature entity purge. */
+export interface PurgeFeatureEntitiesMetadata {
+  /** Fully qualified names of the features targeted by the purge. */
+  features?: string[] | undefined;
+  /** Fully qualified name of the Unity Catalog Delta table containing the entity keys to purge. */
+  entitiesTable?: string | undefined;
+  /** Version of the entities table used by the purge. */
+  entitiesTableVersion?: string | undefined;
+  /** Time at which the purge operation was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** Current state of the purge operation. */
+  state?: PurgeFeatureEntitiesMetadata_State | undefined;
+  /** ID of the job that executes this purge. */
+  jobId?: bigint | undefined;
+}
+
+/** Request to purge materialized feature values for entities listed in a Unity Catalog Delta table. */
+export interface PurgeFeatureEntitiesRequest {
+  /**
+   * Fully qualified names of the features to purge. At least one nonempty feature name is required.
+   * A request may contain at most 10000 features; submit additional features in separate requests.
+   * Duplicate features are rejected.
+   */
+  features?: string[] | undefined;
+  /** Source of the entity keys to purge. */
+  entities?:
+    | {
+        $case: 'entitiesTable';
+        /**
+         * Fully qualified name of the Unity Catalog Delta table containing the entity keys to purge.
+         * The table may contain a subset of each feature's entity-key columns. A partial key match
+         * deletes all feature rows matching the provided key values. Non-key columns are rejected;
+         * null key values are allowed.
+         */
+        entitiesTable: string;
+      }
+    | undefined;
+  /** Optional UUID4 idempotency token for the request. */
+  requestId?: string | undefined;
+}
+
+/** Result of a completed feature entity purge. */
+export interface PurgeFeatureEntitiesResponse {
+  /** Metadata about the purge operation. */
+  metadata?: PurgeFeatureEntitiesMetadata | undefined;
+  /** Per-feature purge results. */
+  results?: PurgeFeatureEntitiesResult[] | undefined;
+  /** State of the purge operation. */
+  state?: PurgeFeatureEntitiesMetadata_State | undefined;
+}
+
+/** Result of purging one feature. */
+export interface PurgeFeatureEntitiesResult {
+  /** Fully qualified name of the feature that was purged. */
+  feature?: string | undefined;
+  /** State of the offline purge for this feature. */
+  offlineState?: PurgeFeatureEntitiesResult_State | undefined;
+  /** State of the online purge for this feature. */
+  onlineState?: PurgeFeatureEntitiesResult_State | undefined;
+  /** Error encountered while purging this feature, if any. */
+  error?: ApiError | undefined;
 }
 
 /** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
@@ -2634,6 +2765,8 @@ export const unmarshalIngestionConfigSchema: z.ZodType<IngestionConfig> = z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
+    tags: z.record(z.string(), z.string()).optional(),
+    budget_policy_id: z.string().optional(),
   })
   .transform(d => ({
     ingestionDestination: d.ingestion_destination,
@@ -2642,6 +2775,8 @@ export const unmarshalIngestionConfigSchema: z.ZodType<IngestionConfig> = z
     ingestionPipelineId: d.ingestion_pipeline_id,
     ingestionJobId: d.ingestion_job_id,
     backfillJobId: d.backfill_job_id,
+    tags: d.tags,
+    budgetPolicyId: d.budget_policy_id,
   }));
 
 export const unmarshalIngestionDestinationSchema: z.ZodType<IngestionDestination> =
@@ -2898,6 +3033,8 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
       table_trigger: z.lazy(() => unmarshalTableTriggerSchema).optional(),
       streaming_mode: z.lazy(() => unmarshalStreamingModeSchema).optional(),
       latest_backfill_operation: z.string().optional(),
+      tags: z.record(z.string(), z.string()).optional(),
+      budget_policy_id: z.string().optional(),
     })
     .transform(d => ({
       materializedFeatureId: d.materialized_feature_id,
@@ -2934,6 +3071,8 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
                 }
               : undefined,
       latestBackfillOperation: d.latest_backfill_operation,
+      tags: d.tags,
+      budgetPolicyId: d.budget_policy_id,
     }));
 
 export const unmarshalMaxFunctionSchema: z.ZodType<MaxFunction> = z
@@ -3032,6 +3171,63 @@ export const unmarshalProtoSchemaSpecSchema: z.ZodType<ProtoSchemaSpec> = z
     schemaText: d.schema_text,
     messageName: d.message_name,
   }));
+
+export const unmarshalPurgeFeatureEntitiesMetadataSchema: z.ZodType<PurgeFeatureEntitiesMetadata> =
+  z
+    .object({
+      features: z.array(z.string()).optional(),
+      entities_table: z.string().optional(),
+      entities_table_version: z.string().optional(),
+      create_time: z
+        .string()
+        .transform(s => Temporal.Instant.from(s))
+        .optional(),
+      state: z.string().optional(),
+      job_id: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
+    })
+    .transform(d => ({
+      features: d.features,
+      entitiesTable: d.entities_table,
+      entitiesTableVersion: d.entities_table_version,
+      createTime: d.create_time,
+      state: d.state,
+      jobId: d.job_id,
+    }));
+
+export const unmarshalPurgeFeatureEntitiesResponseSchema: z.ZodType<PurgeFeatureEntitiesResponse> =
+  z
+    .object({
+      metadata: z
+        .lazy(() => unmarshalPurgeFeatureEntitiesMetadataSchema)
+        .optional(),
+      results: z
+        .array(z.lazy(() => unmarshalPurgeFeatureEntitiesResultSchema))
+        .optional(),
+      state: z.string().optional(),
+    })
+    .transform(d => ({
+      metadata: d.metadata,
+      results: d.results,
+      state: d.state,
+    }));
+
+export const unmarshalPurgeFeatureEntitiesResultSchema: z.ZodType<PurgeFeatureEntitiesResult> =
+  z
+    .object({
+      feature: z.string().optional(),
+      offline_state: z.string().optional(),
+      online_state: z.string().optional(),
+      error: z.lazy(() => unmarshalApiErrorSchema).optional(),
+    })
+    .transform(d => ({
+      feature: d.feature,
+      offlineState: d.offline_state,
+      onlineState: d.online_state,
+      error: d.error,
+    }));
 
 export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
   .object({
@@ -3995,6 +4191,8 @@ export const marshalIngestionConfigSchema: z.ZodType = z
     ingestionPipelineId: z.string().optional(),
     ingestionJobId: z.bigint().optional(),
     backfillJobId: z.bigint().optional(),
+    tags: z.record(z.string(), z.string()).optional(),
+    budgetPolicyId: z.string().optional(),
   })
   .transform(d => ({
     ingestion_destination: d.ingestionDestination,
@@ -4003,6 +4201,8 @@ export const marshalIngestionConfigSchema: z.ZodType = z
     ingestion_pipeline_id: d.ingestionPipelineId,
     ingestion_job_id: d.ingestionJobId,
     backfill_job_id: d.backfillJobId,
+    tags: d.tags,
+    budget_policy_id: d.budgetPolicyId,
   }));
 
 export const marshalIngestionDestinationSchema: z.ZodType = z
@@ -4226,6 +4426,8 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
       ])
       .optional(),
     latestBackfillOperation: z.string().optional(),
+    tags: z.record(z.string(), z.string()).optional(),
+    budgetPolicyId: z.string().optional(),
   })
   .transform(d => ({
     materialized_feature_id: d.materializedFeatureId,
@@ -4251,6 +4453,8 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
       streaming_mode: d.trigger.streamingMode,
     }),
     latest_backfill_operation: d.latestBackfillOperation,
+    tags: d.tags,
+    budget_policy_id: d.budgetPolicyId,
   }));
 
 export const marshalMaxFunctionSchema: z.ZodType = z
@@ -4325,6 +4529,27 @@ export const marshalProtoSchemaSpecSchema: z.ZodType = z
   .transform(d => ({
     schema_text: d.schemaText,
     message_name: d.messageName,
+  }));
+
+export const marshalPurgeFeatureEntitiesRequestSchema: z.ZodType = z
+  .object({
+    features: z.array(z.string()).optional(),
+    entities: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('entitiesTable'),
+          entitiesTable: z.string(),
+        }),
+      ])
+      .optional(),
+    requestId: z.string().optional(),
+  })
+  .transform(d => ({
+    features: d.features,
+    ...(d.entities?.$case === 'entitiesTable' && {
+      entities_table: d.entities.entitiesTable,
+    }),
+    request_id: d.requestId,
   }));
 
 export const marshalRequestSourceSchema: z.ZodType = z
@@ -4985,6 +5210,7 @@ const ingestionConfigFieldMaskSchema: FieldMaskSchema = {
     wire: 'backfill_source',
     children: () => backfillSourceFieldMaskSchema,
   },
+  budgetPolicyId: {wire: 'budget_policy_id'},
   deduplicationColumns: {wire: 'deduplication_columns'},
   ingestionDestination: {
     wire: 'ingestion_destination',
@@ -4992,6 +5218,7 @@ const ingestionConfigFieldMaskSchema: FieldMaskSchema = {
   },
   ingestionJobId: {wire: 'ingestion_job_id'},
   ingestionPipelineId: {wire: 'ingestion_pipeline_id'},
+  tags: {wire: 'tags'},
 };
 
 const ingestionDestinationFieldMaskSchema: FieldMaskSchema = {
@@ -5089,6 +5316,7 @@ const lineageContextFieldMaskSchema: FieldMaskSchema = {
 };
 
 const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
+  budgetPolicyId: {wire: 'budget_policy_id'},
   cronSchedule: {wire: 'cron_schedule'},
   cronScheduleTrigger: {
     wire: 'cron_schedule_trigger',
@@ -5117,6 +5345,7 @@ const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
     wire: 'table_trigger',
     children: () => tableTriggerFieldMaskSchema,
   },
+  tags: {wire: 'tags'},
 };
 
 export function materializedFeatureFieldMask(
