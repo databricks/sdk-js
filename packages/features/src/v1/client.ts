@@ -52,6 +52,9 @@ import type {
   ListStreamsResponse,
   MaterializedFeature,
   Operation,
+  PurgeFeatureEntitiesMetadata,
+  PurgeFeatureEntitiesRequest,
+  PurgeFeatureEntitiesResponse,
   Stream,
   UpdateFeatureRequest,
   UpdateKafkaConfigRequest,
@@ -65,6 +68,7 @@ import {
   marshalFeatureSchema,
   marshalKafkaConfigSchema,
   marshalMaterializedFeatureSchema,
+  marshalPurgeFeatureEntitiesRequestSchema,
   marshalStreamSchema,
   unmarshalBackfillFeaturesResponseSchema,
   unmarshalBackfillOperationMetadataSchema,
@@ -77,6 +81,8 @@ import {
   unmarshalListStreamsResponseSchema,
   unmarshalMaterializedFeatureSchema,
   unmarshalOperationSchema,
+  unmarshalPurgeFeatureEntitiesMetadataSchema,
+  unmarshalPurgeFeatureEntitiesResponseSchema,
   unmarshalStreamSchema,
 } from './model';
 
@@ -827,6 +833,47 @@ export class FeaturesClient {
     }
   }
 
+  /** Purge materialized feature values for specified entities. */
+  private async purgeFeatureEntitiesBase(
+    req: PurgeFeatureEntitiesRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/feature-engineering/features:purgeFeatureEntities`;
+    const body = marshalRequest(req, marshalPurgeFeatureEntitiesRequestSchema);
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Purge materialized feature values for specified entities. */
+  async purgeFeatureEntities(
+    req: PurgeFeatureEntitiesRequest,
+    options?: CallOptions
+  ): Promise<PurgeFeatureEntitiesOperation> {
+    const op = await this.purgeFeatureEntitiesBase(req, options);
+    return new PurgeFeatureEntitiesOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
   /** Update a Feature. */
   async updateFeature(
     req: UpdateFeatureRequest,
@@ -1095,5 +1142,91 @@ export class BackfillFeaturesOperation {
   /** Starts asynchronous cancellation on the long-running operation. */
   async cancel(options?: CallOptions): Promise<void> {
     await this.cancelOperation({name: this.operation.name}, options);
+  }
+}
+
+export class PurgeFeatureEntitiesOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<PurgeFeatureEntitiesMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalPurgeFeatureEntitiesMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<PurgeFeatureEntitiesResponse> {
+    let result: PurgeFeatureEntitiesResponse | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z
+        .lazy(() => unmarshalPurgeFeatureEntitiesResponseSchema)
+        .parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
   }
 }

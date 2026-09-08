@@ -4,7 +4,11 @@
  * @module v1
  */
 
-export {FeaturesClient, BackfillFeaturesOperation} from './client';
+export {
+  FeaturesClient,
+  BackfillFeaturesOperation,
+  PurgeFeatureEntitiesOperation,
+} from './client';
 
 export {
   ErrorCode,
@@ -13,6 +17,8 @@ export {
   BackfillOperationMetadata_State,
   CronSchedule_Mode,
   MaterializedFeature_PipelineScheduleState,
+  PurgeFeatureEntitiesMetadata_State,
+  PurgeFeatureEntitiesResult_State,
   SchemaLocator_Format,
   StreamingMode_StreamingModeType,
 } from './model';
@@ -93,6 +99,10 @@ export type {
   OnlineStoreConfig,
   Operation,
   ProtoSchemaSpec,
+  PurgeFeatureEntitiesMetadata,
+  PurgeFeatureEntitiesRequest,
+  PurgeFeatureEntitiesResponse,
+  PurgeFeatureEntitiesResult,
   RequestSource,
   RollingWindow,
   SawtoothWindow,
