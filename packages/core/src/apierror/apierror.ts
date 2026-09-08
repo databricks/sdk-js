@@ -48,6 +48,9 @@ export class ApiError extends Error {
    */
   readonly code: Code;
 
+  /** The Databricks error code returned by the API. */
+  readonly errorCode: Code;
+
   /**
    * The structured error details of the error. This is left empty if the
    * error response is not a standard Databricks API error.
@@ -72,6 +75,7 @@ export class ApiError extends Error {
     super(options.message, {cause: options.cause});
     this.name = 'ApiError';
     this.code = options.code;
+    this.errorCode = options.code;
     this.details = options.details;
     if (options.httpStatusCode !== undefined) {
       this.httpErr = {
