@@ -14,6 +14,7 @@ export type {
   CreatePolicyRequest,
   DeletePolicyRequest,
   DeletePolicyResponse,
+  DenyOptions,
   FunctionArgExpression,
   FunctionArgument,
   GetPolicyRequest,

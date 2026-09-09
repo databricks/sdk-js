@@ -50,12 +50,14 @@ import type {
   UpdateScheduleRequest,
 } from './model';
 import {
+  marshalDashboardCreateSchema,
   marshalDashboardSchema,
   marshalMigrateDashboardRequestSchema,
   marshalPublishDashboardRequestSchema,
   marshalRevertDashboardRequestSchema,
+  marshalScheduleCreateSchema,
   marshalScheduleSchema,
-  marshalSubscriptionSchema,
+  marshalSubscriptionCreateSchema,
   unmarshalDashboardSchema,
   unmarshalGetPublishedDashboardTokenInfoResponseSchema,
   unmarshalListDashboardsResponseSchema,
@@ -122,7 +124,7 @@ export class LakeviewClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.dashboard, marshalDashboardSchema);
+    const body = marshalRequest(req.dashboard, marshalDashboardCreateSchema);
     let resp: Dashboard | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -158,7 +160,7 @@ export class LakeviewClient {
   ): Promise<Schedule> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/lakeview/dashboards/${req.schedule?.dashboardId ?? ''}/schedules`;
-    const body = marshalRequest(req.schedule, marshalScheduleSchema);
+    const body = marshalRequest(req.schedule, marshalScheduleCreateSchema);
     let resp: Schedule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -188,7 +190,10 @@ export class LakeviewClient {
   ): Promise<Subscription> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/lakeview/dashboards/${req.subscription?.dashboardId ?? ''}/schedules/${req.subscription?.scheduleId ?? ''}/subscriptions`;
-    const body = marshalRequest(req.subscription, marshalSubscriptionSchema);
+    const body = marshalRequest(
+      req.subscription,
+      marshalSubscriptionCreateSchema
+    );
     let resp: Subscription | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

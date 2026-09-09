@@ -10,6 +10,7 @@ export const PolicyType = {
   POLICY_TYPE_UNSPECIFIED: 'POLICY_TYPE_UNSPECIFIED',
   POLICY_TYPE_ROW_FILTER: 'POLICY_TYPE_ROW_FILTER',
   POLICY_TYPE_COLUMN_MASK: 'POLICY_TYPE_COLUMN_MASK',
+  POLICY_TYPE_DENY: 'POLICY_TYPE_DENY',
   POLICY_TYPE_GRANT: 'POLICY_TYPE_GRANT',
 } as const;
 export type PolicyType =
@@ -91,6 +92,16 @@ export interface DeletePolicyRequest {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeletePolicyResponse {}
+
+export interface DenyOptions {
+  /**
+   * List of privileges to deny.
+   * When any of these privileges are requested, the policy will deny access
+   * if the principal and condition match.
+   * Required on create and update.
+   */
+  privileges?: string[] | undefined;
+}
 
 /**
  * An expression that is evaluated at query time against per-request context.
@@ -248,6 +259,15 @@ export interface PolicyInfo {
         columnMask: ColumnMaskOptions;
       }
     | {
+        $case: 'deny';
+        /**
+         * Options for deny policies. Valid only if `policy_type` is `POLICY_TYPE_DENY`.
+         * Required on create and optional on update. When specified on update,
+         * the new options will replace the existing options as a whole.
+         */
+        deny: DenyOptions;
+      }
+    | {
         $case: 'grant';
         /**
          * Options for grant policies. Valid only if `policy_type` is `POLICY_TYPE_GRANT`.
@@ -361,6 +381,14 @@ export const unmarshalColumnTagValueExtractionSchema: z.ZodType<ColumnTagValueEx
 export const unmarshalDeletePolicyResponseSchema: z.ZodType<DeletePolicyResponse> =
   z.object({});
 
+export const unmarshalDenyOptionsSchema: z.ZodType<DenyOptions> = z
+  .object({
+    privileges: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    privileges: d.privileges,
+  }));
+
 export const unmarshalFunctionArgExpressionSchema: z.ZodType<FunctionArgExpression> =
   z
     .object({
@@ -443,6 +471,7 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
     policy_type: z.string().optional(),
     row_filter: z.lazy(() => unmarshalRowFilterOptionsSchema).optional(),
     column_mask: z.lazy(() => unmarshalColumnMaskOptionsSchema).optional(),
+    deny: z.lazy(() => unmarshalDenyOptionsSchema).optional(),
     grant: z.lazy(() => unmarshalGrantOptionsSchema).optional(),
     match_columns: z.array(z.lazy(() => unmarshalMatchColumnSchema)).optional(),
     created_at: z
@@ -472,9 +501,11 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
         ? {$case: 'rowFilter' as const, rowFilter: d.row_filter}
         : d.column_mask !== undefined
           ? {$case: 'columnMask' as const, columnMask: d.column_mask}
-          : d.grant !== undefined
-            ? {$case: 'grant' as const, grant: d.grant}
-            : undefined,
+          : d.deny !== undefined
+            ? {$case: 'deny' as const, deny: d.deny}
+            : d.grant !== undefined
+              ? {$case: 'grant' as const, grant: d.grant}
+              : undefined,
     matchColumns: d.match_columns,
     createdAt: d.created_at,
     createdBy: d.created_by,
@@ -541,6 +572,14 @@ export const marshalColumnTagValueExtractionSchema: z.ZodType = z
   .transform(d => ({
     column_alias: d.columnAlias,
     tag_key: d.tagKey,
+  }));
+
+export const marshalDenyOptionsSchema: z.ZodType = z
+  .object({
+    privileges: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    privileges: d.privileges,
   }));
 
 export const marshalFunctionArgExpressionSchema: z.ZodType = z
@@ -626,6 +665,10 @@ export const marshalPolicyInfoSchema: z.ZodType = z
           columnMask: z.lazy(() => marshalColumnMaskOptionsSchema),
         }),
         z.object({
+          $case: z.literal('deny'),
+          deny: z.lazy(() => marshalDenyOptionsSchema),
+        }),
+        z.object({
           $case: z.literal('grant'),
           grant: z.lazy(() => marshalGrantOptionsSchema),
         }),
@@ -652,6 +695,7 @@ export const marshalPolicyInfoSchema: z.ZodType = z
     ...(d.options?.$case === 'columnMask' && {
       column_mask: d.options.columnMask,
     }),
+    ...(d.options?.$case === 'deny' && {deny: d.options.deny}),
     ...(d.options?.$case === 'grant' && {grant: d.options.grant}),
     match_columns: d.matchColumns,
     created_at: d.createdAt,
@@ -706,6 +750,10 @@ const columnMaskOptionsFieldMaskSchema: FieldMaskSchema = {
   using: {wire: 'using'},
 };
 
+const denyOptionsFieldMaskSchema: FieldMaskSchema = {
+  privileges: {wire: 'privileges'},
+};
+
 const grantOptionsFieldMaskSchema: FieldMaskSchema = {
   privileges: {wire: 'privileges'},
 };
@@ -718,6 +766,7 @@ const policyInfoFieldMaskSchema: FieldMaskSchema = {
   comment: {wire: 'comment'},
   createdAt: {wire: 'created_at'},
   createdBy: {wire: 'created_by'},
+  deny: {wire: 'deny', children: () => denyOptionsFieldMaskSchema},
   exceptPrincipals: {wire: 'except_principals'},
   forSecurableType: {wire: 'for_securable_type'},
   grant: {wire: 'grant', children: () => grantOptionsFieldMaskSchema},

@@ -1667,8 +1667,8 @@ export interface ListPipelinesRequest {
   pageToken?: string | undefined;
   /**
    * The maximum number of entries to return in a single page. The system may
-   * return fewer than max_results events in a response, even if there are
-   * more events available. This field is optional. The default value is 25.
+   * return fewer than max_results pipelines in a response, even if there are
+   * more pipelines available. This field is optional. The default value is 25.
    * The maximum value is 100. An error is returned if the value of max_results
    * is greater than 100.
    */
@@ -1693,9 +1693,9 @@ export interface ListPipelinesRequest {
 }
 
 export interface ListPipelinesResponse {
-  /** The list of events matching the request criteria. */
+  /** The list of pipelines matching the request criteria. */
   statuses?: PipelineStateInfo[] | undefined;
-  /** If present, a token to fetch the next page of events. */
+  /** If present, a token to fetch the next page of pipelines. */
   nextPageToken?: string | undefined;
 }
 
@@ -2300,9 +2300,9 @@ export interface PipelinesAwsAttributes {
    * This is an optional field at cluster creation, and if not specified, a default zone will be used.
    * If the zone specified is "auto", will try to place cluster in a zone with high availability,
    * and will retry placement in a different AZ if there is not enough capacity.
-   * See [[AutoAZHelper.scala]] for more details.
+   *
    * The list of available zones as well as the default value can be found by using the
-   * `List Zones`_ method.
+   * `List Zones` method.
    */
   zoneId?: string | undefined;
   /**
@@ -2312,9 +2312,6 @@ export interface PipelinesAwsAttributes {
    * administrator.
    *
    * This feature may only be available to certain customer plans.
-   *
-   * ***internal
-   * If this field is ommitted, we will pull in the default from the conf if it exists.
    */
   instanceProfileArn?: string | undefined;
   /**
@@ -2327,10 +2324,6 @@ export interface PipelinesAwsAttributes {
    * When spot instances are requested for this cluster, only spot instances whose bid price
    * percentage matches this field will be considered.
    * Note that, for safety, we enforce this field to be no more than 10000.
-   *
-   * ***internal
-   * The default value and documentation here should be kept consistent with
-   * CommonConf.defaultSpotBidPricePercent and CommonConf.maxSpotBidPricePercent.
    */
   spotBidPricePercent?: number | undefined;
   /** The type of EBS volumes that will be launched with this cluster. */

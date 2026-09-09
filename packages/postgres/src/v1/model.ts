@@ -917,15 +917,13 @@ export interface BranchSpec {
   /**
    * Expiration configuration for the branch. One of expire_time, ttl, or no_expiry must be provided.
    * To disable expiration, set no_expiry to true.
-   *
-   * When updating this field, use "spec.expiration" in the update_mask.
    */
   expiration?:
     | {
         $case: 'expireTime';
         /**
          * Absolute expiration timestamp. When set, the branch will expire at this time.
-         * Mutually exclusive with `ttl` and `no_expiry`. When updating, use `spec.expiration` in the update_mask.
+         * Mutually exclusive with `ttl` and `no_expiry`.
          */
         expireTime: Temporal.Instant;
       }
@@ -933,7 +931,7 @@ export interface BranchSpec {
         $case: 'ttl';
         /**
          * Relative time-to-live duration. When set, the branch will expire at creation_time + ttl.
-         * Mutually exclusive with `expire_time` and `no_expiry`. When updating, use `spec.expiration` in the update_mask.
+         * Mutually exclusive with `expire_time` and `no_expiry`.
          */
         ttl: Temporal.Duration;
       }
@@ -942,7 +940,7 @@ export interface BranchSpec {
         /**
          * Explicitly disable expiration. When set to true, the branch will not expire.
          * If set to false, the request is invalid; provide either ttl or expire_time instead.
-         * Mutually exclusive with `expire_time` and `ttl`. When updating, use `spec.expiration` in the update_mask.
+         * Mutually exclusive with `expire_time` and `ttl`.
          */
         noExpiry: boolean;
       }
@@ -1723,8 +1721,6 @@ export interface EndpointSpec {
   /**
    * Duration of inactivity after which the compute endpoint is automatically suspended. One of suspend_timeout_duration or no_suspension can be provided.
    * When not specified default suspension behavior will be used (consult with documentation).
-   *
-   * When updating this field, use "spec.suspension" in the update_mask.
    */
   suspension?:
     | {
@@ -1732,7 +1728,7 @@ export interface EndpointSpec {
         /**
          * Duration of inactivity after which the compute endpoint is automatically suspended.
          * If specified should be between 60s and 604800s (1 minute to 1 week).
-         * Mutually exclusive with `no_suspension`. When updating, use `spec.suspension` in the update_mask.
+         * Mutually exclusive with `no_suspension`.
          */
         suspendTimeoutDuration: Temporal.Duration;
       }
@@ -1741,7 +1737,7 @@ export interface EndpointSpec {
         /**
          * When set to true, explicitly disables automatic suspension (never suspend).
          * Should be set to true when provided.
-         * Mutually exclusive with `suspend_timeout_duration`. When updating, use `spec.suspension` in the update_mask.
+         * Mutually exclusive with `suspend_timeout_duration`.
          */
         noSuspension: boolean;
       }
@@ -2278,7 +2274,7 @@ export interface ProjectDefaultEndpointSettings {
         /**
          * Duration of inactivity after which the compute endpoint is automatically suspended.
          * If specified should be between 60s and 604800s (1 minute to 1 week).
-         * Mutually exclusive with `no_suspension`. When updating, use `spec.project_default_settings.suspension` in the update_mask.
+         * Mutually exclusive with `no_suspension`.
          */
         suspendTimeoutDuration: Temporal.Duration;
       }
@@ -2287,7 +2283,7 @@ export interface ProjectDefaultEndpointSettings {
         /**
          * When set to true, explicitly disables automatic suspension (never suspend).
          * Should be set to true when provided.
-         * Mutually exclusive with `suspend_timeout_duration`. When updating, use `spec.project_default_settings.suspension` in the update_mask.
+         * Mutually exclusive with `suspend_timeout_duration`.
          */
         noSuspension: boolean;
       }
