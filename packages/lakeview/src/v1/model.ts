@@ -64,7 +64,7 @@ export interface AuthorizationDetails_GrantRule {
 }
 
 export interface CreateDashboardRequest {
-  dashboard?: Dashboard | undefined;
+  dashboard?: DashboardCreate | undefined;
   /**
    * Sets the default catalog for all datasets in this dashboard.
    * Does not impact table references that use fully qualified catalog names (ex: samples.nyctaxi.trips).
@@ -81,12 +81,12 @@ export interface CreateDashboardRequest {
 
 export interface CreateScheduleRequest {
   /** The schedule to create. A dashboard is limited to 10 schedules. */
-  schedule?: Schedule | undefined;
+  schedule?: ScheduleCreate | undefined;
 }
 
 export interface CreateSubscriptionRequest {
   /** The subscription to create. A schedule is limited to 100 subscriptions. */
-  subscription?: Subscription | undefined;
+  subscription?: SubscriptionCreate | undefined;
 }
 
 export interface CronSchedule {
@@ -128,6 +128,45 @@ export interface Dashboard {
    * This field is excluded in List Dashboards responses.
    */
   etag?: string | undefined;
+  /**
+   * The contents of the dashboard in serialized string form.
+   * This field is excluded in List Dashboards responses.
+   * Use the [get dashboard API](https://docs.databricks.com/api/workspace/lakeview/get)
+   * to retrieve an example response, which includes the `serialized_dashboard` field.
+   * This field provides the structure of the JSON string that represents the dashboard's
+   * layout and components.
+   */
+  serializedDashboard?: string | undefined;
+  /** The state of the dashboard resource. Used for tracking trashed status. */
+  lifecycleState?: LifecycleState | undefined;
+  /**
+   * The workspace path of the folder containing the dashboard. Includes leading slash and no
+   * trailing slash.
+   * This field is excluded in List Dashboards responses.
+   */
+  parentPath?: string | undefined;
+}
+
+export interface DashboardCreate {
+  /** UUID identifying the dashboard. */
+  dashboardId?: string | undefined;
+  /** The display name of the dashboard. */
+  displayName?: string | undefined;
+  /**
+   * The workspace path of the dashboard asset, including the file name.
+   * Exported dashboards always have the file extension `.lvdash.json`.
+   * This field is excluded in List Dashboards responses.
+   */
+  path?: string | undefined;
+  /** The timestamp of when the dashboard was created. */
+  createTime?: Temporal.Instant | undefined;
+  /**
+   * The timestamp of when the dashboard was last updated by the user.
+   * This field is excluded in List Dashboards responses.
+   */
+  updateTime?: Temporal.Instant | undefined;
+  /** The warehouse ID used to run the dashboard. */
+  warehouseId?: string | undefined;
   /**
    * The contents of the dashboard in serialized string form.
    * This field is excluded in List Dashboards responses.
@@ -376,6 +415,25 @@ export interface Schedule {
   warehouseId?: string | undefined;
 }
 
+export interface ScheduleCreate {
+  /** UUID identifying the schedule. */
+  scheduleId?: string | undefined;
+  /** UUID identifying the dashboard to which the schedule belongs. */
+  dashboardId?: string | undefined;
+  /** The cron expression describing the frequency of the periodic refresh for this schedule. */
+  cronSchedule?: CronSchedule | undefined;
+  /** The status indicates whether this schedule is paused or not. */
+  pauseStatus?: SchedulePauseStatus | undefined;
+  /** The display name for schedule. */
+  displayName?: string | undefined;
+  /** A timestamp indicating when the schedule was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** A timestamp indicating when the schedule was last updated. */
+  updateTime?: Temporal.Instant | undefined;
+  /** The warehouse id to run the dashboard with for the schedule. */
+  warehouseId?: string | undefined;
+}
+
 export interface Subscription {
   /** UUID identifying the subscription. */
   subscriptionId?: string | undefined;
@@ -427,6 +485,28 @@ export interface Subscription_Subscriber_Destination {
 export interface Subscription_Subscriber_User {
   /** UserId of the subscriber. */
   userId?: bigint | undefined;
+}
+
+export interface SubscriptionCreate {
+  /** UUID identifying the subscription. */
+  subscriptionId?: string | undefined;
+  /** UUID identifying the schedule to which the subscription belongs. */
+  scheduleId?: string | undefined;
+  /** UUID identifying the dashboard to which the subscription belongs. */
+  dashboardId?: string | undefined;
+  /** Subscriber details for users and destinations to be added as subscribers to the schedule. */
+  subscriber?: Subscription_Subscriber | undefined;
+  /** UserId of the user who adds subscribers (users or notification destinations) to the dashboard's schedule. */
+  createdByUserId?: bigint | undefined;
+  /** A timestamp indicating when the subscription was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** A timestamp indicating when the subscription was last updated. */
+  updateTime?: Temporal.Instant | undefined;
+  /**
+   * Controls whether notifications are sent to the subscriber for scheduled dashboard refreshes.
+   * If not defined, defaults to false in the backend to match the current behavior (refresh and notify)
+   */
+  skipNotify?: boolean | undefined;
 }
 
 export interface TrashDashboardRequest {
@@ -762,6 +842,36 @@ export const marshalDashboardSchema: z.ZodType = z
     parent_path: d.parentPath,
   }));
 
+export const marshalDashboardCreateSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+    displayName: z.string().optional(),
+    path: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    warehouseId: z.string().optional(),
+    serializedDashboard: z.string().optional(),
+    lifecycleState: z.string().optional(),
+    parentPath: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+    display_name: d.displayName,
+    path: d.path,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    warehouse_id: d.warehouseId,
+    serialized_dashboard: d.serializedDashboard,
+    lifecycle_state: d.lifecycleState,
+    parent_path: d.parentPath,
+  }));
+
 export const marshalMigrateDashboardRequestSchema: z.ZodType = z
   .object({
     sourceDashboardId: z.string().optional(),
@@ -828,14 +938,13 @@ export const marshalScheduleSchema: z.ZodType = z
     warehouse_id: d.warehouseId,
   }));
 
-export const marshalSubscriptionSchema: z.ZodType = z
+export const marshalScheduleCreateSchema: z.ZodType = z
   .object({
-    subscriptionId: z.string().optional(),
     scheduleId: z.string().optional(),
     dashboardId: z.string().optional(),
-    subscriber: z.lazy(() => marshalSubscription_SubscriberSchema).optional(),
-    createdByUserId: z.bigint().optional(),
-    etag: z.string().optional(),
+    cronSchedule: z.lazy(() => marshalCronScheduleSchema).optional(),
+    pauseStatus: z.string().optional(),
+    displayName: z.string().optional(),
     createTime: z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
@@ -844,18 +953,17 @@ export const marshalSubscriptionSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    skipNotify: z.boolean().optional(),
+    warehouseId: z.string().optional(),
   })
   .transform(d => ({
-    subscription_id: d.subscriptionId,
     schedule_id: d.scheduleId,
     dashboard_id: d.dashboardId,
-    subscriber: d.subscriber,
-    created_by_user_id: d.createdByUserId,
-    etag: d.etag,
+    cron_schedule: d.cronSchedule,
+    pause_status: d.pauseStatus,
+    display_name: d.displayName,
     create_time: d.createTime,
     update_time: d.updateTime,
-    skip_notify: d.skipNotify,
+    warehouse_id: d.warehouseId,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -889,4 +997,32 @@ export const marshalSubscription_Subscriber_UserSchema: z.ZodType = z
   })
   .transform(d => ({
     user_id: d.userId,
+  }));
+
+export const marshalSubscriptionCreateSchema: z.ZodType = z
+  .object({
+    subscriptionId: z.string().optional(),
+    scheduleId: z.string().optional(),
+    dashboardId: z.string().optional(),
+    subscriber: z.lazy(() => marshalSubscription_SubscriberSchema).optional(),
+    createdByUserId: z.bigint().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    skipNotify: z.boolean().optional(),
+  })
+  .transform(d => ({
+    subscription_id: d.subscriptionId,
+    schedule_id: d.scheduleId,
+    dashboard_id: d.dashboardId,
+    subscriber: d.subscriber,
+    created_by_user_id: d.createdByUserId,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    skip_notify: d.skipNotify,
   }));

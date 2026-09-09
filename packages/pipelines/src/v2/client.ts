@@ -104,7 +104,6 @@ export class PipelinesClient {
   }
 
   /**
-   * *
    * Applies the current pipeline environment onto the pipeline compute. The environment applied can be used by subsequent
    * dev-mode updates.
    */
