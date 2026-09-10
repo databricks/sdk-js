@@ -177,7 +177,7 @@ export class GenieClient {
     const url = `${host}/api/2.0/genie/${req.name ?? ''}/download-visualization`;
     let resp: DownloadMessageAttachmentVisualizationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
+      const headers = new Headers({Accept: 'application/octet-stream'});
       if (workspaceId !== undefined) {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }

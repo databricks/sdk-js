@@ -1029,6 +1029,13 @@ export interface AiRuntimeTask {
    * The location should be unique for each experiment.
    */
   mlflowArtifactLocation?: string | undefined;
+  /**
+   * Optional Unity Catalog path for a custom container image. When set,
+   * the task runs on the specified container image instead of the default
+   * <Databricks> client image. Format:
+   * `{catalog}.{schema}.{image_name}:{tag}`
+   */
+  unityCatalogImagePath?: string | undefined;
 }
 
 /**
@@ -5532,6 +5539,7 @@ export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
     mlflow_experiment_directory: z.string().optional(),
     docker_image_url: z.string().optional(),
     mlflow_artifact_location: z.string().optional(),
+    unity_catalog_image_path: z.string().optional(),
   })
   .transform(d => ({
     experiment: d.experiment,
@@ -5541,6 +5549,7 @@ export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
     mlflowExperimentDirectory: d.mlflow_experiment_directory,
     dockerImageUrl: d.docker_image_url,
     mlflowArtifactLocation: d.mlflow_artifact_location,
+    unityCatalogImagePath: d.unity_catalog_image_path,
   }));
 
 export const unmarshalAiRuntimeTaskOutputSchema: z.ZodType<AiRuntimeTaskOutput> =
@@ -9075,6 +9084,7 @@ export const marshalAiRuntimeTaskSchema: z.ZodType = z
     mlflowExperimentDirectory: z.string().optional(),
     dockerImageUrl: z.string().optional(),
     mlflowArtifactLocation: z.string().optional(),
+    unityCatalogImagePath: z.string().optional(),
   })
   .transform(d => ({
     experiment: d.experiment,
@@ -9084,6 +9094,7 @@ export const marshalAiRuntimeTaskSchema: z.ZodType = z
     mlflow_experiment_directory: d.mlflowExperimentDirectory,
     docker_image_url: d.dockerImageUrl,
     mlflow_artifact_location: d.mlflowArtifactLocation,
+    unity_catalog_image_path: d.unityCatalogImagePath,
   }));
 
 export const marshalAlertTaskSchema: z.ZodType = z

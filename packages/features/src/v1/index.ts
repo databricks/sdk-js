@@ -58,6 +58,8 @@ export type {
   DirectSchemas,
   EntityColumn,
   Feature,
+  FeatureReference,
+  FeatureViewSource,
   FieldDefinition,
   FirstDistinctFunction,
   FirstFunction,

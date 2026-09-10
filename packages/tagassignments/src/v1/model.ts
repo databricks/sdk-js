@@ -9,7 +9,7 @@ export interface CreateTagAssignmentRequest {
 }
 
 export interface DeleteTagAssignmentRequest {
-  /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks */
+  /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, designerfiles, geniespaces, notebooks */
   entityType?: string | undefined;
   /** The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name */
   entityId?: string | undefined;
@@ -18,7 +18,7 @@ export interface DeleteTagAssignmentRequest {
 }
 
 export interface GetTagAssignmentRequest {
-  /** The type of entity to which the tag is assigned.  Allowed values are apps, dashboards, geniespaces, notebooks */
+  /** The type of entity to which the tag is assigned.  Allowed values are apps, dashboards, designerfiles, geniespaces, notebooks */
   entityType?: string | undefined;
   /** The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name */
   entityId?: string | undefined;
@@ -27,7 +27,7 @@ export interface GetTagAssignmentRequest {
 }
 
 export interface ListTagAssignmentsRequest {
-  /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks */
+  /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, designerfiles, geniespaces, notebooks */
   entityType?: string | undefined;
   /** The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name */
   entityId?: string | undefined;
@@ -44,7 +44,7 @@ export interface ListTagAssignmentsResponse {
 }
 
 export interface TagAssignment {
-  /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks */
+  /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, designerfiles, geniespaces, notebooks */
   entityType?: string | undefined;
   /** The identifier of the entity to which the tag is assigned. For apps, the entity_id is the app name */
   entityId?: string | undefined;

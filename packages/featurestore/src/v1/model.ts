@@ -117,6 +117,19 @@ export interface PublishSpec {
    * without a UC PrimaryKeyConstraint; ignored when the source already has one.
    */
   fullFeatureName?: string | undefined;
+  /**
+   * Custom tags to apply to the synced online-table sync pipeline created for this publish. They
+   * are forwarded to the pipeline's compute as cluster tags so its cost can be attributed in the
+   * billing system tables. Applied only when the sync pipeline is first created (the initial
+   * publish of a new online table); republishing to an existing online table does not update them.
+   */
+  tags?: Record<string, string> | undefined;
+  /**
+   * Budget policy id used to attribute the serverless compute cost of the synced online-table sync
+   * pipeline. Applied only when the sync pipeline is first created (the initial publish of a new
+   * online table); republishing to an existing online table does not update it.
+   */
+  budgetPolicyId?: string | undefined;
 }
 
 export interface PublishTableRequest {
@@ -216,12 +229,16 @@ export const marshalPublishSpecSchema: z.ZodType = z
     onlineTableName: z.string().optional(),
     publishMode: z.string().optional(),
     fullFeatureName: z.string().optional(),
+    tags: z.record(z.string(), z.string()).optional(),
+    budgetPolicyId: z.string().optional(),
   })
   .transform(d => ({
     online_store: d.onlineStore,
     online_table_name: d.onlineTableName,
     publish_mode: d.publishMode,
     full_feature_name: d.fullFeatureName,
+    tags: d.tags,
+    budget_policy_id: d.budgetPolicyId,
   }));
 
 export const marshalPublishTableRequestSchema: z.ZodType = z

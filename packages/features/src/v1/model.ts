@@ -933,6 +933,11 @@ export interface DataSource {
         /** A Stream data source. */
         streamSource: StreamSource;
       }
+    | {
+        $case: 'featureViewSource';
+        /** A data source composed from registered upstream Features. */
+        featureViewSource: FeatureViewSource;
+      }
     | undefined;
   /**
    * Completeness timing for this Feature's use of the source. This configuration is part of the
@@ -1061,6 +1066,21 @@ export interface Feature {
   createdAt?: Temporal.Instant | undefined;
   /** Username of the feature creator. */
   createdBy?: string | undefined;
+}
+
+/**
+ * A reference to one registered upstream Feature. A message rather than a bare name so an
+ * upstream can later be pinned more precisely (e.g. by version) without a breaking type change.
+ */
+export interface FeatureReference {
+  /** The three-part full name of the upstream Feature. */
+  feature?: string | undefined;
+}
+
+/** A data source composed from registered upstream Features. */
+export interface FeatureViewSource {
+  /** The upstream Features this source reads. Must include at least one feature. */
+  featureReferences?: FeatureReference[] | undefined;
 }
 
 /**
@@ -1765,6 +1785,8 @@ export interface PurgeFeatureEntitiesResponse {
   results?: PurgeFeatureEntitiesResult[] | undefined;
   /** State of the purge operation. */
   state?: PurgeFeatureEntitiesMetadata_State | undefined;
+  /** Operation-level error, if the purge failed outside an individual feature target. */
+  error?: ApiError | undefined;
 }
 
 /** Result of purging one feature. */
@@ -2550,6 +2572,9 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
     kafka_source: z.lazy(() => unmarshalKafkaSourceSchema).optional(),
     request_source: z.lazy(() => unmarshalRequestSourceSchema).optional(),
     stream_source: z.lazy(() => unmarshalStreamSourceSchema).optional(),
+    feature_view_source: z
+      .lazy(() => unmarshalFeatureViewSourceSchema)
+      .optional(),
     lateness: z.lazy(() => unmarshalSourceLatenessSchema).optional(),
   })
   .transform(d => ({
@@ -2565,7 +2590,12 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
             ? {$case: 'requestSource' as const, requestSource: d.request_source}
             : d.stream_source !== undefined
               ? {$case: 'streamSource' as const, streamSource: d.stream_source}
-              : undefined,
+              : d.feature_view_source !== undefined
+                ? {
+                    $case: 'featureViewSource' as const,
+                    featureViewSource: d.feature_view_source,
+                  }
+                : undefined,
     lateness: d.lateness,
   }));
 
@@ -2652,6 +2682,24 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
     name: d.name,
     createdAt: d.created_at,
     createdBy: d.created_by,
+  }));
+
+export const unmarshalFeatureReferenceSchema: z.ZodType<FeatureReference> = z
+  .object({
+    feature: z.string().optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+  }));
+
+export const unmarshalFeatureViewSourceSchema: z.ZodType<FeatureViewSource> = z
+  .object({
+    feature_references: z
+      .array(z.lazy(() => unmarshalFeatureReferenceSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    featureReferences: d.feature_references,
   }));
 
 export const unmarshalFieldDefinitionSchema: z.ZodType<FieldDefinition> = z
@@ -3207,11 +3255,13 @@ export const unmarshalPurgeFeatureEntitiesResponseSchema: z.ZodType<PurgeFeature
         .array(z.lazy(() => unmarshalPurgeFeatureEntitiesResultSchema))
         .optional(),
       state: z.string().optional(),
+      error: z.lazy(() => unmarshalApiErrorSchema).optional(),
     })
     .transform(d => ({
       metadata: d.metadata,
       results: d.results,
       state: d.state,
+      error: d.error,
     }));
 
 export const unmarshalPurgeFeatureEntitiesResultSchema: z.ZodType<PurgeFeatureEntitiesResult> =
@@ -3983,6 +4033,10 @@ export const marshalDataSourceSchema: z.ZodType = z
           $case: z.literal('streamSource'),
           streamSource: z.lazy(() => marshalStreamSourceSchema),
         }),
+        z.object({
+          $case: z.literal('featureViewSource'),
+          featureViewSource: z.lazy(() => marshalFeatureViewSourceSchema),
+        }),
       ])
       .optional(),
     lateness: z.lazy(() => marshalSourceLatenessSchema).optional(),
@@ -3999,6 +4053,9 @@ export const marshalDataSourceSchema: z.ZodType = z
     }),
     ...(d.dataSource?.$case === 'streamSource' && {
       stream_source: d.dataSource.streamSource,
+    }),
+    ...(d.dataSource?.$case === 'featureViewSource' && {
+      feature_view_source: d.dataSource.featureViewSource,
     }),
     lateness: d.lateness,
   }));
@@ -4086,6 +4143,24 @@ export const marshalFeatureSchema: z.ZodType = z
     name: d.name,
     created_at: d.createdAt,
     created_by: d.createdBy,
+  }));
+
+export const marshalFeatureReferenceSchema: z.ZodType = z
+  .object({
+    feature: z.string().optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+  }));
+
+export const marshalFeatureViewSourceSchema: z.ZodType = z
+  .object({
+    featureReferences: z
+      .array(z.lazy(() => marshalFeatureReferenceSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    feature_references: d.featureReferences,
   }));
 
 export const marshalFieldDefinitionSchema: z.ZodType = z
@@ -5107,6 +5182,10 @@ const dataSourceFieldMaskSchema: FieldMaskSchema = {
     wire: 'delta_table_source',
     children: () => deltaTableSourceFieldMaskSchema,
   },
+  featureViewSource: {
+    wire: 'feature_view_source',
+    children: () => featureViewSourceFieldMaskSchema,
+  },
   kafkaSource: {
     wire: 'kafka_source',
     children: () => kafkaSourceFieldMaskSchema,
@@ -5171,6 +5250,10 @@ const featureFieldMaskSchema: FieldMaskSchema = {
 export function featureFieldMask(...paths: string[]): FieldMask<Feature> {
   return FieldMask.build<Feature>(paths, featureFieldMaskSchema);
 }
+
+const featureViewSourceFieldMaskSchema: FieldMaskSchema = {
+  featureReferences: {wire: 'feature_references'},
+};
 
 const firstDistinctFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},

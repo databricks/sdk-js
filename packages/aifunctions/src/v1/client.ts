@@ -66,7 +66,7 @@ export class AiFunctionsClient {
     return this.config;
   }
 
-  /** Classifies content according to a set of provided labels. */
+  /** Classifies content according to a set of provided labels. For REST API requests, the default rate limit is 1,200 requests per minute per workspace. Contact your <Databricks> account team to request a higher limit. */
   async aiClassify(
     req: AiClassifyRequest,
     options?: CallOptions
@@ -96,7 +96,7 @@ export class AiFunctionsClient {
     return resp;
   }
 
-  /** Extracts structured data from text and documents according to a provided schema. */
+  /** Extracts structured data from text and documents according to a provided schema. For REST API requests, the default rate limit is 120 requests per minute per workspace. Contact your <Databricks> account team to request a higher limit. */
   async aiExtract(
     req: AiExtractRequest,
     options?: CallOptions
@@ -126,7 +126,7 @@ export class AiFunctionsClient {
     return resp;
   }
 
-  /** Parse structured content from unstructured documents. */
+  /** Parse structured content from unstructured documents. For REST API requests, the default rate limit is 120 pages per minute per workspace. Contact your <Databricks> account team to request a higher limit. */
   async aiParseDocument(
     req: AiParseDocumentRequest,
     options?: CallOptions
