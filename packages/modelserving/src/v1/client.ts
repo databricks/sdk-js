@@ -238,7 +238,7 @@ export class ModelServingClient {
     const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/metrics`;
     let resp: ExportMetricsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
+      const headers = new Headers({Accept: 'text/plain'});
       if (workspaceId !== undefined) {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
@@ -298,7 +298,7 @@ export class ModelServingClient {
     const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/openapi`;
     let resp: GetOpenApiResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
+      const headers = new Headers({Accept: 'text/plain'});
       if (workspaceId !== undefined) {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
@@ -693,7 +693,10 @@ export class ModelServingClient {
     const body = marshalRequest(req, marshalExternalFunctionRequestSchema);
     let resp: ExternalFunctionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
+      const headers = new Headers({
+        'Content-Type': 'application/json',
+        Accept: 'text/plain',
+      });
       if (workspaceId !== undefined) {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }

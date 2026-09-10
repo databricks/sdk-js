@@ -2804,6 +2804,13 @@ export interface StartUpdateRequest {
   /** If true, this update only validates the correctness of pipeline source code but does not materialize or publish any datasets. */
   validateOnly?: boolean | undefined;
   /**
+   * Whether the update is started in the development mode.
+   * This is recommended for interactive development and testing.
+   * Reuses compute for faster iteration and disables automatic retries.
+   * Not recommended for production.
+   */
+  development?: boolean | undefined;
+  /**
    * The information about the requested rewind operation.
    * If specified this is a rewind mode update.
    */
@@ -6262,6 +6269,7 @@ export const marshalStartUpdateRequestSchema: z.ZodType = z
     fullRefreshSelection: z.array(z.string()).optional(),
     resetCheckpointSelection: z.array(z.string()).optional(),
     validateOnly: z.boolean().optional(),
+    development: z.boolean().optional(),
     rewindSpec: z.lazy(() => marshalRewindSpecSchema).optional(),
     parameters: z.record(z.string(), z.string()).optional(),
     replaceWhereOverrides: z
@@ -6276,6 +6284,7 @@ export const marshalStartUpdateRequestSchema: z.ZodType = z
     full_refresh_selection: d.fullRefreshSelection,
     reset_checkpoint_selection: d.resetCheckpointSelection,
     validate_only: d.validateOnly,
+    development: d.development,
     rewind_spec: d.rewindSpec,
     parameters: d.parameters,
     replace_where_overrides: d.replaceWhereOverrides,

@@ -612,7 +612,7 @@ export class FilesClient {
     const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
     let resp: DownloadFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
+      const headers = new Headers({Accept: 'application/octet-stream'});
       if (req.range !== undefined) {
         headers.set('Range', req.range);
       }

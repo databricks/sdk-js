@@ -235,7 +235,7 @@ export type RuntimeEngine =
   | (typeof RuntimeEngine)[keyof typeof RuntimeEngine]
   | (string & {});
 
-/** The status code indicating why the cluster was terminated */
+/** The status code indicating why the cluster was terminated. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const TerminationCode = {
   /** Default when there is no termination code. */
