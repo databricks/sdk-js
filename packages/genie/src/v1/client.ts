@@ -234,7 +234,7 @@ export class GenieClient {
   }
 
   /**
-   * Create new message in a [conversation](:method:genie/startconversation).
+   * Sends a new message in a chat-mode [conversation](:method:genie/startconversation).
    * The AI response uses all previously created messages in the conversation to respond.
    */
   private async genieCreateConversationMessageBase(
@@ -270,7 +270,7 @@ export class GenieClient {
   }
 
   /**
-   * Create new message in a [conversation](:method:genie/startconversation).
+   * Sends a new message in a chat-mode [conversation](:method:genie/startconversation).
    * The AI response uses all previously created messages in the conversation to respond.
    */
   async genieCreateConversationMessage(
@@ -299,7 +299,7 @@ export class GenieClient {
     );
   }
 
-  /** Create and run evaluations for multiple benchmark questions in a Genie space. */
+  /** Creates and runs chat-mode evaluations for multiple benchmark questions in a Genie space. */
   async genieCreateEvalRun(
     req: GenieCreateEvalRunRequest,
     options?: CallOptions
@@ -540,7 +540,10 @@ export class GenieClient {
     return resp;
   }
 
-  /** Get message from conversation. */
+  /**
+   * Gets a message from a chat-mode or agent-mode conversation.
+   * For a complete agent-mode transcript, use the List conversation items endpoint.
+   */
   async genieGetConversationMessage(
     req: GenieGetConversationMessageRequest,
     options?: CallOptions
@@ -867,7 +870,11 @@ export class GenieClient {
     return resp;
   }
 
-  /** List messages in a conversation */
+  /**
+   * Lists messages in a chat-mode or agent-mode conversation.
+   * Agent-mode messages are returned as GenieMessage projections. Use the List conversation items
+   * endpoint for the complete reasoning and tool-call history.
+   */
   async genieListConversationMessages(
     req: GenieListConversationMessagesRequest,
     options?: CallOptions
@@ -1110,7 +1117,7 @@ export class GenieClient {
     return resp;
   }
 
-  /** Send feedback for a message. */
+  /** Sends feedback for a message in a chat-mode or agent-mode conversation. */
   async genieSendMessageFeedback(
     req: GenieSendMessageFeedbackRequest,
     options?: CallOptions
@@ -1137,7 +1144,7 @@ export class GenieClient {
     await executeCall(call, options);
   }
 
-  /** Start a new conversation. */
+  /** Starts a new chat-mode conversation and sends its first message. */
   private async genieStartConversationBase(
     req: GenieStartConversationRequest,
     options?: CallOptions
@@ -1173,7 +1180,7 @@ export class GenieClient {
     return resp;
   }
 
-  /** Start a new conversation. */
+  /** Starts a new chat-mode conversation and sends its first message. */
   async genieStartConversation(
     req: GenieStartConversationRequest,
     options?: CallOptions
