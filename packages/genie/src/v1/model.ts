@@ -1048,6 +1048,11 @@ export interface GenieCancelResponseRequest {
   responseId?: string | undefined;
 }
 
+/**
+ * A Genie conversation. Use chat-mode message endpoints for classic chats and agent-mode
+ * response and item endpoints for agent conversations. Conversation management, feedback,
+ * comments, and attachment operations support both modes.
+ */
 export interface GenieConversation {
   /**
    * Conversation ID.
@@ -1228,6 +1233,7 @@ export interface GenieEvalResultDetails {
   expectedResponse?: GenieEvalResponse[] | undefined;
 }
 
+/** A benchmark evaluation run. The public benchmark API currently evaluates chat-mode responses. */
 export interface GenieEvalRunResponse {
   /** The unique identifier for the evaluation run. */
   evalRunId?: string | undefined;
