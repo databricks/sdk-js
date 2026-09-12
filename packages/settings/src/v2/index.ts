@@ -47,4 +47,5 @@ export type {
   SettingsMetadata,
   StringMessage,
   UserPreference,
+  WorkspaceLabelMessage,
 } from './model';

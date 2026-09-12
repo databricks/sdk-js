@@ -111,35 +111,29 @@ export class StatementExecutionClient {
    *
    * Using `EXTERNAL_LINKS` to fetch result data allows you to fetch large result sets efficiently.
    * The main differences from using `INLINE` disposition are that the result data is accessed
-   * with  URLs, and
+   * with short-lived cloud-storage URLs, and
    * that there are 3 supported formats: `JSON_ARRAY`, `ARROW_STREAM` and `CSV` compared to only `JSON_ARRAY` with
    * `INLINE`.
    *
-   * ** URLs**
+   * **External-link URLs**
    *
-   * External links point to data stored within your workspace's internal storage, in the form of
-   * a  URL. The URLs are valid for only a short
-   * period, <= 15 minutes. Alongside each `external_link` is an expiration field indicating the time at which the URL
+   * External links point to data stored within your workspace's internal cloud storage. The URLs are valid for only a
+   * short period, <= 15 minutes. Alongside each `external_link` is an expiration field indicating the time at which the URL
    * is no longer valid. In `EXTERNAL_LINKS` mode, chunks can be resolved and fetched multiple times and in parallel.
    *
    * ----
    *
    * ### **Warning: Databricks strongly recommends that you protect the URLs that are returned by the `EXTERNAL_LINKS` disposition.**
    *
-   * When you use the `EXTERNAL_LINKS` disposition, a
-   * short-lived,  URL is generated, which can be
-   * used to download the results directly
-   * from . As a
-   * short-lived  is
-   * embedded in this  URL, you should protect
-   * the URL.
+   * When you use the `EXTERNAL_LINKS` disposition, a short-lived cloud-storage URL is generated to download the
+   * results. The URL contains temporary access credentials, so protect it and do not set an `Authorization` header in
+   * the download request.
    *
-   * Because  URLs are already generated with
-   * embedded temporary s,
-   * you must not set an `Authorization` header in the download requests.
    *
-   * The `EXTERNAL_LINKS` disposition can be disabled upon request by creating a support
-   * case.
+   *
+   *
+   *
+   * The `EXTERNAL_LINKS` disposition can be disabled upon request by creating a [support case](/resources/support.html).
    *
    * See also [Security best practices](/sql/admin/sql-execution-tutorial.html#security-best-practices).
    *

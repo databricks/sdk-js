@@ -1882,9 +1882,12 @@ export interface CreateJobRequest {
   /** Deployment information for jobs managed by external sources. */
   deployment?: JobDeployment | undefined;
   /**
-   * A list of task execution environment specifications that can be referenced by serverless tasks of this job.
-   * For serverless notebook tasks, if the environment_key is not specified, the notebook environment will be used if present. If a jobs environment is specified, it will override the notebook environment.
-   * For other serverless tasks, the task environment is required to be specified using environment_key in the task settings.
+   * A list of task execution environment specifications that can be referenced by tasks that use serverless compute or a compute resource that uses Environments mode.
+   *
+   *
+   *
+   * For notebook tasks that use serverless compute or a compute resource that uses Environments mode, if the environment_key is not specified, the notebook environment will be used if present. If a jobs environment is specified, it will override the notebook environment.
+   * For other tasks that use serverless compute or a compute resource that uses Environments mode, the task environment is required to be specified using environment_key in the task settings.
    */
   environments?: JobEnvironment[] | undefined;
   /**
@@ -2985,9 +2988,12 @@ export interface JobSettings {
   /** Deployment information for jobs managed by external sources. */
   deployment?: JobDeployment | undefined;
   /**
-   * A list of task execution environment specifications that can be referenced by serverless tasks of this job.
-   * For serverless notebook tasks, if the environment_key is not specified, the notebook environment will be used if present. If a jobs environment is specified, it will override the notebook environment.
-   * For other serverless tasks, the task environment is required to be specified using environment_key in the task settings.
+   * A list of task execution environment specifications that can be referenced by tasks that use serverless compute or a compute resource that uses Environments mode.
+   *
+   *
+   *
+   * For notebook tasks that use serverless compute or a compute resource that uses Environments mode, if the environment_key is not specified, the notebook environment will be used if present. If a jobs environment is specified, it will override the notebook environment.
+   * For other tasks that use serverless compute or a compute resource that uses Environments mode, the task environment is required to be specified using environment_key in the task settings.
    */
   environments?: JobEnvironment[] | undefined;
   /**
@@ -4308,7 +4314,7 @@ export interface RunTask {
   environmentRef?:
     | {
         $case: 'environmentKey';
-        /** The key that references an environment spec in a job. This field is required for Python script, Python wheel and dbt tasks when using serverless compute. */
+        /** The key that references an environment spec in a job. This field is required for Python script, Python wheel and dbt tasks when using serverless compute or a compute resource that uses Environments mode. */
         environmentKey: string;
       }
     | undefined;
@@ -4506,7 +4512,7 @@ export interface RunTaskSettings {
   environmentRef?:
     | {
         $case: 'environmentKey';
-        /** The key that references an environment spec in a job. This field is required for Python script, Python wheel and dbt tasks when using serverless compute. */
+        /** The key that references an environment spec in a job. This field is required for Python script, Python wheel and dbt tasks when using serverless compute or a compute resource that uses Environments mode. */
         environmentKey: string;
       }
     | undefined;
@@ -5168,7 +5174,7 @@ export interface TaskSettings {
   environmentRef?:
     | {
         $case: 'environmentKey';
-        /** The key that references an environment spec in a job. This field is required for Python script, Python wheel and dbt tasks when using serverless compute. */
+        /** The key that references an environment spec in a job. This field is required for Python script, Python wheel and dbt tasks when using serverless compute or a compute resource that uses Environments mode. */
         environmentKey: string;
       }
     | undefined;

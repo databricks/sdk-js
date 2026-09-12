@@ -400,6 +400,11 @@ export interface Setting {
         personalCompute: PersonalComputeMessage;
       }
     | {
+        $case: 'workspaceLabel';
+        /** Setting value for workspace_label setting. This is the setting value set by consumers, check effective_workspace_label for final setting value. */
+        workspaceLabel: WorkspaceLabelMessage;
+      }
+    | {
         $case: 'allowedAppsUserApiScopes';
         /** Setting value for allowed_apps_user_api_scopes setting. This is the setting value set by consumers, check effective_allowed_apps_user_api_scopes for final setting value. */
         allowedAppsUserApiScopes: AllowedAppsUserApiScopesMessage;
@@ -460,6 +465,11 @@ export interface Setting {
         $case: 'effectivePersonalCompute';
         /** Effective setting value for personal_compute setting. This is the final effective value of setting. To set a value use personal_compute. */
         effectivePersonalCompute: PersonalComputeMessage;
+      }
+    | {
+        $case: 'effectiveWorkspaceLabel';
+        /** Effective setting value for workspace_label setting. This is the final effective value of setting. To set a value use workspace_label. */
+        effectiveWorkspaceLabel: WorkspaceLabelMessage;
       }
     | {
         $case: 'effectiveAllowedAppsUserApiScopes';
@@ -530,6 +540,12 @@ export interface UserPreference {
     | {$case: 'effectiveBooleanVal'; effectiveBooleanVal: BooleanMessage}
     | {$case: 'effectiveStringVal'; effectiveStringVal: StringMessage}
     | undefined;
+}
+
+/** Workspace label and color for display (e.g. in account console). */
+export interface WorkspaceLabelMessage {
+  label?: string | undefined;
+  color?: string | undefined;
 }
 
 export const unmarshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType<AibiDashboardEmbeddingAccessPolicy> =
@@ -754,6 +770,9 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
     personal_compute: z
       .lazy(() => unmarshalPersonalComputeMessageSchema)
       .optional(),
+    workspace_label: z
+      .lazy(() => unmarshalWorkspaceLabelMessageSchema)
+      .optional(),
     allowed_apps_user_api_scopes: z
       .lazy(() => unmarshalAllowedAppsUserApiScopesMessageSchema)
       .optional(),
@@ -784,6 +803,9 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
       .optional(),
     effective_personal_compute: z
       .lazy(() => unmarshalPersonalComputeMessageSchema)
+      .optional(),
+    effective_workspace_label: z
+      .lazy(() => unmarshalWorkspaceLabelMessageSchema)
       .optional(),
     effective_allowed_apps_user_api_scopes: z
       .lazy(() => unmarshalAllowedAppsUserApiScopesMessageSchema)
@@ -832,26 +854,33 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
                           $case: 'personalCompute' as const,
                           personalCompute: d.personal_compute,
                         }
-                      : d.allowed_apps_user_api_scopes !== undefined
+                      : d.workspace_label !== undefined
                         ? {
-                            $case: 'allowedAppsUserApiScopes' as const,
-                            allowedAppsUserApiScopes:
-                              d.allowed_apps_user_api_scopes,
+                            $case: 'workspaceLabel' as const,
+                            workspaceLabel: d.workspace_label,
                           }
-                        : d.operational_email_custom_recipient !== undefined
+                        : d.allowed_apps_user_api_scopes !== undefined
                           ? {
-                              $case: 'operationalEmailCustomRecipient' as const,
-                              operationalEmailCustomRecipient:
-                                d.operational_email_custom_recipient,
+                              $case: 'allowedAppsUserApiScopes' as const,
+                              allowedAppsUserApiScopes:
+                                d.allowed_apps_user_api_scopes,
                             }
-                          : d.collaboration_platform_connectivity !== undefined
+                          : d.operational_email_custom_recipient !== undefined
                             ? {
                                 $case:
-                                  'collaborationPlatformConnectivity' as const,
-                                collaborationPlatformConnectivity:
-                                  d.collaboration_platform_connectivity,
+                                  'operationalEmailCustomRecipient' as const,
+                                operationalEmailCustomRecipient:
+                                  d.operational_email_custom_recipient,
                               }
-                            : undefined,
+                            : d.collaboration_platform_connectivity !==
+                                undefined
+                              ? {
+                                  $case:
+                                    'collaborationPlatformConnectivity' as const,
+                                  collaborationPlatformConnectivity:
+                                    d.collaboration_platform_connectivity,
+                                }
+                              : undefined,
     effectiveValue:
       d.effective_boolean_val !== undefined
         ? {
@@ -902,29 +931,36 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
                           effectivePersonalCompute:
                             d.effective_personal_compute,
                         }
-                      : d.effective_allowed_apps_user_api_scopes !== undefined
+                      : d.effective_workspace_label !== undefined
                         ? {
-                            $case: 'effectiveAllowedAppsUserApiScopes' as const,
-                            effectiveAllowedAppsUserApiScopes:
-                              d.effective_allowed_apps_user_api_scopes,
+                            $case: 'effectiveWorkspaceLabel' as const,
+                            effectiveWorkspaceLabel:
+                              d.effective_workspace_label,
                           }
-                        : d.effective_operational_email_custom_recipient !==
-                            undefined
+                        : d.effective_allowed_apps_user_api_scopes !== undefined
                           ? {
                               $case:
-                                'effectiveOperationalEmailCustomRecipient' as const,
-                              effectiveOperationalEmailCustomRecipient:
-                                d.effective_operational_email_custom_recipient,
+                                'effectiveAllowedAppsUserApiScopes' as const,
+                              effectiveAllowedAppsUserApiScopes:
+                                d.effective_allowed_apps_user_api_scopes,
                             }
-                          : d.effective_collaboration_platform_connectivity !==
+                          : d.effective_operational_email_custom_recipient !==
                               undefined
                             ? {
                                 $case:
-                                  'effectiveCollaborationPlatformConnectivity' as const,
-                                effectiveCollaborationPlatformConnectivity:
-                                  d.effective_collaboration_platform_connectivity,
+                                  'effectiveOperationalEmailCustomRecipient' as const,
+                                effectiveOperationalEmailCustomRecipient:
+                                  d.effective_operational_email_custom_recipient,
                               }
-                            : undefined,
+                            : d.effective_collaboration_platform_connectivity !==
+                                undefined
+                              ? {
+                                  $case:
+                                    'effectiveCollaborationPlatformConnectivity' as const,
+                                  effectiveCollaborationPlatformConnectivity:
+                                    d.effective_collaboration_platform_connectivity,
+                                }
+                              : undefined,
   }));
 
 export const unmarshalSettingsMetadataSchema: z.ZodType<SettingsMetadata> = z
@@ -986,6 +1022,17 @@ export const unmarshalUserPreferenceSchema: z.ZodType<UserPreference> = z
             }
           : undefined,
   }));
+
+export const unmarshalWorkspaceLabelMessageSchema: z.ZodType<WorkspaceLabelMessage> =
+  z
+    .object({
+      label: z.string().optional(),
+      color: z.string().optional(),
+    })
+    .transform(d => ({
+      label: d.label,
+      color: d.color,
+    }));
 
 export const marshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType = z
   .object({
@@ -1188,6 +1235,10 @@ export const marshalSettingSchema: z.ZodType = z
           personalCompute: z.lazy(() => marshalPersonalComputeMessageSchema),
         }),
         z.object({
+          $case: z.literal('workspaceLabel'),
+          workspaceLabel: z.lazy(() => marshalWorkspaceLabelMessageSchema),
+        }),
+        z.object({
           $case: z.literal('allowedAppsUserApiScopes'),
           allowedAppsUserApiScopes: z.lazy(
             () => marshalAllowedAppsUserApiScopesMessageSchema
@@ -1252,6 +1303,12 @@ export const marshalSettingSchema: z.ZodType = z
           ),
         }),
         z.object({
+          $case: z.literal('effectiveWorkspaceLabel'),
+          effectiveWorkspaceLabel: z.lazy(
+            () => marshalWorkspaceLabelMessageSchema
+          ),
+        }),
+        z.object({
           $case: z.literal('effectiveAllowedAppsUserApiScopes'),
           effectiveAllowedAppsUserApiScopes: z.lazy(
             () => marshalAllowedAppsUserApiScopesMessageSchema
@@ -1295,6 +1352,9 @@ export const marshalSettingSchema: z.ZodType = z
     ...(d.value?.$case === 'personalCompute' && {
       personal_compute: d.value.personalCompute,
     }),
+    ...(d.value?.$case === 'workspaceLabel' && {
+      workspace_label: d.value.workspaceLabel,
+    }),
     ...(d.value?.$case === 'allowedAppsUserApiScopes' && {
       allowed_apps_user_api_scopes: d.value.allowedAppsUserApiScopes,
     }),
@@ -1336,6 +1396,9 @@ export const marshalSettingSchema: z.ZodType = z
     }),
     ...(d.effectiveValue?.$case === 'effectivePersonalCompute' && {
       effective_personal_compute: d.effectiveValue.effectivePersonalCompute,
+    }),
+    ...(d.effectiveValue?.$case === 'effectiveWorkspaceLabel' && {
+      effective_workspace_label: d.effectiveValue.effectiveWorkspaceLabel,
     }),
     ...(d.effectiveValue?.$case === 'effectiveAllowedAppsUserApiScopes' && {
       effective_allowed_apps_user_api_scopes:
@@ -1401,4 +1464,14 @@ export const marshalUserPreferenceSchema: z.ZodType = z
     ...(d.effectiveValue?.$case === 'effectiveStringVal' && {
       effective_string_val: d.effectiveValue.effectiveStringVal,
     }),
+  }));
+
+export const marshalWorkspaceLabelMessageSchema: z.ZodType = z
+  .object({
+    label: z.string().optional(),
+    color: z.string().optional(),
+  })
+  .transform(d => ({
+    label: d.label,
+    color: d.color,
   }));

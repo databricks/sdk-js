@@ -1382,6 +1382,12 @@ export interface IngressNetworkPolicy_WorkspaceApiDestination {
   scopes?: string[] | undefined;
   /** Qualifies the breadth of API access for the listed scopes. See ApiScopeQualifier. */
   scopeQualifier?: IngressNetworkPolicy_ApiScopeQualifier | undefined;
+  /**
+   * Inverse of `scopes`: matches every API scope EXCEPT those listed here
+   * ("allow all except"). Mutually exclusive with `scopes` — a single
+   * destination may set at most one of the two.
+   */
+  excludedScopes?: string[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2914,10 +2920,12 @@ export const unmarshalIngressNetworkPolicy_WorkspaceApiDestinationSchema: z.ZodT
     .object({
       scopes: z.array(z.string()).optional(),
       scope_qualifier: z.string().optional(),
+      excluded_scopes: z.array(z.string()).optional(),
     })
     .transform(d => ({
       scopes: d.scopes,
       scopeQualifier: d.scope_qualifier,
+      excludedScopes: d.excluded_scopes,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -4353,10 +4361,12 @@ export const marshalIngressNetworkPolicy_WorkspaceApiDestinationSchema: z.ZodTyp
     .object({
       scopes: z.array(z.string()).optional(),
       scopeQualifier: z.string().optional(),
+      excludedScopes: z.array(z.string()).optional(),
     })
     .transform(d => ({
       scopes: d.scopes,
       scope_qualifier: d.scopeQualifier,
+      excluded_scopes: d.excludedScopes,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
