@@ -220,6 +220,11 @@ export interface AmazonBedrockConfig {
    * `aws_access_key_id_plaintext`, `aws_secret_access_key` and `aws_secret_access_key_plaintext`.
    */
   instanceProfileArn?: string | undefined;
+  /**
+   * The name of the Unity Catalog service credential that the external model uses to access AWS
+   * resources.
+   */
+  ucServiceCredentialName?: string | undefined;
 }
 
 export interface AnthropicConfig {
@@ -1283,6 +1288,7 @@ export const unmarshalAmazonBedrockConfigSchema: z.ZodType<AmazonBedrockConfig> 
       aws_access_key_id_plaintext: z.string().optional(),
       aws_secret_access_key_plaintext: z.string().optional(),
       instance_profile_arn: z.string().optional(),
+      uc_service_credential_name: z.string().optional(),
     })
     .transform(d => ({
       awsRegion: d.aws_region,
@@ -1292,6 +1298,7 @@ export const unmarshalAmazonBedrockConfigSchema: z.ZodType<AmazonBedrockConfig> 
       awsAccessKeyIdPlaintext: d.aws_access_key_id_plaintext,
       awsSecretAccessKeyPlaintext: d.aws_secret_access_key_plaintext,
       instanceProfileArn: d.instance_profile_arn,
+      ucServiceCredentialName: d.uc_service_credential_name,
     }));
 
 export const unmarshalAnthropicConfigSchema: z.ZodType<AnthropicConfig> = z
@@ -2126,6 +2133,7 @@ export const marshalAmazonBedrockConfigSchema: z.ZodType = z
     awsAccessKeyIdPlaintext: z.string().optional(),
     awsSecretAccessKeyPlaintext: z.string().optional(),
     instanceProfileArn: z.string().optional(),
+    ucServiceCredentialName: z.string().optional(),
   })
   .transform(d => ({
     aws_region: d.awsRegion,
@@ -2135,6 +2143,7 @@ export const marshalAmazonBedrockConfigSchema: z.ZodType = z
     aws_access_key_id_plaintext: d.awsAccessKeyIdPlaintext,
     aws_secret_access_key_plaintext: d.awsSecretAccessKeyPlaintext,
     instance_profile_arn: d.instanceProfileArn,
+    uc_service_credential_name: d.ucServiceCredentialName,
   }));
 
 export const marshalAnthropicConfigSchema: z.ZodType = z

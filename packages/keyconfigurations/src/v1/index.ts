@@ -9,7 +9,7 @@ export {KeyConfigurationsClient} from './client';
 export {CmkUseCase} from './model';
 
 export type {
-  AwsKeyInfo,
+  AwsKeyInfoOutput,
   AzureKeyInfo,
   CreateAwsKeyInfo,
   CreateAzureKeyInfo,

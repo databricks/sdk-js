@@ -13,7 +13,7 @@ export type CmkUseCase =
   | (typeof CmkUseCase)[keyof typeof CmkUseCase]
   | (string & {});
 
-export interface AwsKeyInfo {
+export interface AwsKeyInfoOutput {
   /** The AWS KMS key's Amazon Resource Name (ARN). */
   keyArn?: string | undefined;
   /** The AWS KMS key alias. */
@@ -129,7 +129,7 @@ export interface CustomerManagedKey {
    * If azure_key_info is defined, it's an Azure Databricks customer key object. --)
    */
   keyInfo?:
-    | {$case: 'awsKeyInfo'; awsKeyInfo: AwsKeyInfo}
+    | {$case: 'awsKeyInfo'; awsKeyInfo: AwsKeyInfoOutput}
     | {$case: 'azureKeyInfo'; azureKeyInfo: AzureKeyInfo}
     | {$case: 'gcpKeyInfo'; gcpKeyInfo: GcpKeyInfo}
     | undefined;
@@ -185,7 +185,7 @@ export interface ListCustomerManagedKeyResponse {
   customerManagedKeys?: CustomerManagedKey[] | undefined;
 }
 
-export const unmarshalAwsKeyInfoSchema: z.ZodType<AwsKeyInfo> = z
+export const unmarshalAwsKeyInfoOutputSchema: z.ZodType<AwsKeyInfoOutput> = z
   .object({
     key_arn: z.string().optional(),
     key_alias: z.string().optional(),
@@ -228,7 +228,7 @@ export const unmarshalCustomerManagedKeySchema: z.ZodType<CustomerManagedKey> =
         .transform(v => BigInt(v))
         .optional(),
       account_id: z.string().optional(),
-      aws_key_info: z.lazy(() => unmarshalAwsKeyInfoSchema).optional(),
+      aws_key_info: z.lazy(() => unmarshalAwsKeyInfoOutputSchema).optional(),
       azure_key_info: z.lazy(() => unmarshalAzureKeyInfoSchema).optional(),
       gcp_key_info: z.lazy(() => unmarshalGcpKeyInfoSchema).optional(),
       use_cases: z.array(z.string()).optional(),

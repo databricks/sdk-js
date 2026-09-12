@@ -265,7 +265,7 @@ export interface ExecuteStatementRequest {
    * information (typically a personal access token, OAuth token, or similar) _must be removed_ when fetching from
    * these links.
    *
-   * 2. These are  URLs
+   * 2. These are short-lived cloud-storage URLs
    * with a specific expiration, indicated in the response. The behavior when attempting to use an expired link is
    * cloud specific.
    */
@@ -350,9 +350,8 @@ export interface ExecuteStatementRequest {
 
 export interface ExternalLink {
   /**
-   * A  URL pointing to a
-   * chunk of result data, hosted by an external service, with a short expiration time
-   * (<= 15 minutes). As this URL contains a temporary credential, it should be considered sensitive
+   * A short-lived cloud-storage URL pointing to a chunk of result data, hosted by an external service, with a short
+   * expiration time (<= 15 minutes). As this URL contains a temporary credential, it should be considered sensitive
    * and the client should not expose this URL in a log.
    */
   externalLink?: string | undefined;
@@ -424,7 +423,7 @@ export interface QueryTag {
 /**
  * Contains the result data of a single chunk when using `INLINE` disposition. When using
  * `EXTERNAL_LINKS` disposition, the array `external_links` is used instead to provide
- * URLs to the result data
+ * short-lived cloud-storage URLs to the result data
  * in cloud storage. Exactly one of these alternatives is used. (While the `external_links`
  * array prepares the API to return multiple links in a single response. Currently only a single
  * link is returned.)
