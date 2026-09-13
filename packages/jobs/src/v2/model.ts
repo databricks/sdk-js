@@ -515,6 +515,24 @@ export type AccessControlRequest_JobPermission =
   | (typeof AccessControlRequest_JobPermission)[keyof typeof AccessControlRequest_JobPermission]
   | (string & {});
 
+/**
+ * Scheduling priority class for a workload — its priority and preemptability
+ * when the scheduler ranks pending work.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AiRuntimeTask_PriorityClass = {
+  /** Lowest priority; preemptable by higher-priority workloads. */
+  BEST_EFFORT: 'BEST_EFFORT',
+  /** Medium priority; not preemptable. */
+  NORMAL: 'NORMAL',
+  /** Highest priority; not preemptable. */
+  CRITICAL: 'CRITICAL',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type AiRuntimeTask_PriorityClass =
+  | (typeof AiRuntimeTask_PriorityClass)[keyof typeof AiRuntimeTask_PriorityClass]
+  | (string & {});
+
 /** Same alert evaluation state as in redash-v2/api/proto/alertsv2/alerts.proto */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AlertEvaluationState_AlertEvaluationState = {
@@ -590,6 +608,8 @@ export const ComputeSpec_AcceleratorType = {
   GPU_1X_H100: 'GPU_1xH100',
   /** Eight H100 GPUs per node. Typical for distributed training. */
   GPU_8X_H100: 'GPU_8xH100',
+  /** Eight B300 GPUs per node. */
+  GPU_8X_B300: 'GPU_8xB300',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type ComputeSpec_AcceleratorType =
@@ -1029,6 +1049,13 @@ export interface AiRuntimeTask {
    * The location should be unique for each experiment.
    */
   mlflowArtifactLocation?: string | undefined;
+  /**
+   * Scheduling priority class for the workload. May only be set together with
+   * a pre-provisioned capacity reservation (a deployment's
+   * `compute.provisioned_capacity_id`); it is rejected on a workload that runs
+   * on on-demand capacity.
+   */
+  priorityClass?: AiRuntimeTask_PriorityClass | undefined;
   /**
    * Optional Unity Catalog path for a custom container image. When set,
    * the task runs on the specified container image instead of the default
@@ -5545,6 +5572,7 @@ export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
     mlflow_experiment_directory: z.string().optional(),
     docker_image_url: z.string().optional(),
     mlflow_artifact_location: z.string().optional(),
+    priority_class: z.string().optional(),
     unity_catalog_image_path: z.string().optional(),
   })
   .transform(d => ({
@@ -5555,6 +5583,7 @@ export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
     mlflowExperimentDirectory: d.mlflow_experiment_directory,
     dockerImageUrl: d.docker_image_url,
     mlflowArtifactLocation: d.mlflow_artifact_location,
+    priorityClass: d.priority_class,
     unityCatalogImagePath: d.unity_catalog_image_path,
   }));
 
@@ -9090,6 +9119,7 @@ export const marshalAiRuntimeTaskSchema: z.ZodType = z
     mlflowExperimentDirectory: z.string().optional(),
     dockerImageUrl: z.string().optional(),
     mlflowArtifactLocation: z.string().optional(),
+    priorityClass: z.string().optional(),
     unityCatalogImagePath: z.string().optional(),
   })
   .transform(d => ({
@@ -9100,6 +9130,7 @@ export const marshalAiRuntimeTaskSchema: z.ZodType = z
     mlflow_experiment_directory: d.mlflowExperimentDirectory,
     docker_image_url: d.dockerImageUrl,
     mlflow_artifact_location: d.mlflowArtifactLocation,
+    priority_class: d.priorityClass,
     unity_catalog_image_path: d.unityCatalogImagePath,
   }));
 
