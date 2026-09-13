@@ -42,6 +42,7 @@ export {
   ViewType,
   ViewsToExport,
   AccessControlRequest_JobPermission,
+  AiRuntimeTask_PriorityClass,
   AlertEvaluationState_AlertEvaluationState,
   CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState,
   CleanRoomTaskRunResultState_CleanRoomTaskRunResultState,
