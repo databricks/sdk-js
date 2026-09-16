@@ -2512,6 +2512,11 @@ export interface PipelinesJobRunAs {
         /** Application ID of an active service principal. Setting this field requires the `servicePrincipal/user` role. */
         servicePrincipalName: string;
       }
+    | {
+        $case: 'groupName';
+        /** Group name of an account group assigned to the workspace. When set, the pipeline runs as the group and the group's permissions are used for data access. Setting this field requires being a member of the group, or having the `Assume` permission on the group. */
+        groupName: string;
+      }
     | undefined;
 }
 
@@ -4389,6 +4394,7 @@ export const unmarshalPipelinesJobRunAsSchema: z.ZodType<PipelinesJobRunAs> = z
   .object({
     user_name: z.string().optional(),
     service_principal_name: z.string().optional(),
+    group_name: z.string().optional(),
   })
   .transform(d => ({
     identity:
@@ -4399,7 +4405,9 @@ export const unmarshalPipelinesJobRunAsSchema: z.ZodType<PipelinesJobRunAs> = z
               $case: 'servicePrincipalName' as const,
               servicePrincipalName: d.service_principal_name,
             }
-          : undefined,
+          : d.group_name !== undefined
+            ? {$case: 'groupName' as const, groupName: d.group_name}
+            : undefined,
   }));
 
 export const unmarshalPipelinesMavenLibrarySchema: z.ZodType<PipelinesMavenLibrary> =
@@ -6053,6 +6061,7 @@ export const marshalPipelinesJobRunAsSchema: z.ZodType = z
           $case: z.literal('servicePrincipalName'),
           servicePrincipalName: z.string(),
         }),
+        z.object({$case: z.literal('groupName'), groupName: z.string()}),
       ])
       .optional(),
   })
@@ -6060,6 +6069,9 @@ export const marshalPipelinesJobRunAsSchema: z.ZodType = z
     ...(d.identity?.$case === 'userName' && {user_name: d.identity.userName}),
     ...(d.identity?.$case === 'servicePrincipalName' && {
       service_principal_name: d.identity.servicePrincipalName,
+    }),
+    ...(d.identity?.$case === 'groupName' && {
+      group_name: d.identity.groupName,
     }),
   }));
 
