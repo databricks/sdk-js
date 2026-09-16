@@ -17,23 +17,18 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreateOnlineStoreRequest,
-  DeleteOnlineStoreRequest,
-  DeleteOnlineTableRequest,
-  GetOnlineStoreRequest,
-  ListOnlineStoresRequest,
-  ListOnlineStoresResponse,
-  OnlineStore,
-  PublishTableRequest,
-  PublishTableResponse,
-  UpdateOnlineStoreRequest,
+  CreateDomainRequest,
+  DeleteDomainRequest,
+  Domain,
+  GetDomainRequest,
+  ListDomainsRequest,
+  ListDomainsResponse,
+  UpdateDomainRequest,
 } from './model';
 import {
-  marshalOnlineStoreSchema,
-  marshalPublishTableRequestSchema,
-  unmarshalListOnlineStoresResponseSchema,
-  unmarshalOnlineStoreSchema,
-  unmarshalPublishTableResponseSchema,
+  marshalDomainSchema,
+  unmarshalDomainSchema,
+  unmarshalListDomainsResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -42,7 +37,7 @@ const PACKAGE_SEGMENT = {
   value: pkgJson.version,
 };
 
-export class FeatureStoreClient {
+export class DomainsClient {
   private readonly options: ClientOptions;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -69,28 +64,40 @@ export class FeatureStoreClient {
     return this.config;
   }
 
-  /** Create an Online Feature Store. */
-  async createOnlineStore(
-    req: CreateOnlineStoreRequest,
+  /** Create a domain. If `domain_id` is omitted, the server generates one. */
+  async createDomain(
+    req: CreateDomainRequest,
     options?: CallOptions
-  ): Promise<OnlineStore> {
+  ): Promise<Domain> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-store/online-stores`;
-    const body = marshalRequest(req.onlineStore, marshalOnlineStoreSchema);
-    let resp: OnlineStore | undefined;
+    const url = `${host}/api/2.0/domains`;
+    const params = new URLSearchParams();
+    if (req.domainId !== undefined) {
+      params.append('domain_id', req.domainId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.domain, marshalDomainSchema);
+    let resp: Domain | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (workspaceId !== undefined) {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalOnlineStoreSchema);
+      resp = parseResponse(respBody, unmarshalDomainSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -99,20 +106,29 @@ export class FeatureStoreClient {
     return resp;
   }
 
-  /** Delete an Online Feature Store. */
-  async deleteOnlineStore(
-    req: DeleteOnlineStoreRequest,
+  /**
+   * Delete a domain. By default the request fails if the domain still has
+   * Glossary pages; set `force` to delete those pages along with the domain.
+   */
+  async deleteDomain(
+    req: DeleteDomainRequest,
     options?: CallOptions
   ): Promise<void> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-store/online-stores/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/${req.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.force !== undefined) {
+      params.append('force', String(req.force));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined) {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient,
@@ -122,37 +138,18 @@ export class FeatureStoreClient {
     await executeCall(call, options);
   }
 
-  /** Delete online table. */
-  async deleteOnlineTable(
-    req: DeleteOnlineTableRequest,
+  /**
+   * Get a domain by resource name.
+   *
+   * Authorization: external callers must have the `MANAGE DISCOVERY` permission.
+   */
+  async getDomain(
+    req: GetDomainRequest,
     options?: CallOptions
-  ): Promise<void> {
+  ): Promise<Domain> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-store/online-tables/${req.onlineTableName ?? ''}`;
-    const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      if (workspaceId !== undefined) {
-        headers.set('X-Databricks-Workspace-Id', workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient,
-        logger: this.logger,
-      });
-    };
-    await executeCall(call, options);
-  }
-
-  /** Get an Online Feature Store. */
-  async getOnlineStore(
-    req: GetOnlineStoreRequest,
-    options?: CallOptions
-  ): Promise<OnlineStore> {
-    const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-store/online-stores/${req.name ?? ''}`;
-    let resp: OnlineStore | undefined;
+    const url = `${host}/api/2.0/${req.name ?? ''}`;
+    let resp: Domain | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined) {
@@ -165,7 +162,7 @@ export class FeatureStoreClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalOnlineStoreSchema);
+      resp = parseResponse(respBody, unmarshalDomainSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -174,23 +171,32 @@ export class FeatureStoreClient {
     return resp;
   }
 
-  /** List Online Feature Stores. */
-  async listOnlineStores(
-    req: ListOnlineStoresRequest,
+  /**
+   * List domains in the account. Set `parent_domain_id` to return only the
+   * direct subdomains of a given domain.
+   *
+   * Authorization: external callers must have the `MANAGE DISCOVERY` permission;
+   * only domains the caller is authorized to read are returned.
+   */
+  async listDomains(
+    req: ListDomainsRequest,
     options?: CallOptions
-  ): Promise<ListOnlineStoresResponse> {
+  ): Promise<ListDomainsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-store/online-stores`;
+    const url = `${host}/api/2.0/domains`;
     const params = new URLSearchParams();
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.parentDomainId !== undefined) {
+      params.append('parent_domain_id', req.parentDomainId);
+    }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListOnlineStoresResponse | undefined;
+    let resp: ListDomainsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined) {
@@ -203,7 +209,7 @@ export class FeatureStoreClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListOnlineStoresResponseSchema);
+      resp = parseResponse(respBody, unmarshalListDomainsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -212,14 +218,14 @@ export class FeatureStoreClient {
     return resp;
   }
 
-  async *listOnlineStoresIter(
-    req: ListOnlineStoresRequest,
+  async *listDomainsIter(
+    req: ListDomainsRequest,
     options?: CallOptions
-  ): AsyncGenerator<OnlineStore> {
-    const pageReq: ListOnlineStoresRequest = {...req};
+  ): AsyncGenerator<Domain> {
+    const pageReq: ListDomainsRequest = {...req};
     for (;;) {
-      const resp = await this.listOnlineStores(pageReq, options);
-      for (const item of resp.onlineStores ?? []) {
+      const resp = await this.listDomains(pageReq, options);
+      for (const item of resp.domains ?? []) {
         yield item;
       }
       if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
@@ -229,57 +235,24 @@ export class FeatureStoreClient {
     }
   }
 
-  /** Publish features. */
-  async publishTable(
-    req: PublishTableRequest,
-    options?: CallOptions
-  ): Promise<PublishTableResponse> {
-    const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-store/tables/${req.sourceTableName ?? ''}/publish`;
-    const body = marshalRequest(req, marshalPublishTableRequestSchema);
-    let resp: PublishTableResponse | undefined;
-    const call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
-        headers.set('X-Databricks-Workspace-Id', workspaceId);
-      }
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalPublishTableResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('operation completed without a result.');
-    }
-    return resp;
-  }
-
   /**
-   * Update an Online Feature Store.
-   *
-   * This update is not guaranteed to be atomic: when a request changes multiple fields, some may
-   * be applied while others fail. On a failed response, treat the update as partially applied and
-   * retry until it succeeds.
+   * Update a domain. `update_mask` selects which fields to modify; the domain
+   * is identified by its resource `name`.
    */
-  async updateOnlineStore(
-    req: UpdateOnlineStoreRequest,
+  async updateDomain(
+    req: UpdateDomainRequest,
     options?: CallOptions
-  ): Promise<OnlineStore> {
+  ): Promise<Domain> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-store/online-stores/${req.onlineStore?.name ?? ''}`;
+    const url = `${host}/api/2.0/${req.domain?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.onlineStore, marshalOnlineStoreSchema);
-    let resp: OnlineStore | undefined;
+    const body = marshalRequest(req.domain, marshalDomainSchema);
+    let resp: Domain | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       if (workspaceId !== undefined) {
@@ -298,7 +271,7 @@ export class FeatureStoreClient {
         httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalOnlineStoreSchema);
+      resp = parseResponse(respBody, unmarshalDomainSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
