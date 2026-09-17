@@ -143,6 +143,21 @@ export type ModelServiceConfig_DestinationConfig_DestinationType =
   | (typeof ModelServiceConfig_DestinationConfig_DestinationType)[keyof typeof ModelServiceConfig_DestinationConfig_DestinationType]
   | (string & {});
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ProvisioningInfo_State = {
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  PROVISIONING: 'PROVISIONING',
+  ACTIVE: 'ACTIVE',
+  FAILED: 'FAILED',
+  DELETING: 'DELETING',
+  UPDATING: 'UPDATING',
+  DEGRADED: 'DEGRADED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type ProvisioningInfo_State =
+  | (typeof ProvisioningInfo_State)[keyof typeof ProvisioningInfo_State]
+  | (string & {});
+
 /** Scope key for a rate limit. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const RateLimit_RateLimitKey = {
@@ -196,6 +211,19 @@ export interface CreateMcpServiceRequest {
   mcpService?: McpService | undefined;
 }
 
+/**
+ * Request to log the caller in to an MCP service: create their user credential, or
+ * re-authenticate it if one already exists.
+ */
+export interface CreateMcpServiceUserMappedCredentialRequest {
+  /**
+   * Resource name of the MCP service.
+   * Format: `mcp-services/{catalog}.{schema}.{mcp_service}`.
+   */
+  name?: string | undefined;
+  login?: McpServiceUserMappedCredentialLogin | undefined;
+}
+
 /** Request to create a new model provider service. */
 export interface CreateModelProviderServiceRequest {
   /**
@@ -247,6 +275,22 @@ export interface DeleteMcpServiceRequest {
   etag?: Uint8Array | undefined;
 }
 
+/** Request to revoke (delete) the caller's user credential for an MCP service. */
+export interface DeleteMcpServiceUserMappedCredentialRequest {
+  /**
+   * Resource name of the MCP service.
+   * Format: `mcp-services/{catalog}.{schema}.{mcp_service}`.
+   */
+  name?: string | undefined;
+}
+
+/**
+ * Delete returns no resource; a dedicated (empty) response keeps the revoke RPC's shape owned
+ * here rather than google.protobuf.Empty.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteMcpServiceUserMappedCredentialResponse {}
+
 /** Request to delete a model provider service. */
 export interface DeleteModelProviderServiceRequest {
   /**
@@ -287,6 +331,15 @@ export interface GetMcpServiceRequest {
    * Resource name of the MCP service.
    * Format: `mcp-services/{catalog}.{schema}.{mcp_service}`.
    * Each `{...}` component is capped at 255 characters individually.
+   */
+  name?: string | undefined;
+}
+
+/** Request to get the caller's user credential for an MCP service. */
+export interface GetMcpServiceUserMappedCredentialRequest {
+  /**
+   * Resource name of the MCP service.
+   * Format: `mcp-services/{catalog}.{schema}.{mcp_service}`.
    */
   name?: string | undefined;
 }
@@ -568,6 +621,27 @@ export interface McpServiceConfig_SourceConnection {
    * invocation fails until the source connection is updated.
    */
   isDeleted?: boolean | undefined;
+}
+
+/** A caller's per-user OAuth credential for an MCP service. */
+export interface McpServiceUserMappedCredential {
+  /**
+   * Token-expiry info for the credential, returned as a flat map: `access_token_expiration` (always
+   * set) and `refresh_token_expiration` (set when the credential has a refresh token). Both values
+   * are timestamps.
+   */
+  options?: Record<string, string> | undefined;
+  /**
+   * Provisioning state of the credential. `ACTIVE` means the caller is logged in and the credential
+   * is usable; any other state means the login has not completed.
+   */
+  provisioningInfo?: ProvisioningInfo | undefined;
+}
+
+/** Login input for an MCP service user credential. Carries the OAuth exchange fields as a flat map. */
+export interface McpServiceUserMappedCredentialLogin {
+  /** OAuth exchange fields: `pkce_verifier`, `authorization_code`, and `oauth_redirect_uri`. */
+  options?: Record<string, string> | undefined;
 }
 
 /**
@@ -1451,6 +1525,12 @@ export interface ModelServiceConfig_RoutingConfig {
   fallback?: ModelServiceConfig_FallbackConfig | undefined;
 }
 
+/** Status of an asynchronously provisioned resource. */
+export interface ProvisioningInfo {
+  /** The provisioning state of the resource. */
+  state?: ProvisioningInfo_State | undefined;
+}
+
 /**
  * A rate limit applied to service requests. Leave `requests` or `tokens`
  * unset to impose no limit on that dimension; set a value to cap that dimension
@@ -1570,6 +1650,9 @@ export interface UpdateModelServiceRequest {
   etag?: Uint8Array | undefined;
 }
 
+export const unmarshalDeleteMcpServiceUserMappedCredentialResponseSchema: z.ZodType<DeleteMcpServiceUserMappedCredentialResponse> =
+  z.object({});
+
 export const unmarshalInferenceTableConfigSchema: z.ZodType<InferenceTableConfig> =
   z
     .object({
@@ -1687,6 +1770,19 @@ export const unmarshalMcpServiceConfig_SourceConnectionSchema: z.ZodType<McpServ
     .transform(d => ({
       name: d.name,
       isDeleted: d.is_deleted,
+    }));
+
+export const unmarshalMcpServiceUserMappedCredentialSchema: z.ZodType<McpServiceUserMappedCredential> =
+  z
+    .object({
+      options: z.record(z.string(), z.string()).optional(),
+      provisioning_info: z
+        .lazy(() => unmarshalProvisioningInfoSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      options: d.options,
+      provisioningInfo: d.provisioning_info,
     }));
 
 export const unmarshalModelProviderServiceSchema: z.ZodType<ModelProviderService> =
@@ -2360,6 +2456,14 @@ export const unmarshalModelServiceConfig_RoutingConfigSchema: z.ZodType<ModelSer
       fallback: d.fallback,
     }));
 
+export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
+  .object({
+    state: z.string().optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+  }));
+
 export const unmarshalRateLimitSchema: z.ZodType<RateLimit> = z
   .object({
     key: z.string().optional(),
@@ -2465,6 +2569,14 @@ export const marshalMcpServiceConfig_SourceConnectionSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     is_deleted: d.isDeleted,
+  }));
+
+export const marshalMcpServiceUserMappedCredentialLoginSchema: z.ZodType = z
+  .object({
+    options: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    options: d.options,
   }));
 
 export const marshalModelProviderServiceSchema: z.ZodType = z

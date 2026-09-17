@@ -144,6 +144,20 @@ export type OutlookBodyFormat =
   | (typeof OutlookBodyFormat)[keyof typeof OutlookBodyFormat]
   | (string & {});
 
+/** Determines how errors encountered while deserializing records are handled. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ParseMode = {
+  /** Default value. Uses the service default parse mode when not explicitly set. */
+  PARSE_MODE_UNSPECIFIED: 'PARSE_MODE_UNSPECIFIED',
+  /** Fails the pipeline when a record cannot be deserialized. */
+  FAILFAST: 'FAILFAST',
+  /** Skips malformed records and continues processing remaining data. */
+  PERMISSIVE: 'PERMISSIVE',
+} as const;
+export type ParseMode =
+  | (typeof ParseMode)[keyof typeof ParseMode]
+  | (string & {});
+
 /** The health of a pipeline. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PipelineHealthStatus = {
@@ -487,6 +501,8 @@ export const Transformer_Format = {
   FORMAT_UNSPECIFIED: 'FORMAT_UNSPECIFIED',
   STRING: 'STRING',
   JSON: 'JSON',
+  AVRO: 'AVRO',
+  PROTOBUF: 'PROTOBUF',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type Transformer_Format =
@@ -522,6 +538,23 @@ export interface AutoFullRefreshPolicy {
    * If unspecified and autoFullRefresh is enabled then by default min_interval_hours is 24 hours.
    */
   minIntervalHours?: number | undefined;
+}
+
+export interface AvroTransformerOptions {
+  /** Inline Avro JSON schema string. */
+  schema?: string | undefined;
+  /** Path to a schema file (.avsc). */
+  schemaFilePath?: string | undefined;
+  /**
+   * (Optional) Parse mode for Avro data.
+   * Valid values: FAILFAST, PERMISSIVE. Defaults to FAILFAST.
+   */
+  parseMode?: ParseMode | undefined;
+  /**
+   * (Optional) Schema registry to resolve the Avro schema at runtime instead of
+   * providing it inline or via a file path.
+   */
+  schemaRegistry?: SchemaRegistryConfig | undefined;
 }
 
 export interface ClonePipelineRequest {
@@ -620,6 +653,11 @@ export interface ClonePipelineResponse {
 export interface ConfluenceConnectorOptions {
   /** (Optional) Spaces to filter Confluence data on */
   includeConfluenceSpaces?: string[] | undefined;
+}
+
+export interface ConfluentSchemaRegistryOptions {
+  /** Required: subject name to resolve in the registry. */
+  subject?: string | undefined;
 }
 
 export interface ConnectionParameters {
@@ -2590,6 +2628,30 @@ export interface PostgresSlotConfig {
   publicationName?: string | undefined;
 }
 
+export interface ProtobufTransformerOptions {
+  /** Required: path to the .desc file (dbfs:/... or /Volumes/...). */
+  descFilePath?: string | undefined;
+  /** Required: fully-qualified message type name. */
+  messageName?: string | undefined;
+  /**
+   * (Optional) Maximum expansion depth for recursive protobuf fields.
+   * Spark SQL does not natively support recursive types, so recursive
+   * fields are expanded up to this depth and truncated beyond it.
+   * Valid values: -1 (disallow recursive fields), 0 (drop), 1-10.
+   */
+  recursiveFieldsMaxDepth?: number | undefined;
+  /**
+   * (Optional) Parse mode for Protobuf data.
+   * Valid values: FAILFAST, PERMISSIVE. Defaults to FAILFAST.
+   */
+  parseMode?: ParseMode | undefined;
+  /**
+   * (Optional) Schema registry to resolve the Protobuf schema at runtime instead
+   * of providing it via desc_file_path.
+   */
+  schemaRegistry?: SchemaRegistryConfig | undefined;
+}
+
 /**
  * RabbitMQ specific options for ingestion.
  * Performance tuning options (consumers_per_task, max_messages_per_fetch, etc.)
@@ -2701,6 +2763,22 @@ export interface RewindSpec {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ScdType {}
+
+export interface SchemaRegistryConfig {
+  /** Required: Confluent-compatible schema registry options. */
+  confluentOptions?: ConfluentSchemaRegistryOptions | undefined;
+  /**
+   * (Optional, Protobuf only) Selects a specific message from a schema that
+   * defines multiple Protobuf messages. Simple ("Location") or fully-qualified
+   * ("com.example.protos.Location"). Defaults to the first message.
+   */
+  protobufMessageName?: string | undefined;
+  /**
+   * (Optional) UC connection for registry authentication.
+   * Specify if different from the top-level source connection.
+   */
+  connectionName?: string | undefined;
+}
 
 export interface Sequencing {
   /** the ID assigned by the data plane. */
@@ -2919,6 +2997,8 @@ export interface Transformer {
    */
   config?:
     | {$case: 'jsonOptions'; jsonOptions: JsonTransformerOptions}
+    | {$case: 'avroOptions'; avroOptions: AvroTransformerOptions}
+    | {$case: 'protobufOptions'; protobufOptions: ProtobufTransformerOptions}
     | undefined;
   /**
    * Optional input column to transform. When set, the transformer reads
@@ -3041,6 +3121,23 @@ export const unmarshalAutoFullRefreshPolicySchema: z.ZodType<AutoFullRefreshPoli
       minIntervalHours: d.min_interval_hours,
     }));
 
+export const unmarshalAvroTransformerOptionsSchema: z.ZodType<AvroTransformerOptions> =
+  z
+    .object({
+      schema: z.string().optional(),
+      schema_file_path: z.string().optional(),
+      parse_mode: z.string().optional(),
+      schema_registry: z
+        .lazy(() => unmarshalSchemaRegistryConfigSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      schema: d.schema,
+      schemaFilePath: d.schema_file_path,
+      parseMode: d.parse_mode,
+      schemaRegistry: d.schema_registry,
+    }));
+
 export const unmarshalClonePipelineResponseSchema: z.ZodType<ClonePipelineResponse> =
   z
     .object({
@@ -3057,6 +3154,15 @@ export const unmarshalConfluenceConnectorOptionsSchema: z.ZodType<ConfluenceConn
     })
     .transform(d => ({
       includeConfluenceSpaces: d.include_confluence_spaces,
+    }));
+
+export const unmarshalConfluentSchemaRegistryOptionsSchema: z.ZodType<ConfluentSchemaRegistryOptions> =
+  z
+    .object({
+      subject: z.string().optional(),
+    })
+    .transform(d => ({
+      subject: d.subject,
     }));
 
 export const unmarshalConnectionParametersSchema: z.ZodType<ConnectionParameters> =
@@ -4464,6 +4570,25 @@ export const unmarshalPostgresSlotConfigSchema: z.ZodType<PostgresSlotConfig> =
       publicationName: d.publication_name,
     }));
 
+export const unmarshalProtobufTransformerOptionsSchema: z.ZodType<ProtobufTransformerOptions> =
+  z
+    .object({
+      desc_file_path: z.string().optional(),
+      message_name: z.string().optional(),
+      recursive_fields_max_depth: z.number().optional(),
+      parse_mode: z.string().optional(),
+      schema_registry: z
+        .lazy(() => unmarshalSchemaRegistryConfigSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      descFilePath: d.desc_file_path,
+      messageName: d.message_name,
+      recursiveFieldsMaxDepth: d.recursive_fields_max_depth,
+      parseMode: d.parse_mode,
+      schemaRegistry: d.schema_registry,
+    }));
+
 export const unmarshalRabbitmqOptionsSchema: z.ZodType<RabbitmqOptions> = z
   .object({
     queue: z.string().optional(),
@@ -4509,6 +4634,21 @@ export const unmarshalRestartWindowSchema: z.ZodType<RestartWindow> = z
     daysOfWeek: d.days_of_week,
     timeZoneId: d.time_zone_id,
   }));
+
+export const unmarshalSchemaRegistryConfigSchema: z.ZodType<SchemaRegistryConfig> =
+  z
+    .object({
+      confluent_options: z
+        .lazy(() => unmarshalConfluentSchemaRegistryOptionsSchema)
+        .optional(),
+      protobuf_message_name: z.string().optional(),
+      connection_name: z.string().optional(),
+    })
+    .transform(d => ({
+      confluentOptions: d.confluent_options,
+      protobufMessageName: d.protobuf_message_name,
+      connectionName: d.connection_name,
+    }));
 
 export const unmarshalSequencingSchema: z.ZodType<Sequencing> = z
   .object({
@@ -4670,6 +4810,12 @@ export const unmarshalTransformerSchema: z.ZodType<Transformer> = z
     json_options: z
       .lazy(() => unmarshalJsonTransformerOptionsSchema)
       .optional(),
+    avro_options: z
+      .lazy(() => unmarshalAvroTransformerOptionsSchema)
+      .optional(),
+    protobuf_options: z
+      .lazy(() => unmarshalProtobufTransformerOptionsSchema)
+      .optional(),
     input_column: z.string().optional(),
     output_column: z.string().optional(),
   })
@@ -4678,7 +4824,14 @@ export const unmarshalTransformerSchema: z.ZodType<Transformer> = z
     config:
       d.json_options !== undefined
         ? {$case: 'jsonOptions' as const, jsonOptions: d.json_options}
-        : undefined,
+        : d.avro_options !== undefined
+          ? {$case: 'avroOptions' as const, avroOptions: d.avro_options}
+          : d.protobuf_options !== undefined
+            ? {
+                $case: 'protobufOptions' as const,
+                protobufOptions: d.protobuf_options,
+              }
+            : undefined,
     inputColumn: d.input_column,
     outputColumn: d.output_column,
   }));
@@ -4793,6 +4946,20 @@ export const marshalAutoFullRefreshPolicySchema: z.ZodType = z
     min_interval_hours: d.minIntervalHours,
   }));
 
+export const marshalAvroTransformerOptionsSchema: z.ZodType = z
+  .object({
+    schema: z.string().optional(),
+    schemaFilePath: z.string().optional(),
+    parseMode: z.string().optional(),
+    schemaRegistry: z.lazy(() => marshalSchemaRegistryConfigSchema).optional(),
+  })
+  .transform(d => ({
+    schema: d.schema,
+    schema_file_path: d.schemaFilePath,
+    parse_mode: d.parseMode,
+    schema_registry: d.schemaRegistry,
+  }));
+
 export const marshalClonePipelineRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
@@ -4875,6 +5042,14 @@ export const marshalConfluenceConnectorOptionsSchema: z.ZodType = z
   })
   .transform(d => ({
     include_confluence_spaces: d.includeConfluenceSpaces,
+  }));
+
+export const marshalConfluentSchemaRegistryOptionsSchema: z.ZodType = z
+  .object({
+    subject: z.string().optional(),
+  })
+  .transform(d => ({
+    subject: d.subject,
   }));
 
 export const marshalConnectionParametersSchema: z.ZodType = z
@@ -6125,6 +6300,22 @@ export const marshalPostgresSlotConfigSchema: z.ZodType = z
     publication_name: d.publicationName,
   }));
 
+export const marshalProtobufTransformerOptionsSchema: z.ZodType = z
+  .object({
+    descFilePath: z.string().optional(),
+    messageName: z.string().optional(),
+    recursiveFieldsMaxDepth: z.number().optional(),
+    parseMode: z.string().optional(),
+    schemaRegistry: z.lazy(() => marshalSchemaRegistryConfigSchema).optional(),
+  })
+  .transform(d => ({
+    desc_file_path: d.descFilePath,
+    message_name: d.messageName,
+    recursive_fields_max_depth: d.recursiveFieldsMaxDepth,
+    parse_mode: d.parseMode,
+    schema_registry: d.schemaRegistry,
+  }));
+
 export const marshalRabbitmqOptionsSchema: z.ZodType = z
   .object({
     queue: z.string().optional(),
@@ -6203,6 +6394,20 @@ export const marshalRewindSpecSchema: z.ZodType = z
     rewind_timestamp: d.rewindTimestamp,
     dry_run: d.dryRun,
     datasets: d.datasets,
+  }));
+
+export const marshalSchemaRegistryConfigSchema: z.ZodType = z
+  .object({
+    confluentOptions: z
+      .lazy(() => marshalConfluentSchemaRegistryOptionsSchema)
+      .optional(),
+    protobufMessageName: z.string().optional(),
+    connectionName: z.string().optional(),
+  })
+  .transform(d => ({
+    confluent_options: d.confluentOptions,
+    protobuf_message_name: d.protobufMessageName,
+    connection_name: d.connectionName,
   }));
 
 export const marshalSharepointOptionsSchema: z.ZodType = z
@@ -6361,6 +6566,16 @@ export const marshalTransformerSchema: z.ZodType = z
           $case: z.literal('jsonOptions'),
           jsonOptions: z.lazy(() => marshalJsonTransformerOptionsSchema),
         }),
+        z.object({
+          $case: z.literal('avroOptions'),
+          avroOptions: z.lazy(() => marshalAvroTransformerOptionsSchema),
+        }),
+        z.object({
+          $case: z.literal('protobufOptions'),
+          protobufOptions: z.lazy(
+            () => marshalProtobufTransformerOptionsSchema
+          ),
+        }),
       ])
       .optional(),
     inputColumn: z.string().optional(),
@@ -6370,6 +6585,12 @@ export const marshalTransformerSchema: z.ZodType = z
     format: d.format,
     ...(d.config?.$case === 'jsonOptions' && {
       json_options: d.config.jsonOptions,
+    }),
+    ...(d.config?.$case === 'avroOptions' && {
+      avro_options: d.config.avroOptions,
+    }),
+    ...(d.config?.$case === 'protobufOptions' && {
+      protobuf_options: d.config.protobufOptions,
     }),
     input_column: d.inputColumn,
     output_column: d.outputColumn,

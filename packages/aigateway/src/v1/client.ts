@@ -18,12 +18,16 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateMcpServiceRequest,
+  CreateMcpServiceUserMappedCredentialRequest,
   CreateModelProviderServiceRequest,
   CreateModelServiceRequest,
   DeleteMcpServiceRequest,
+  DeleteMcpServiceUserMappedCredentialRequest,
+  DeleteMcpServiceUserMappedCredentialResponse,
   DeleteModelProviderServiceRequest,
   DeleteModelServiceRequest,
   GetMcpServiceRequest,
+  GetMcpServiceUserMappedCredentialRequest,
   GetModelProviderServiceRequest,
   GetModelServiceRequest,
   ListMcpServicesRequest,
@@ -33,6 +37,7 @@ import type {
   ListModelServicesRequest,
   ListModelServicesResponse,
   McpService,
+  McpServiceUserMappedCredential,
   ModelProviderService,
   ModelService,
   UpdateMcpServiceRequest,
@@ -41,12 +46,15 @@ import type {
 } from './model';
 import {
   marshalMcpServiceSchema,
+  marshalMcpServiceUserMappedCredentialLoginSchema,
   marshalModelProviderServiceSchema,
   marshalModelServiceSchema,
+  unmarshalDeleteMcpServiceUserMappedCredentialResponseSchema,
   unmarshalListMcpServicesResponseSchema,
   unmarshalListModelProviderServicesResponseSchema,
   unmarshalListModelServicesResponseSchema,
   unmarshalMcpServiceSchema,
+  unmarshalMcpServiceUserMappedCredentialSchema,
   unmarshalModelProviderServiceSchema,
   unmarshalModelServiceSchema,
 } from './model';
@@ -131,6 +139,48 @@ export class AiGatewayClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMcpServiceSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Logs the caller in to an MCP service: creates their per-user OAuth credential, or
+   * re-authenticates it if one already exists. The request body carries the OAuth exchange fields.
+   *
+   * You must be the owner of the MCP service or have `EXECUTE` on it, plus `USE_CATALOG` on the
+   * parent catalog and `USE_SCHEMA` on the parent schema.
+   */
+  async createMcpServiceUserMappedCredential(
+    req: CreateMcpServiceUserMappedCredentialRequest,
+    options?: CallOptions
+  ): Promise<McpServiceUserMappedCredential> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}/user-credentials`;
+    const body = marshalRequest(
+      req.login,
+      marshalMcpServiceUserMappedCredentialLoginSchema
+    );
+    let resp: McpServiceUserMappedCredential | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalMcpServiceUserMappedCredentialSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -296,6 +346,43 @@ export class AiGatewayClient {
   }
 
   /**
+   * Revokes (deletes) the caller's per-user OAuth credential for an MCP service (logout).
+   *
+   * You must be the owner of the MCP service or have `EXECUTE` on it, plus `USE_CATALOG` on the
+   * parent catalog and `USE_SCHEMA` on the parent schema.
+   */
+  async deleteMcpServiceUserMappedCredential(
+    req: DeleteMcpServiceUserMappedCredentialRequest,
+    options?: CallOptions
+  ): Promise<DeleteMcpServiceUserMappedCredentialResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}/user-credentials`;
+    let resp: DeleteMcpServiceUserMappedCredentialResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteMcpServiceUserMappedCredentialResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
    * Deletes the model provider service identified by its resource name.
    * Optionally supply an `etag` to make the delete conditional on the model
    * provider service not having changed since it was read.
@@ -401,6 +488,47 @@ export class AiGatewayClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalMcpServiceSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Returns the caller's per-user OAuth login state for an MCP service. Read
+   * `provisioning_info.state`: `ACTIVE` means the caller is logged in and the credential is
+   * usable; any other state (for example a failed or still-provisioning login) means the login has
+   * not completed and the caller should log in again. If the caller has no credential yet, the RPC
+   * returns `NOT_FOUND`.
+   *
+   * You must be the owner of the MCP service or have `EXECUTE` on it, plus `USE_CATALOG` on the
+   * parent catalog and `USE_SCHEMA` on the parent schema.
+   */
+  async getMcpServiceUserMappedCredential(
+    req: GetMcpServiceUserMappedCredentialRequest,
+    options?: CallOptions
+  ): Promise<McpServiceUserMappedCredential> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}/user-credentials`;
+    let resp: McpServiceUserMappedCredential | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalMcpServiceUserMappedCredentialSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
