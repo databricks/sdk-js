@@ -29,6 +29,7 @@ export const ConnectionType = {
   CONFLUENCE: 'CONFLUENCE',
   JDBC: 'JDBC',
   META_MARKETING: 'META_MARKETING',
+  TIKTOK_ADS: 'TIKTOK_ADS',
   HUBSPOT: 'HUBSPOT',
   ZENDESK: 'ZENDESK',
   AWS_SECRETS_MANAGER: 'AWS_SECRETS_MANAGER',
@@ -89,6 +90,8 @@ export const SecurableType = {
   MODEL_SERVICE: 'MODEL_SERVICE',
   MCP_SERVICE: 'MCP_SERVICE',
   MODEL_PROVIDER_SERVICE: 'MODEL_PROVIDER_SERVICE',
+  AGENT_SERVICE: 'AGENT_SERVICE',
+  SKILL: 'SKILL',
 } as const;
 export type SecurableType =
   | (typeof SecurableType)[keyof typeof SecurableType]

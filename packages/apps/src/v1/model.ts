@@ -1151,6 +1151,7 @@ export interface AppUpdate {
   /** Maximum number of app instances. Must be set together with `compute_min_instances`. */
   computeMaxInstances?: number | undefined;
   gitRepository?: GitRepository | undefined;
+  telemetryExportDestinations?: TelemetryExportDestination[] | undefined;
   /** Forward the user's access token to the app. Requires stopping and starting app compute to take effect. */
   forwardUserAccessToken?: boolean | undefined;
 }
@@ -2055,6 +2056,9 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     compute_min_instances: z.number().optional(),
     compute_max_instances: z.number().optional(),
     git_repository: z.lazy(() => unmarshalGitRepositorySchema).optional(),
+    telemetry_export_destinations: z
+      .array(z.lazy(() => unmarshalTelemetryExportDestinationSchema))
+      .optional(),
     forward_user_access_token: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2068,6 +2072,7 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     computeMinInstances: d.compute_min_instances,
     computeMaxInstances: d.compute_max_instances,
     gitRepository: d.git_repository,
+    telemetryExportDestinations: d.telemetry_export_destinations,
     forwardUserAccessToken: d.forward_user_access_token,
   }));
 

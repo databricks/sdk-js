@@ -621,6 +621,13 @@ export interface McpServiceConfig_SourceConnection {
    * invocation fails until the source connection is updated.
    */
   isDeleted?: boolean | undefined;
+  /**
+   * Options needed to build the U2M authorize request, returned as a flat map. When set, it
+   * includes: `authorization_endpoint` (OAuth authorize URL), `token_endpoint` (token-exchange
+   * URL), `oauth_scope` (space-separated scopes to request), `client_id` (OAuth client id), and
+   * `oauth_provider` (the OAuth provider).
+   */
+  options?: Record<string, string> | undefined;
 }
 
 /** A caller's per-user OAuth credential for an MCP service. */
@@ -1022,6 +1029,26 @@ export interface ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig {
 }
 
 /**
+ * Header-based API-key authentication for a custom provider: the secret is
+ * forwarded on outbound requests under a caller-chosen HTTP header, as
+ * `<api_key_name>: <api_key_value>`.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ModelProviderServiceConfig_CustomProviderApiKeyHeaderAuth {
+  /**
+   * HTTP header name that carries the API key on outbound requests (e.g.,
+   * `Ocp-Apim-Subscription-Key`). The value forwarded under this header is
+   * supplied via `api_key_value`.
+   */
+  apiKeyName?: string | undefined;
+  /**
+   * Secret value forwarded under the `api_key_name` header on outbound
+   * requests. Supplied as inline plaintext via `ProviderSecret.plaintext`.
+   */
+  apiKeyValue?: ModelProviderServiceConfig_ProviderSecret | undefined;
+}
+
+/**
  * Custom OpenAI-compatible provider configuration with bearer-token
  * authentication.
  */
@@ -1042,8 +1069,9 @@ export interface ModelProviderServiceConfig_CustomProviderConfig {
 }
 
 /**
- * Direct form of a custom provider configuration. Set `api_key` to the bearer
- * token sent in the `Authorization` header.
+ * Direct form of a custom provider configuration. Set `api_key` to send the
+ * secret as an `Authorization` bearer token, or `header_auth` to forward it
+ * under a caller-chosen HTTP header.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_CustomProviderDirectConfig {
@@ -1064,6 +1092,15 @@ export interface ModelProviderServiceConfig_CustomProviderDirectConfig {
          * in `api_key.plaintext`.
          */
         apiKey: ModelProviderServiceConfig_ProviderSecret;
+      }
+    | {
+        $case: 'headerAuth';
+        /**
+         * Header-based API-key auth: the secret is forwarded on outbound requests
+         * under a caller-chosen HTTP header rather than as an `Authorization`
+         * bearer token. Set this instead of `api_key` for header auth.
+         */
+        headerAuth: ModelProviderServiceConfig_CustomProviderApiKeyHeaderAuth;
       }
     | undefined;
 }
@@ -1766,10 +1803,12 @@ export const unmarshalMcpServiceConfig_SourceConnectionSchema: z.ZodType<McpServ
     .object({
       name: z.string().optional(),
       is_deleted: z.boolean().optional(),
+      options: z.record(z.string(), z.string()).optional(),
     })
     .transform(d => ({
       name: d.name,
       isDeleted: d.is_deleted,
+      options: d.options,
     }));
 
 export const unmarshalMcpServiceUserMappedCredentialSchema: z.ZodType<McpServiceUserMappedCredential> =
@@ -2075,6 +2114,20 @@ export const unmarshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfig
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalModelProviderServiceConfig_CustomProviderApiKeyHeaderAuthSchema: z.ZodType<ModelProviderServiceConfig_CustomProviderApiKeyHeaderAuth> =
+  z
+    .object({
+      api_key_name: z.string().optional(),
+      api_key_value: z
+        .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      apiKeyName: d.api_key_name,
+      apiKeyValue: d.api_key_value,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalModelProviderServiceConfig_CustomProviderConfigSchema: z.ZodType<ModelProviderServiceConfig_CustomProviderConfig> =
   z
     .object({
@@ -2100,13 +2153,21 @@ export const unmarshalModelProviderServiceConfig_CustomProviderDirectConfigSchem
       api_key: z
         .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
         .optional(),
+      header_auth: z
+        .lazy(
+          () =>
+            unmarshalModelProviderServiceConfig_CustomProviderApiKeyHeaderAuthSchema
+        )
+        .optional(),
     })
     .transform(d => ({
       baseUrl: d.base_url,
       authMode:
         d.api_key !== undefined
           ? {$case: 'apiKey' as const, apiKey: d.api_key}
-          : undefined,
+          : d.header_auth !== undefined
+            ? {$case: 'headerAuth' as const, headerAuth: d.header_auth}
+            : undefined,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2565,10 +2626,12 @@ export const marshalMcpServiceConfig_SourceConnectionSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     isDeleted: z.boolean().optional(),
+    options: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
     name: d.name,
     is_deleted: d.isDeleted,
+    options: d.options,
   }));
 
 export const marshalMcpServiceUserMappedCredentialLoginSchema: z.ZodType = z
@@ -2893,6 +2956,20 @@ export const marshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfigSc
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalModelProviderServiceConfig_CustomProviderApiKeyHeaderAuthSchema: z.ZodType =
+  z
+    .object({
+      apiKeyName: z.string().optional(),
+      apiKeyValue: z
+        .lazy(() => marshalModelProviderServiceConfig_ProviderSecretSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      api_key_name: d.apiKeyName,
+      api_key_value: d.apiKeyValue,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalModelProviderServiceConfig_CustomProviderConfigSchema: z.ZodType =
   z
     .object({
@@ -2927,12 +3004,22 @@ export const marshalModelProviderServiceConfig_CustomProviderDirectConfigSchema:
               () => marshalModelProviderServiceConfig_ProviderSecretSchema
             ),
           }),
+          z.object({
+            $case: z.literal('headerAuth'),
+            headerAuth: z.lazy(
+              () =>
+                marshalModelProviderServiceConfig_CustomProviderApiKeyHeaderAuthSchema
+            ),
+          }),
         ])
         .optional(),
     })
     .transform(d => ({
       base_url: d.baseUrl,
       ...(d.authMode?.$case === 'apiKey' && {api_key: d.authMode.apiKey}),
+      ...(d.authMode?.$case === 'headerAuth' && {
+        header_auth: d.authMode.headerAuth,
+      }),
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3360,6 +3447,7 @@ const mcpServiceConfigFieldMaskSchema: FieldMaskSchema = {
 const mcpServiceConfig_SourceConnectionFieldMaskSchema: FieldMaskSchema = {
   isDeleted: {wire: 'is_deleted'},
   name: {wire: 'name'},
+  options: {wire: 'options'},
 };
 
 const modelProviderServiceFieldMaskSchema: FieldMaskSchema = {
@@ -3530,6 +3618,16 @@ const modelProviderServiceConfig_AzureOpenAiProviderDirectConfigFieldMaskSchema:
   };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const modelProviderServiceConfig_CustomProviderApiKeyHeaderAuthFieldMaskSchema: FieldMaskSchema =
+  {
+    apiKeyName: {wire: 'api_key_name'},
+    apiKeyValue: {
+      wire: 'api_key_value',
+      children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
+    },
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 const modelProviderServiceConfig_CustomProviderConfigFieldMaskSchema: FieldMaskSchema =
   {
     direct: {
@@ -3547,6 +3645,11 @@ const modelProviderServiceConfig_CustomProviderDirectConfigFieldMaskSchema: Fiel
       children: () => modelProviderServiceConfig_ProviderSecretFieldMaskSchema,
     },
     baseUrl: {wire: 'base_url'},
+    headerAuth: {
+      wire: 'header_auth',
+      children: () =>
+        modelProviderServiceConfig_CustomProviderApiKeyHeaderAuthFieldMaskSchema,
+    },
   };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

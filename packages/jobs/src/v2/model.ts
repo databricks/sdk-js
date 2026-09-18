@@ -1387,8 +1387,9 @@ export interface BaseRun {
   /**
    * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
    *
-   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
+   * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /** The id of the usage policy used by this run for cost attribution purposes. */
@@ -1933,8 +1934,9 @@ export interface CreateJobRequest {
    * The performance mode on a serverless job. This field determines the level of compute performance or cost-efficiency for the run.
    * The performance target does not apply to tasks that run on Serverless GPU compute.
    *
-   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
+   * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /** Path of the job parent folder in workspace file tree. If absent, the job doesn't have a workspace object. */
@@ -2703,8 +2705,9 @@ export interface GetRunResponse {
   /**
    * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
    *
-   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
+   * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /** The id of the usage policy used by this run for cost attribution purposes. */
@@ -3039,8 +3042,9 @@ export interface JobSettings {
    * The performance mode on a serverless job. This field determines the level of compute performance or cost-efficiency for the run.
    * The performance target does not apply to tasks that run on Serverless GPU compute.
    *
-   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
+   * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /** Path of the job parent folder in workspace file tree. If absent, the job doesn't have a workspace object. */
@@ -3654,8 +3658,9 @@ export interface Repair {
   /**
    * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
    *
-   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
+   * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
 }
@@ -3676,8 +3681,9 @@ export interface RepairRunRequest {
   /**
    * The performance mode on a serverless job. The performance target determines the level of compute performance or cost-efficiency for the run. This field overrides the performance target defined on the job level.
    *
-   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
+   * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /** Controls whether the pipeline should perform a full refresh */
@@ -3953,8 +3959,9 @@ export interface Run {
   /**
    * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
    *
-   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
+   * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /** The id of the usage policy used by this run for cost attribution purposes. */
@@ -4111,8 +4118,9 @@ export interface RunNowRequest {
   /**
    * The performance mode on a serverless job. The performance target determines the level of compute performance or cost-efficiency for the run. This field overrides the performance target defined on the job level.
    *
-   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
+   * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /** Controls whether the pipeline should perform a full refresh */
@@ -4305,8 +4313,9 @@ export interface RunTask {
   /**
    * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
    *
-   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
+   * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /**
@@ -5083,8 +5092,9 @@ export interface SubmitRunRequest {
    * The performance mode on a serverless one-time run. This field determines the level of compute performance or cost-efficiency for the run.
    * The performance target does not apply to tasks that run on Serverless GPU compute.
    *
-   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
+   * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
 }

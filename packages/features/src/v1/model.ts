@@ -887,13 +887,19 @@ export interface CreateStreamRequest {
 export interface CronSchedule {
   /**
    * The cron expression defining the schedule (e.g., "0 0 * * *" for daily at midnight). The
-   * schedule is interpreted in the UTC time zone. Required when mode is MANUAL (or unset). Left
-   * empty when mode is DERIVED, where the service computes it (aligned to UTC) from the features'
-   * window timing and fills it in on the response.
+   * schedule is interpreted in timezone_id (defaults to UTC). Required when mode is MANUAL (or
+   * unset). Left empty when mode is DERIVED, where the service computes it (aligned to UTC) from
+   * the features' window timing and fills it in on the response.
    */
   cronExpression?: string | undefined;
   /** How the schedule is determined. Defaults to MANUAL when unset. */
   mode?: CronSchedule_Mode | undefined;
+  /**
+   * A Java timezone ID. The schedule is resolved with respect to this timezone. Defaults to UTC
+   * when omitted. Can only be configured for MANUAL schedules; DERIVED schedules are always aligned
+   * to UTC.
+   */
+  timezoneId?: string | undefined;
 }
 
 /**
@@ -2546,10 +2552,12 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
     cron_expression: z.string().optional(),
     mode: z.string().optional(),
+    timezone_id: z.string().optional(),
   })
   .transform(d => ({
     cronExpression: d.cron_expression,
     mode: d.mode,
+    timezoneId: d.timezone_id,
   }));
 
 export const unmarshalCustomUdfSchema: z.ZodType<CustomUdf> = z
@@ -3997,10 +4005,12 @@ export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     cronExpression: z.string().optional(),
     mode: z.string().optional(),
+    timezoneId: z.string().optional(),
   })
   .transform(d => ({
     cron_expression: d.cronExpression,
     mode: d.mode,
+    timezone_id: d.timezoneId,
   }));
 
 export const marshalCustomUdfSchema: z.ZodType = z
@@ -5170,6 +5180,7 @@ const countFunctionFieldMaskSchema: FieldMaskSchema = {
 const cronScheduleFieldMaskSchema: FieldMaskSchema = {
   cronExpression: {wire: 'cron_expression'},
   mode: {wire: 'mode'},
+  timezoneId: {wire: 'timezone_id'},
 };
 
 const customUdfFieldMaskSchema: FieldMaskSchema = {
