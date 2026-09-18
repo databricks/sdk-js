@@ -107,7 +107,8 @@ export class LakeviewClient {
   /**
    * Create a draft dashboard.
    *
-   * Requires the Databricks SQL access entitlement.
+   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
+   * entitlement. Grant Databricks SQL access in addition to Workspace access.
    */
   async createDashboard(
     req: CreateDashboardRequest,
@@ -153,7 +154,12 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Create dashboard schedule. */
+  /**
+   * Create dashboard schedule.
+   *
+   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
+   * entitlement. Grant Databricks SQL access in addition to Workspace access.
+   */
   async createSchedule(
     req: CreateScheduleRequest,
     options?: CallOptions
@@ -183,7 +189,16 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Create schedule subscription. */
+  /**
+   * Create schedule subscription.
+   *
+   * The caller must be a workspace user with one of the following
+   * [entitlements](https://docs.databricks.com/security/auth/entitlements):
+   * Workspace access, Databricks SQL access, or Consumer access.
+   *
+   * Account-level users who are not members of the workspace cannot call this
+   * endpoint, even if the dashboard has been shared with them.
+   */
   async createSubscription(
     req: CreateSubscriptionRequest,
     options?: CallOptions
@@ -216,7 +231,12 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Delete dashboard schedule. */
+  /**
+   * Delete dashboard schedule.
+   *
+   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
+   * entitlement. Grant Databricks SQL access in addition to Workspace access.
+   */
   async deleteSchedule(
     req: DeleteScheduleRequest,
     options?: CallOptions
@@ -245,7 +265,16 @@ export class LakeviewClient {
     await executeCall(call, options);
   }
 
-  /** Delete schedule subscription. */
+  /**
+   * Delete schedule subscription.
+   *
+   * The caller must be a workspace user with one of the following
+   * [entitlements](https://docs.databricks.com/security/auth/entitlements):
+   * Workspace access, Databricks SQL access, or Consumer access.
+   *
+   * Account-level users who are not members of the workspace cannot call this
+   * endpoint, even if the dashboard has been shared with them.
+   */
   async deleteSubscription(
     req: DeleteSubscriptionRequest,
     options?: CallOptions
@@ -277,7 +306,8 @@ export class LakeviewClient {
   /**
    * Get a draft dashboard.
    *
-   * Requires the Databricks SQL access entitlement.
+   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
+   * entitlement. Grant Databricks SQL access in addition to Workspace access.
    */
   async getDashboard(
     req: GetDashboardRequest,
@@ -393,7 +423,16 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Get dashboard schedule. */
+  /**
+   * Get dashboard schedule.
+   *
+   * The caller must be a workspace user with one of the following
+   * [entitlements](https://docs.databricks.com/security/auth/entitlements):
+   * Workspace access, Databricks SQL access, or Consumer access.
+   *
+   * Account-level users who are not members of the workspace cannot call this
+   * endpoint, even if the dashboard has been shared with them.
+   */
   async getSchedule(
     req: GetScheduleRequest,
     options?: CallOptions
@@ -422,7 +461,16 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Get schedule subscription. */
+  /**
+   * Get schedule subscription.
+   *
+   * The caller must be a workspace user with one of the following
+   * [entitlements](https://docs.databricks.com/security/auth/entitlements):
+   * Workspace access, Databricks SQL access, or Consumer access.
+   *
+   * Account-level users who are not members of the workspace cannot call this
+   * endpoint, even if the dashboard has been shared with them.
+   */
   async getSubscription(
     req: GetSubscriptionRequest,
     options?: CallOptions
@@ -454,7 +502,8 @@ export class LakeviewClient {
   /**
    * List dashboards.
    *
-   * Requires the Databricks SQL access entitlement.
+   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
+   * entitlement. Grant Databricks SQL access in addition to Workspace access.
    */
   async listDashboards(
     req: ListDashboardsRequest,
@@ -516,7 +565,16 @@ export class LakeviewClient {
     }
   }
 
-  /** List dashboard schedules. */
+  /**
+   * List dashboard schedules.
+   *
+   * The caller must be a workspace user with one of the following
+   * [entitlements](https://docs.databricks.com/security/auth/entitlements):
+   * Workspace access, Databricks SQL access, or Consumer access.
+   *
+   * Account-level users who are not members of the workspace cannot call this
+   * endpoint, even if the dashboard has been shared with them.
+   */
   async listSchedules(
     req: ListSchedulesRequest,
     options?: CallOptions
@@ -571,7 +629,16 @@ export class LakeviewClient {
     }
   }
 
-  /** List schedule subscriptions. */
+  /**
+   * List schedule subscriptions.
+   *
+   * The caller must be a workspace user with one of the following
+   * [entitlements](https://docs.databricks.com/security/auth/entitlements):
+   * Workspace access, Databricks SQL access, or Consumer access.
+   *
+   * Account-level users who are not members of the workspace cannot call this
+   * endpoint, even if the dashboard has been shared with them.
+   */
   async listSubscriptions(
     req: ListSubscriptionsRequest,
     options?: CallOptions
@@ -662,7 +729,8 @@ export class LakeviewClient {
   /**
    * Publish the current draft dashboard.
    *
-   * Requires the Databricks SQL access entitlement.
+   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
+   * entitlement. Grant Databricks SQL access in addition to Workspace access.
    */
   async publishDashboard(
     req: PublishDashboardRequest,
@@ -696,7 +764,8 @@ export class LakeviewClient {
   /**
    * Revert a dashboard's definition in draft mode to the last published version.
    *
-   * Requires the Databricks SQL access entitlement.
+   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
+   * entitlement. Grant Databricks SQL access in addition to Workspace access.
    */
   async revertDashboard(
     req: RevertDashboardRequest,
@@ -730,7 +799,8 @@ export class LakeviewClient {
   /**
    * Trash a dashboard.
    *
-   * Requires the Databricks SQL access entitlement.
+   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
+   * entitlement. Grant Databricks SQL access in addition to Workspace access.
    */
   async trashDashboard(
     req: TrashDashboardRequest,
@@ -763,7 +833,8 @@ export class LakeviewClient {
   /**
    * Unpublish the dashboard.
    *
-   * Requires the Databricks SQL access entitlement.
+   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
+   * entitlement. Grant Databricks SQL access in addition to Workspace access.
    */
   async unpublishDashboard(
     req: UnpublishDashboardRequest,
@@ -796,7 +867,8 @@ export class LakeviewClient {
   /**
    * Update a draft dashboard.
    *
-   * Requires the Databricks SQL access entitlement.
+   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
+   * entitlement. Grant Databricks SQL access in addition to Workspace access.
    */
   async updateDashboard(
     req: UpdateDashboardRequest,
@@ -842,7 +914,12 @@ export class LakeviewClient {
     return resp;
   }
 
-  /** Update dashboard schedule. */
+  /**
+   * Update dashboard schedule.
+   *
+   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
+   * entitlement. Grant Databricks SQL access in addition to Workspace access.
+   */
   async updateSchedule(
     req: UpdateScheduleRequest,
     options?: CallOptions

@@ -53,6 +53,7 @@ export type {
   ModelProviderServiceConfig_AwsAccessKey,
   ModelProviderServiceConfig_AzureOpenAiProviderConfig,
   ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig,
+  ModelProviderServiceConfig_CustomProviderApiKeyHeaderAuth,
   ModelProviderServiceConfig_CustomProviderConfig,
   ModelProviderServiceConfig_CustomProviderDirectConfig,
   ModelProviderServiceConfig_EntraServicePrincipal,

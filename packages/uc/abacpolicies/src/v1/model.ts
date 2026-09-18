@@ -42,6 +42,8 @@ export const SecurableType = {
   MODEL_SERVICE: 'MODEL_SERVICE',
   MCP_SERVICE: 'MCP_SERVICE',
   MODEL_PROVIDER_SERVICE: 'MODEL_PROVIDER_SERVICE',
+  AGENT_SERVICE: 'AGENT_SERVICE',
+  SKILL: 'SKILL',
 } as const;
 export type SecurableType =
   | (typeof SecurableType)[keyof typeof SecurableType]
