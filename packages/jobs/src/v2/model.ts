@@ -2900,6 +2900,10 @@ export interface JobEmailNotifications {
    * Alerting is based on the 10-minute average of these metrics. If the issue persists, notifications are resent every 30 minutes.
    */
   onStreamingBacklogExceeded?: string[] | undefined;
+  /** A list of email addresses to notify when platform-initiated maintenance starts for a continuous job. */
+  onMaintenanceStart?: string[] | undefined;
+  /** A list of email addresses to notify when platform-initiated maintenance completes for a continuous job. */
+  onMaintenanceComplete?: string[] | undefined;
   /**
    * If true, do not send email to recipients specified in `on_failure` if the run is skipped.
    * This field is `deprecated`. Please use the `notification_settings.no_alert_for_skipped_runs` field.
@@ -5537,6 +5541,16 @@ export interface WebhookNotifications {
    * A maximum of 3 destinations can be specified for the `on_streaming_backlog_exceeded` property.
    */
   onStreamingBacklogExceeded?: Webhook[] | undefined;
+  /**
+   * An optional list of system notification IDs to call when platform-initiated maintenance starts for a continuous job.
+   * A maximum of 3 destinations can be specified for the `on_maintenance_start` property.
+   */
+  onMaintenanceStart?: Webhook[] | undefined;
+  /**
+   * An optional list of system notification IDs to call when platform-initiated maintenance completes for a continuous job.
+   * A maximum of 3 destinations can be specified for the `on_maintenance_complete` property.
+   */
+  onMaintenanceComplete?: Webhook[] | undefined;
 }
 
 export interface WidgetErrorDetail {
@@ -6890,6 +6904,8 @@ export const unmarshalJobEmailNotificationsSchema: z.ZodType<JobEmailNotificatio
       on_failure: z.array(z.string()).optional(),
       on_duration_warning_threshold_exceeded: z.array(z.string()).optional(),
       on_streaming_backlog_exceeded: z.array(z.string()).optional(),
+      on_maintenance_start: z.array(z.string()).optional(),
+      on_maintenance_complete: z.array(z.string()).optional(),
       no_alert_for_skipped_runs: z.boolean().optional(),
     })
     .transform(d => ({
@@ -6899,6 +6915,8 @@ export const unmarshalJobEmailNotificationsSchema: z.ZodType<JobEmailNotificatio
       onDurationWarningThresholdExceeded:
         d.on_duration_warning_threshold_exceeded,
       onStreamingBacklogExceeded: d.on_streaming_backlog_exceeded,
+      onMaintenanceStart: d.on_maintenance_start,
+      onMaintenanceComplete: d.on_maintenance_complete,
       noAlertForSkippedRuns: d.no_alert_for_skipped_runs,
     }));
 
@@ -9038,6 +9056,12 @@ export const unmarshalWebhookNotificationsSchema: z.ZodType<WebhookNotifications
       on_streaming_backlog_exceeded: z
         .array(z.lazy(() => unmarshalWebhookSchema))
         .optional(),
+      on_maintenance_start: z
+        .array(z.lazy(() => unmarshalWebhookSchema))
+        .optional(),
+      on_maintenance_complete: z
+        .array(z.lazy(() => unmarshalWebhookSchema))
+        .optional(),
     })
     .transform(d => ({
       onStart: d.on_start,
@@ -9046,6 +9070,8 @@ export const unmarshalWebhookNotificationsSchema: z.ZodType<WebhookNotifications
       onDurationWarningThresholdExceeded:
         d.on_duration_warning_threshold_exceeded,
       onStreamingBacklogExceeded: d.on_streaming_backlog_exceeded,
+      onMaintenanceStart: d.on_maintenance_start,
+      onMaintenanceComplete: d.on_maintenance_complete,
     }));
 
 export const unmarshalWidgetErrorDetailSchema: z.ZodType<WidgetErrorDetail> = z
@@ -9895,6 +9921,8 @@ export const marshalJobEmailNotificationsSchema: z.ZodType = z
     onFailure: z.array(z.string()).optional(),
     onDurationWarningThresholdExceeded: z.array(z.string()).optional(),
     onStreamingBacklogExceeded: z.array(z.string()).optional(),
+    onMaintenanceStart: z.array(z.string()).optional(),
+    onMaintenanceComplete: z.array(z.string()).optional(),
     noAlertForSkippedRuns: z.boolean().optional(),
   })
   .transform(d => ({
@@ -9904,6 +9932,8 @@ export const marshalJobEmailNotificationsSchema: z.ZodType = z
     on_duration_warning_threshold_exceeded:
       d.onDurationWarningThresholdExceeded,
     on_streaming_backlog_exceeded: d.onStreamingBacklogExceeded,
+    on_maintenance_start: d.onMaintenanceStart,
+    on_maintenance_complete: d.onMaintenanceComplete,
     no_alert_for_skipped_runs: d.noAlertForSkippedRuns,
   }));
 
@@ -11287,6 +11317,10 @@ export const marshalWebhookNotificationsSchema: z.ZodType = z
     onStreamingBacklogExceeded: z
       .array(z.lazy(() => marshalWebhookSchema))
       .optional(),
+    onMaintenanceStart: z.array(z.lazy(() => marshalWebhookSchema)).optional(),
+    onMaintenanceComplete: z
+      .array(z.lazy(() => marshalWebhookSchema))
+      .optional(),
   })
   .transform(d => ({
     on_start: d.onStart,
@@ -11295,6 +11329,8 @@ export const marshalWebhookNotificationsSchema: z.ZodType = z
     on_duration_warning_threshold_exceeded:
       d.onDurationWarningThresholdExceeded,
     on_streaming_backlog_exceeded: d.onStreamingBacklogExceeded,
+    on_maintenance_start: d.onMaintenanceStart,
+    on_maintenance_complete: d.onMaintenanceComplete,
   }));
 
 export const marshalWorkloadTypeSchema: z.ZodType = z

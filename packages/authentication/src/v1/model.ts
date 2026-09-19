@@ -101,7 +101,16 @@ export interface FederationPolicy {
   name?: string | undefined;
   /** Description of the federation policy. */
   description?: string | undefined;
-  policy?: {$case: 'oidcPolicy'; oidcPolicy: OidcFederationPolicy} | undefined;
+  policy?:
+    | {
+        $case: 'oidcPolicy';
+        /**
+         * audit_mode INCLUDE is required on both this message field and its leaf fields so the OIDC
+         * policy configuration is captured in create/update audit logs (see go/auditlogs).
+         */
+        oidcPolicy: OidcFederationPolicy;
+      }
+    | undefined;
   /** Creation time of the federation policy. */
   createTime?: Temporal.Instant | undefined;
   /** Last update time of the federation policy. */

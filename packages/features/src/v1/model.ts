@@ -775,6 +775,20 @@ export interface BackfillFeaturesRequest {
   backfillRanges?: BackfillRange[] | undefined;
   /** Idempotency token for the request. */
   requestId?: string | undefined;
+  /**
+   * Custom tags to associate with this backfill. They are applied to the backfill job and
+   * forwarded to the underlying compute as Databricks resource tags, so backfill cost can be
+   * attributed in the billing system tables. These tags apply only to the backfill compute; they
+   * are not applied to the Unity Catalog Feature resources themselves, whose tags are managed
+   * separately through the Unity Catalog tagging API. A maximum of 25 tags is supported; keys and
+   * values are subject to the same limitations as Databricks resource tags.
+   */
+  tags?: Record<string, string> | undefined;
+  /**
+   * The budget policy ID, in UUID format, used to attribute the serverless compute cost of this
+   * backfill. If not specified, a default budget policy may be applied.
+   */
+  budgetPolicyId?: string | undefined;
 }
 
 /** Result of a completed backfill. */
@@ -1781,6 +1795,20 @@ export interface PurgeFeatureEntitiesRequest {
     | undefined;
   /** Optional UUID4 idempotency token for the request. */
   requestId?: string | undefined;
+  /**
+   * Custom tags to associate with this purge. They are applied to the purge job and forwarded to
+   * the underlying compute as Databricks resource tags, so purge cost can be attributed in the
+   * billing system tables. These tags apply only to the purge compute; they are not applied to the
+   * Unity Catalog Feature resources themselves, whose tags are managed separately through the Unity
+   * Catalog tagging API. A maximum of 25 tags is supported; keys and values are subject to the same
+   * limitations as Databricks resource tags.
+   */
+  tags?: Record<string, string> | undefined;
+  /**
+   * The budget policy ID, in UUID format, used to attribute the serverless compute cost of this
+   * purge. If not specified, a default budget policy may be applied.
+   */
+  budgetPolicyId?: string | undefined;
 }
 
 /** Result of a completed feature entity purge. */
@@ -3886,11 +3914,15 @@ export const marshalBackfillFeaturesRequestSchema: z.ZodType = z
       .array(z.lazy(() => marshalBackfillRangeSchema))
       .optional(),
     requestId: z.string().optional(),
+    tags: z.record(z.string(), z.string()).optional(),
+    budgetPolicyId: z.string().optional(),
   })
   .transform(d => ({
     feature_full_names: d.featureFullNames,
     backfill_ranges: d.backfillRanges,
     request_id: d.requestId,
+    tags: d.tags,
+    budget_policy_id: d.budgetPolicyId,
   }));
 
 export const marshalBackfillRangeSchema: z.ZodType = z
@@ -4628,6 +4660,8 @@ export const marshalPurgeFeatureEntitiesRequestSchema: z.ZodType = z
       ])
       .optional(),
     requestId: z.string().optional(),
+    tags: z.record(z.string(), z.string()).optional(),
+    budgetPolicyId: z.string().optional(),
   })
   .transform(d => ({
     features: d.features,
@@ -4635,6 +4669,8 @@ export const marshalPurgeFeatureEntitiesRequestSchema: z.ZodType = z
       entities_table: d.entities.entitiesTable,
     }),
     request_id: d.requestId,
+    tags: d.tags,
+    budget_policy_id: d.budgetPolicyId,
   }));
 
 export const marshalRequestSourceSchema: z.ZodType = z
