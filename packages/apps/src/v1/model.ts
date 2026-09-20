@@ -887,9 +887,9 @@ export interface App {
   computeSize?: ComputeSize | undefined;
   usagePolicyId?: string | undefined;
   effectiveUsagePolicyId?: string | undefined;
-  /** Minimum number of app instances. Must be set together with `compute_max_instances`. */
+  /** Minimum number of app instances the app is configured to run. Must be set together with `compute_max_instances`. */
   computeMinInstances?: number | undefined;
-  /** Maximum number of app instances. Must be set together with `compute_min_instances`. */
+  /** Maximum number of app instances the app is configured to run. Must be set together with `compute_min_instances`. */
   computeMaxInstances?: number | undefined;
   /**
    * Git repository configuration for app deployments. When specified, deployments can
@@ -1146,9 +1146,9 @@ export interface AppUpdate {
   userApiScopes?: string[] | undefined;
   computeSize?: ComputeSize | undefined;
   usagePolicyId?: string | undefined;
-  /** Minimum number of app instances. Must be set together with `compute_max_instances`. */
+  /** Minimum number of app instances the app is configured to run. Must be set together with `compute_max_instances`. */
   computeMinInstances?: number | undefined;
-  /** Maximum number of app instances. Must be set together with `compute_min_instances`. */
+  /** Maximum number of app instances the app is configured to run. Must be set together with `compute_min_instances`. */
   computeMaxInstances?: number | undefined;
   gitRepository?: GitRepository | undefined;
   telemetryExportDestinations?: TelemetryExportDestination[] | undefined;
@@ -1167,7 +1167,7 @@ export interface ApplicationStatus {
   state?: ApplicationStatus_ApplicationState | undefined;
   /** Application status message */
   message?: string | undefined;
-  /** The number of running instances of this application. */
+  /** The number of app instances whose application process is running. */
   runningInstances?: number | undefined;
 }
 
@@ -1182,7 +1182,7 @@ export interface ComputeStatus {
   state?: ComputeStatus_ComputeState | undefined;
   /** Compute status message */
   message?: string | undefined;
-  /** The number of compute instances used and billed for this application. */
+  /** The number of active compute instances currently used and billed for this application. */
   activeInstances?: number | undefined;
 }
 
