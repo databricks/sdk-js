@@ -556,7 +556,7 @@ export interface CleanRoomAsset_JarAnalysis {
   centralJarFilePaths?: string[] | undefined;
   /**
    * The serverless environment version used to execute the JAR analysis (e.g. "4").
-   * Defaults to "4-scala-preview" if not specified.
+   * If not specified, uses the service-configured JAR analysis default.
    */
   environmentVersion?: string | undefined;
 }
