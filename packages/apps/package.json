@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-apps",
-  "version": "0.52.0",
+  "version": "0.53.0",
   "description": "",
   "type": "module",
   "exports": {
