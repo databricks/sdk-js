@@ -59,6 +59,7 @@ describe('ApiError non-HTTP getters', () => {
   it.each(testCases)(
     '$name',
     ({apiErr, wantCode, wantMessage, wantDetails}) => {
+      expect(apiErr.errorCode).toBe(wantCode);
       expect(apiErr.code).toBe(wantCode);
       expect(apiErr.message).toBe(wantMessage);
       expect(apiErr.details).toStrictEqual(wantDetails);
@@ -316,6 +317,7 @@ describe('fromHttpError', () => {
       expect.fail('expected fromHttpError to return an ApiError');
     }
 
+    expect(got.errorCode).toBe(tc.want.errorCode);
     expect(got.code).toBe(tc.want.code);
     expect(got.message).toBe(tc.want.message);
     expect(got.details).toStrictEqual(tc.want.details);
