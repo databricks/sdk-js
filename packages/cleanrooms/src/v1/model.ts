@@ -459,7 +459,7 @@ export interface CleanRoomAsset {
         $case: 'viewLocalDetails';
         /**
          * Local details for a view that are only available to its owner.
-         * Present if and only if **asset_type** is **VIEW**
+         * Present if and only if **asset_type** is **VIEW** or **METRIC_VIEW**
          */
         viewLocalDetails: CleanRoomAsset_ViewLocalDetails;
       }
@@ -494,7 +494,7 @@ export interface CleanRoomAsset {
         $case: 'view';
         /**
          * View details available to all collaborators of the clean room.
-         * Present if and only if **asset_type** is **VIEW**
+         * Present if and only if **asset_type** is **VIEW** or **METRIC_VIEW**
          */
         view: CleanRoomAsset_View;
       }
