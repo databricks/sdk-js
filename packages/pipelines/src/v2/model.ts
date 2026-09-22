@@ -549,7 +549,7 @@ export interface AvroTransformerOptions {
   schemaFilePath?: string | undefined;
   /**
    * (Optional) Parse mode for Avro data.
-   * Valid values: FAILFAST, PERMISSIVE. Defaults to FAILFAST.
+   * Valid values: FAILFAST, PERMISSIVE. Defaults to PERMISSIVE.
    */
   parseMode?: ParseMode | undefined;
   /**
@@ -2644,7 +2644,7 @@ export interface ProtobufTransformerOptions {
   recursiveFieldsMaxDepth?: number | undefined;
   /**
    * (Optional) Parse mode for Protobuf data.
-   * Valid values: FAILFAST, PERMISSIVE. Defaults to FAILFAST.
+   * Valid values: FAILFAST, PERMISSIVE. Defaults to PERMISSIVE.
    */
   parseMode?: ParseMode | undefined;
   /**
