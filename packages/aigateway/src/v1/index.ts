@@ -65,6 +65,7 @@ export type {
   ModelProviderServiceConfig_OpenAiProviderConfig,
   ModelProviderServiceConfig_OpenAiProviderDirectConfig,
   ModelProviderServiceConfig_ProviderSecret,
+  ModelProviderServiceConfig_SecretReference,
   ModelProviderServiceConfig_ServiceCredential,
   ModelService,
   ModelServiceConfig,
