@@ -629,7 +629,10 @@ export interface QueryIndexRequest {
   sortColumns?: string[] | undefined;
   /** Facets to compute over the matched results (e.g. `"category TOP 5"`). */
   facets?: string[] | undefined;
-  /** Maximum number of results to return (the legacy `num_results`). Defaults to 10. */
+  /**
+   * Maximum number of results to return (the legacy `num_results`). Defaults to 10.
+   * Prefer `page_size`; when both are set, `page_size` takes precedence.
+   */
   maxResults?: number | undefined;
 }
 

@@ -1165,6 +1165,19 @@ export interface ModelProviderServiceConfig_GeminiEnterpriseProviderDirectConfig
          */
         apiKey: ModelProviderServiceConfig_ProviderSecret;
       }
+    | {
+        $case: 'serviceCredential';
+        /**
+         * Reference to a Unity Catalog service credential authorizing Gemini
+         * Enterprise requests. On Create, supply `service_credential.name` as
+         * `credentials/{name}`; required when using service-credential
+         * authentication and mutually exclusive with `api_key`. The credential is
+         * referenced by name; its value is not carried here. On read, the resolved
+         * `id` and `is_deleted` are also populated. Supported only on GCP-hosted
+         * workspaces.
+         */
+        serviceCredential: ModelProviderServiceConfig_ServiceCredential;
+      }
     | undefined;
   /** GCP project ID hosting the Gemini Enterprise endpoint. Required on Create. */
   projectId?: string | undefined;
@@ -1338,7 +1351,33 @@ export interface ModelProviderServiceConfig_ProviderSecret {
          */
         plaintext: string;
       }
+    | {
+        $case: 'secretReference';
+        /**
+         * Reference to a customer-owned UC Secret that carries this secret value.
+         * The value is read at invoke time under the model provider service
+         * owner's access and is never copied onto the model provider service, so
+         * rotating the UC Secret takes effect with no change to the model provider
+         * service. On Create, supply `secret_reference.name` as
+         * `secrets/{catalog}.{schema}.{secret}`.
+         */
+        secretReference: ModelProviderServiceConfig_SecretReference;
+      }
     | undefined;
+}
+
+/**
+ * Reference to a customer-owned UC Secret backing a secret-bearing provider
+ * field, in the `ProviderSecret.secret_reference` arm.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ModelProviderServiceConfig_SecretReference {
+  /**
+   * Resource name of the bound UC Secret, in the form
+   * `secrets/{catalog}.{schema}.{secret}`. On Create the caller supplies the
+   * name here. On read it reflects the secret's current name at read time.
+   */
+  name?: string | undefined;
 }
 
 /**
@@ -2214,6 +2253,9 @@ export const unmarshalModelProviderServiceConfig_GeminiEnterpriseProviderDirectC
       api_key: z
         .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
         .optional(),
+      service_credential: z
+        .lazy(() => unmarshalModelProviderServiceConfig_ServiceCredentialSchema)
+        .optional(),
       project_id: z.string().optional(),
       region: z.string().optional(),
     })
@@ -2221,7 +2263,12 @@ export const unmarshalModelProviderServiceConfig_GeminiEnterpriseProviderDirectC
       authMode:
         d.api_key !== undefined
           ? {$case: 'apiKey' as const, apiKey: d.api_key}
-          : undefined,
+          : d.service_credential !== undefined
+            ? {
+                $case: 'serviceCredential' as const,
+                serviceCredential: d.service_credential,
+              }
+            : undefined,
       projectId: d.project_id,
       region: d.region,
     }));
@@ -2333,12 +2380,30 @@ export const unmarshalModelProviderServiceConfig_ProviderSecretSchema: z.ZodType
   z
     .object({
       plaintext: z.string().optional(),
+      secret_reference: z
+        .lazy(() => unmarshalModelProviderServiceConfig_SecretReferenceSchema)
+        .optional(),
     })
     .transform(d => ({
       value:
         d.plaintext !== undefined
           ? {$case: 'plaintext' as const, plaintext: d.plaintext}
-          : undefined,
+          : d.secret_reference !== undefined
+            ? {
+                $case: 'secretReference' as const,
+                secretReference: d.secret_reference,
+              }
+            : undefined,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalModelProviderServiceConfig_SecretReferenceSchema: z.ZodType<ModelProviderServiceConfig_SecretReference> =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3081,6 +3146,12 @@ export const marshalModelProviderServiceConfig_GeminiEnterpriseProviderDirectCon
               () => marshalModelProviderServiceConfig_ProviderSecretSchema
             ),
           }),
+          z.object({
+            $case: z.literal('serviceCredential'),
+            serviceCredential: z.lazy(
+              () => marshalModelProviderServiceConfig_ServiceCredentialSchema
+            ),
+          }),
         ])
         .optional(),
       projectId: z.string().optional(),
@@ -3088,6 +3159,9 @@ export const marshalModelProviderServiceConfig_GeminiEnterpriseProviderDirectCon
     })
     .transform(d => ({
       ...(d.authMode?.$case === 'apiKey' && {api_key: d.authMode.apiKey}),
+      ...(d.authMode?.$case === 'serviceCredential' && {
+        service_credential: d.authMode.serviceCredential,
+      }),
       project_id: d.projectId,
       region: d.region,
     }));
@@ -3218,11 +3292,30 @@ export const marshalModelProviderServiceConfig_ProviderSecretSchema: z.ZodType =
       value: z
         .discriminatedUnion('$case', [
           z.object({$case: z.literal('plaintext'), plaintext: z.string()}),
+          z.object({
+            $case: z.literal('secretReference'),
+            secretReference: z.lazy(
+              () => marshalModelProviderServiceConfig_SecretReferenceSchema
+            ),
+          }),
         ])
         .optional(),
     })
     .transform(d => ({
       ...(d.value?.$case === 'plaintext' && {plaintext: d.value.plaintext}),
+      ...(d.value?.$case === 'secretReference' && {
+        secret_reference: d.value.secretReference,
+      }),
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalModelProviderServiceConfig_SecretReferenceSchema: z.ZodType =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3682,6 +3775,11 @@ const modelProviderServiceConfig_GeminiEnterpriseProviderDirectConfigFieldMaskSc
     },
     projectId: {wire: 'project_id'},
     region: {wire: 'region'},
+    serviceCredential: {
+      wire: 'service_credential',
+      children: () =>
+        modelProviderServiceConfig_ServiceCredentialFieldMaskSchema,
+    },
   };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3739,6 +3837,16 @@ const modelProviderServiceConfig_OpenAiProviderDirectConfigFieldMaskSchema: Fiel
 const modelProviderServiceConfig_ProviderSecretFieldMaskSchema: FieldMaskSchema =
   {
     plaintext: {wire: 'plaintext'},
+    secretReference: {
+      wire: 'secret_reference',
+      children: () => modelProviderServiceConfig_SecretReferenceFieldMaskSchema,
+    },
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const modelProviderServiceConfig_SecretReferenceFieldMaskSchema: FieldMaskSchema =
+  {
+    name: {wire: 'name'},
   };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
