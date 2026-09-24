@@ -928,7 +928,7 @@ export class AppsClient {
     return new StopAppWaiter(this, req.name);
   }
 
-  /** Updates the app with the supplied name. */
+  /** Updates the app with the supplied name. This is a full replacement: fields omitted from the request are cleared, so send the complete app. */
   async updateApp(req: UpdateAppRequest, options?: CallOptions): Promise<App> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/apps/${req.app?.name ?? ''}`;
