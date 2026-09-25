@@ -2171,6 +2171,7 @@ export interface DeploymentSpec {
    *
    * Example script contents:
    *
+   * ```bash
    * # Plain Python:
    * python train.py --epochs 10
    *
@@ -2179,6 +2180,7 @@ export interface DeploymentSpec {
    *
    * # Distributed via torchrun:
    * torchrun --nproc_per_node=8 train.py
+   * ```
    */
   commandPath?: string | undefined;
   /** Compute resources allocated to each node in this deployment. */

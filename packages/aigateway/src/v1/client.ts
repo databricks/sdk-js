@@ -21,42 +21,53 @@ import type {
   CreateMcpServiceUserMappedCredentialRequest,
   CreateModelProviderServiceRequest,
   CreateModelServiceRequest,
+  CreateSkillRequest,
   DeleteMcpServiceRequest,
   DeleteMcpServiceUserMappedCredentialRequest,
   DeleteMcpServiceUserMappedCredentialResponse,
   DeleteModelProviderServiceRequest,
   DeleteModelServiceRequest,
+  DeleteSkillRequest,
+  FinalizeSkillRequest,
   GetMcpServiceRequest,
   GetMcpServiceUserMappedCredentialRequest,
   GetModelProviderServiceRequest,
   GetModelServiceRequest,
+  GetSkillRequest,
   ListMcpServicesRequest,
   ListMcpServicesResponse,
   ListModelProviderServicesRequest,
   ListModelProviderServicesResponse,
   ListModelServicesRequest,
   ListModelServicesResponse,
+  ListSkillsRequest,
+  ListSkillsResponse,
   McpService,
   McpServiceUserMappedCredential,
   ModelProviderService,
   ModelService,
+  Skill,
   UpdateMcpServiceRequest,
   UpdateModelProviderServiceRequest,
   UpdateModelServiceRequest,
+  UpdateSkillRequest,
 } from './model';
 import {
   marshalMcpServiceSchema,
   marshalMcpServiceUserMappedCredentialLoginSchema,
   marshalModelProviderServiceSchema,
   marshalModelServiceSchema,
+  marshalSkillSchema,
   unmarshalDeleteMcpServiceUserMappedCredentialResponseSchema,
   unmarshalListMcpServicesResponseSchema,
   unmarshalListModelProviderServicesResponseSchema,
   unmarshalListModelServicesResponseSchema,
+  unmarshalListSkillsResponseSchema,
   unmarshalMcpServiceSchema,
   unmarshalMcpServiceUserMappedCredentialSchema,
   unmarshalModelProviderServiceSchema,
   unmarshalModelServiceSchema,
+  unmarshalSkillSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -307,6 +318,59 @@ export class AiGatewayClient {
   }
 
   /**
+   * Creates a skill in a Unity Catalog schema and provisions its managed bundle
+   * storage. Specify its name in `skill_id`. The request contains an optional
+   * comment but no bundle bytes. Upload bundle files through the Files API,
+   * then call FinalizeSkill.
+   *
+   * You must be the owner of the parent schema or have `CREATE_VOLUME` and
+   * `USE_SCHEMA` on it, plus `USE_CATALOG` on the parent catalog.
+   */
+  async createSkill(
+    req: CreateSkillRequest,
+    options?: CallOptions
+  ): Promise<Skill> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/skills`;
+    const params = new URLSearchParams();
+    if (req.parent !== undefined) {
+      params.append('parent', req.parent);
+    }
+    if (req.skillId !== undefined) {
+      params.append('skill_id', req.skillId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.skill, marshalSkillSchema);
+    let resp: Skill | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalSkillSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
    * Deletes the MCP service identified by its resource name. Optionally supply
    * an `etag` to make the delete conditional on the MCP service not having
    * changed since it was read.
@@ -462,6 +526,87 @@ export class AiGatewayClient {
   }
 
   /**
+   * Deletes the skill identified by its resource name and makes its managed
+   * bundle path unavailable. Managed bundle data is deleted asynchronously.
+   * Optionally supply an `etag` to make the delete conditional on the skill not
+   * having changed since it was read.
+   *
+   * You must be the owner of the skill or have `MANAGE` on it, plus
+   * `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent schema.
+   */
+  async deleteSkill(
+    req: DeleteSkillRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.etag !== undefined) {
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /**
+   * Finalizes a skill after its bundle is uploaded. This method reads SKILL.md
+   * through the Files API using the caller's authorization. Its YAML
+   * frontmatter must contain an agentskills.io-compliant `name` and a nonblank
+   * `description` within the configured UTF-8 byte limit. On success, it
+   * replaces `bundle_name` and `description`; refreshes `finalize_time`,
+   * `update_time`, and `updated_by`; and returns the updated skill. `comment` is
+   * preserved. Re-finalization uses the latest SKILL.md and is last-write-wins
+   * without an etag precondition. Validation failures do not change metadata.
+   *
+   * You must be the owner of the skill or have `READ_VOLUME` on it, plus
+   * `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent schema.
+   */
+  async finalizeSkill(
+    req: FinalizeSkillRequest,
+    options?: CallOptions
+  ): Promise<Skill> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}/finalize`;
+    let resp: Skill | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalSkillSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
    * Returns the MCP service identified by its resource name.
    *
    * You must be the owner of the MCP service or have `EXECUTE`,
@@ -599,6 +744,38 @@ export class AiGatewayClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalModelServiceSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Returns the skill identified by its resource name.
+   *
+   * You must be the owner of the skill or have `READ_VOLUME`, `READ_METADATA`,
+   * or `MANAGE` on it, plus `USE_CATALOG` on the parent catalog and
+   * `USE_SCHEMA` on the parent schema.
+   */
+  async getSkill(req: GetSkillRequest, options?: CallOptions): Promise<Skill> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    let resp: Skill | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalSkillSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -818,6 +995,72 @@ export class AiGatewayClient {
   }
 
   /**
+   * Lists skills in a Unity Catalog schema. Provide `parent` as
+   * `schemas/{catalog}.{schema}`. Results are paginated; pass the returned
+   * `next_page_token` to fetch subsequent pages.
+   *
+   * Requires `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent
+   * schema. Only skills the caller can access as owner or through `READ_VOLUME`,
+   * `READ_METADATA`, or `MANAGE` are returned.
+   */
+  async listSkills(
+    req: ListSkillsRequest,
+    options?: CallOptions
+  ): Promise<ListSkillsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/skills`;
+    const params = new URLSearchParams();
+    if (req.parent !== undefined) {
+      params.append('parent', req.parent);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListSkillsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListSkillsResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listSkillsIter(
+    req: ListSkillsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Skill> {
+    const pageReq: ListSkillsRequest = {...req};
+    for (;;) {
+      const resp = await this.listSkills(pageReq, options);
+      for (const item of resp.skills ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /**
    * Updates an MCP service. Only the fields named in `update_mask` are
    * changed; the resource name is immutable. Optionally supply an `etag` to
    * make the update conditional on the MCP service not having changed since it
@@ -993,6 +1236,63 @@ export class AiGatewayClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalModelServiceSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Updates a skill. Only fields named in `update_mask` are changed; currently
+   * only `comment` is supported. The resource name is immutable. Optionally
+   * supply an `etag` to make the update conditional on the skill not having
+   * changed since it was read. Bundle files, grants, tags, and ownership are
+   * unchanged.
+   *
+   * You must be the owner of the skill or have `MANAGE` on it, plus
+   * `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent schema.
+   */
+  async updateSkill(
+    req: UpdateSkillRequest,
+    options?: CallOptions
+  ): Promise<Skill> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/${req.skill?.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    if (req.etag !== undefined) {
+      params.append(
+        'etag',
+        btoa(Array.from(req.etag, b => String.fromCharCode(b)).join(''))
+      );
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.skill, marshalSkillSchema);
+    let resp: Skill | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalSkillSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

@@ -258,6 +258,28 @@ export interface CreateModelServiceRequest {
   modelService?: ModelService | undefined;
 }
 
+/** Request to create a new skill. */
+export interface CreateSkillRequest {
+  /**
+   * Name of the parent schema.
+   * Format: `schemas/{catalog}.{schema}`.
+   * Each `{...}` component is capped at 255 characters individually.
+   */
+  parent?: string | undefined;
+  /**
+   * Name for the skill, e.g. "basic-math". The server normalizes this
+   * identifier to lowercase. It is independent of the bundle name read from
+   * SKILL.md.
+   */
+  skillId?: string | undefined;
+  /**
+   * The skill to create. `comment` is the only accepted client input and may be
+   * omitted. Do not set `name`; the server derives it from `parent` and
+   * `skill_id`.
+   */
+  skill?: Skill | undefined;
+}
+
 /** Request to delete an MCP service. */
 export interface DeleteMcpServiceRequest {
   /**
@@ -325,6 +347,33 @@ export interface DeleteModelServiceRequest {
   etag?: Uint8Array | undefined;
 }
 
+/** Request to delete a skill. */
+export interface DeleteSkillRequest {
+  /**
+   * Full resource name of the skill.
+   * Format: `skills/{catalog}.{schema}.{skill}`.
+   * Each `{...}` component is capped at 255 characters individually.
+   */
+  name?: string | undefined;
+  /**
+   * Optimistic concurrency token from the most recent read. When set, the
+   * delete succeeds only if the resource has not changed. Leave unset for an
+   * unconditional delete. For REST requests, URL-encode the base64 string
+   * returned by the API when setting the `etag` query parameter.
+   */
+  etag?: Uint8Array | undefined;
+}
+
+/** Request to finalize a skill. */
+export interface FinalizeSkillRequest {
+  /**
+   * Full resource name of the skill.
+   * Format: `skills/{catalog}.{schema}.{skill}`.
+   * Each `{...}` component is capped at 255 characters individually.
+   */
+  name?: string | undefined;
+}
+
 /** Request to get an MCP service. */
 export interface GetMcpServiceRequest {
   /**
@@ -359,6 +408,16 @@ export interface GetModelServiceRequest {
   /**
    * Resource name of the model service.
    * Format: `model-services/{catalog}.{schema}.{model_service}`.
+   * Each `{...}` component is capped at 255 characters individually.
+   */
+  name?: string | undefined;
+}
+
+/** Request to get a skill. */
+export interface GetSkillRequest {
+  /**
+   * Full resource name of the skill.
+   * Format: `skills/{catalog}.{schema}.{skill}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
   name?: string | undefined;
@@ -507,6 +566,36 @@ export interface ListModelServicesResponse {
    * Pagination token for retrieving the next page. Empty when there are no
    * more results.
    */
+  nextPageToken?: string | undefined;
+}
+
+/**
+ * Request to list skills. Accepts `parent`, `page_size`, and `page_token`.
+ * v1 supports schema-level listing only.
+ */
+export interface ListSkillsRequest {
+  /**
+   * Name of the parent schema. Format: `schemas/{catalog}.{schema}`.
+   * Each `{...}` component is capped at 255 characters individually.
+   *
+   * Required: skill listing is schema-scoped, so `parent` must be set; an unset
+   * or empty `parent` is rejected with INVALID_PARAMETER_VALUE.
+   */
+  parent?: string | undefined;
+  /**
+   * Maximum number of skills to return. Defaults to 100 when unset or 0; the
+   * maximum is 100. Use `page_token` to retrieve additional pages.
+   */
+  pageSize?: number | undefined;
+  /** Opaque pagination token from a previous request. */
+  pageToken?: string | undefined;
+}
+
+/** Response for listing skills. */
+export interface ListSkillsResponse {
+  /** The list of skills. */
+  skills?: Skill[] | undefined;
+  /** Pagination token for retrieving the next page of results. */
   nextPageToken?: string | undefined;
 }
 
@@ -1638,6 +1727,66 @@ export interface RateLimit {
   tokens?: bigint | undefined;
 }
 
+/**
+ * A Skill is an agentskills.io bundle registered in Unity Catalog. Clients
+ * transfer bundle bytes through the Files API. FinalizeSkill reads the uploaded
+ * SKILL.md and projects its frontmatter onto the Skill metadata.
+ */
+export interface Skill {
+  /**
+   * Resource name of the skill.
+   * Format: `skills/{catalog}.{schema}.{skill}`.
+   * Each `{...}` component is capped at 255 characters individually.
+   * Server-derived on Create from `parent` +
+   * `skill_id`; required and immutable on Update/Get/Delete.
+   */
+  name?: string | undefined;
+  /**
+   * Name from the most recently successfully finalized SKILL.md. It may differ
+   * from the final component of the Skill resource name. Unset until
+   * FinalizeSkill succeeds.
+   */
+  bundleName?: string | undefined;
+  /**
+   * Description from the most recently successfully finalized SKILL.md. Unset
+   * until FinalizeSkill succeeds.
+   */
+  description?: string | undefined;
+  /**
+   * Optimistic concurrency token returned on every read. To make an Update or
+   * Delete conditional, pass the last-read value in that request's `etag`
+   * field. In REST responses, this value is a base64 string; URL-encode it when
+   * setting the `etag` query parameter.
+   */
+  etag?: Uint8Array | undefined;
+  /** Time the skill was created. */
+  createTime?: Temporal.Instant | undefined;
+  /**
+   * Time of the most recent Skill metadata mutation. Uploading bundle files
+   * alone does not change this value.
+   */
+  updateTime?: Temporal.Instant | undefined;
+  /** Time of the most recent successful FinalizeSkill. Unset until one succeeds. */
+  finalizeTime?: Temporal.Instant | undefined;
+  /** Creator identity. */
+  createdBy?: string | undefined;
+  /** Identity of the last updater. */
+  updatedBy?: string | undefined;
+  /** Owner of the skill. */
+  effectiveOwner?: string | undefined;
+  /** Metastore hosting the skill. */
+  metastoreId?: string | undefined;
+  /**
+   * User-provided comment for the skill. Free-text, user-editable via
+   * UpdateSkill (listed in its `update_mask`). DISTINCT from `description`,
+   * which is the server-parsed, OUTPUT_ONLY SKILL.md frontmatter value: `comment`
+   * is the customer's own annotation and is preserved across bundle re-uploads.
+   * When `comment` is in the update mask, omitting it clears the field, while
+   * an explicitly empty string is retained.
+   */
+  comment?: string | undefined;
+}
+
 /** Request to update an MCP service. `name` cannot appear in `update_mask`. */
 export interface UpdateMcpServiceRequest {
   /**
@@ -1726,6 +1875,31 @@ export interface UpdateModelServiceRequest {
   etag?: Uint8Array | undefined;
 }
 
+/**
+ * Request to update a skill. `name` cannot appear in `update_mask`; the skill
+ * name is immutable.
+ */
+export interface UpdateSkillRequest {
+  /**
+   * The skill with the updated field values. `name` identifies the resource
+   * (`skills/{catalog}.{schema}.{skill}`); only fields listed in `update_mask`
+   * are applied.
+   */
+  skill?: Skill | undefined;
+  /**
+   * Fields to update; validated against `skill`. REQUIRED, matching the sibling
+   * Update RPCs. `comment` is the only mutable field.
+   */
+  updateMask?: FieldMask<Skill> | undefined;
+  /**
+   * Optimistic concurrency token from the most recent read. When set, the
+   * update succeeds only if the resource has not changed. Leave unset for an
+   * unconditional update. For REST requests, URL-encode the base64 string
+   * returned by the API when setting the `etag` query parameter.
+   */
+  etag?: Uint8Array | undefined;
+}
+
 export const unmarshalDeleteMcpServiceUserMappedCredentialResponseSchema: z.ZodType<DeleteMcpServiceUserMappedCredentialResponse> =
   z.object({});
 
@@ -1778,6 +1952,17 @@ export const unmarshalListModelServicesResponseSchema: z.ZodType<ListModelServic
     })
     .transform(d => ({
       modelServices: d.model_services,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalListSkillsResponseSchema: z.ZodType<ListSkillsResponse> =
+  z
+    .object({
+      skills: z.array(z.lazy(() => unmarshalSkillSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      skills: d.skills,
       nextPageToken: d.next_page_token,
     }));
 
@@ -2610,6 +2795,48 @@ export const unmarshalRateLimitSchema: z.ZodType<RateLimit> = z
     principal: d.principal,
     requests: d.requests,
     tokens: d.tokens,
+  }));
+
+export const unmarshalSkillSchema: z.ZodType<Skill> = z
+  .object({
+    name: z.string().optional(),
+    bundle_name: z.string().optional(),
+    description: z.string().optional(),
+    etag: z
+      .string()
+      .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
+      .optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    finalize_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    created_by: z.string().optional(),
+    updated_by: z.string().optional(),
+    effective_owner: z.string().optional(),
+    metastore_id: z.string().optional(),
+    comment: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    bundleName: d.bundle_name,
+    description: d.description,
+    etag: d.etag,
+    createTime: d.create_time,
+    updateTime: d.update_time,
+    finalizeTime: d.finalize_time,
+    createdBy: d.created_by,
+    updatedBy: d.updated_by,
+    effectiveOwner: d.effective_owner,
+    metastoreId: d.metastore_id,
+    comment: d.comment,
   }));
 
 export const marshalInferenceTableConfigSchema: z.ZodType = z
@@ -3503,6 +3730,50 @@ export const marshalRateLimitSchema: z.ZodType = z
     tokens: d.tokens,
   }));
 
+export const marshalSkillSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    bundleName: z.string().optional(),
+    description: z.string().optional(),
+    etag: z
+      .any()
+      .transform((d: Uint8Array) =>
+        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+      )
+      .optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    finalizeTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    createdBy: z.string().optional(),
+    updatedBy: z.string().optional(),
+    effectiveOwner: z.string().optional(),
+    metastoreId: z.string().optional(),
+    comment: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    bundle_name: d.bundleName,
+    description: d.description,
+    etag: d.etag,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    finalize_time: d.finalizeTime,
+    created_by: d.createdBy,
+    updated_by: d.updatedBy,
+    effective_owner: d.effectiveOwner,
+    metastore_id: d.metastoreId,
+    comment: d.comment,
+  }));
+
 const inferenceTableConfigFieldMaskSchema: FieldMaskSchema = {
   isDeleted: {wire: 'is_deleted'},
   parent: {wire: 'parent'},
@@ -3900,3 +4171,22 @@ const modelServiceConfig_RoutingConfigFieldMaskSchema: FieldMaskSchema = {
     children: () => modelServiceConfig_FallbackConfigFieldMaskSchema,
   },
 };
+
+const skillFieldMaskSchema: FieldMaskSchema = {
+  bundleName: {wire: 'bundle_name'},
+  comment: {wire: 'comment'},
+  createTime: {wire: 'create_time'},
+  createdBy: {wire: 'created_by'},
+  description: {wire: 'description'},
+  effectiveOwner: {wire: 'effective_owner'},
+  etag: {wire: 'etag'},
+  finalizeTime: {wire: 'finalize_time'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  updateTime: {wire: 'update_time'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function skillFieldMask(...paths: string[]): FieldMask<Skill> {
+  return FieldMask.build<Skill>(paths, skillFieldMaskSchema);
+}
