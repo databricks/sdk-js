@@ -1597,6 +1597,10 @@ export interface MaterializedFeature {
    * materialization. If not specified, a default budget policy may be applied.
    */
   budgetPolicyId?: string | undefined;
+  /** The ID of the pipeline that materializes this feature. This is only present for streaming features. */
+  pipelineId?: string | undefined;
+  /** The ID of the job that materializes the feature. This is present for both batch and streaming features. */
+  jobId?: bigint | undefined;
 }
 
 /** Computes the maximum value. */
@@ -3119,6 +3123,11 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
       latest_backfill_operation: z.string().optional(),
       tags: z.record(z.string(), z.string()).optional(),
       budget_policy_id: z.string().optional(),
+      pipeline_id: z.string().optional(),
+      job_id: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       materializedFeatureId: d.materialized_feature_id,
@@ -3157,6 +3166,8 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
       latestBackfillOperation: d.latest_backfill_operation,
       tags: d.tags,
       budgetPolicyId: d.budget_policy_id,
+      pipelineId: d.pipeline_id,
+      jobId: d.job_id,
     }));
 
 export const unmarshalMaxFunctionSchema: z.ZodType<MaxFunction> = z
@@ -4545,6 +4556,8 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     latestBackfillOperation: z.string().optional(),
     tags: z.record(z.string(), z.string()).optional(),
     budgetPolicyId: z.string().optional(),
+    pipelineId: z.string().optional(),
+    jobId: z.bigint().optional(),
   })
   .transform(d => ({
     materialized_feature_id: d.materializedFeatureId,
@@ -4572,6 +4585,8 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     latest_backfill_operation: d.latestBackfillOperation,
     tags: d.tags,
     budget_policy_id: d.budgetPolicyId,
+    pipeline_id: d.pipelineId,
+    job_id: d.jobId,
   }));
 
 export const marshalMaxFunctionSchema: z.ZodType = z
@@ -5454,6 +5469,7 @@ const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
   },
   featureName: {wire: 'feature_name'},
   isOnline: {wire: 'is_online'},
+  jobId: {wire: 'job_id'},
   lastMaterializationTime: {wire: 'last_materialization_time'},
   latestBackfillOperation: {wire: 'latest_backfill_operation'},
   materializedFeatureId: {wire: 'materialized_feature_id'},
@@ -5465,6 +5481,7 @@ const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
     wire: 'online_store_config',
     children: () => onlineStoreConfigFieldMaskSchema,
   },
+  pipelineId: {wire: 'pipeline_id'},
   pipelineScheduleState: {wire: 'pipeline_schedule_state'},
   streamingMode: {
     wire: 'streaming_mode',
