@@ -75,31 +75,19 @@ export interface CreateQueryRequest {
 }
 
 export interface CreateQueryRequestQuery {
-  /** UUID identifying the query. */
-  id?: string | undefined;
   /** Display name of the query that appears in list views, widget headings, and on the query page. */
   displayName?: string | undefined;
   /** General description that conveys additional information about this query such as usage notes. */
   description?: string | undefined;
-  /** Username of the user that owns the query. */
-  ownerUserName?: string | undefined;
   /** ID of the SQL warehouse attached to the query. */
   warehouseId?: string | undefined;
   /** Text of the query to be run. */
   queryText?: string | undefined;
   /** Sets the "Run as" role for the object. */
   runAsMode?: RunAsMode | undefined;
-  /** Indicates whether the query is trashed. */
-  lifecycleState?: LifecycleState | undefined;
-  /** Username of the user who last saved changes to this query. */
-  lastModifierUserName?: string | undefined;
   /** Workspace path of the workspace folder containing the object. */
   parentPath?: string | undefined;
   tags?: string[] | undefined;
-  /** Timestamp when this query was created. */
-  createTime?: Temporal.Instant | undefined;
-  /** Timestamp when this query was last updated. */
-  updateTime?: Temporal.Instant | undefined;
   /** List of query parameter definitions. */
   parameters?: QueryParameter[] | undefined;
   /** Whether to apply a 1000 row limit to the query result. */
@@ -199,8 +187,6 @@ export interface ListQueryObjectsResponseQuery {
   lifecycleState?: LifecycleState | undefined;
   /** Username of the user who last saved changes to this query. */
   lastModifierUserName?: string | undefined;
-  /** Workspace path of the workspace folder containing the object. */
-  parentPath?: string | undefined;
   tags?: string[] | undefined;
   /** Timestamp when this query was created. */
   createTime?: Temporal.Instant | undefined;
@@ -342,8 +328,6 @@ export interface UpdateQueryRequest {
 }
 
 export interface UpdateQueryRequestQuery {
-  /** UUID identifying the query. */
-  id?: string | undefined;
   /** Display name of the query that appears in list views, widget headings, and on the query page. */
   displayName?: string | undefined;
   /** General description that conveys additional information about this query such as usage notes. */
@@ -356,17 +340,7 @@ export interface UpdateQueryRequestQuery {
   queryText?: string | undefined;
   /** Sets the "Run as" role for the object. */
   runAsMode?: RunAsMode | undefined;
-  /** Indicates whether the query is trashed. */
-  lifecycleState?: LifecycleState | undefined;
-  /** Username of the user who last saved changes to this query. */
-  lastModifierUserName?: string | undefined;
-  /** Workspace path of the workspace folder containing the object. */
-  parentPath?: string | undefined;
   tags?: string[] | undefined;
-  /** Timestamp when this query was created. */
-  createTime?: Temporal.Instant | undefined;
-  /** Timestamp when this query was last updated. */
-  updateTime?: Temporal.Instant | undefined;
   /** List of query parameter definitions. */
   parameters?: QueryParameter[] | undefined;
   /** Whether to apply a 1000 row limit to the query result. */
@@ -490,7 +464,6 @@ export const unmarshalListQueryObjectsResponseQuerySchema: z.ZodType<ListQueryOb
       run_as_mode: z.string().optional(),
       lifecycle_state: z.string().optional(),
       last_modifier_user_name: z.string().optional(),
-      parent_path: z.string().optional(),
       tags: z.array(z.string()).optional(),
       create_time: z
         .string()
@@ -517,7 +490,6 @@ export const unmarshalListQueryObjectsResponseQuerySchema: z.ZodType<ListQueryOb
       runAsMode: d.run_as_mode,
       lifecycleState: d.lifecycle_state,
       lastModifierUserName: d.last_modifier_user_name,
-      parentPath: d.parent_path,
       tags: d.tags,
       createTime: d.create_time,
       updateTime: d.update_time,
@@ -705,44 +677,26 @@ export const marshalCreateQueryRequestSchema: z.ZodType = z
 
 export const marshalCreateQueryRequestQuerySchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
     displayName: z.string().optional(),
     description: z.string().optional(),
-    ownerUserName: z.string().optional(),
     warehouseId: z.string().optional(),
     queryText: z.string().optional(),
     runAsMode: z.string().optional(),
-    lifecycleState: z.string().optional(),
-    lastModifierUserName: z.string().optional(),
     parentPath: z.string().optional(),
     tags: z.array(z.string()).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
     parameters: z.array(z.lazy(() => marshalQueryParameterSchema)).optional(),
     applyAutoLimit: z.boolean().optional(),
     catalog: z.string().optional(),
     schema: z.string().optional(),
   })
   .transform(d => ({
-    id: d.id,
     display_name: d.displayName,
     description: d.description,
-    owner_user_name: d.ownerUserName,
     warehouse_id: d.warehouseId,
     query_text: d.queryText,
     run_as_mode: d.runAsMode,
-    lifecycle_state: d.lifecycleState,
-    last_modifier_user_name: d.lastModifierUserName,
     parent_path: d.parentPath,
     tags: d.tags,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     parameters: d.parameters,
     apply_auto_limit: d.applyAutoLimit,
     catalog: d.catalog,
@@ -939,44 +893,26 @@ export const marshalUpdateQueryRequestSchema: z.ZodType = z
 
 export const marshalUpdateQueryRequestQuerySchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
     displayName: z.string().optional(),
     description: z.string().optional(),
     ownerUserName: z.string().optional(),
     warehouseId: z.string().optional(),
     queryText: z.string().optional(),
     runAsMode: z.string().optional(),
-    lifecycleState: z.string().optional(),
-    lastModifierUserName: z.string().optional(),
-    parentPath: z.string().optional(),
     tags: z.array(z.string()).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
     parameters: z.array(z.lazy(() => marshalQueryParameterSchema)).optional(),
     applyAutoLimit: z.boolean().optional(),
     catalog: z.string().optional(),
     schema: z.string().optional(),
   })
   .transform(d => ({
-    id: d.id,
     display_name: d.displayName,
     description: d.description,
     owner_user_name: d.ownerUserName,
     warehouse_id: d.warehouseId,
     query_text: d.queryText,
     run_as_mode: d.runAsMode,
-    lifecycle_state: d.lifecycleState,
-    last_modifier_user_name: d.lastModifierUserName,
-    parent_path: d.parentPath,
     tags: d.tags,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     parameters: d.parameters,
     apply_auto_limit: d.applyAutoLimit,
     catalog: d.catalog,
@@ -986,20 +922,14 @@ export const marshalUpdateQueryRequestQuerySchema: z.ZodType = z
 const updateQueryRequestQueryFieldMaskSchema: FieldMaskSchema = {
   applyAutoLimit: {wire: 'apply_auto_limit'},
   catalog: {wire: 'catalog'},
-  createTime: {wire: 'create_time'},
   description: {wire: 'description'},
   displayName: {wire: 'display_name'},
-  id: {wire: 'id'},
-  lastModifierUserName: {wire: 'last_modifier_user_name'},
-  lifecycleState: {wire: 'lifecycle_state'},
   ownerUserName: {wire: 'owner_user_name'},
   parameters: {wire: 'parameters'},
-  parentPath: {wire: 'parent_path'},
   queryText: {wire: 'query_text'},
   runAsMode: {wire: 'run_as_mode'},
   schema: {wire: 'schema'},
   tags: {wire: 'tags'},
-  updateTime: {wire: 'update_time'},
   warehouseId: {wire: 'warehouse_id'},
 };
 

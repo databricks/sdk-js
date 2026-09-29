@@ -1395,6 +1395,13 @@ export interface BaseRun {
   /** The id of the usage policy used by this run for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
   /**
+   * Snapshot of `JobSettings.environment_variables` as it was at run
+   * launch — the full list of named environment-variable entries the job
+   * defined. To find which entry a given task ran with, look at
+   * `RunTaskSettings.environment_variables_key`.
+   */
+  environmentVariables?: JobEnvironmentVariables[] | undefined;
+  /**
    * ID of the deployment that produced the job when this run was created. Used to look up
    * deployment metadata from the Deployment Metadata service. Only set for job runs of jobs
    * with a `BUNDLE` deployment.
@@ -1946,6 +1953,13 @@ export interface CreateJobRequest {
    * the same request as the legacy `schedule`, `trigger`, or `continuous` fields. Gated behind the "Multiple Triggers" feature preview.
    */
   triggers?: TriggerConfiguration[] | undefined;
+  /**
+   * Named environment-variable entries that tasks can reference by key from
+   * `TaskSettings.environment_variables_key`. Each entry's `spec` holds inline
+   * `variables` and optional `.env` `files`. Maximum 10 entries per job. A task
+   * can reference at most one entry from this list.
+   */
+  environmentVariables?: JobEnvironmentVariables[] | undefined;
   /** An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means to retry indefinitely and the value `0` means to never retry. */
   maxRetries?: number | undefined;
   /** An optional minimal interval in milliseconds between the start of the failed run and the subsequent retry run. The default behavior is that unsuccessful runs are immediately retried. */
@@ -2715,6 +2729,13 @@ export interface GetRunResponse {
   /** The id of the usage policy used by this run for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
   /**
+   * Snapshot of `JobSettings.environment_variables` as it was at run
+   * launch — the full list of named environment-variable entries the job
+   * defined. To find which entry a given task ran with, look at
+   * `RunTaskSettings.environment_variables_key`.
+   */
+  environmentVariables?: JobEnvironmentVariables[] | undefined;
+  /**
    * ID of the deployment that produced the job when this run was created. Used to look up
    * deployment metadata from the Deployment Metadata service. Only set for job runs of jobs
    * with a `BUNDLE` deployment.
@@ -2919,6 +2940,63 @@ export interface JobEnvironment {
   spec?: Environment | undefined;
 }
 
+/**
+ * A named environment-variable entry, defined once at the job level and
+ * referenced by key from one or more tasks. Entries live on
+ * `JobSettings.environment_variables`, and tasks select one via
+ * `TaskSettings.environment_variables_key`.
+ */
+export interface JobEnvironmentVariables {
+  /**
+   * Identifier for this entry. Must be unique within
+   * `JobSettings.environment_variables`. Tasks reference it from
+   * `TaskSettings.environment_variables_key`.
+   */
+  environmentVariablesKey?: string | undefined;
+  /** The environment variable specification. */
+  spec?: JobEnvironmentVariablesSpec | undefined;
+}
+
+/**
+ * The environment variables and files associated with a job environment
+ * variable entry. Runtime environment variables override inline `variables`,
+ * which override values from `files`, on duplicate keys.
+ */
+export interface JobEnvironmentVariablesSpec {
+  /**
+   * Environment variables specified directly as key/value pairs. Maximum 20
+   * entries.
+   *
+   * Each key must be 1 to 256 characters and match
+   * `^[A-Za-z_][A-Za-z0-9_]*$`: it must start with an ASCII letter or
+   * underscore and contain only ASCII letters, digits, and underscores. Each
+   * value can be any Unicode string of up to 512 characters, including an
+   * empty string.
+   */
+  variables?: Record<string, string> | undefined;
+  /**
+   * Workspace (`/Workspace/...`) or UC Volumes (`/Volumes/...`) paths to
+   * `.env` files. Maximum 5 files. Files are read, parsed, and merged at
+   * task execution time, not at job creation or update API call time.
+   *
+   * File format: each line containing a variable must be exactly `KEY=VALUE`.
+   * Empty and whitespace-only lines, and lines beginning with `#`, are ignored.
+   * Keys must match the same regex as inlined variable names
+   * (`^[A-Za-z_][A-Za-z0-9_]*$`); the value continues to the end of the line.
+   * No other syntax is supported — no inline comments, no quoted values, no
+   * escape sequences, no variable interpolation. Any other line that does not
+   * match the `KEY=VALUE` shape fails the run.
+   *
+   * Size limits: maximum 32,768 bytes (32 KiB) per file on disk;
+   * maximum 1,024 bytes (1 KiB) per `KEY=VALUE` line combined.
+   * Files or lines exceeding these limits fail the run.
+   *
+   * On a duplicate key, the later file wins; `variables` override values
+   * from any file.
+   */
+  files?: string[] | undefined;
+}
+
 export interface JobLevelParameter {
   /** The name of the defined parameter. May only contain alphanumeric characters, `_`, `-`, and `.` */
   name?: string | undefined;
@@ -3060,6 +3138,13 @@ export interface JobSettings {
    * the same request as the legacy `schedule`, `trigger`, or `continuous` fields. Gated behind the "Multiple Triggers" feature preview.
    */
   triggers?: TriggerConfiguration[] | undefined;
+  /**
+   * Named environment-variable entries that tasks can reference by key from
+   * `TaskSettings.environment_variables_key`. Each entry's `spec` holds inline
+   * `variables` and optional `.env` `files`. Maximum 10 entries per job. A task
+   * can reference at most one entry from this list.
+   */
+  environmentVariables?: JobEnvironmentVariables[] | undefined;
   /** An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means to retry indefinitely and the value `0` means to never retry. */
   maxRetries?: number | undefined;
   /** An optional minimal interval in milliseconds between the start of the failed run and the subsequent retry run. The default behavior is that unsuccessful runs are immediately retried. */
@@ -3973,6 +4058,13 @@ export interface Run {
   /** The id of the usage policy used by this run for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
   /**
+   * Snapshot of `JobSettings.environment_variables` as it was at run
+   * launch — the full list of named environment-variable entries the job
+   * defined. To find which entry a given task ran with, look at
+   * `RunTaskSettings.environment_variables_key`.
+   */
+  environmentVariables?: JobEnvironmentVariables[] | undefined;
+  /**
    * ID of the deployment that produced the job when this run was created. Used to look up
    * deployment metadata from the Deployment Metadata service. Only set for job runs of jobs
    * with a `BUNDLE` deployment.
@@ -4364,6 +4456,14 @@ export interface RunTask {
   disabled?: boolean | undefined;
   /** Task level compute configuration. */
   compute?: Compute | undefined;
+  /**
+   * Reference to a `JobEnvironmentVariables` entry defined in
+   * `RunSettings.environment_variables` for one-time runs or preserved in
+   * `Run.environment_variables` for run snapshots. The selected entry's
+   * variables are applied to this task at execution time. This field supports
+   * serverless tasks using environment version 5 or later.
+   */
+  environmentVariablesKey?: string | undefined;
   /** DO NOT ADD ANY NEW FIELDS TO JobTask OUTSIDE OF THIS ONEOF as it will break the TaskRegistry */
   task?:
     | {
@@ -4562,6 +4662,14 @@ export interface RunTaskSettings {
   disabled?: boolean | undefined;
   /** Task level compute configuration. */
   compute?: Compute | undefined;
+  /**
+   * Reference to a `JobEnvironmentVariables` entry defined in
+   * `RunSettings.environment_variables` for one-time runs or preserved in
+   * `Run.environment_variables` for run snapshots. The selected entry's
+   * variables are applied to this task at execution time. This field supports
+   * serverless tasks using environment version 5 or later.
+   */
+  environmentVariablesKey?: string | undefined;
   /** DO NOT ADD ANY NEW FIELDS TO JobTask OUTSIDE OF THIS ONEOF as it will break the TaskRegistry */
   task?:
     | {
@@ -5095,6 +5203,14 @@ export interface SubmitRunRequest {
    */
   usagePolicyId?: string | undefined;
   /**
+   * Named environment-variable entries that tasks of this one-time run can
+   * reference by key from `RunTaskSettings.environment_variables_key`. Each
+   * entry's `spec` holds inline `variables` and optional `.env` `files`.
+   * Handled identically to `JobSettings.environment_variables`. Maximum 10 entries.
+   * Entries are independent of one another — there is no cross-entry merging.
+   */
+  environmentVariables?: JobEnvironmentVariables[] | undefined;
+  /**
    * The performance mode on a serverless one-time run. This field determines the level of compute performance or cost-efficiency for the run.
    * The performance target does not apply to tasks that run on Serverless GPU compute.
    *
@@ -5225,6 +5341,13 @@ export interface TaskSettings {
   disabled?: boolean | undefined;
   /** Task level compute configuration. */
   compute?: Compute | undefined;
+  /**
+   * Reference to a `JobEnvironmentVariables` entry defined in
+   * `JobSettings.environment_variables`. The selected entry's variables are
+   * applied to this task at execution time. This field supports serverless
+   * tasks using environment version 5 or later.
+   */
+  environmentVariablesKey?: string | undefined;
   /** DO NOT ADD ANY NEW FIELDS TO JobTask OUTSIDE OF THIS ONEOF as it will break the TaskRegistry */
   task?:
     | {
@@ -5803,6 +5926,9 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
     has_more: z.boolean().optional(),
     effective_performance_target: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    environment_variables: z
+      .array(z.lazy(() => unmarshalJobEnvironmentVariablesSchema))
+      .optional(),
     deployment_id: z.string().optional(),
     version_id: z.string().optional(),
     start_time: z
@@ -5862,6 +5988,7 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
     hasMore: d.has_more,
     effectivePerformanceTarget: d.effective_performance_target,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    environmentVariables: d.environment_variables,
     deploymentId: d.deployment_id,
     versionId: d.version_id,
     startTime: d.start_time,
@@ -6736,6 +6863,9 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
     has_more: z.boolean().optional(),
     effective_performance_target: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    environment_variables: z
+      .array(z.lazy(() => unmarshalJobEnvironmentVariablesSchema))
+      .optional(),
     deployment_id: z.string().optional(),
     version_id: z.string().optional(),
     start_time: z
@@ -6796,6 +6926,7 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
     hasMore: d.has_more,
     effectivePerformanceTarget: d.effective_performance_target,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    environmentVariables: d.environment_variables,
     deploymentId: d.deployment_id,
     versionId: d.version_id,
     startTime: d.start_time,
@@ -6932,6 +7063,28 @@ export const unmarshalJobEnvironmentSchema: z.ZodType<JobEnvironment> = z
     spec: d.spec,
   }));
 
+export const unmarshalJobEnvironmentVariablesSchema: z.ZodType<JobEnvironmentVariables> =
+  z
+    .object({
+      environment_variables_key: z.string().optional(),
+      spec: z.lazy(() => unmarshalJobEnvironmentVariablesSpecSchema).optional(),
+    })
+    .transform(d => ({
+      environmentVariablesKey: d.environment_variables_key,
+      spec: d.spec,
+    }));
+
+export const unmarshalJobEnvironmentVariablesSpecSchema: z.ZodType<JobEnvironmentVariablesSpec> =
+  z
+    .object({
+      variables: z.record(z.string(), z.string()).optional(),
+      files: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      variables: d.variables,
+      files: d.files,
+    }));
+
 export const unmarshalJobLevelParameterSchema: z.ZodType<JobLevelParameter> = z
   .object({
     name: z.string().optional(),
@@ -7003,6 +7156,9 @@ export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
     triggers: z
       .array(z.lazy(() => unmarshalTriggerConfigurationSchema))
       .optional(),
+    environment_variables: z
+      .array(z.lazy(() => unmarshalJobEnvironmentVariablesSchema))
+      .optional(),
     max_retries: z.number().optional(),
     min_retry_interval_millis: z.number().optional(),
     retry_on_timeout: z.boolean().optional(),
@@ -7036,6 +7192,7 @@ export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
     performanceTarget: d.performance_target,
     parentPath: d.parent_path,
     triggers: d.triggers,
+    environmentVariables: d.environment_variables,
     maxRetries: d.max_retries,
     minRetryIntervalMillis: d.min_retry_interval_millis,
     retryOnTimeout: d.retry_on_timeout,
@@ -7816,6 +7973,9 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
     has_more: z.boolean().optional(),
     effective_performance_target: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    environment_variables: z
+      .array(z.lazy(() => unmarshalJobEnvironmentVariablesSchema))
+      .optional(),
     deployment_id: z.string().optional(),
     version_id: z.string().optional(),
     start_time: z
@@ -7875,6 +8035,7 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
     hasMore: d.has_more,
     effectivePerformanceTarget: d.effective_performance_target,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    environmentVariables: d.environment_variables,
     deploymentId: d.deployment_id,
     versionId: d.version_id,
     startTime: d.start_time,
@@ -8043,6 +8204,7 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     environment_key: z.string().optional(),
     disabled: z.boolean().optional(),
     compute: z.lazy(() => unmarshalComputeSchema).optional(),
+    environment_variables_key: z.string().optional(),
     notebook_task: z.lazy(() => unmarshalNotebookTaskSchema).optional(),
     spark_jar_task: z.lazy(() => unmarshalSparkJarTaskSchema).optional(),
     spark_python_task: z.lazy(() => unmarshalSparkPythonTaskSchema).optional(),
@@ -8132,6 +8294,7 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
         : undefined,
     disabled: d.disabled,
     compute: d.compute,
+    environmentVariablesKey: d.environment_variables_key,
     task:
       d.notebook_task !== undefined
         ? {$case: 'notebookTask' as const, notebookTask: d.notebook_task}
@@ -8704,6 +8867,7 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
     environment_key: z.string().optional(),
     disabled: z.boolean().optional(),
     compute: z.lazy(() => unmarshalComputeSchema).optional(),
+    environment_variables_key: z.string().optional(),
     notebook_task: z.lazy(() => unmarshalNotebookTaskSchema).optional(),
     spark_jar_task: z.lazy(() => unmarshalSparkJarTaskSchema).optional(),
     spark_python_task: z.lazy(() => unmarshalSparkPythonTaskSchema).optional(),
@@ -8755,6 +8919,7 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
         : undefined,
     disabled: d.disabled,
     compute: d.compute,
+    environmentVariablesKey: d.environment_variables_key,
     task:
       d.notebook_task !== undefined
         ? {$case: 'notebookTask' as const, notebookTask: d.notebook_task}
@@ -9518,6 +9683,9 @@ export const marshalCreateJobRequestSchema: z.ZodType = z
     triggers: z
       .array(z.lazy(() => marshalTriggerConfigurationSchema))
       .optional(),
+    environmentVariables: z
+      .array(z.lazy(() => marshalJobEnvironmentVariablesSchema))
+      .optional(),
     maxRetries: z.number().optional(),
     minRetryIntervalMillis: z.number().optional(),
     retryOnTimeout: z.boolean().optional(),
@@ -9552,6 +9720,7 @@ export const marshalCreateJobRequestSchema: z.ZodType = z
     performance_target: d.performanceTarget,
     parent_path: d.parentPath,
     triggers: d.triggers,
+    environment_variables: d.environmentVariables,
     max_retries: d.maxRetries,
     min_retry_interval_millis: d.minRetryIntervalMillis,
     retry_on_timeout: d.retryOnTimeout,
@@ -9949,6 +10118,26 @@ export const marshalJobEnvironmentSchema: z.ZodType = z
     spec: d.spec,
   }));
 
+export const marshalJobEnvironmentVariablesSchema: z.ZodType = z
+  .object({
+    environmentVariablesKey: z.string().optional(),
+    spec: z.lazy(() => marshalJobEnvironmentVariablesSpecSchema).optional(),
+  })
+  .transform(d => ({
+    environment_variables_key: d.environmentVariablesKey,
+    spec: d.spec,
+  }));
+
+export const marshalJobEnvironmentVariablesSpecSchema: z.ZodType = z
+  .object({
+    variables: z.record(z.string(), z.string()).optional(),
+    files: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    variables: d.variables,
+    files: d.files,
+  }));
+
 export const marshalJobLevelParameterSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -10021,6 +10210,9 @@ export const marshalJobSettingsSchema: z.ZodType = z
     triggers: z
       .array(z.lazy(() => marshalTriggerConfigurationSchema))
       .optional(),
+    environmentVariables: z
+      .array(z.lazy(() => marshalJobEnvironmentVariablesSchema))
+      .optional(),
     maxRetries: z.number().optional(),
     minRetryIntervalMillis: z.number().optional(),
     retryOnTimeout: z.boolean().optional(),
@@ -10054,6 +10246,7 @@ export const marshalJobSettingsSchema: z.ZodType = z
     performance_target: d.performanceTarget,
     parent_path: d.parentPath,
     triggers: d.triggers,
+    environment_variables: d.environmentVariables,
     max_retries: d.maxRetries,
     min_retry_interval_millis: d.minRetryIntervalMillis,
     retry_on_timeout: d.retryOnTimeout,
@@ -10518,6 +10711,7 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
       .optional(),
     disabled: z.boolean().optional(),
     compute: z.lazy(() => marshalComputeSchema).optional(),
+    environmentVariablesKey: z.string().optional(),
     task: z
       .discriminatedUnion('$case', [
         z.object({
@@ -10641,6 +10835,7 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
     }),
     disabled: d.disabled,
     compute: d.compute,
+    environment_variables_key: d.environmentVariablesKey,
     ...(d.task?.$case === 'notebookTask' && {
       notebook_task: d.task.notebookTask,
     }),
@@ -10911,6 +11106,9 @@ export const marshalSubmitRunRequestSchema: z.ZodType = z
     environments: z.array(z.lazy(() => marshalJobEnvironmentSchema)).optional(),
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
+    environmentVariables: z
+      .array(z.lazy(() => marshalJobEnvironmentVariablesSchema))
+      .optional(),
     performanceTarget: z.string().optional(),
   })
   .transform(d => ({
@@ -10929,6 +11127,7 @@ export const marshalSubmitRunRequestSchema: z.ZodType = z
     environments: d.environments,
     budget_policy_id: d.budgetPolicyId,
     usage_policy_id: d.usagePolicyId,
+    environment_variables: d.environmentVariables,
     performance_target: d.performanceTarget,
   }));
 
@@ -11019,6 +11218,7 @@ export const marshalTaskSettingsSchema: z.ZodType = z
       .optional(),
     disabled: z.boolean().optional(),
     compute: z.lazy(() => marshalComputeSchema).optional(),
+    environmentVariablesKey: z.string().optional(),
     task: z
       .discriminatedUnion('$case', [
         z.object({
@@ -11142,6 +11342,7 @@ export const marshalTaskSettingsSchema: z.ZodType = z
     }),
     disabled: d.disabled,
     compute: d.compute,
+    environment_variables_key: d.environmentVariablesKey,
     ...(d.task?.$case === 'notebookTask' && {
       notebook_task: d.task.notebookTask,
     }),

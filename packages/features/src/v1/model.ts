@@ -1943,7 +1943,10 @@ export interface SchemaLocator_ConfluentSchema {
 export interface SchemaRegistryConfig {
   /** A Schema Registry UC Connection object. */
   ucConnection?: string | undefined;
-  /** Reference to the schema registry API secret in a <Databricks> secret scope. */
+  /**
+   * Reference to the schema registry API secret in a <Databricks> secret scope.
+   * Set this only if required for authentication for the schema registry.
+   */
   apiSecretRef?: SecretScopeReference | undefined;
   /**
    * Schema locator for the message payload. For Kafka this is the value.

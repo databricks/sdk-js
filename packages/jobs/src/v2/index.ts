@@ -148,6 +148,8 @@ export type {
   JobDeployment,
   JobEmailNotifications,
   JobEnvironment,
+  JobEnvironmentVariables,
+  JobEnvironmentVariablesSpec,
   JobLevelParameter,
   JobRunAs,
   JobSettings,

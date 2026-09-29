@@ -110,34 +110,20 @@ export interface CreateAlertRequest {
 }
 
 export interface CreateAlertRequestAlert {
-  /** UUID identifying the alert. */
-  id?: string | undefined;
   /** The display name of the alert. */
   displayName?: string | undefined;
   /** UUID of the query attached to the alert. */
   queryId?: string | undefined;
-  /** Current state of the alert's trigger status. This field is set to UNKNOWN if the alert has not yet been evaluated or ran into an error during the last evaluation. */
-  state?: AlertState | undefined;
   /** Number of seconds an alert must wait after being triggered to rearm itself. After rearming, it can be triggered again. If 0 or not specified, the alert will not be triggered again. */
   secondsToRetrigger?: number | undefined;
-  /** The workspace state of the alert. Used for tracking trashed status. */
-  lifecycleState?: LifecycleState | undefined;
-  /** Timestamp when the alert was last triggered, if the alert has been triggered before. */
-  triggerTime?: Temporal.Instant | undefined;
   /** Custom body of alert notification, if it exists. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
   customBody?: string | undefined;
   /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
   customSubject?: string | undefined;
   /** Trigger conditions of the alert. */
   condition?: AlertCondition | undefined;
-  /** The owner's username. This field is set to "Unavailable" if the user has been deleted. */
-  ownerUserName?: string | undefined;
   /** The workspace path of the folder containing the alert. */
   parentPath?: string | undefined;
-  /** The timestamp indicating when the alert was created. */
-  createTime?: Temporal.Instant | undefined;
-  /** The timestamp indicating when the alert was updated. */
-  updateTime?: Temporal.Instant | undefined;
   /** Whether to notify alert subscribers when alert returns back to normal. */
   notifyOnOk?: boolean | undefined;
 }
@@ -186,8 +172,6 @@ export interface ListAlertsResponseAlert {
   condition?: AlertCondition | undefined;
   /** The owner's username. This field is set to "Unavailable" if the user has been deleted. */
   ownerUserName?: string | undefined;
-  /** The workspace path of the folder containing the alert. */
-  parentPath?: string | undefined;
   /** The timestamp indicating when the alert was created. */
   createTime?: Temporal.Instant | undefined;
   /** The timestamp indicating when the alert was updated. */
@@ -209,20 +193,12 @@ export interface UpdateAlertRequest {
 }
 
 export interface UpdateAlertRequestAlert {
-  /** UUID identifying the alert. */
-  id?: string | undefined;
   /** The display name of the alert. */
   displayName?: string | undefined;
   /** UUID of the query attached to the alert. */
   queryId?: string | undefined;
-  /** Current state of the alert's trigger status. This field is set to UNKNOWN if the alert has not yet been evaluated or ran into an error during the last evaluation. */
-  state?: AlertState | undefined;
   /** Number of seconds an alert must wait after being triggered to rearm itself. After rearming, it can be triggered again. If 0 or not specified, the alert will not be triggered again. */
   secondsToRetrigger?: number | undefined;
-  /** The workspace state of the alert. Used for tracking trashed status. */
-  lifecycleState?: LifecycleState | undefined;
-  /** Timestamp when the alert was last triggered, if the alert has been triggered before. */
-  triggerTime?: Temporal.Instant | undefined;
   /** Custom body of alert notification, if it exists. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
   customBody?: string | undefined;
   /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
@@ -231,12 +207,6 @@ export interface UpdateAlertRequestAlert {
   condition?: AlertCondition | undefined;
   /** The owner's username. This field is set to "Unavailable" if the user has been deleted. */
   ownerUserName?: string | undefined;
-  /** The workspace path of the folder containing the alert. */
-  parentPath?: string | undefined;
-  /** The timestamp indicating when the alert was created. */
-  createTime?: Temporal.Instant | undefined;
-  /** The timestamp indicating when the alert was updated. */
-  updateTime?: Temporal.Instant | undefined;
   /** Whether to notify alert subscribers when alert returns back to normal. */
   notifyOnOk?: boolean | undefined;
 }
@@ -372,7 +342,6 @@ export const unmarshalListAlertsResponseAlertSchema: z.ZodType<ListAlertsRespons
       custom_subject: z.string().optional(),
       condition: z.lazy(() => unmarshalAlertConditionSchema).optional(),
       owner_user_name: z.string().optional(),
-      parent_path: z.string().optional(),
       create_time: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -395,7 +364,6 @@ export const unmarshalListAlertsResponseAlertSchema: z.ZodType<ListAlertsRespons
       customSubject: d.custom_subject,
       condition: d.condition,
       ownerUserName: d.owner_user_name,
-      parentPath: d.parent_path,
       createTime: d.create_time,
       updateTime: d.update_time,
       notifyOnOk: d.notify_on_ok,
@@ -477,46 +445,23 @@ export const marshalCreateAlertRequestSchema: z.ZodType = z
 
 export const marshalCreateAlertRequestAlertSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
     displayName: z.string().optional(),
     queryId: z.string().optional(),
-    state: z.string().optional(),
     secondsToRetrigger: z.number().optional(),
-    lifecycleState: z.string().optional(),
-    triggerTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
     customBody: z.string().optional(),
     customSubject: z.string().optional(),
     condition: z.lazy(() => marshalAlertConditionSchema).optional(),
-    ownerUserName: z.string().optional(),
     parentPath: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
     notifyOnOk: z.boolean().optional(),
   })
   .transform(d => ({
-    id: d.id,
     display_name: d.displayName,
     query_id: d.queryId,
-    state: d.state,
     seconds_to_retrigger: d.secondsToRetrigger,
-    lifecycle_state: d.lifecycleState,
-    trigger_time: d.triggerTime,
     custom_body: d.customBody,
     custom_subject: d.customSubject,
     condition: d.condition,
-    owner_user_name: d.ownerUserName,
     parent_path: d.parentPath,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     notify_on_ok: d.notifyOnOk,
   }));
 
@@ -539,46 +484,23 @@ export const marshalUpdateAlertRequestSchema: z.ZodType = z
 
 export const marshalUpdateAlertRequestAlertSchema: z.ZodType = z
   .object({
-    id: z.string().optional(),
     displayName: z.string().optional(),
     queryId: z.string().optional(),
-    state: z.string().optional(),
     secondsToRetrigger: z.number().optional(),
-    lifecycleState: z.string().optional(),
-    triggerTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
     customBody: z.string().optional(),
     customSubject: z.string().optional(),
     condition: z.lazy(() => marshalAlertConditionSchema).optional(),
     ownerUserName: z.string().optional(),
-    parentPath: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
     notifyOnOk: z.boolean().optional(),
   })
   .transform(d => ({
-    id: d.id,
     display_name: d.displayName,
     query_id: d.queryId,
-    state: d.state,
     seconds_to_retrigger: d.secondsToRetrigger,
-    lifecycle_state: d.lifecycleState,
-    trigger_time: d.triggerTime,
     custom_body: d.customBody,
     custom_subject: d.customSubject,
     condition: d.condition,
     owner_user_name: d.ownerUserName,
-    parent_path: d.parentPath,
-    create_time: d.createTime,
-    update_time: d.updateTime,
     notify_on_ok: d.notifyOnOk,
   }));
 
@@ -606,20 +528,13 @@ const alertOperandValueFieldMaskSchema: FieldMaskSchema = {
 
 const updateAlertRequestAlertFieldMaskSchema: FieldMaskSchema = {
   condition: {wire: 'condition', children: () => alertConditionFieldMaskSchema},
-  createTime: {wire: 'create_time'},
   customBody: {wire: 'custom_body'},
   customSubject: {wire: 'custom_subject'},
   displayName: {wire: 'display_name'},
-  id: {wire: 'id'},
-  lifecycleState: {wire: 'lifecycle_state'},
   notifyOnOk: {wire: 'notify_on_ok'},
   ownerUserName: {wire: 'owner_user_name'},
-  parentPath: {wire: 'parent_path'},
   queryId: {wire: 'query_id'},
   secondsToRetrigger: {wire: 'seconds_to_retrigger'},
-  state: {wire: 'state'},
-  triggerTime: {wire: 'trigger_time'},
-  updateTime: {wire: 'update_time'},
 };
 
 export function updateAlertRequestAlertFieldMask(
