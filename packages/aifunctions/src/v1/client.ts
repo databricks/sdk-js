@@ -19,6 +19,8 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   AiClassifyRequest,
   AiClassifyResponse,
+  AiDecideRequest,
+  AiDecideResponse,
   AiExtractRequest,
   AiExtractResponse,
   AiParseDocumentRequest,
@@ -26,9 +28,11 @@ import type {
 } from './model';
 import {
   marshalAiClassifyRequestSchema,
+  marshalAiDecideRequestSchema,
   marshalAiExtractRequestSchema,
   marshalAiParseDocumentRequestSchema,
   unmarshalAiClassifyResponseSchema,
+  unmarshalAiDecideResponseSchema,
   unmarshalAiExtractResponseSchema,
   unmarshalAiParseDocumentResponseSchema,
 } from './model';
@@ -88,6 +92,36 @@ export class AiFunctionsClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalAiClassifyResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Turn text and structured data into decisions your application can use. Define questions and criteria to choose an option, estimate a probability, or assign a score given a provided state. */
+  async aiDecide(
+    req: AiDecideRequest,
+    options?: CallOptions
+  ): Promise<AiDecideResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/ai-functions/ai-decide`;
+    const body = marshalRequest(req, marshalAiDecideRequestSchema);
+    let resp: AiDecideResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalAiDecideResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

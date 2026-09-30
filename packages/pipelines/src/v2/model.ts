@@ -602,7 +602,11 @@ export interface ClonePipelineRequest {
    * job, the job's setting takes precedence and this field is ignored.
    */
   continuous?: boolean | undefined;
-  /** Whether the pipeline is in Development mode. Defaults to false. */
+  /**
+   * Whether the pipeline is in Development mode. Defaults to false.
+   *
+   * Deprecated: set development mode for each update instead.
+   */
   development?: boolean | undefined;
   /** Whether Photon is enabled for this pipeline. */
   photon?: boolean | undefined;
@@ -746,7 +750,11 @@ export interface CreatePipelineRequest {
    * job, the job's setting takes precedence and this field is ignored.
    */
   continuous?: boolean | undefined;
-  /** Whether the pipeline is in Development mode. Defaults to false. */
+  /**
+   * Whether the pipeline is in Development mode. Defaults to false.
+   *
+   * Deprecated: set development mode for each update instead.
+   */
   development?: boolean | undefined;
   /** Whether Photon is enabled for this pipeline. */
   photon?: boolean | undefined;
@@ -889,7 +897,11 @@ export interface EditPipelineRequest {
    * job, the job's setting takes precedence and this field is ignored.
    */
   continuous?: boolean | undefined;
-  /** Whether the pipeline is in Development mode. Defaults to false. */
+  /**
+   * Whether the pipeline is in Development mode. Defaults to false.
+   *
+   * Deprecated: set development mode for each update instead.
+   */
   development?: boolean | undefined;
   /** Whether Photon is enabled for this pipeline. */
   photon?: boolean | undefined;
@@ -2227,7 +2239,11 @@ export interface PipelineSpec {
    * job, the job's setting takes precedence and this field is ignored.
    */
   continuous?: boolean | undefined;
-  /** Whether the pipeline is in Development mode. Defaults to false. */
+  /**
+   * Whether the pipeline is in Development mode. Defaults to false.
+   *
+   * Deprecated: set development mode for each update instead.
+   */
   development?: boolean | undefined;
   /** Whether Photon is enabled for this pipeline. */
   photon?: boolean | undefined;
