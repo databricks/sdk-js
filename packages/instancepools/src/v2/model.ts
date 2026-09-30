@@ -557,7 +557,14 @@ export interface InstancePoolAndStats {
 
 /** Attributes set during instance pool creation which are related to Amazon Web Services. */
 export interface InstancePoolAwsAttributes {
-  /** Availability type used for the spot nodes. */
+  /**
+   * Availability type used for the instances in the pool. Supports on-demand, spot, and
+   * spot-with-fallback (the pool acquires spot instances first, and falls back to on-demand
+   * instances when spot capacity is unavailable).
+   *
+   * You can change this value on an existing pool. New clusters use the updated availability, and
+   * existing clusters keep the availability they launched with.
+   */
   availability?: AwsAvailability | undefined;
   /**
    * Identifier for the availability zone/datacenter in which the cluster resides.
@@ -567,6 +574,14 @@ export interface InstancePoolAwsAttributes {
    * This is an optional field at cluster creation, and if not specified, a default zone will be used.
    * The list of available zones as well as the default value can be found by using the
    * `List Zones` method.
+   *
+   * Set this field to "auto" to enable Auto-AZ, in which case <Databricks> selects the availability
+   * zone for each cluster independently when the cluster launches, and retries another zone if the
+   * cluster can't be fulfilled because of insufficient capacity or quota. All nodes in a cluster
+   * land in the same zone, and different clusters backed by the pool can run in different zones.
+   *
+   * You can change the zone on an existing pool. New clusters use the updated zone, and existing
+   * clusters keep the zone they launched with.
    */
   zoneId?: string | undefined;
   /**
@@ -579,6 +594,9 @@ export interface InstancePoolAwsAttributes {
    * When spot instances are requested for this cluster, only spot instances whose bid price
    * percentage matches this field will be considered.
    * Note that, for safety, we enforce this field to be no more than 10000.
+   *
+   * You can change this value on an existing pool. New clusters use the updated bid price, and
+   * existing clusters keep the bid price they launched with.
    */
   spotBidPricePercent?: number | undefined;
   /**
@@ -595,7 +613,14 @@ export interface InstancePoolAwsAttributes {
 
 /** Attributes set during instance pool creation which are related to Azure. */
 export interface InstancePoolAzureAttributes {
-  /** Availability type used for the spot nodes. */
+  /**
+   * Availability type used for the instances in the pool. Supports on-demand, spot, and
+   * spot-with-fallback (the pool acquires spot instances first, and falls back to on-demand
+   * instances when spot capacity is unavailable).
+   *
+   * You can change this value on an existing pool. New clusters use the updated availability, and
+   * existing clusters keep the availability they launched with.
+   */
   availability?: AzureAvailability | undefined;
   /**
    * With variable pricing, you have option to set a max price, in US dollars (USD)
@@ -603,6 +628,9 @@ export interface InstancePoolAzureAttributes {
    * If you set the max price to be -1, the VM won't be evicted based on price.
    * The price for the VM will be the current price for spot or the price for a standard VM,
    * which ever is less, as long as there is capacity and quota available.
+   *
+   * You can change this value on an existing pool. New clusters use the updated max price, and
+   * existing clusters keep the max price they launched with.
    */
   spotBidMaxPrice?: number | undefined;
   /**
@@ -625,6 +653,14 @@ export interface InstancePoolAzureAttributes {
 
 /** Attributes set during instance pool creation which are related to GCP. */
 export interface InstancePoolGcpAttributes {
+  /**
+   * Availability type for the instances in the pool. One of:
+   *
+   * - `ON_DEMAND_GCP`: the pool uses on-demand instances only.
+   * - `PREEMPTIBLE_GCP`: the pool uses preemptible instances only.
+   * - `PREEMPTIBLE_WITH_FALLBACK_GCP`: the pool acquires preemptible instances first, and falls
+   * back to on-demand instances when preemptible capacity is unavailable.
+   */
   gcpAvailability?: GcpAvailability | undefined;
   /**
    * If provided, each node in the instance pool will have this number of local SSDs attached.
@@ -641,9 +677,13 @@ export interface InstancePoolGcpAttributes {
    *
    * This field can be one of the following:
    * - "HA" => High availability, spread nodes across availability zones for a <Databricks> deployment region
+   * - "auto" => Auto-AZ. <Databricks> selects the availability zone for each cluster independently when the cluster launches, and retries another zone if the cluster can't be fulfilled because of insufficient capacity or quota. All nodes in a cluster land in the same zone, and different clusters backed by the pool can run in different zones.
    * - A GCP availability zone => Pick One of the available zones for (machine type + region) from https://cloud.google.com/compute/docs/regions-zones (e.g. "us-west1-a").
    *
    * If empty, <Databricks> picks an availability zone to schedule the cluster on.
+   *
+   * You can change the zone on an existing pool. New clusters use the updated zone, and existing
+   * clusters keep the zone they launched with.
    */
   zoneId?: string | undefined;
 }
