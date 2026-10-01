@@ -1,5 +1,10 @@
 # Version changelog
 
+## Release v0.51.1 (2026-10-01)
+
+### Internal Changes
+* Bump `core` to v0.51.1.
+
 ## Release v0.51.0 (2026-09-08)
 
 
