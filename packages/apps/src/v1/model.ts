@@ -536,7 +536,9 @@ export type SpaceUpdateState =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AppDeployment_Mode = {
   MODE_UNSPECIFIED: 'MODE_UNSPECIFIED',
+  /** Captures a snapshot of the source code at deployment time. */
   SNAPSHOT: 'SNAPSHOT',
+  /** Unsupported. Auto-sync deployments are not accepted. Use SNAPSHOT instead. */
   AUTO_SYNC: 'AUTO_SYNC',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.

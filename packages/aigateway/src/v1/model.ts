@@ -531,10 +531,7 @@ export interface ListModelProviderServicesResponse {
   nextPageToken?: string | undefined;
 }
 
-/**
- * Request to list model services. Accepts `parent`, `page_size`, `page_token`,
- * and `view`.
- */
+/** Request to list model services. */
 export interface ListModelServicesRequest {
   /**
    * Parent schema to list within, in the form
@@ -1833,7 +1830,9 @@ export interface UpdateModelProviderServiceRequest {
    * `config.allow_all_targets`, `config.targets`, `config.forward_headers`,
    * `config.forward_query_parameters`, `config.forward_unmanaged_paths`,
    * `config.rate_limits`, or `config.inference_table`. The provider type is
-   * immutable.
+   * immutable. A `config` or `config.provider` replacement that carries no
+   * authentication material preserves the existing authentication binding;
+   * input-only plaintext does not need to be read back and re-sent.
    */
   updateMask?: FieldMask<ModelProviderService> | undefined;
   /**

@@ -1187,7 +1187,8 @@ export interface CreateCdfConfigRequest {
   parent?: string | undefined;
   /**
    * The CdfConfig to create. The catalog, schema, and postgres_schema fields are
-   * required; all other fields are output only and ignored on input.
+   * required; service_principal is optional. All other fields are output only
+   * and ignored on input.
    */
   cdfConfig?: CdfConfig | undefined;
   /**

@@ -1841,12 +1841,20 @@ export interface PurgeFeatureEntitiesResult {
 
 /** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
 export interface RequestSource {
-  /** The schema describing the request-time fields. Currently only flat schemas are supported. */
+  /** The schema describing the request-time fields. */
   schema?:
     | {
         $case: 'flatSchema';
         /** A flat schema with scalar-typed fields only. */
         flatSchema: FlatSchema;
+      }
+    | {
+        $case: 'dataframeSchema';
+        /**
+         * A schema containing scalar or nested fields, in Spark StructType JSON format
+         * (from df.schema.json()). This preserves field, array-element, and map-value nullability.
+         */
+        dataframeSchema: string;
       }
     | undefined;
 }
@@ -2270,9 +2278,9 @@ export interface TumblingWindow {
 }
 
 export interface UpdateFeatureRequest {
-  /** Feature to update. */
+  /** Feature whose full_name identifies the target. Only description is mutable. */
   feature?: Feature | undefined;
-  /** The list of fields to update. */
+  /** Fields to update. The only supported path is description. */
   updateMask?: FieldMask<Feature> | undefined;
 }
 
@@ -3332,12 +3340,18 @@ export const unmarshalPurgeFeatureEntitiesResultSchema: z.ZodType<PurgeFeatureEn
 export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
   .object({
     flat_schema: z.lazy(() => unmarshalFlatSchemaSchema).optional(),
+    dataframe_schema: z.string().optional(),
   })
   .transform(d => ({
     schema:
       d.flat_schema !== undefined
         ? {$case: 'flatSchema' as const, flatSchema: d.flat_schema}
-        : undefined,
+        : d.dataframe_schema !== undefined
+          ? {
+              $case: 'dataframeSchema' as const,
+              dataframeSchema: d.dataframe_schema,
+            }
+          : undefined,
   }));
 
 export const unmarshalRollingWindowSchema: z.ZodType<RollingWindow> = z
@@ -4699,11 +4713,18 @@ export const marshalRequestSourceSchema: z.ZodType = z
           $case: z.literal('flatSchema'),
           flatSchema: z.lazy(() => marshalFlatSchemaSchema),
         }),
+        z.object({
+          $case: z.literal('dataframeSchema'),
+          dataframeSchema: z.string(),
+        }),
       ])
       .optional(),
   })
   .transform(d => ({
     ...(d.schema?.$case === 'flatSchema' && {flat_schema: d.schema.flatSchema}),
+    ...(d.schema?.$case === 'dataframeSchema' && {
+      dataframe_schema: d.schema.dataframeSchema,
+    }),
   }));
 
 export const marshalRollingWindowSchema: z.ZodType = z
@@ -5552,6 +5573,7 @@ const protoSchemaSpecFieldMaskSchema: FieldMaskSchema = {
 };
 
 const requestSourceFieldMaskSchema: FieldMaskSchema = {
+  dataframeSchema: {wire: 'dataframe_schema'},
   flatSchema: {wire: 'flat_schema', children: () => flatSchemaFieldMaskSchema},
 };
 
