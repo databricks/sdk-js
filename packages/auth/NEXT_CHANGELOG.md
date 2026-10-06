@@ -4,6 +4,7 @@
 
 ### New Features and Improvements
 
+- Added an Azure DevOps OIDC ID token provider.
 - Added a GitHub Actions OIDC ID token provider.
 - Added explicit Node.js Azure CLI authentication through
   `newAzureCliCredentials`, with an optional tenant ID. Azure CLI authentication
