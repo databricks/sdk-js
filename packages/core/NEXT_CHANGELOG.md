@@ -4,6 +4,7 @@
 
 ### New Features and Improvements
 
+- Added OIDC token environment, file path, and audience profile configuration.
 ### Bug Fixes
 
 ### Documentation

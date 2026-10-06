@@ -5,9 +5,16 @@ import type {Credentials} from '../../auth';
 
 import {DefaultCredentials, m2mStrategy, patStrategy} from './chain';
 import type {Strategy} from './chain';
+import {envOidcStrategy, fileOidcStrategy} from './oidc-strategy';
 import {u2mStrategy} from './u2m-strategy';
 
-const STRATEGIES: readonly Strategy[] = [patStrategy, m2mStrategy, u2mStrategy];
+const STRATEGIES: readonly Strategy[] = [
+  patStrategy,
+  m2mStrategy,
+  u2mStrategy,
+  envOidcStrategy,
+  fileOidcStrategy,
+];
 
 interface DefaultCredentialsOptions {
   /**
@@ -25,6 +32,8 @@ interface DefaultCredentialsOptions {
  *   1. PAT (`pat`).
  *   2. OAuth M2M (`oauth-m2m`).
  *   3. Databricks CLI (`databricks-cli`).
+ *   4. Environment OIDC (`env-oidc`).
+ *   5. File OIDC (`file-oidc`).
  *
  * When the resolved profile contains a non-empty group ID, strategies that
  * cannot assume a group are skipped. Explicitly selecting such a strategy

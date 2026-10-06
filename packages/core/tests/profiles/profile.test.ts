@@ -48,6 +48,36 @@ describe('property set and get', () => {
         iniKey: 'group_id',
       },
     },
+    {
+      name: 'OIDC token environment variable',
+      def: findDef('oidcTokenEnv'),
+      raw: 'CUSTOM_ID_TOKEN',
+      wantGet: 'CUSTOM_ID_TOKEN',
+      wantNames: {
+        envVar: 'DATABRICKS_OIDC_TOKEN_ENV',
+        iniKey: 'oidc_token_env',
+      },
+    },
+    {
+      name: 'OIDC token file path',
+      def: findDef('oidcTokenFilePath'),
+      raw: '/tmp/id-token',
+      wantGet: '/tmp/id-token',
+      wantNames: {
+        envVar: 'DATABRICKS_OIDC_TOKEN_FILEPATH',
+        iniKey: 'databricks_id_token_filepath',
+      },
+    },
+    {
+      name: 'OIDC token audience',
+      def: findDef('tokenAudience'),
+      raw: 'token-audience',
+      wantGet: 'token-audience',
+      wantNames: {
+        envVar: 'DATABRICKS_TOKEN_AUDIENCE',
+        iniKey: 'audience',
+      },
+    },
     // Secret properties.
     {
       name: 'secret: plain value',

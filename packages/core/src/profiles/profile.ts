@@ -46,6 +46,15 @@ export interface Profile {
   /** Path to the Databricks CLI binary (>= 0.100.0) for CLI-based auth. */
   databricksCliPath?: string;
 
+  /** Name of an environment variable containing an OIDC ID token. */
+  oidcTokenEnv?: string;
+
+  /** Path to a file containing an OIDC ID token. */
+  oidcTokenFilePath?: string;
+
+  /** Audience for Workload Identity Federation ID tokens. */
+  tokenAudience?: string;
+
   /**
    * INI keys not mapped to a known field. Only populated when loading from a
    * config file; environment variables do not contribute to extra.
@@ -198,5 +207,32 @@ export const PROPERTY_DEFS: readonly PropertyDef[] = [
       p.databricksCliPath = v;
     },
     get: (p: Profile): string | undefined => p.databricksCliPath,
+  },
+  {
+    field: 'oidcTokenEnv',
+    envVar: 'DATABRICKS_OIDC_TOKEN_ENV',
+    iniKey: 'oidc_token_env',
+    set: (p: Profile, v: string): void => {
+      p.oidcTokenEnv = v;
+    },
+    get: (p: Profile): string | undefined => p.oidcTokenEnv,
+  },
+  {
+    field: 'oidcTokenFilePath',
+    envVar: 'DATABRICKS_OIDC_TOKEN_FILEPATH',
+    iniKey: 'databricks_id_token_filepath',
+    set: (p: Profile, v: string): void => {
+      p.oidcTokenFilePath = v;
+    },
+    get: (p: Profile): string | undefined => p.oidcTokenFilePath,
+  },
+  {
+    field: 'tokenAudience',
+    envVar: 'DATABRICKS_TOKEN_AUDIENCE',
+    iniKey: 'audience',
+    set: (p: Profile, v: string): void => {
+      p.tokenAudience = v;
+    },
+    get: (p: Profile): string | undefined => p.tokenAudience,
   },
 ];
