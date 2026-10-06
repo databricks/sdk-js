@@ -291,6 +291,55 @@ describe('resolve', () => {
       },
     },
     {
+      name: 'OIDC configuration from the environment',
+      options: {noProfile: true},
+      env: {
+        DATABRICKS_AUTH_TYPE: 'env-oidc',
+        DATABRICKS_OIDC_TOKEN_ENV: 'CUSTOM_ID_TOKEN',
+        DATABRICKS_OIDC_TOKEN_FILEPATH: '/tmp/id-token',
+        DATABRICKS_TOKEN_AUDIENCE: 'env-audience',
+      },
+      want: {
+        authType: 'env-oidc',
+        oidcTokenEnv: 'CUSTOM_ID_TOKEN',
+        oidcTokenFilePath: '/tmp/id-token',
+        tokenAudience: 'env-audience',
+      },
+    },
+    {
+      name: 'OIDC environment settings override their profile keys',
+      config:
+        '[DEFAULT]\noidc_token_env = PROFILE_TOKEN\n' +
+        'databricks_id_token_filepath = /tmp/profile-token\n' +
+        'audience = profile-audience\n',
+      env: {
+        DATABRICKS_OIDC_TOKEN_ENV: 'ENV_TOKEN',
+        DATABRICKS_OIDC_TOKEN_FILEPATH: '/tmp/env-token',
+        DATABRICKS_TOKEN_AUDIENCE: 'env-audience',
+      },
+      want: {
+        name: 'DEFAULT',
+        oidcTokenEnv: 'ENV_TOKEN',
+        oidcTokenFilePath: '/tmp/env-token',
+        tokenAudience: 'env-audience',
+      },
+    },
+    {
+      name: 'OIDC configuration from the profile with environment disabled',
+      options: {disableEnv: true},
+      config:
+        '[DEFAULT]\noidc_token_env = PROFILE_TOKEN\n' +
+        'databricks_id_token_filepath = /tmp/profile-token\n' +
+        'audience = profile-audience\n',
+      env: {DATABRICKS_TOKEN_AUDIENCE: 'ignored-audience'},
+      want: {
+        name: 'DEFAULT',
+        oidcTokenEnv: 'PROFILE_TOKEN',
+        oidcTokenFilePath: '/tmp/profile-token',
+        tokenAudience: 'profile-audience',
+      },
+    },
+    {
       name: 'empty configFile is an error',
       options: {configFile: ''},
       want: {},
