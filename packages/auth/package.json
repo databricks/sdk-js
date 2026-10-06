@@ -53,6 +53,7 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
+    "@azure/identity": "^4.13.3",
     "@databricks/sdk-core": ">=0.51.0 <1.0.0",
     "zod": "^4.3.6"
   }
