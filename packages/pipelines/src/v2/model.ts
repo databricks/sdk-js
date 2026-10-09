@@ -578,7 +578,10 @@ export interface ClonePipelineRequest {
   storage?: string | undefined;
   /** String-String configuration for this pipeline execution. */
   configuration?: Record<string, string> | undefined;
-  /** Cluster settings for this pipeline deployment. */
+  /**
+   * Cluster settings for this pipeline deployment. Applies to classic
+   * (non-serverless) pipelines. Omit this field when `serverless` is `true`.
+   */
   clusters?: PipelineCluster[] | undefined;
   /** Libraries or code needed by this deployment. */
   libraries?: PipelineLibrary[] | undefined;
@@ -618,7 +621,13 @@ export interface ClonePipelineRequest {
   catalog?: string | undefined;
   /** List of notification settings for this pipeline. */
   notifications?: Notifications[] | undefined;
-  /** Whether serverless compute is enabled for this pipeline. */
+  /**
+   * Whether serverless compute is enabled for this pipeline. Serverless is the
+   * recommended compute for new pipelines; set this to `true` to run the pipeline
+   * on serverless. For notebook/file pipelines, omitting this field uses classic
+   * compute configured through the `clusters` field. When `true`, omit `clusters`;
+   * Photon is always enabled.
+   */
   serverless?: boolean | undefined;
   /** Deployment type of this pipeline. */
   deployment?: PipelineDeployment | undefined;
@@ -642,6 +651,12 @@ export interface ClonePipelineRequest {
   rootPath?: string | undefined;
   /** Environment specification for this pipeline used to install dependencies. */
   environment?: PipelinesEnvironment | undefined;
+  /**
+   * Path of the pipeline parent folder in workspace file tree.
+   *
+   * If absent, the pipeline doesn't have a workspace object.
+   */
+  parentPath?: string | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
   /** Serverless compute ID specified by the user for serverless pipelines. */
@@ -726,7 +741,10 @@ export interface CreatePipelineRequest {
   storage?: string | undefined;
   /** String-String configuration for this pipeline execution. */
   configuration?: Record<string, string> | undefined;
-  /** Cluster settings for this pipeline deployment. */
+  /**
+   * Cluster settings for this pipeline deployment. Applies to classic
+   * (non-serverless) pipelines. Omit this field when `serverless` is `true`.
+   */
   clusters?: PipelineCluster[] | undefined;
   /** Libraries or code needed by this deployment. */
   libraries?: PipelineLibrary[] | undefined;
@@ -766,7 +784,13 @@ export interface CreatePipelineRequest {
   catalog?: string | undefined;
   /** List of notification settings for this pipeline. */
   notifications?: Notifications[] | undefined;
-  /** Whether serverless compute is enabled for this pipeline. */
+  /**
+   * Whether serverless compute is enabled for this pipeline. Serverless is the
+   * recommended compute for new pipelines; set this to `true` to run the pipeline
+   * on serverless. For notebook/file pipelines, omitting this field uses classic
+   * compute configured through the `clusters` field. When `true`, omit `clusters`;
+   * Photon is always enabled.
+   */
   serverless?: boolean | undefined;
   /** Deployment type of this pipeline. */
   deployment?: PipelineDeployment | undefined;
@@ -790,6 +814,12 @@ export interface CreatePipelineRequest {
   rootPath?: string | undefined;
   /** Environment specification for this pipeline used to install dependencies. */
   environment?: PipelinesEnvironment | undefined;
+  /**
+   * Path of the pipeline parent folder in workspace file tree.
+   *
+   * If absent, the pipeline doesn't have a workspace object.
+   */
+  parentPath?: string | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
   /** Serverless compute ID specified by the user for serverless pipelines. */
@@ -873,7 +903,10 @@ export interface EditPipelineRequest {
   storage?: string | undefined;
   /** String-String configuration for this pipeline execution. */
   configuration?: Record<string, string> | undefined;
-  /** Cluster settings for this pipeline deployment. */
+  /**
+   * Cluster settings for this pipeline deployment. Applies to classic
+   * (non-serverless) pipelines. Omit this field when `serverless` is `true`.
+   */
   clusters?: PipelineCluster[] | undefined;
   /** Libraries or code needed by this deployment. */
   libraries?: PipelineLibrary[] | undefined;
@@ -913,7 +946,13 @@ export interface EditPipelineRequest {
   catalog?: string | undefined;
   /** List of notification settings for this pipeline. */
   notifications?: Notifications[] | undefined;
-  /** Whether serverless compute is enabled for this pipeline. */
+  /**
+   * Whether serverless compute is enabled for this pipeline. Serverless is the
+   * recommended compute for new pipelines; set this to `true` to run the pipeline
+   * on serverless. For notebook/file pipelines, omitting this field uses classic
+   * compute configured through the `clusters` field. When `true`, omit `clusters`;
+   * Photon is always enabled.
+   */
   serverless?: boolean | undefined;
   /** Deployment type of this pipeline. */
   deployment?: PipelineDeployment | undefined;
@@ -937,6 +976,12 @@ export interface EditPipelineRequest {
   rootPath?: string | undefined;
   /** Environment specification for this pipeline used to install dependencies. */
   environment?: PipelinesEnvironment | undefined;
+  /**
+   * Path of the pipeline parent folder in workspace file tree.
+   *
+   * If absent, the pipeline doesn't have a workspace object.
+   */
+  parentPath?: string | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
   /** Serverless compute ID specified by the user for serverless pipelines. */
@@ -2215,7 +2260,10 @@ export interface PipelineSpec {
   storage?: string | undefined;
   /** String-String configuration for this pipeline execution. */
   configuration?: Record<string, string> | undefined;
-  /** Cluster settings for this pipeline deployment. */
+  /**
+   * Cluster settings for this pipeline deployment. Applies to classic
+   * (non-serverless) pipelines. Omit this field when `serverless` is `true`.
+   */
   clusters?: PipelineCluster[] | undefined;
   /** Libraries or code needed by this deployment. */
   libraries?: PipelineLibrary[] | undefined;
@@ -2255,7 +2303,13 @@ export interface PipelineSpec {
   catalog?: string | undefined;
   /** List of notification settings for this pipeline. */
   notifications?: Notifications[] | undefined;
-  /** Whether serverless compute is enabled for this pipeline. */
+  /**
+   * Whether serverless compute is enabled for this pipeline. Serverless is the
+   * recommended compute for new pipelines; set this to `true` to run the pipeline
+   * on serverless. For notebook/file pipelines, omitting this field uses classic
+   * compute configured through the `clusters` field. When `true`, omit `clusters`;
+   * Photon is always enabled.
+   */
   serverless?: boolean | undefined;
   /** Deployment type of this pipeline. */
   deployment?: PipelineDeployment | undefined;
@@ -2279,6 +2333,12 @@ export interface PipelineSpec {
   rootPath?: string | undefined;
   /** Environment specification for this pipeline used to install dependencies. */
   environment?: PipelinesEnvironment | undefined;
+  /**
+   * Path of the pipeline parent folder in workspace file tree.
+   *
+   * If absent, the pipeline doesn't have a workspace object.
+   */
+  parentPath?: string | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
   /** Serverless compute ID specified by the user for serverless pipelines. */
@@ -4324,6 +4384,7 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
     event_log: z.lazy(() => unmarshalEventLogSpecSchema).optional(),
     root_path: z.string().optional(),
     environment: z.lazy(() => unmarshalPipelinesEnvironmentSchema).optional(),
+    parent_path: z.string().optional(),
     usage_policy_id: z.string().optional(),
     serverless_compute_id: z.string().optional(),
   })
@@ -4355,6 +4416,7 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
     eventLog: d.event_log,
     rootPath: d.root_path,
     environment: d.environment,
+    parentPath: d.parent_path,
     usagePolicyId: d.usage_policy_id,
     serverlessComputeId: d.serverless_compute_id,
   }));
@@ -5014,6 +5076,7 @@ export const marshalClonePipelineRequestSchema: z.ZodType = z
     eventLog: z.lazy(() => marshalEventLogSpecSchema).optional(),
     rootPath: z.string().optional(),
     environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
+    parentPath: z.string().optional(),
     usagePolicyId: z.string().optional(),
     serverlessComputeId: z.string().optional(),
     cloneMode: z.string().optional(),
@@ -5049,6 +5112,7 @@ export const marshalClonePipelineRequestSchema: z.ZodType = z
     event_log: d.eventLog,
     root_path: d.rootPath,
     environment: d.environment,
+    parent_path: d.parentPath,
     usage_policy_id: d.usagePolicyId,
     serverless_compute_id: d.serverlessComputeId,
     clone_mode: d.cloneMode,
@@ -5244,6 +5308,7 @@ export const marshalCreatePipelineRequestSchema: z.ZodType = z
     eventLog: z.lazy(() => marshalEventLogSpecSchema).optional(),
     rootPath: z.string().optional(),
     environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
+    parentPath: z.string().optional(),
     usagePolicyId: z.string().optional(),
     serverlessComputeId: z.string().optional(),
   })
@@ -5279,6 +5344,7 @@ export const marshalCreatePipelineRequestSchema: z.ZodType = z
     event_log: d.eventLog,
     root_path: d.rootPath,
     environment: d.environment,
+    parent_path: d.parentPath,
     usage_policy_id: d.usagePolicyId,
     serverless_compute_id: d.serverlessComputeId,
   }));
@@ -5343,6 +5409,7 @@ export const marshalEditPipelineRequestSchema: z.ZodType = z
     eventLog: z.lazy(() => marshalEventLogSpecSchema).optional(),
     rootPath: z.string().optional(),
     environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
+    parentPath: z.string().optional(),
     usagePolicyId: z.string().optional(),
     serverlessComputeId: z.string().optional(),
   })
@@ -5379,6 +5446,7 @@ export const marshalEditPipelineRequestSchema: z.ZodType = z
     event_log: d.eventLog,
     root_path: d.rootPath,
     environment: d.environment,
+    parent_path: d.parentPath,
     usage_policy_id: d.usagePolicyId,
     serverless_compute_id: d.serverlessComputeId,
   }));

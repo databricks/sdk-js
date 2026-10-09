@@ -7,5 +7,50 @@
         "package.json": "\"$DEPENDENCY\": \">=$VERSION <1.0.0\""
     },
     "dependency_name_template": "@databricks/sdk-$PACKAGE",
-    "allow_empty_changelog": true
+    "allow_empty_changelog": true,
+    "sync": {
+        "manually_written_packages": [
+            "auth",
+            "core",
+            "options"
+        ],
+        "allow_from_packages": [
+            "**/*.{ts,json,md,mjs}",
+            "**/.package.json",
+            "**/LICENSE",
+            "**/databrickscfg*"
+        ],
+        "allow_from_repository": [
+            ".agent/**",
+            ".claude/**",
+            ".codegen/_last_sha",
+            ".codegen/changelog.json",
+            ".codegen.json",
+            ".eslintrc.cjs",
+            ".github/**",
+            ".gitignore",
+            ".npmrc",
+            ".prettierrc.json",
+            "AGENTS.md",
+            "CLAUDE.md",
+            "DCO",
+            "LICENSE",
+            "NOTICE",
+            "README.md",
+            "SECURITY.md",
+            "package-lock.json",
+            "package.json",
+            "packages/examples/**",
+            "scripts/**",
+            "tsconfig.base.json",
+            "tsconfig.json",
+            "tsdown.config.ts",
+            "turbo.json",
+            "typedoc.json",
+            "vitest.shared.mjs"
+        ],
+        "skip_from_source": [
+            "BUILD.bazel"
+        ]
+    }
 }

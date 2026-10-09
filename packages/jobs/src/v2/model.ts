@@ -2318,6 +2318,8 @@ export interface Environment {
   environmentVersion?: string | undefined;
   /** List of java dependencies. Each dependency is a string representing a java library path. For example: `/Volumes/path/to/test.jar`. */
   javaDependencies?: string[] | undefined;
+  /** File path of pyproject.toml file that defines the project-scoped environment. */
+  projectEnvironment?: string | undefined;
 }
 
 /** Retrieves the export of a job run task. */
@@ -6572,6 +6574,7 @@ export const unmarshalEnvironmentSchema: z.ZodType<Environment> = z
     base_environment: z.string().optional(),
     environment_version: z.string().optional(),
     java_dependencies: z.array(z.string()).optional(),
+    project_environment: z.string().optional(),
   })
   .transform(d => ({
     client: d.client,
@@ -6579,6 +6582,7 @@ export const unmarshalEnvironmentSchema: z.ZodType<Environment> = z
     baseEnvironment: d.base_environment,
     environmentVersion: d.environment_version,
     javaDependencies: d.java_dependencies,
+    projectEnvironment: d.project_environment,
   }));
 
 export const unmarshalExportRunResponseSchema: z.ZodType<ExportRunResponse> = z
@@ -9889,6 +9893,7 @@ export const marshalEnvironmentSchema: z.ZodType = z
     baseEnvironment: z.string().optional(),
     environmentVersion: z.string().optional(),
     javaDependencies: z.array(z.string()).optional(),
+    projectEnvironment: z.string().optional(),
   })
   .transform(d => ({
     client: d.client,
@@ -9896,6 +9901,7 @@ export const marshalEnvironmentSchema: z.ZodType = z
     base_environment: d.baseEnvironment,
     environment_version: d.environmentVersion,
     java_dependencies: d.javaDependencies,
+    project_environment: d.projectEnvironment,
   }));
 
 export const marshalFileArrivalTriggerConfigurationSchema: z.ZodType = z

@@ -114,7 +114,7 @@ export type PipelineType =
   | (typeof PipelineType)[keyof typeof PipelineType]
   | (string & {});
 
-/** State of the most recent scaling change request for a Storage Optimized endpoint. */
+/** State of the most recent scaling change request for a Standard endpoint. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ScalingChangeState = {
   /** Default value; the endpoint has no recorded scaling state. */
@@ -403,8 +403,8 @@ export interface Endpoint {
 }
 
 /**
- * Scaling information for a Storage Optimized endpoint — current scaling state and the
- * requested QPS target the system is scaling toward.
+ * Scaling information for a Standard endpoint: the current scaling state, the requested QPS
+ * target, and the progress of an in-progress scaling change.
  */
 export interface EndpointScalingInfo {
   /** The current state of the scaling change request. */
