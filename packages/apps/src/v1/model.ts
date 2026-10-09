@@ -536,7 +536,9 @@ export type SpaceUpdateState =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AppDeployment_Mode = {
   MODE_UNSPECIFIED: 'MODE_UNSPECIFIED',
+  /** Captures a snapshot of the source code at deployment time. */
   SNAPSHOT: 'SNAPSHOT',
+  /** Unsupported. Auto-sync deployments are not accepted. Use SNAPSHOT instead. */
   AUTO_SYNC: 'AUTO_SYNC',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -945,6 +947,8 @@ export interface AppDeployment {
   command?: string[] | undefined;
   /** The environment variables to set in the app runtime environment. This will override the environment variables specified in the app.yaml file. */
   envVars?: EnvVar[] | undefined;
+  /** Deploy-time health check for the app. Verifies the app is responding to HTTP requests before considering the deployment successful. */
+  healthCheck?: AppHealthCheck | undefined;
 }
 
 export interface AppDeploymentArtifacts {
@@ -957,6 +961,14 @@ export interface AppDeploymentStatus {
   state?: AppDeployment_State | undefined;
   /** Message corresponding with the deployment state. */
   message?: string | undefined;
+}
+
+/** Deploy-time HTTP health check configuration for an app deployment. */
+export interface AppHealthCheck {
+  /** HTTP path to probe, e.g. "/health" or "/api/status". */
+  path?: string | undefined;
+  /** Timeout to wait for the health check to pass before failing the deployment. If not set, a default timeout is used. */
+  timeout?: Temporal.Duration | undefined;
 }
 
 /** App manifest definition */
@@ -1694,6 +1706,7 @@ export const unmarshalAppDeploymentSchema: z.ZodType<AppDeployment> = z
       .optional(),
     command: z.array(z.string()).optional(),
     env_vars: z.array(z.lazy(() => unmarshalEnvVarSchema)).optional(),
+    health_check: z.lazy(() => unmarshalAppHealthCheckSchema).optional(),
   })
   .transform(d => ({
     deploymentId: d.deployment_id,
@@ -1707,6 +1720,7 @@ export const unmarshalAppDeploymentSchema: z.ZodType<AppDeployment> = z
     updateTime: d.update_time,
     command: d.command,
     envVars: d.env_vars,
+    healthCheck: d.health_check,
   }));
 
 export const unmarshalAppDeploymentArtifactsSchema: z.ZodType<AppDeploymentArtifacts> =
@@ -1728,6 +1742,19 @@ export const unmarshalAppDeploymentStatusSchema: z.ZodType<AppDeploymentStatus> 
       state: d.state,
       message: d.message,
     }));
+
+export const unmarshalAppHealthCheckSchema: z.ZodType<AppHealthCheck> = z
+  .object({
+    path: z.string().optional(),
+    timeout: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+    timeout: d.timeout,
+  }));
 
 export const unmarshalAppManifestSchema: z.ZodType<AppManifest> = z
   .object({
@@ -2485,6 +2512,7 @@ export const marshalAppDeploymentSchema: z.ZodType = z
       .optional(),
     command: z.array(z.string()).optional(),
     envVars: z.array(z.lazy(() => marshalEnvVarSchema)).optional(),
+    healthCheck: z.lazy(() => marshalAppHealthCheckSchema).optional(),
   })
   .transform(d => ({
     deployment_id: d.deploymentId,
@@ -2498,6 +2526,7 @@ export const marshalAppDeploymentSchema: z.ZodType = z
     update_time: d.updateTime,
     command: d.command,
     env_vars: d.envVars,
+    health_check: d.healthCheck,
   }));
 
 export const marshalAppDeploymentArtifactsSchema: z.ZodType = z
@@ -2516,6 +2545,19 @@ export const marshalAppDeploymentStatusSchema: z.ZodType = z
   .transform(d => ({
     state: d.state,
     message: d.message,
+  }));
+
+export const marshalAppHealthCheckSchema: z.ZodType = z
+  .object({
+    path: z.string().optional(),
+    timeout: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+    timeout: d.timeout,
   }));
 
 export const marshalAppManifestSchema: z.ZodType = z
@@ -3151,6 +3193,10 @@ const appDeploymentFieldMaskSchema: FieldMaskSchema = {
   deploymentId: {wire: 'deployment_id'},
   envVars: {wire: 'env_vars'},
   gitSource: {wire: 'git_source', children: () => gitSourceFieldMaskSchema},
+  healthCheck: {
+    wire: 'health_check',
+    children: () => appHealthCheckFieldMaskSchema,
+  },
   mode: {wire: 'mode'},
   sourceCodePath: {wire: 'source_code_path'},
   status: {wire: 'status', children: () => appDeploymentStatusFieldMaskSchema},
@@ -3164,6 +3210,11 @@ const appDeploymentArtifactsFieldMaskSchema: FieldMaskSchema = {
 const appDeploymentStatusFieldMaskSchema: FieldMaskSchema = {
   message: {wire: 'message'},
   state: {wire: 'state'},
+};
+
+const appHealthCheckFieldMaskSchema: FieldMaskSchema = {
+  path: {wire: 'path'},
+  timeout: {wire: 'timeout'},
 };
 
 const applicationStatusFieldMaskSchema: FieldMaskSchema = {

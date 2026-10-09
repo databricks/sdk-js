@@ -63,6 +63,21 @@ export type ComparisonOperator =
   | (typeof ComparisonOperator)[keyof typeof ComparisonOperator]
   | (string & {});
 
+/** Rendering format for the `custom_summary` and `custom_description` templates. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CustomTemplateFormat = {
+  /** Templates are HTML with Mustache `{{VARIABLE_NAME}}` placeholders. */
+  HTML: 'HTML',
+  /**
+   * Templates are Markdown with allowlisted `@VARIABLE_NAME` placeholders, converted to the
+   * format each notification destination expects.
+   */
+  MARKDOWN: 'MARKDOWN',
+} as const;
+export type CustomTemplateFormat =
+  | (typeof CustomTemplateFormat)[keyof typeof CustomTemplateFormat]
+  | (string & {});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SchedulePauseStatus = {
   UNPAUSED: 'UNPAUSED',
@@ -131,6 +146,18 @@ export interface Alert {
    * the section [`cast` function](https://docs.databricks.com/sql/language-manual/functions/cast.html) of the SQL language reference.
    */
   parameters?: AlertStatementParameter[] | undefined;
+  /**
+   * The format used to interpret the `custom_summary` and `custom_description` templates.
+   *
+   * `HTML` treats both templates as HTML with Mustache `{{VARIABLE_NAME}}` placeholders.
+   * `MARKDOWN` treats them as Markdown with allowlisted `@VARIABLE_NAME` placeholders and converts
+   * them to the format each notification destination expects, so a single template renders
+   * correctly in email, Slack, and Microsoft Teams.
+   *
+   * When unset, the API applies no default. Responses omit the field unless a format is stored,
+   * and a template with no format is rendered as HTML.
+   */
+  customTemplateFormat?: CustomTemplateFormat | undefined;
 }
 
 export interface AlertEvaluation {
@@ -306,6 +333,7 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
     parameters: z
       .array(z.lazy(() => unmarshalAlertStatementParameterSchema))
       .optional(),
+    custom_template_format: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -325,6 +353,7 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
     runAs: d.run_as,
     effectiveRunAs: d.effective_run_as,
     parameters: d.parameters,
+    customTemplateFormat: d.custom_template_format,
   }));
 
 export const unmarshalAlertEvaluationSchema: z.ZodType<AlertEvaluation> = z
@@ -504,6 +533,7 @@ export const marshalAlertSchema: z.ZodType = z
     parameters: z
       .array(z.lazy(() => marshalAlertStatementParameterSchema))
       .optional(),
+    customTemplateFormat: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -523,6 +553,7 @@ export const marshalAlertSchema: z.ZodType = z
     run_as: d.runAs,
     effective_run_as: d.effectiveRunAs,
     parameters: d.parameters,
+    custom_template_format: d.customTemplateFormat,
   }));
 
 export const marshalAlertEvaluationSchema: z.ZodType = z
@@ -682,6 +713,7 @@ const alertFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   customDescription: {wire: 'custom_description'},
   customSummary: {wire: 'custom_summary'},
+  customTemplateFormat: {wire: 'custom_template_format'},
   displayName: {wire: 'display_name'},
   effectiveRunAs: {
     wire: 'effective_run_as',

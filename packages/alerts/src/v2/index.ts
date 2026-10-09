@@ -11,6 +11,7 @@ export {
   AlertEvaluationState,
   AlertLifecycleState,
   ComparisonOperator,
+  CustomTemplateFormat,
   SchedulePauseStatus,
 } from './model';
 

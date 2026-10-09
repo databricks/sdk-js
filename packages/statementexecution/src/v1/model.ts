@@ -119,6 +119,8 @@ export interface CancelStatementRequest {
    * reference for all subsequent calls.
    */
   statementId?: string | undefined;
+  /** For warehouse statement URLs, this field contains the warehouse_id path parameter. */
+  warehouseId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -400,6 +402,8 @@ export interface GetResultDataRequest {
    */
   statementId?: string | undefined;
   chunkIndex?: number | undefined;
+  /** For warehouse statement URLs, this field contains the warehouse_id path parameter. */
+  warehouseId?: string | undefined;
 }
 
 export interface GetStatementResultRequest {
@@ -408,6 +412,8 @@ export interface GetStatementResultRequest {
    * reference for all subsequent calls.
    */
   statementId?: string | undefined;
+  /** For warehouse statement URLs, this field contains the warehouse_id path parameter. */
+  warehouseId?: string | undefined;
 }
 
 /**
@@ -728,9 +734,11 @@ export const unmarshalStatementStatusSchema: z.ZodType<StatementStatus> = z
 export const marshalCancelStatementRequestSchema: z.ZodType = z
   .object({
     statementId: z.string().optional(),
+    warehouseId: z.string().optional(),
   })
   .transform(d => ({
     statement_id: d.statementId,
+    warehouse_id: d.warehouseId,
   }));
 
 export const marshalExecuteStatementRequestSchema: z.ZodType = z
