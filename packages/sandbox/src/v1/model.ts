@@ -41,6 +41,25 @@ export type SandboxState =
   | (typeof SandboxState)[keyof typeof SandboxState]
   | (string & {});
 
+/** A single command execution. */
+export interface Command {
+  /** Stable identifier for this command. */
+  commandId?: string | undefined;
+  /** The program that was executed. */
+  cmd?: string | undefined;
+  /** Arguments passed to the program. */
+  args?: string[] | undefined;
+  /** PID of the spawned process. Absent if the process failed to start. */
+  pid?: bigint | undefined;
+  /** Whether the command has finished executing. */
+  finished?: boolean | undefined;
+  /**
+   * Process exit code. Only present when finished is true and the process
+   * exited normally (not killed by signal or failed to start).
+   */
+  exitCode?: number | undefined;
+}
+
 export interface ComputeSpec {
   /** Idle duration after which the sandbox is automatically terminated. */
   inactivityTimeout?: Temporal.Duration | undefined;
@@ -57,6 +76,15 @@ export interface CreateSandboxRequest {
 /** A request to delete a Sandbox. */
 export interface DeleteSandboxRequest {
   name?: string | undefined;
+}
+
+export interface EnvironmentSpec {
+  /**
+   * A Unity Catalog container artifact (e.g. `catalog.schema.folder.image:tag`) to run as the
+   * sandbox environment. When set, this image is used as the environment instead of resolving a
+   * managed image from `environment_version`.
+   */
+  imageUri?: string | undefined;
 }
 
 /** Request to run a command in the given sandbox and wait for it to finish. */
@@ -125,6 +153,30 @@ export interface GetSandboxRequest {
   name?: string | undefined;
 }
 
+/** Request to list tracked command executions. */
+export interface ListCommandsRequest {
+  /**
+   * Maximum number of commands to return. The server may return fewer.
+   * If unspecified, the server returns all commands.
+   */
+  pageSize?: number | undefined;
+  /**
+   * Page token returned by a previous ListCommands call. Use this to
+   * retrieve the next page of results.
+   */
+  pageToken?: string | undefined;
+  /** The sandbox whose commands to list, in the form `sandboxes/{sandbox_id}`. */
+  parent?: string | undefined;
+}
+
+/** Response listing tracked command executions. */
+export interface ListCommandsResponse {
+  /** Commands in this page of results. */
+  commands?: Command[] | undefined;
+  /** Token to retrieve the next page. Empty when there are no more results. */
+  nextPageToken?: string | undefined;
+}
+
 /** A request to list Sandboxes. */
 export interface ListSandboxesRequest {
   pageToken?: string | undefined;
@@ -159,6 +211,8 @@ export interface Sandbox {
 export interface SandboxSpec {
   /** Compute configuration (size, inactivity timeout) requested for the sandbox. */
   compute?: ComputeSpec | undefined;
+  /** The execution environment to use for the sandbox. */
+  environment?: EnvironmentSpec | undefined;
 }
 
 export interface SandboxStatus {
@@ -196,6 +250,27 @@ export interface UpdateSandboxRequest {
   updateMask?: FieldMask<Sandbox> | undefined;
 }
 
+export const unmarshalCommandSchema: z.ZodType<Command> = z
+  .object({
+    command_id: z.string().optional(),
+    cmd: z.string().optional(),
+    args: z.array(z.string()).optional(),
+    pid: z
+      .union([z.number(), z.bigint(), z.string()])
+      .transform(v => BigInt(v))
+      .optional(),
+    finished: z.boolean().optional(),
+    exit_code: z.number().optional(),
+  })
+  .transform(d => ({
+    commandId: d.command_id,
+    cmd: d.cmd,
+    args: d.args,
+    pid: d.pid,
+    finished: d.finished,
+    exitCode: d.exit_code,
+  }));
+
 export const unmarshalComputeSpecSchema: z.ZodType<ComputeSpec> = z
   .object({
     inactivity_timeout: z
@@ -205,6 +280,14 @@ export const unmarshalComputeSpecSchema: z.ZodType<ComputeSpec> = z
   })
   .transform(d => ({
     inactivityTimeout: d.inactivity_timeout,
+  }));
+
+export const unmarshalEnvironmentSpecSchema: z.ZodType<EnvironmentSpec> = z
+  .object({
+    image_uri: z.string().optional(),
+  })
+  .transform(d => ({
+    imageUri: d.image_uri,
   }));
 
 export const unmarshalExecuteCommandSyncResponseSchema: z.ZodType<ExecuteCommandSyncResponse> =
@@ -224,6 +307,17 @@ export const unmarshalExecuteCommandSyncResponseSchema: z.ZodType<ExecuteCommand
       stderr: d.stderr,
       commandId: d.command_id,
       truncated: d.truncated,
+    }));
+
+export const unmarshalListCommandsResponseSchema: z.ZodType<ListCommandsResponse> =
+  z
+    .object({
+      commands: z.array(z.lazy(() => unmarshalCommandSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      commands: d.commands,
+      nextPageToken: d.next_page_token,
     }));
 
 export const unmarshalListSandboxesResponseSchema: z.ZodType<ListSandboxesResponse> =
@@ -264,9 +358,11 @@ export const unmarshalSandboxSchema: z.ZodType<Sandbox> = z
 export const unmarshalSandboxSpecSchema: z.ZodType<SandboxSpec> = z
   .object({
     compute: z.lazy(() => unmarshalComputeSpecSchema).optional(),
+    environment: z.lazy(() => unmarshalEnvironmentSpecSchema).optional(),
   })
   .transform(d => ({
     compute: d.compute,
+    environment: d.environment,
   }));
 
 export const unmarshalSandboxStatusSchema: z.ZodType<SandboxStatus> = z
@@ -286,6 +382,14 @@ export const marshalComputeSpecSchema: z.ZodType = z
   })
   .transform(d => ({
     inactivity_timeout: d.inactivityTimeout,
+  }));
+
+export const marshalEnvironmentSpecSchema: z.ZodType = z
+  .object({
+    imageUri: z.string().optional(),
+  })
+  .transform(d => ({
+    image_uri: d.imageUri,
   }));
 
 export const marshalExecuteCommandSyncRequestSchema: z.ZodType = z
@@ -334,9 +438,11 @@ export const marshalSandboxSchema: z.ZodType = z
 export const marshalSandboxSpecSchema: z.ZodType = z
   .object({
     compute: z.lazy(() => marshalComputeSpecSchema).optional(),
+    environment: z.lazy(() => marshalEnvironmentSpecSchema).optional(),
   })
   .transform(d => ({
     compute: d.compute,
+    environment: d.environment,
   }));
 
 export const marshalSandboxStatusSchema: z.ZodType = z
@@ -367,6 +473,10 @@ const computeSpecFieldMaskSchema: FieldMaskSchema = {
   inactivityTimeout: {wire: 'inactivity_timeout'},
 };
 
+const environmentSpecFieldMaskSchema: FieldMaskSchema = {
+  imageUri: {wire: 'image_uri'},
+};
+
 const sandboxFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   displayName: {wire: 'display_name'},
@@ -382,6 +492,10 @@ export function sandboxFieldMask(...paths: string[]): FieldMask<Sandbox> {
 
 const sandboxSpecFieldMaskSchema: FieldMaskSchema = {
   compute: {wire: 'compute', children: () => computeSpecFieldMaskSchema},
+  environment: {
+    wire: 'environment',
+    children: () => environmentSpecFieldMaskSchema,
+  },
 };
 
 const sandboxStatusFieldMaskSchema: FieldMaskSchema = {

@@ -329,6 +329,10 @@ export interface Endpoint {
   scalingInfo?: EndpointScalingInfo | undefined;
 }
 
+/**
+ * Scaling information for a Standard endpoint: the current scaling state, the requested QPS
+ * target, and the progress of an in-progress scaling change.
+ */
 export interface EndpointScalingInfo {
   /** The current state of the scaling change request. */
   state?: ScalingChangeState | undefined;

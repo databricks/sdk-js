@@ -1,5 +1,13 @@
 # Version changelog
 
+## Release v0.52.0 (2026-10-09)
+
+### New Features and Improvements
+* Add explicit Azure CLI authentication with an optional tenant ID.
+
+### Internal Changes
+* Bump `core` to v0.51.1.
+
 ## Release v0.51.0 (2026-09-08)
 
 

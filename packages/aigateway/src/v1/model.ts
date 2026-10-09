@@ -119,6 +119,14 @@ export const ModelProviderServiceConfig_ExternalModelProviderType = {
   /** Google Gemini Enterprise. Auth via API key. */
   EXTERNAL_MODEL_PROVIDER_TYPE_GEMINI_ENTERPRISE:
     'EXTERNAL_MODEL_PROVIDER_TYPE_GEMINI_ENTERPRISE',
+  /**
+   * Amazon Bedrock Mantle. Uses OpenAI-compatible APIs or the Anthropic
+   * Messages API for Claude instead of the standard Bedrock Runtime API.
+   * Authentication uses an AWS access-key pair or a Unity Catalog service
+   * credential. Configure the region and credentials in `bedrock_mantle`.
+   */
+  EXTERNAL_MODEL_PROVIDER_TYPE_BEDROCK_MANTLE:
+    'EXTERNAL_MODEL_PROVIDER_TYPE_BEDROCK_MANTLE',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type ModelProviderServiceConfig_ExternalModelProviderType =
@@ -469,7 +477,7 @@ export interface ListMcpServicesRequest {
   parent?: string | undefined;
   /**
    * Maximum number of MCP services to return. Defaults to 100 when unset or 0;
-   * the maximum is 100. Use `page_token` to retrieve additional pages.
+   * the maximum is 200. Use `page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from the previous response. */
@@ -506,7 +514,7 @@ export interface ListModelProviderServicesRequest {
   parent?: string | undefined;
   /**
    * Maximum number of provider services to return. Defaults to 100 when unset or
-   * 0; the maximum is 100. Use `page_token` to retrieve additional pages.
+   * 0; the maximum is 200. Use `page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from the previous response. */
@@ -531,10 +539,7 @@ export interface ListModelProviderServicesResponse {
   nextPageToken?: string | undefined;
 }
 
-/**
- * Request to list model services. Accepts `parent`, `page_size`, `page_token`,
- * and `view`.
- */
+/** Request to list model services. */
 export interface ListModelServicesRequest {
   /**
    * Parent schema to list within, in the form
@@ -544,7 +549,7 @@ export interface ListModelServicesRequest {
   parent?: string | undefined;
   /**
    * Maximum number of model services to return. Defaults to 100 when unset or 0;
-   * the maximum is 100. Use `page_token` to retrieve additional pages.
+   * the maximum is 200. Use `page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from the previous response. */
@@ -584,7 +589,7 @@ export interface ListSkillsRequest {
   parent?: string | undefined;
   /**
    * Maximum number of skills to return. Defaults to 100 when unset or 0; the
-   * maximum is 100. Use `page_token` to retrieve additional pages.
+   * maximum is 200. Use `page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
   /** Opaque pagination token from a previous request. */
@@ -852,6 +857,10 @@ export interface ModelProviderServiceConfig {
         $case: 'geminiEnterprise';
         geminiEnterprise: ModelProviderServiceConfig_GeminiEnterpriseProviderConfig;
       }
+    | {
+        $case: 'bedrockMantle';
+        bedrockMantle: ModelProviderServiceConfig_AmazonBedrockProviderConfig;
+      }
     | undefined;
   /**
    * When true, accepts any model exposed by the upstream provider; `targets`
@@ -900,6 +909,8 @@ export interface ModelProviderServiceConfig {
    * service's inference table instead.
    */
   inferenceTable?: InferenceTableConfig | undefined;
+  /** Pricing configuration for this provider service. */
+  pricing?: ModelProviderServiceConfig_ProviderPricingConfig | undefined;
 }
 
 /** Amazon Bedrock provider configuration. */
@@ -1351,7 +1362,10 @@ export interface ModelProviderServiceConfig_MicrosoftFoundryProviderDirectConfig
     | undefined;
 }
 
-/** Model target configuration for an external model destination. */
+/**
+ * Model target configuration shared by model provider service targets and
+ * external model destinations on model services.
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_ModelTargetConfig {
   /**
@@ -1362,11 +1376,21 @@ export interface ModelProviderServiceConfig_ModelTargetConfig {
   model?: string | undefined;
   /**
    * Provider-native API types supported by this model, such as
-   * `openai/v1/chat/completions`. At least one value is required. AI Gateway
-   * uses these values to translate requests and responses. At most 64 entries
-   * of 256 characters each are allowed.
+   * `openai/v1/chat/completions`. A model provider service target requires at
+   * least one value. A model service destination may omit the list to use the
+   * matching provider service target's types when available. AI Gateway uses
+   * the selected types for translation. At most 64 entries of 256 characters
+   * each are allowed.
    */
   nativeApiTypes?: string[] | undefined;
+  /**
+   * Relative path appended to a custom provider's `base_url` for this model,
+   * such as `serve/openai/chat`. Only custom model provider service targets
+   * use this field; other provider types ignore it, and model service
+   * destinations reject it. Do not include URI templates, queries, or
+   * fragments. When empty, `base_url` is used unchanged.
+   */
+  endpointRoute?: string | undefined;
 }
 
 /** OpenAI provider configuration. */
@@ -1414,6 +1438,19 @@ export interface ModelProviderServiceConfig_OpenAiProviderDirectConfig {
    * OpenAI-API-compatible third-party endpoints or in-network proxies.
    */
   baseUrl?: string | undefined;
+}
+
+/**
+ * Pricing adjustments applied to this provider service's external-model spend
+ * estimates.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ModelProviderServiceConfig_ProviderPricingConfig {
+  /**
+   * Provider-wide discount in basis points: 2000 = 20% off. Negative values are
+   * markups; the discount cannot exceed 10000 (100% off).
+   */
+  defaultDiscountBasisPoints?: number | undefined;
 }
 
 /**
@@ -1833,7 +1870,9 @@ export interface UpdateModelProviderServiceRequest {
    * `config.allow_all_targets`, `config.targets`, `config.forward_headers`,
    * `config.forward_query_parameters`, `config.forward_unmanaged_paths`,
    * `config.rate_limits`, or `config.inference_table`. The provider type is
-   * immutable.
+   * immutable. A `config` or `config.provider` replacement that carries no
+   * authentication material preserves the existing authentication binding;
+   * input-only plaintext does not need to be read back and re-sent.
    */
   updateMask?: FieldMask<ModelProviderService> | undefined;
   /**
@@ -2130,6 +2169,12 @@ export const unmarshalModelProviderServiceConfigSchema: z.ZodType<ModelProviderS
             unmarshalModelProviderServiceConfig_GeminiEnterpriseProviderConfigSchema
         )
         .optional(),
+      bedrock_mantle: z
+        .lazy(
+          () =>
+            unmarshalModelProviderServiceConfig_AmazonBedrockProviderConfigSchema
+        )
+        .optional(),
       allow_all_targets: z.boolean().optional(),
       targets: z
         .array(
@@ -2144,6 +2189,11 @@ export const unmarshalModelProviderServiceConfigSchema: z.ZodType<ModelProviderS
       rate_limits: z.array(z.lazy(() => unmarshalRateLimitSchema)).optional(),
       inference_table: z
         .lazy(() => unmarshalInferenceTableConfigSchema)
+        .optional(),
+      pricing: z
+        .lazy(
+          () => unmarshalModelProviderServiceConfig_ProviderPricingConfigSchema
+        )
         .optional(),
     })
     .transform(d => ({
@@ -2172,7 +2222,12 @@ export const unmarshalModelProviderServiceConfigSchema: z.ZodType<ModelProviderS
                           $case: 'geminiEnterprise' as const,
                           geminiEnterprise: d.gemini_enterprise,
                         }
-                      : undefined,
+                      : d.bedrock_mantle !== undefined
+                        ? {
+                            $case: 'bedrockMantle' as const,
+                            bedrockMantle: d.bedrock_mantle,
+                          }
+                        : undefined,
       allowAllTargets: d.allow_all_targets,
       targets: d.targets,
       forwardHeaders: d.forward_headers,
@@ -2180,6 +2235,7 @@ export const unmarshalModelProviderServiceConfigSchema: z.ZodType<ModelProviderS
       forwardUnmanagedPaths: d.forward_unmanaged_paths,
       rateLimits: d.rate_limits,
       inferenceTable: d.inference_table,
+      pricing: d.pricing,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2517,10 +2573,12 @@ export const unmarshalModelProviderServiceConfig_ModelTargetConfigSchema: z.ZodT
     .object({
       model: z.string().optional(),
       native_api_types: z.array(z.string()).optional(),
+      endpoint_route: z.string().optional(),
     })
     .transform(d => ({
       model: d.model,
       nativeApiTypes: d.native_api_types,
+      endpointRoute: d.endpoint_route,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2558,6 +2616,16 @@ export const unmarshalModelProviderServiceConfig_OpenAiProviderDirectConfigSchem
           : undefined,
       organization: d.organization,
       baseUrl: d.base_url,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalModelProviderServiceConfig_ProviderPricingConfigSchema: z.ZodType<ModelProviderServiceConfig_ProviderPricingConfig> =
+  z
+    .object({
+      default_discount_basis_points: z.number().optional(),
+    })
+    .transform(d => ({
+      defaultDiscountBasisPoints: d.default_discount_basis_points,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3023,6 +3091,13 @@ export const marshalModelProviderServiceConfigSchema: z.ZodType = z
               marshalModelProviderServiceConfig_GeminiEnterpriseProviderConfigSchema
           ),
         }),
+        z.object({
+          $case: z.literal('bedrockMantle'),
+          bedrockMantle: z.lazy(
+            () =>
+              marshalModelProviderServiceConfig_AmazonBedrockProviderConfigSchema
+          ),
+        }),
       ])
       .optional(),
     allowAllTargets: z.boolean().optional(),
@@ -3036,6 +3111,9 @@ export const marshalModelProviderServiceConfigSchema: z.ZodType = z
     forwardUnmanagedPaths: z.boolean().optional(),
     rateLimits: z.array(z.lazy(() => marshalRateLimitSchema)).optional(),
     inferenceTable: z.lazy(() => marshalInferenceTableConfigSchema).optional(),
+    pricing: z
+      .lazy(() => marshalModelProviderServiceConfig_ProviderPricingConfigSchema)
+      .optional(),
   })
   .transform(d => ({
     provider_type: d.providerType,
@@ -3054,6 +3132,9 @@ export const marshalModelProviderServiceConfigSchema: z.ZodType = z
     ...(d.provider?.$case === 'geminiEnterprise' && {
       gemini_enterprise: d.provider.geminiEnterprise,
     }),
+    ...(d.provider?.$case === 'bedrockMantle' && {
+      bedrock_mantle: d.provider.bedrockMantle,
+    }),
     allow_all_targets: d.allowAllTargets,
     targets: d.targets,
     forward_headers: d.forwardHeaders,
@@ -3061,6 +3142,7 @@ export const marshalModelProviderServiceConfigSchema: z.ZodType = z
     forward_unmanaged_paths: d.forwardUnmanagedPaths,
     rate_limits: d.rateLimits,
     inference_table: d.inferenceTable,
+    pricing: d.pricing,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3461,10 +3543,12 @@ export const marshalModelProviderServiceConfig_ModelTargetConfigSchema: z.ZodTyp
     .object({
       model: z.string().optional(),
       nativeApiTypes: z.array(z.string()).optional(),
+      endpointRoute: z.string().optional(),
     })
     .transform(d => ({
       model: d.model,
       native_api_types: d.nativeApiTypes,
+      endpoint_route: d.endpointRoute,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3510,6 +3594,16 @@ export const marshalModelProviderServiceConfig_OpenAiProviderDirectConfigSchema:
       ...(d.authMode?.$case === 'apiKey' && {api_key: d.authMode.apiKey}),
       organization: d.organization,
       base_url: d.baseUrl,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalModelProviderServiceConfig_ProviderPricingConfigSchema: z.ZodType =
+  z
+    .object({
+      defaultDiscountBasisPoints: z.number().optional(),
+    })
+    .transform(d => ({
+      default_discount_basis_points: d.defaultDiscountBasisPoints,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3856,6 +3950,11 @@ const modelProviderServiceConfigFieldMaskSchema: FieldMaskSchema = {
     children: () =>
       modelProviderServiceConfig_AzureOpenAiProviderConfigFieldMaskSchema,
   },
+  bedrockMantle: {
+    wire: 'bedrock_mantle',
+    children: () =>
+      modelProviderServiceConfig_AmazonBedrockProviderConfigFieldMaskSchema,
+  },
   custom: {
     wire: 'custom',
     children: () =>
@@ -3882,6 +3981,11 @@ const modelProviderServiceConfigFieldMaskSchema: FieldMaskSchema = {
     wire: 'openai',
     children: () =>
       modelProviderServiceConfig_OpenAiProviderConfigFieldMaskSchema,
+  },
+  pricing: {
+    wire: 'pricing',
+    children: () =>
+      modelProviderServiceConfig_ProviderPricingConfigFieldMaskSchema,
   },
   providerType: {wire: 'provider_type'},
   rateLimits: {wire: 'rate_limits'},
@@ -4102,6 +4206,12 @@ const modelProviderServiceConfig_OpenAiProviderDirectConfigFieldMaskSchema: Fiel
     },
     baseUrl: {wire: 'base_url'},
     organization: {wire: 'organization'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const modelProviderServiceConfig_ProviderPricingConfigFieldMaskSchema: FieldMaskSchema =
+  {
+    defaultDiscountBasisPoints: {wire: 'default_discount_basis_points'},
   };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

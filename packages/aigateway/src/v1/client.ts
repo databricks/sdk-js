@@ -1128,9 +1128,9 @@ export class AiGatewayClient {
    * it, plus `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the
    * parent schema.
    *
-   * Updating `config.provider` cannot change the provider type or switch
-   * between Unity Catalog service-credential authentication and inline
-   * authentication.
+   * Updating `config.provider` cannot change the provider type. Authentication
+   * mode changes require feature availability and support for both modes on the
+   * selected provider.
    */
   async updateModelProviderService(
     req: UpdateModelProviderServiceRequest,

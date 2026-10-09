@@ -868,6 +868,8 @@ export interface CreateWarehouseRequest {
    * you must set to `PRO` and also set the field `enable_serverless_compute` to `true`.
    */
   warehouseType?: WarehouseType | undefined;
+  /** Warehouse statement timeout in seconds. */
+  statementTimeout?: number | undefined;
 }
 
 export interface CreateWarehouseResponse {
@@ -1014,6 +1016,8 @@ export interface EditWarehouseRequest {
    * you must set to `PRO` and also set the field `enable_serverless_compute` to `true`.
    */
   warehouseType?: WarehouseType | undefined;
+  /** Warehouse statement timeout in seconds. */
+  statementTimeout?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1132,6 +1136,8 @@ export interface EndpointInfo {
    * you must set to `PRO` and also set the field `enable_serverless_compute` to `true`.
    */
   warehouseType?: WarehouseType | undefined;
+  /** Warehouse statement timeout in seconds. */
+  statementTimeout?: number | undefined;
   /** current number of clusters running for the service */
   numClusters?: number | undefined;
   /** Deprecated. current number of active sessions for the warehouse */
@@ -1266,6 +1272,8 @@ export interface GetWarehouseResponse {
    * you must set to `PRO` and also set the field `enable_serverless_compute` to `true`.
    */
   warehouseType?: WarehouseType | undefined;
+  /** Warehouse statement timeout in seconds. */
+  statementTimeout?: number | undefined;
   /** current number of clusters running for the service */
   numClusters?: number | undefined;
   /** Deprecated. current number of active sessions for the warehouse */
@@ -1615,6 +1623,7 @@ export const unmarshalEndpointInfoSchema: z.ZodType<EndpointInfo> = z
     channel: z.lazy(() => unmarshalChannelSchema).optional(),
     enable_serverless_compute: z.boolean().optional(),
     warehouse_type: z.string().optional(),
+    statement_timeout: z.number().optional(),
     num_clusters: z.number().optional(),
     num_active_sessions: z
       .union([z.number(), z.bigint(), z.string()])
@@ -1640,6 +1649,7 @@ export const unmarshalEndpointInfoSchema: z.ZodType<EndpointInfo> = z
     channel: d.channel,
     enableServerlessCompute: d.enable_serverless_compute,
     warehouseType: d.warehouse_type,
+    statementTimeout: d.statement_timeout,
     numClusters: d.num_clusters,
     numActiveSessions: d.num_active_sessions,
     state: d.state,
@@ -1685,6 +1695,7 @@ export const unmarshalGetWarehouseResponseSchema: z.ZodType<GetWarehouseResponse
       channel: z.lazy(() => unmarshalChannelSchema).optional(),
       enable_serverless_compute: z.boolean().optional(),
       warehouse_type: z.string().optional(),
+      statement_timeout: z.number().optional(),
       num_clusters: z.number().optional(),
       num_active_sessions: z
         .union([z.number(), z.bigint(), z.string()])
@@ -1710,6 +1721,7 @@ export const unmarshalGetWarehouseResponseSchema: z.ZodType<GetWarehouseResponse
       channel: d.channel,
       enableServerlessCompute: d.enable_serverless_compute,
       warehouseType: d.warehouse_type,
+      statementTimeout: d.statement_timeout,
       numClusters: d.num_clusters,
       numActiveSessions: d.num_active_sessions,
       state: d.state,
@@ -1866,6 +1878,7 @@ export const marshalCreateWarehouseRequestSchema: z.ZodType = z
     channel: z.lazy(() => marshalChannelSchema).optional(),
     enableServerlessCompute: z.boolean().optional(),
     warehouseType: z.string().optional(),
+    statementTimeout: z.number().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1881,6 +1894,7 @@ export const marshalCreateWarehouseRequestSchema: z.ZodType = z
     channel: d.channel,
     enable_serverless_compute: d.enableServerlessCompute,
     warehouse_type: d.warehouseType,
+    statement_timeout: d.statementTimeout,
   }));
 
 export const marshalDefaultWarehouseOverrideSchema: z.ZodType = z
@@ -1913,6 +1927,7 @@ export const marshalEditWarehouseRequestSchema: z.ZodType = z
     channel: z.lazy(() => marshalChannelSchema).optional(),
     enableServerlessCompute: z.boolean().optional(),
     warehouseType: z.string().optional(),
+    statementTimeout: z.number().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -1929,6 +1944,7 @@ export const marshalEditWarehouseRequestSchema: z.ZodType = z
     channel: d.channel,
     enable_serverless_compute: d.enableServerlessCompute,
     warehouse_type: d.warehouseType,
+    statement_timeout: d.statementTimeout,
   }));
 
 export const marshalEndpointConfPairSchema: z.ZodType = z
