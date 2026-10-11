@@ -11,7 +11,7 @@ import type {ProfileOptions} from '@databricks/sdk-core/profiles';
 
 /** Options that configure a Databricks API client. */
 export interface ClientOptions {
-  /** Host for the client. */
+  /** Databricks host. HTTPS is used when the scheme is omitted. */
   host?: string;
 
   /**
