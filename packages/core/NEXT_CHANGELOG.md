@@ -6,6 +6,8 @@
 
 ### Bug Fixes
 
+- Expose Databricks API error codes on `ApiError.errorCode` while retaining `.code`.
+
 ### Documentation
 
 ### Internal Changes
