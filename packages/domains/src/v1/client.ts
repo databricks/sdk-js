@@ -141,7 +141,7 @@ export class DomainsClient {
   /**
    * Get a domain by resource name.
    *
-   * Authorization: external callers must have the `MANAGE DISCOVERY` permission.
+   * Authorization: external callers must have the `MANAGE DISCOVER` permission.
    */
   async getDomain(
     req: GetDomainRequest,
@@ -175,7 +175,7 @@ export class DomainsClient {
    * List domains in the account. Set `parent_domain_id` to return only the
    * direct subdomains of a given domain.
    *
-   * Authorization: external callers must have the `MANAGE DISCOVERY` permission;
+   * Authorization: external callers must have the `MANAGE DISCOVER` permission;
    * only domains the caller is authorized to read are returned.
    */
   async listDomains(

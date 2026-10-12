@@ -52,6 +52,7 @@ export type {
   AppDeployment,
   AppDeploymentArtifacts,
   AppDeploymentStatus,
+  AppHealthCheck,
   AppManifest,
   AppManifest_AppResourceExperimentSpec,
   AppManifest_AppResourceJobSpec,
