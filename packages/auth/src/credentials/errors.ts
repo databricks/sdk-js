@@ -67,3 +67,23 @@ export class U2mCredentialsError extends Error {
     this.code = code;
   }
 }
+
+/** Identifies why Azure CLI credentials failed. */
+export type AzureCliCredentialsErrorCode =
+  | 'TOKEN_FETCH_FAILED'
+  | 'INVALID_RESPONSE';
+
+/** Reports a failed Azure CLI token request or an unusable token response. */
+export class AzureCliCredentialsError extends Error {
+  readonly code: AzureCliCredentialsErrorCode;
+
+  constructor(
+    code: AzureCliCredentialsErrorCode,
+    message: string,
+    options?: ErrorOptions
+  ) {
+    super(message, options);
+    this.name = 'AzureCliCredentialsError';
+    this.code = code;
+  }
+}

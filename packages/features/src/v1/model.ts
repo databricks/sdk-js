@@ -1008,10 +1008,7 @@ export interface DeltaTableSource {
   dataframeSchema?: string | undefined;
 }
 
-/**
- * Direct connection configs for mTLS, as Kafka Connections do not support mTLS yet .
- * Temporarily used until UC Kafka Connections gain mTLS support.
- */
+/** Direct connection configs for mTLS, as Kafka Connections do not support mTLS yet. */
 export interface DirectMtlsConfig {
   /** A comma-separated list of host:port pairs for the Kafka bootstrap servers. */
   bootstrapServers?: string | undefined;
@@ -1049,11 +1046,7 @@ export interface EntityColumn {
 }
 
 export interface Feature {
-  /**
-   * The full three-part name (catalog, schema, name) of the feature. This is the
-   * feature's resource identifier; the catalog_name, schema_name, and name fields
-   * below are OUTPUT_ONLY decomposed views of this value.
-   */
+  /** The full three-part name (catalog, schema, name) of the feature. */
   fullName?: string | undefined;
   /** The data source of the feature. */
   source?: DataSource | undefined;
@@ -1072,9 +1065,16 @@ export interface Feature {
    * This field will be set by feature-engineering client and should be left unset by SDK and terraform users.
    */
   lineageContext?: LineageContext | undefined;
-  /** The entity columns for the feature, used as aggregation keys and for query-time lookup. */
+  /**
+   * The entity columns for the feature, used as aggregation keys and for query-time lookup.
+   * Optional since entities are not set for RequestSource features or on-demand calculated features.
+   */
   entities?: EntityColumn[] | undefined;
-  /** Column recording time, used for point-in-time joins, backfills, and aggregations. */
+  /**
+   * Column recording time, used for point-in-time joins, backfills, and aggregations.
+   * Optional since a timeseries column is not set for RequestSource features or on-demand
+   * calculated features.
+   */
   timeseriesColumn?: TimeseriesColumn | undefined;
   /** Name of parent catalog. */
   catalogName?: string | undefined;
@@ -1525,21 +1525,74 @@ export interface ListStreamsResponse {
   nextPageToken?: string | undefined;
 }
 
+/** Recipients to notify when a materialization run fails. */
+export interface MaterializationFailureNotification {
+  /** Email addresses to notify. */
+  emailAddresses?: string[] | undefined;
+  /**
+   * IDs of the notification destinations (for example Slack, Microsoft Teams, PagerDuty, or a
+   * generic webhook) to notify. Not supported for streaming materialized features.
+   */
+  destinationIds?: string[] | undefined;
+  /**
+   * If true, notify only when the final attempt of a run fails. If false or unset, notify on
+   * every failed attempt, including attempts that will be retried.
+   *
+   * Batch materialization does not retry failures that need a fix on your side, such as missing
+   * permissions or invalid configuration, so the first attempt is the final one. Other batch
+   * failures are retried up to twice.
+   *
+   * Streaming materialization restarts a failed update indefinitely unless the error cannot be
+   * retried. With this set, a streaming materialized feature notifies only on errors that cannot
+   * be retried, and never on failures that are restarted.
+   */
+  finalAttemptOnly?: boolean | undefined;
+}
+
+/** Notifications for the jobs and pipelines that materialize a feature, one field per trigger. */
+export interface MaterializationNotifications {
+  /** Who to notify when a run succeeds. */
+  onSuccess?: MaterializationSuccessNotification | undefined;
+  /** Who to notify when a run fails, and on which attempts. */
+  onFailure?: MaterializationFailureNotification | undefined;
+}
+
+/** Recipients to notify when a materialization run succeeds. */
+export interface MaterializationSuccessNotification {
+  /** Email addresses to notify. */
+  emailAddresses?: string[] | undefined;
+  /**
+   * IDs of the notification destinations (for example Slack, Microsoft Teams, PagerDuty, or a
+   * generic webhook) to notify. Not supported for streaming materialized features.
+   */
+  destinationIds?: string[] | undefined;
+}
+
 /** A materialized feature represents a feature that is continuously computed and stored. */
 export interface MaterializedFeature {
   /** Server-assigned unique identifier for the materialized feature. */
   materializedFeatureId?: string | undefined;
   /** The full name of the feature in Unity Catalog. */
   featureName?: string | undefined;
+  /**
+   * (-- The destination configs are deliberately IMMUTABLE: an API review settled that a
+   * materialization cannot be retargeted in place, so a destination change recreates it. --)
+   */
   destination?:
     | {
         $case: 'offlineStoreConfig';
-        /** Destination for writing feature values to an offline Delta table. */
+        /**
+         * Destination for writing feature values to an offline Delta table. The resulting table is
+         * returned as `table_name`.
+         */
         offlineStoreConfig: OfflineStoreConfig;
       }
     | {
         $case: 'onlineStoreConfig';
-        /** Destination for writing feature values to an online Lakebase table. */
+        /**
+         * Destination for writing feature values to an online Lakebase table. The resulting table is
+         * returned as `table_name`.
+         */
         onlineStoreConfig: OnlineStoreConfig;
       }
     | undefined;
@@ -1601,6 +1654,12 @@ export interface MaterializedFeature {
   pipelineId?: string | undefined;
   /** The ID of the job that materializes the feature. This is present for both batch and streaming features. */
   jobId?: bigint | undefined;
+  /**
+   * Notification configuration around the materialization job or pipeline lifecycle. They are
+   * applied to every job and pipeline that materializes this feature. Features which are
+   * materialized in the same pipeline will share the same notification.
+   */
+  notifications?: MaterializationNotifications | undefined;
 }
 
 /** Computes the maximum value. */
@@ -1621,12 +1680,6 @@ export interface MinFunction {
  * Unity Catalog volumes, with their passwords stored in <Databricks> secret scopes. This
  * matches the SSL setup pattern documented at
  * https://docs.databricks.com/en/connect/streaming/kafka/authentication#use-ssl-to-connect-databricks-to-kafka.
- *
- * At materialization time, the generated PySpark code passes the JKS file paths and
- * resolved passwords through to the Kafka SSL options (kafka.ssl.keystore.location,
- * kafka.ssl.keystore.password, kafka.ssl.key.password, kafka.ssl.truststore.location,
- * kafka.ssl.truststore.password). Passwords are resolved on the Spark cluster via
- * dbutils.secrets.get; this message stores only references, never password values.
  */
 export interface MtlsConfig {
   /**
@@ -1841,12 +1894,20 @@ export interface PurgeFeatureEntitiesResult {
 
 /** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
 export interface RequestSource {
-  /** The schema describing the request-time fields. Currently only flat schemas are supported. */
+  /** The schema describing the request-time fields. */
   schema?:
     | {
         $case: 'flatSchema';
         /** A flat schema with scalar-typed fields only. */
         flatSchema: FlatSchema;
+      }
+    | {
+        $case: 'dataframeSchema';
+        /**
+         * A schema containing scalar or nested fields, in Spark StructType JSON format
+         * (from df.schema.json()). This preserves field, array-element, and map-value nullability.
+         */
+        dataframeSchema: string;
       }
     | undefined;
 }
@@ -1960,10 +2021,7 @@ export interface SchemaRegistryConfig {
   keySchemaLocator?: SchemaLocator | undefined;
 }
 
-/**
- * Reference to an entry in a <Databricks> secret scope. The referenced value is fetched
- * on the Spark cluster at materialization time via dbutils.secrets.get(scope, key).
- */
+/** Reference to an entry in a <Databricks> secret scope. */
 export interface SecretScopeReference {
   /** The <Databricks> secret scope name. */
   scope?: string | undefined;
@@ -2024,7 +2082,7 @@ export interface StddevSampFunction {
 
 /**
  * A Stream is a governed UC entity representing an external streaming data source.
- * The source_config oneof determines the streaming platform source (e.g. Kafka, Kinesis, etc.).
+ * The source_config field determines the streaming platform source (e.g. Kafka, Kinesis).
  */
 export interface Stream {
   /** Full three-part (catalog.schema.stream) name of the stream. */
@@ -2095,10 +2153,7 @@ export interface StreamConnectionConfig {
       }
     | {
         $case: 'directMtlsConfig';
-        /**
-         * Direct mTLS configuration for stream platform access. This is only used in the short term until UC Kafka Connections support mTLS .
-         * Once UC Kafka Connections support mTLS, this will be deprecated.
-         */
+        /** Direct mTLS configuration for stream platform access. */
         directMtlsConfig: DirectMtlsConfig;
       }
     | undefined;
@@ -2173,6 +2228,12 @@ export interface StreamingMode {
    * duration string (e.g. "1 minute").
    */
   freshnessTarget?: string | undefined;
+  /**
+   * Number of shuffle partitions for streaming materialization of this feature.
+   * Higher values process high-throughput features with more parallelism at higher compute cost.
+   * Materialized features which are computed together will use the largest value set among them.
+   */
+  shufflePartitions?: number | undefined;
 }
 
 /** Deprecated: Use KafkaSubscriptionMode instead. */
@@ -2270,9 +2331,9 @@ export interface TumblingWindow {
 }
 
 export interface UpdateFeatureRequest {
-  /** Feature to update. */
+  /** Feature whose full_name identifies the target. Only description is mutable. */
   feature?: Feature | undefined;
-  /** The list of fields to update. */
+  /** Fields to update. The only supported path is description. */
   updateMask?: FieldMask<Feature> | undefined;
 }
 
@@ -3099,6 +3160,45 @@ export const unmarshalListStreamsResponseSchema: z.ZodType<ListStreamsResponse> 
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalMaterializationFailureNotificationSchema: z.ZodType<MaterializationFailureNotification> =
+  z
+    .object({
+      email_addresses: z.array(z.string()).optional(),
+      destination_ids: z.array(z.string()).optional(),
+      final_attempt_only: z.boolean().optional(),
+    })
+    .transform(d => ({
+      emailAddresses: d.email_addresses,
+      destinationIds: d.destination_ids,
+      finalAttemptOnly: d.final_attempt_only,
+    }));
+
+export const unmarshalMaterializationNotificationsSchema: z.ZodType<MaterializationNotifications> =
+  z
+    .object({
+      on_success: z
+        .lazy(() => unmarshalMaterializationSuccessNotificationSchema)
+        .optional(),
+      on_failure: z
+        .lazy(() => unmarshalMaterializationFailureNotificationSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      onSuccess: d.on_success,
+      onFailure: d.on_failure,
+    }));
+
+export const unmarshalMaterializationSuccessNotificationSchema: z.ZodType<MaterializationSuccessNotification> =
+  z
+    .object({
+      email_addresses: z.array(z.string()).optional(),
+      destination_ids: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      emailAddresses: d.email_addresses,
+      destinationIds: d.destination_ids,
+    }));
+
 export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> =
   z
     .object({
@@ -3130,6 +3230,9 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
       job_id: z
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
+        .optional(),
+      notifications: z
+        .lazy(() => unmarshalMaterializationNotificationsSchema)
         .optional(),
     })
     .transform(d => ({
@@ -3171,6 +3274,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
       budgetPolicyId: d.budget_policy_id,
       pipelineId: d.pipeline_id,
       jobId: d.job_id,
+      notifications: d.notifications,
     }));
 
 export const unmarshalMaxFunctionSchema: z.ZodType<MaxFunction> = z
@@ -3332,12 +3436,18 @@ export const unmarshalPurgeFeatureEntitiesResultSchema: z.ZodType<PurgeFeatureEn
 export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
   .object({
     flat_schema: z.lazy(() => unmarshalFlatSchemaSchema).optional(),
+    dataframe_schema: z.string().optional(),
   })
   .transform(d => ({
     schema:
       d.flat_schema !== undefined
         ? {$case: 'flatSchema' as const, flatSchema: d.flat_schema}
-        : undefined,
+        : d.dataframe_schema !== undefined
+          ? {
+              $case: 'dataframeSchema' as const,
+              dataframeSchema: d.dataframe_schema,
+            }
+          : undefined,
   }));
 
 export const unmarshalRollingWindowSchema: z.ZodType<RollingWindow> = z
@@ -3643,10 +3753,12 @@ export const unmarshalStreamingModeSchema: z.ZodType<StreamingMode> = z
   .object({
     mode: z.string().optional(),
     freshness_target: z.string().optional(),
+    shuffle_partitions: z.number().optional(),
   })
   .transform(d => ({
     mode: d.mode,
     freshnessTarget: d.freshness_target,
+    shufflePartitions: d.shuffle_partitions,
   }));
 
 export const unmarshalSubscriptionModeSchema: z.ZodType<SubscriptionMode> = z
@@ -4516,6 +4628,42 @@ export const marshalLineageContextSchema: z.ZodType = z
     job_context: d.jobContext,
   }));
 
+export const marshalMaterializationFailureNotificationSchema: z.ZodType = z
+  .object({
+    emailAddresses: z.array(z.string()).optional(),
+    destinationIds: z.array(z.string()).optional(),
+    finalAttemptOnly: z.boolean().optional(),
+  })
+  .transform(d => ({
+    email_addresses: d.emailAddresses,
+    destination_ids: d.destinationIds,
+    final_attempt_only: d.finalAttemptOnly,
+  }));
+
+export const marshalMaterializationNotificationsSchema: z.ZodType = z
+  .object({
+    onSuccess: z
+      .lazy(() => marshalMaterializationSuccessNotificationSchema)
+      .optional(),
+    onFailure: z
+      .lazy(() => marshalMaterializationFailureNotificationSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    on_success: d.onSuccess,
+    on_failure: d.onFailure,
+  }));
+
+export const marshalMaterializationSuccessNotificationSchema: z.ZodType = z
+  .object({
+    emailAddresses: z.array(z.string()).optional(),
+    destinationIds: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    email_addresses: d.emailAddresses,
+    destination_ids: d.destinationIds,
+  }));
+
 export const marshalMaterializedFeatureSchema: z.ZodType = z
   .object({
     materializedFeatureId: z.string().optional(),
@@ -4561,6 +4709,9 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     budgetPolicyId: z.string().optional(),
     pipelineId: z.string().optional(),
     jobId: z.bigint().optional(),
+    notifications: z
+      .lazy(() => marshalMaterializationNotificationsSchema)
+      .optional(),
   })
   .transform(d => ({
     materialized_feature_id: d.materializedFeatureId,
@@ -4590,6 +4741,7 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     budget_policy_id: d.budgetPolicyId,
     pipeline_id: d.pipelineId,
     job_id: d.jobId,
+    notifications: d.notifications,
   }));
 
 export const marshalMaxFunctionSchema: z.ZodType = z
@@ -4699,11 +4851,18 @@ export const marshalRequestSourceSchema: z.ZodType = z
           $case: z.literal('flatSchema'),
           flatSchema: z.lazy(() => marshalFlatSchemaSchema),
         }),
+        z.object({
+          $case: z.literal('dataframeSchema'),
+          dataframeSchema: z.string(),
+        }),
       ])
       .optional(),
   })
   .transform(d => ({
     ...(d.schema?.$case === 'flatSchema' && {flat_schema: d.schema.flatSchema}),
+    ...(d.schema?.$case === 'dataframeSchema' && {
+      dataframe_schema: d.schema.dataframeSchema,
+    }),
   }));
 
 export const marshalRollingWindowSchema: z.ZodType = z
@@ -5012,10 +5171,12 @@ export const marshalStreamingModeSchema: z.ZodType = z
   .object({
     mode: z.string().optional(),
     freshnessTarget: z.string().optional(),
+    shufflePartitions: z.number().optional(),
   })
   .transform(d => ({
     mode: d.mode,
     freshness_target: d.freshnessTarget,
+    shuffle_partitions: d.shufflePartitions,
   }));
 
 export const marshalSubscriptionModeSchema: z.ZodType = z
@@ -5463,6 +5624,28 @@ const lineageContextFieldMaskSchema: FieldMaskSchema = {
   notebookId: {wire: 'notebook_id'},
 };
 
+const materializationFailureNotificationFieldMaskSchema: FieldMaskSchema = {
+  destinationIds: {wire: 'destination_ids'},
+  emailAddresses: {wire: 'email_addresses'},
+  finalAttemptOnly: {wire: 'final_attempt_only'},
+};
+
+const materializationNotificationsFieldMaskSchema: FieldMaskSchema = {
+  onFailure: {
+    wire: 'on_failure',
+    children: () => materializationFailureNotificationFieldMaskSchema,
+  },
+  onSuccess: {
+    wire: 'on_success',
+    children: () => materializationSuccessNotificationFieldMaskSchema,
+  },
+};
+
+const materializationSuccessNotificationFieldMaskSchema: FieldMaskSchema = {
+  destinationIds: {wire: 'destination_ids'},
+  emailAddresses: {wire: 'email_addresses'},
+};
+
 const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
   budgetPolicyId: {wire: 'budget_policy_id'},
   cronSchedule: {wire: 'cron_schedule'},
@@ -5476,6 +5659,10 @@ const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
   lastMaterializationTime: {wire: 'last_materialization_time'},
   latestBackfillOperation: {wire: 'latest_backfill_operation'},
   materializedFeatureId: {wire: 'materialized_feature_id'},
+  notifications: {
+    wire: 'notifications',
+    children: () => materializationNotificationsFieldMaskSchema,
+  },
   offlineStoreConfig: {
     wire: 'offline_store_config',
     children: () => offlineStoreConfigFieldMaskSchema,
@@ -5552,6 +5739,7 @@ const protoSchemaSpecFieldMaskSchema: FieldMaskSchema = {
 };
 
 const requestSourceFieldMaskSchema: FieldMaskSchema = {
+  dataframeSchema: {wire: 'dataframe_schema'},
   flatSchema: {wire: 'flat_schema', children: () => flatSchemaFieldMaskSchema},
 };
 
@@ -5707,6 +5895,7 @@ const streamSourceConfigFieldMaskSchema: FieldMaskSchema = {
 const streamingModeFieldMaskSchema: FieldMaskSchema = {
   freshnessTarget: {wire: 'freshness_target'},
   mode: {wire: 'mode'},
+  shufflePartitions: {wire: 'shuffle_partitions'},
 };
 
 const subscriptionModeFieldMaskSchema: FieldMaskSchema = {

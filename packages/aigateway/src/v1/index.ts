@@ -70,6 +70,7 @@ export type {
   ModelProviderServiceConfig_ModelTargetConfig,
   ModelProviderServiceConfig_OpenAiProviderConfig,
   ModelProviderServiceConfig_OpenAiProviderDirectConfig,
+  ModelProviderServiceConfig_ProviderPricingConfig,
   ModelProviderServiceConfig_ProviderSecret,
   ModelProviderServiceConfig_SecretReference,
   ModelProviderServiceConfig_ServiceCredential,
