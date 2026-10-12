@@ -22,6 +22,8 @@ import type {
   ExecuteCommandSyncRequest,
   ExecuteCommandSyncResponse,
   GetSandboxRequest,
+  ListCommandsRequest,
+  ListCommandsResponse,
   ListSandboxesRequest,
   ListSandboxesResponse,
   Sandbox,
@@ -35,6 +37,7 @@ import {
   marshalStartSandboxRequestSchema,
   marshalStopSandboxRequestSchema,
   unmarshalExecuteCommandSyncResponseSchema,
+  unmarshalListCommandsResponseSchema,
   unmarshalListSandboxesResponseSchema,
   unmarshalSandboxSchema,
 } from './model';
@@ -360,6 +363,44 @@ export class SandboxClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalExecuteCommandSyncResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Lists the tracked command executions (running and completed) in a sandbox. */
+  async listCommands(
+    req: ListCommandsRequest,
+    options?: CallOptions
+  ): Promise<ListCommandsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sandbox-exec/${req.parent ?? ''}/commands`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListCommandsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListCommandsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

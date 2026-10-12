@@ -9,12 +9,16 @@ export {SandboxClient} from './client';
 export {ExecuteCommandStatus, SandboxState} from './model';
 
 export type {
+  Command,
   ComputeSpec,
   CreateSandboxRequest,
   DeleteSandboxRequest,
+  EnvironmentSpec,
   ExecuteCommandSyncRequest,
   ExecuteCommandSyncResponse,
   GetSandboxRequest,
+  ListCommandsRequest,
+  ListCommandsResponse,
   ListSandboxesRequest,
   ListSandboxesResponse,
   Sandbox,

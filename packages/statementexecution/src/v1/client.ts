@@ -189,6 +189,12 @@ export class StatementExecutionClient {
   ): Promise<ResultData> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/sql/statements/${req.statementId ?? ''}/result/chunks/${String(req.chunkIndex ?? '')}`;
+    const params = new URLSearchParams();
+    if (req.warehouseId !== undefined) {
+      params.append('warehouse_id', req.warehouseId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ResultData | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -196,7 +202,7 @@ export class StatementExecutionClient {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient,
@@ -229,6 +235,12 @@ export class StatementExecutionClient {
   ): Promise<StatementResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/sql/statements/${req.statementId ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.warehouseId !== undefined) {
+      params.append('warehouse_id', req.warehouseId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: StatementResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -236,7 +248,7 @@ export class StatementExecutionClient {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient,

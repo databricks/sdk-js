@@ -1262,8 +1262,7 @@ export class PostgresClient {
 
   /**
    * Get a single Lakebase CDF configuration, including the source Postgres
-   * schema, target Unity Catalog schema, and the identity under which writes are
-   * authorized.
+   * schema and target Unity Catalog schema.
    */
   async getCdfConfig(
     req: GetCdfConfigRequest,
