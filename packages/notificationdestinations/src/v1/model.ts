@@ -9,6 +9,8 @@ export const DestinationType = {
   WEBHOOK: 'WEBHOOK',
   PAGERDUTY: 'PAGERDUTY',
   MICROSOFT_TEAMS: 'MICROSOFT_TEAMS',
+  DATABRICKS_APP_SLACK: 'DATABRICKS_APP_SLACK',
+  DATABRICKS_APP_TEAMS: 'DATABRICKS_APP_TEAMS',
 } as const;
 export type DestinationType =
   | (typeof DestinationType)[keyof typeof DestinationType]
@@ -21,6 +23,14 @@ export interface Config {
     | {$case: 'genericWebhook'; genericWebhook: GenericWebhookConfig}
     | {$case: 'pagerduty'; pagerduty: PagerdutyConfig}
     | {$case: 'microsoftTeams'; microsoftTeams: MicrosoftTeamsConfig}
+    | {
+        $case: 'databricksAppSlack';
+        databricksAppSlack: DatabricksAppSlackConfig;
+      }
+    | {
+        $case: 'databricksAppTeams';
+        databricksAppTeams: DatabricksAppTeamsConfig;
+      }
     | undefined;
 }
 
@@ -29,6 +39,40 @@ export interface CreateNotificationDestinationRequest {
   displayName?: string | undefined;
   /** The configuration for the notification destination. Must wrap EXACTLY one of the nested configs. */
   config?: Config | undefined;
+}
+
+/**
+ * Slack channel reached through the Databricks app. The app must already be installed in the
+ * Slack workspace and connected to this Databricks workspace.
+ */
+export interface DatabricksAppSlackConfig {
+  /** [Input-Only] Slack workspace (team) ID the Databricks app is installed in. */
+  teamId?: string | undefined;
+  /** [Output-Only] Whether team ID is set. */
+  teamIdSet?: boolean | undefined;
+  /** [Input-Only] Slack channel ID notifications are posted to. */
+  channelId?: string | undefined;
+  /** [Output-Only] Whether channel ID is set. */
+  channelIdSet?: boolean | undefined;
+}
+
+/**
+ * Microsoft Teams channel reached through the Databricks app. The app must already be installed in
+ * the Microsoft 365 tenant and connected to this Databricks workspace.
+ */
+export interface DatabricksAppTeamsConfig {
+  /** [Input-Only] Microsoft Entra tenant ID of the Microsoft 365 tenant the app is installed in. */
+  tenantId?: string | undefined;
+  /** [Output-Only] Whether tenant ID is set. */
+  tenantIdSet?: boolean | undefined;
+  /** [Input-Only] Microsoft Entra group ID of the team that owns the channel. */
+  teamId?: string | undefined;
+  /** [Output-Only] Whether team ID is set. */
+  teamIdSet?: boolean | undefined;
+  /** [Input-Only] Teams channel ID notifications are posted to. */
+  channelId?: string | undefined;
+  /** [Output-Only] Whether channel ID is set. */
+  channelIdSet?: boolean | undefined;
 }
 
 export interface DeleteNotificationDestinationRequest {
@@ -160,6 +204,12 @@ export const unmarshalConfigSchema: z.ZodType<Config> = z
     microsoft_teams: z
       .lazy(() => unmarshalMicrosoftTeamsConfigSchema)
       .optional(),
+    databricks_app_slack: z
+      .lazy(() => unmarshalDatabricksAppSlackConfigSchema)
+      .optional(),
+    databricks_app_teams: z
+      .lazy(() => unmarshalDatabricksAppTeamsConfigSchema)
+      .optional(),
   })
   .transform(d => ({
     config:
@@ -179,8 +229,52 @@ export const unmarshalConfigSchema: z.ZodType<Config> = z
                     $case: 'microsoftTeams' as const,
                     microsoftTeams: d.microsoft_teams,
                   }
-                : undefined,
+                : d.databricks_app_slack !== undefined
+                  ? {
+                      $case: 'databricksAppSlack' as const,
+                      databricksAppSlack: d.databricks_app_slack,
+                    }
+                  : d.databricks_app_teams !== undefined
+                    ? {
+                        $case: 'databricksAppTeams' as const,
+                        databricksAppTeams: d.databricks_app_teams,
+                      }
+                    : undefined,
   }));
+
+export const unmarshalDatabricksAppSlackConfigSchema: z.ZodType<DatabricksAppSlackConfig> =
+  z
+    .object({
+      team_id: z.string().optional(),
+      team_id_set: z.boolean().optional(),
+      channel_id: z.string().optional(),
+      channel_id_set: z.boolean().optional(),
+    })
+    .transform(d => ({
+      teamId: d.team_id,
+      teamIdSet: d.team_id_set,
+      channelId: d.channel_id,
+      channelIdSet: d.channel_id_set,
+    }));
+
+export const unmarshalDatabricksAppTeamsConfigSchema: z.ZodType<DatabricksAppTeamsConfig> =
+  z
+    .object({
+      tenant_id: z.string().optional(),
+      tenant_id_set: z.boolean().optional(),
+      team_id: z.string().optional(),
+      team_id_set: z.boolean().optional(),
+      channel_id: z.string().optional(),
+      channel_id_set: z.boolean().optional(),
+    })
+    .transform(d => ({
+      tenantId: d.tenant_id,
+      tenantIdSet: d.tenant_id_set,
+      teamId: d.team_id,
+      teamIdSet: d.team_id_set,
+      channelId: d.channel_id,
+      channelIdSet: d.channel_id_set,
+    }));
 
 export const unmarshalEmailConfigSchema: z.ZodType<EmailConfig> = z
   .object({
@@ -333,6 +427,18 @@ export const marshalConfigSchema: z.ZodType = z
           $case: z.literal('microsoftTeams'),
           microsoftTeams: z.lazy(() => marshalMicrosoftTeamsConfigSchema),
         }),
+        z.object({
+          $case: z.literal('databricksAppSlack'),
+          databricksAppSlack: z.lazy(
+            () => marshalDatabricksAppSlackConfigSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('databricksAppTeams'),
+          databricksAppTeams: z.lazy(
+            () => marshalDatabricksAppTeamsConfigSchema
+          ),
+        }),
       ])
       .optional(),
   })
@@ -346,6 +452,12 @@ export const marshalConfigSchema: z.ZodType = z
     ...(d.config?.$case === 'microsoftTeams' && {
       microsoft_teams: d.config.microsoftTeams,
     }),
+    ...(d.config?.$case === 'databricksAppSlack' && {
+      databricks_app_slack: d.config.databricksAppSlack,
+    }),
+    ...(d.config?.$case === 'databricksAppTeams' && {
+      databricks_app_teams: d.config.databricksAppTeams,
+    }),
   }));
 
 export const marshalCreateNotificationDestinationRequestSchema: z.ZodType = z
@@ -356,6 +468,38 @@ export const marshalCreateNotificationDestinationRequestSchema: z.ZodType = z
   .transform(d => ({
     display_name: d.displayName,
     config: d.config,
+  }));
+
+export const marshalDatabricksAppSlackConfigSchema: z.ZodType = z
+  .object({
+    teamId: z.string().optional(),
+    teamIdSet: z.boolean().optional(),
+    channelId: z.string().optional(),
+    channelIdSet: z.boolean().optional(),
+  })
+  .transform(d => ({
+    team_id: d.teamId,
+    team_id_set: d.teamIdSet,
+    channel_id: d.channelId,
+    channel_id_set: d.channelIdSet,
+  }));
+
+export const marshalDatabricksAppTeamsConfigSchema: z.ZodType = z
+  .object({
+    tenantId: z.string().optional(),
+    tenantIdSet: z.boolean().optional(),
+    teamId: z.string().optional(),
+    teamIdSet: z.boolean().optional(),
+    channelId: z.string().optional(),
+    channelIdSet: z.boolean().optional(),
+  })
+  .transform(d => ({
+    tenant_id: d.tenantId,
+    tenant_id_set: d.tenantIdSet,
+    team_id: d.teamId,
+    team_id_set: d.teamIdSet,
+    channel_id: d.channelId,
+    channel_id_set: d.channelIdSet,
   }));
 
 export const marshalEmailConfigSchema: z.ZodType = z

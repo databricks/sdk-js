@@ -11,6 +11,8 @@ export {DestinationType} from './model';
 export type {
   Config,
   CreateNotificationDestinationRequest,
+  DatabricksAppSlackConfig,
+  DatabricksAppTeamsConfig,
   DeleteNotificationDestinationRequest,
   EmailConfig,
   Empty,

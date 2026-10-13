@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-authentication",
-  "version": "0.52.1",
+  "version": "0.52.2",
   "description": "",
   "type": "module",
   "exports": {

@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-notificationdestinations",
-  "version": "0.51.1",
+  "version": "0.51.2",
   "description": "",
   "type": "module",
   "exports": {

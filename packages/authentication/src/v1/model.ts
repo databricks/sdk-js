@@ -40,6 +40,11 @@ export interface CreateServicePrincipalSecretRequest {
   servicePrincipal?: string | undefined;
   /** The lifetime of the secret in seconds. If this parameter is not provided, the secret will have a default lifetime of 730 days (63072000s). */
   lifetime?: Temporal.Duration | undefined;
+  /**
+   * OAuth API scopes to bind to the secret; a minted token cannot exceed them.
+   * Empty = unrestricted (all-apis). E.g. all-apis, sql, iam.groups:read.
+   */
+  scopes?: string[] | undefined;
 }
 
 export interface CreateServicePrincipalSecretResponse {
@@ -57,6 +62,8 @@ export interface CreateServicePrincipalSecretResponse {
   status?: string | undefined;
   /** UTC time when the secret will expire. If the field is not present, the secret does not expire. */
   expireTime?: Temporal.Instant | undefined;
+  /** OAuth API scopes bound to this secret. Empty = unrestricted (all-apis). */
+  scopes?: string[] | undefined;
 }
 
 export interface DeleteAccountFederationPolicyRequest {
@@ -242,6 +249,8 @@ export interface ServicePrincipalSecret {
   status?: string | undefined;
   /** UTC time when the secret will expire. If the field is not present, the secret does not expire. */
   expireTime?: Temporal.Instant | undefined;
+  /** OAuth API scopes bound to this secret. Empty = unrestricted (all-apis). */
+  scopes?: string[] | undefined;
 }
 
 export interface UpdateAccountFederationPolicyRequest {
@@ -293,6 +302,7 @@ export const unmarshalCreateServicePrincipalSecretResponseSchema: z.ZodType<Crea
         .string()
         .transform(s => Temporal.Instant.from(s))
         .optional(),
+      scopes: z.array(z.string()).optional(),
     })
     .transform(d => ({
       id: d.id,
@@ -302,6 +312,7 @@ export const unmarshalCreateServicePrincipalSecretResponseSchema: z.ZodType<Crea
       updateTime: d.update_time,
       status: d.status,
       expireTime: d.expire_time,
+      scopes: d.scopes,
     }));
 
 export const unmarshalDeleteServicePrincipalSecretResponseSchema: z.ZodType<DeleteServicePrincipalSecretResponse> =
@@ -399,6 +410,7 @@ export const unmarshalServicePrincipalSecretSchema: z.ZodType<ServicePrincipalSe
         .string()
         .transform(s => Temporal.Instant.from(s))
         .optional(),
+      scopes: z.array(z.string()).optional(),
     })
     .transform(d => ({
       id: d.id,
@@ -408,6 +420,7 @@ export const unmarshalServicePrincipalSecretSchema: z.ZodType<ServicePrincipalSe
       updateTime: d.update_time,
       status: d.status,
       expireTime: d.expire_time,
+      scopes: d.scopes,
     }));
 
 export const marshalCreateServicePrincipalSecretRequestSchema: z.ZodType = z
@@ -418,11 +431,13 @@ export const marshalCreateServicePrincipalSecretRequestSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
       .optional(),
+    scopes: z.array(z.string()).optional(),
   })
   .transform(d => ({
     account_id: d.accountId,
     service_principal: d.servicePrincipal,
     lifetime: d.lifetime,
+    scopes: d.scopes,
   }));
 
 export const marshalFederationPolicySchema: z.ZodType = z
