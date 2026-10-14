@@ -88,6 +88,8 @@ import type {
   Operation,
   Project,
   ProjectOperationMetadata,
+  RevealRolePasswordRequest,
+  RevealRolePasswordResponse,
   Role,
   RoleOperationMetadata,
   Snapshot,
@@ -115,6 +117,7 @@ import {
   marshalEndpointSchema,
   marshalGenerateDatabaseCredentialRequestSchema,
   marshalProjectSchema,
+  marshalRevealRolePasswordRequestSchema,
   marshalRoleSchema,
   marshalSnapshotScheduleSchema,
   marshalSnapshotSchema,
@@ -146,6 +149,7 @@ import {
   unmarshalOperationSchema,
   unmarshalProjectOperationMetadataSchema,
   unmarshalProjectSchema,
+  unmarshalRevealRolePasswordResponseSchema,
   unmarshalRoleOperationMetadataSchema,
   unmarshalRoleSchema,
   unmarshalSnapshotOperationMetadataSchema,
@@ -2037,6 +2041,36 @@ export class PostgresClient {
       }
       pageReq.pageToken = resp.nextPageToken;
     }
+  }
+
+  /** Reveals the current password for a password-authenticated Postgres role. */
+  async revealRolePassword(
+    req: RevealRolePasswordRequest,
+    options?: CallOptions
+  ): Promise<RevealRolePasswordResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/password`;
+    const body = marshalRequest(req, marshalRevealRolePasswordRequestSchema);
+    let resp: RevealRolePasswordResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalRevealRolePasswordResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
   }
 
   /** Undeletes the specified database branch. */
