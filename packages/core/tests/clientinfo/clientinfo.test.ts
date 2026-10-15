@@ -106,6 +106,20 @@ describe('ClientInfo', () => {
         wantErrorCode: 'INVALID_VALUE',
       },
       {
+        name: 'AppKit exception does not apply to values',
+        base: ClientInfo.EMPTY,
+        pairs: [{key: 'product', value: '@databricks/appkit'}],
+        wantString: '',
+        wantErrorCode: 'INVALID_VALUE',
+      },
+      {
+        name: 'AppKit values still reject slashes',
+        base: ClientInfo.EMPTY,
+        pairs: [{key: '@databricks/appkit', value: '1.2.3/extra'}],
+        wantString: '',
+        wantErrorCode: 'INVALID_VALUE',
+      },
+      {
         name: 'invalid value with special chars',
         base: ClientInfo.EMPTY,
         pairs: [{key: 'key', value: 'bad!value'}],
@@ -157,6 +171,18 @@ describe('ClientInfo', () => {
   });
 
   describe('with(ClientInfo) merges segments', () => {
+    it('preserves legacy AppKit attribution when merging client info', () => {
+      const appkit = ClientInfo.EMPTY.with({
+        key: '@databricks/appkit',
+        value: '1.2.3',
+      });
+      expect(
+        ClientInfo.EMPTY.with({key: 'sdk', value: '1.0.0'})
+          .with(appkit)
+          .toString()
+      ).toBe('sdk/1.0.0 @databricks/appkit/1.2.3');
+    });
+
     it('appends segments from another ClientInfo in order', () => {
       const base = ClientInfo.EMPTY.with({key: 'app', value: '1.0.0'});
       const pkg = ClientInfo.EMPTY.with(

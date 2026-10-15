@@ -12,6 +12,7 @@ export default defineConfig({
     exclude: [
       'tests/credentials/azure-cli.test.ts',
       'tests/credentials/u2m.test.ts',
+      'tests/oidc/azuredevops.test.ts',
       'tests/oidc/env.test.ts',
       'tests/oidc/file.test.ts',
     ],
