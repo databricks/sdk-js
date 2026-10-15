@@ -173,6 +173,35 @@ describe('setProduct', () => {
       wantErrorCode: 'INVALID_KEY',
     },
     {
+      name: 'legacy AppKit product',
+      productName: '@databricks/appkit',
+      version: '1.2.3',
+      wantInBase: '@databricks/appkit/1.2.3',
+    },
+    ...[
+      '@databricks/other',
+      '@databricks/appkit-ui',
+      '@databricks/appkit/extra',
+      '@databricks/AppKit',
+      ' @databricks/appkit',
+      '@databricks/appkit ',
+      'app@kit',
+      'databricks/appkit',
+    ].map(productName => ({
+      name: `invalid product name ${JSON.stringify(productName)}`,
+      productName,
+      version: '1.2.3',
+      wantInBase: '',
+      wantErrorCode: 'INVALID_KEY' as const,
+    })),
+    {
+      name: 'AppKit version must still be semver',
+      productName: '@databricks/appkit',
+      version: '1.2.3/extra',
+      wantInBase: '',
+      wantErrorCode: 'INVALID_VERSION',
+    },
+    {
       name: 'invalid version not semver',
       productName: 'valid-name',
       version: 'not-semver',
@@ -197,6 +226,10 @@ describe('setProduct', () => {
         }
       } else {
         setProduct(productName, version);
+        expect(createDefault().segments).toContainEqual({
+          key: productName,
+          value: version,
+        });
       }
       expect(baseToString()).toBe(wantInBase);
     }

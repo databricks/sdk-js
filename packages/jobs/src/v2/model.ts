@@ -838,6 +838,44 @@ export type SqlTask_SqlTaskQueryStatus =
   | (typeof SqlTask_SqlTaskQueryStatus)[keyof typeof SqlTask_SqlTaskQueryStatus]
   | (string & {});
 
+/**
+ * The output format of an exported tabular data file. Must be set to a value other than
+ * `FILE_FORMAT_UNSPECIFIED`.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Subscription_Attachment_DataAttachment_FileFormat = {
+  /**
+   * The file format is unspecified. This is not a valid selection; a concrete format
+   * must be chosen.
+   */
+  FILE_FORMAT_UNSPECIFIED: 'FILE_FORMAT_UNSPECIFIED',
+  /** Each widget's data is exported as a comma-separated values (CSV) file. */
+  FILE_FORMAT_CSV: 'FILE_FORMAT_CSV',
+  /** Each widget's data is exported as a tab-separated values (TSV) file. */
+  FILE_FORMAT_TSV: 'FILE_FORMAT_TSV',
+  /** Each widget's data is exported as a Microsoft Excel (.xlsx) file. */
+  FILE_FORMAT_EXCEL: 'FILE_FORMAT_EXCEL',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type Subscription_Attachment_DataAttachment_FileFormat =
+  | (typeof Subscription_Attachment_DataAttachment_FileFormat)[keyof typeof Subscription_Attachment_DataAttachment_FileFormat]
+  | (string & {});
+
+/** Determines which dashboard pages are attached to the notification. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const Subscription_Attachment_PageAttachment_PageSelection = {
+  /** Attaches only the first page of the dashboard. */
+  PAGE_SELECTION_UNSPECIFIED: 'PAGE_SELECTION_UNSPECIFIED',
+  /** Attaches every page of the dashboard. */
+  PAGE_SELECTION_ALL: 'PAGE_SELECTION_ALL',
+  /** Attaches only the pages listed in `page_ids`. */
+  PAGE_SELECTION_SUBSET: 'PAGE_SELECTION_SUBSET',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type Subscription_Attachment_PageAttachment_PageSelection =
+  | (typeof Subscription_Attachment_PageAttachment_PageSelection)[keyof typeof Subscription_Attachment_PageAttachment_PageSelection]
+  | (string & {});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const TableTriggerConfiguration_Condition = {
   ANY_UPDATED: 'ANY_UPDATED',
@@ -4419,11 +4457,6 @@ export interface RunTask {
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
   /**
-   * The id of the serverless compute this task ran on, either explicitly configured on the task
-   * or the workspace default. Only set once the compute has been resolved at run trigger.
-   */
-  effectiveServerlessComputeId?: string | undefined;
-  /**
    * A unique name for the task. This field is used to refer to this task from other tasks.
    * This field is required and must be unique within its parent job.
    * On Update or Reset, this field is used to reference the tasks to be updated or reset.
@@ -5239,6 +5272,95 @@ export interface Subscription {
    * to subscribers.
    */
   customSubject?: string | undefined;
+  /**
+   * Optional: The configuration for the files attached to the dashboard snapshot notification. It
+   * controls the underlying data of dashboard widgets that is attached as data files and which
+   * pages are included in the attached PDF. If not specified, the notification is sent with only
+   * the default snapshot.
+   */
+  attachment?: Subscription_Attachment | undefined;
+}
+
+/**
+ * The configuration for the files attached to the dashboard snapshot notification sent to
+ * subscribers. `data_attachment` describes the underlying data of dashboard widgets attached
+ * as data files, and `page_attachment` describes which dashboard pages are included in the
+ * attached PDF.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Subscription_Attachment {
+  /**
+   * Optional: The configuration for the underlying data of dashboard widgets attached as tabular
+   * data files. If not specified, no tabular data is attached.
+   */
+  dataAttachment?: Subscription_Attachment_DataAttachment | undefined;
+  /**
+   * Optional: The selection of dashboard pages included in the attached PDF. If not specified,
+   * only the first page is included.
+   */
+  pageAttachment?: Subscription_Attachment_PageAttachment | undefined;
+}
+
+/**
+ * The configuration for the tabular data files attached to the dashboard snapshot. `widgets`
+ * lists the widgets whose data is exported and `file_format` is the output format; each
+ * referenced widget's data is exported as a separate file.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Subscription_Attachment_DataAttachment {
+  /** The widgets whose underlying data is exported. At least one widget must be referenced. */
+  widgets?: Subscription_Attachment_DataAttachment_Widget[] | undefined;
+  /** The file format of the exported tabular data files. */
+  fileFormat?: Subscription_Attachment_DataAttachment_FileFormat | undefined;
+  /**
+   * When true, the dashboard's applied filter values are included alongside the tabular data as
+   * an additional attached file.
+   */
+  includeAppliedFilters?: boolean | undefined;
+}
+
+/**
+ * Identifies a dashboard widget whose data to attach. `page_id` and `widget_id` are
+ * the URL identifiers from the dashboard's serialized definition returned by the Get dashboard
+ * API (`serialized_dashboard`), and together they uniquely identify the widget.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Subscription_Attachment_DataAttachment_Widget {
+  /**
+   * The URL identifier of the page containing the widget. This is the value of the `name`
+   * field of the corresponding entry under `pages` in the serialized dashboard definition.
+   * Format: alphanumeric, hyphen, and underscore characters allowed, max length 63.
+   */
+  pageId?: string | undefined;
+  /**
+   * The URL identifier of the widget. This is the value of the `name` field of the
+   * corresponding widget under that page's `layout` in the serialized dashboard definition.
+   * Format: alphanumeric, hyphen, and underscore characters allowed, max length 63.
+   */
+  widgetId?: string | undefined;
+}
+
+/**
+ * The selection of dashboard pages included in the attached PDF. `page_selection` chooses
+ * between all pages, the first page only, or an explicit subset listed in `page_ids`.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface Subscription_Attachment_PageAttachment {
+  /**
+   * How the attached pages are selected. When set to `PAGE_SELECTION_SUBSET`, the pages to
+   * include are listed in `page_ids`.
+   */
+  pageSelection?:
+    | Subscription_Attachment_PageAttachment_PageSelection
+    | undefined;
+  /**
+   * The identifiers of the pages to include in the PDF. Only specified when `page_selection` is
+   * `PAGE_SELECTION_SUBSET`. Each value is the identifier of a page in the dashboard's
+   * serialized definition returned by the Get dashboard API (`serialized_dashboard`): the value
+   * of the `name` field of an entry under `pages`.
+   * Format: alphanumeric, hyphen, and underscore characters allowed, max length 63.
+   */
+  pageIds?: string[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -8189,7 +8311,6 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     resolved_values: z.lazy(() => unmarshalResolvedValuesSchema).optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
     effective_performance_target: z.string().optional(),
-    effective_serverless_compute_id: z.string().optional(),
     task_key: z.string().optional(),
     description: z.string().optional(),
     depends_on: z.array(z.lazy(() => unmarshalTaskDependencySchema)).optional(),
@@ -8282,7 +8403,6 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     resolvedValues: d.resolved_values,
     status: d.status,
     effectivePerformanceTarget: d.effective_performance_target,
-    effectiveServerlessComputeId: d.effective_serverless_compute_id,
     taskKey: d.task_key,
     description: d.description,
     dependsOn: d.depends_on,
@@ -8781,12 +8901,74 @@ export const unmarshalSubscriptionSchema: z.ZodType<Subscription> = z
       .optional(),
     paused: z.boolean().optional(),
     custom_subject: z.string().optional(),
+    attachment: z.lazy(() => unmarshalSubscription_AttachmentSchema).optional(),
   })
   .transform(d => ({
     subscribers: d.subscribers,
     paused: d.paused,
     customSubject: d.custom_subject,
+    attachment: d.attachment,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalSubscription_AttachmentSchema: z.ZodType<Subscription_Attachment> =
+  z
+    .object({
+      data_attachment: z
+        .lazy(() => unmarshalSubscription_Attachment_DataAttachmentSchema)
+        .optional(),
+      page_attachment: z
+        .lazy(() => unmarshalSubscription_Attachment_PageAttachmentSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      dataAttachment: d.data_attachment,
+      pageAttachment: d.page_attachment,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalSubscription_Attachment_DataAttachmentSchema: z.ZodType<Subscription_Attachment_DataAttachment> =
+  z
+    .object({
+      widgets: z
+        .array(
+          z.lazy(
+            () => unmarshalSubscription_Attachment_DataAttachment_WidgetSchema
+          )
+        )
+        .optional(),
+      file_format: z.string().optional(),
+      include_applied_filters: z.boolean().optional(),
+    })
+    .transform(d => ({
+      widgets: d.widgets,
+      fileFormat: d.file_format,
+      includeAppliedFilters: d.include_applied_filters,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalSubscription_Attachment_DataAttachment_WidgetSchema: z.ZodType<Subscription_Attachment_DataAttachment_Widget> =
+  z
+    .object({
+      page_id: z.string().optional(),
+      widget_id: z.string().optional(),
+    })
+    .transform(d => ({
+      pageId: d.page_id,
+      widgetId: d.widget_id,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalSubscription_Attachment_PageAttachmentSchema: z.ZodType<Subscription_Attachment_PageAttachment> =
+  z
+    .object({
+      page_selection: z.string().optional(),
+      page_ids: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      pageSelection: d.page_selection,
+      pageIds: d.page_ids,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalSubscription_SubscriberSchema: z.ZodType<Subscription_Subscriber> =
@@ -11144,11 +11326,68 @@ export const marshalSubscriptionSchema: z.ZodType = z
       .optional(),
     paused: z.boolean().optional(),
     customSubject: z.string().optional(),
+    attachment: z.lazy(() => marshalSubscription_AttachmentSchema).optional(),
   })
   .transform(d => ({
     subscribers: d.subscribers,
     paused: d.paused,
     custom_subject: d.customSubject,
+    attachment: d.attachment,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSubscription_AttachmentSchema: z.ZodType = z
+  .object({
+    dataAttachment: z
+      .lazy(() => marshalSubscription_Attachment_DataAttachmentSchema)
+      .optional(),
+    pageAttachment: z
+      .lazy(() => marshalSubscription_Attachment_PageAttachmentSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    data_attachment: d.dataAttachment,
+    page_attachment: d.pageAttachment,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSubscription_Attachment_DataAttachmentSchema: z.ZodType = z
+  .object({
+    widgets: z
+      .array(
+        z.lazy(() => marshalSubscription_Attachment_DataAttachment_WidgetSchema)
+      )
+      .optional(),
+    fileFormat: z.string().optional(),
+    includeAppliedFilters: z.boolean().optional(),
+  })
+  .transform(d => ({
+    widgets: d.widgets,
+    file_format: d.fileFormat,
+    include_applied_filters: d.includeAppliedFilters,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSubscription_Attachment_DataAttachment_WidgetSchema: z.ZodType =
+  z
+    .object({
+      pageId: z.string().optional(),
+      widgetId: z.string().optional(),
+    })
+    .transform(d => ({
+      page_id: d.pageId,
+      widget_id: d.widgetId,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSubscription_Attachment_PageAttachmentSchema: z.ZodType = z
+  .object({
+    pageSelection: z.string().optional(),
+    pageIds: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    page_selection: d.pageSelection,
+    page_ids: d.pageIds,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

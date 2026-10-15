@@ -2373,6 +2373,21 @@ export interface RequestedResource {
     | undefined;
 }
 
+/** Request to reveal the current password for a password-authenticated Postgres role. */
+export interface RevealRolePasswordRequest {
+  /**
+   * The full resource path of the role whose password should be revealed.
+   * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
+   */
+  name?: string | undefined;
+}
+
+/** Response containing the password for a password-authenticated Postgres role. */
+export interface RevealRolePasswordResponse {
+  /** The current password for the Postgres role. */
+  password?: string | undefined;
+}
+
 /** Role represents a Postgres role within a Branch. */
 export interface Role {
   /**
@@ -3859,6 +3874,15 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
     projectId: d.project_id,
   }));
 
+export const unmarshalRevealRolePasswordResponseSchema: z.ZodType<RevealRolePasswordResponse> =
+  z
+    .object({
+      password: z.string().optional(),
+    })
+    .transform(d => ({
+      password: d.password,
+    }));
+
 export const unmarshalRoleSchema: z.ZodType<Role> = z
   .object({
     name: z.string().optional(),
@@ -5030,6 +5054,14 @@ export const marshalRequestedResourceSchema: z.ZodType = z
     ...(d.resourceName?.$case === 'tableName' && {
       table_name: d.resourceName.tableName,
     }),
+  }));
+
+export const marshalRevealRolePasswordRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalRoleSchema: z.ZodType = z
