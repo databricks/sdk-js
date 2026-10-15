@@ -154,6 +154,8 @@ export type {
   ProvisioningInfo,
   RequestedClaims,
   RequestedResource,
+  RevealRolePasswordRequest,
+  RevealRolePasswordResponse,
   Role,
   Role_Attributes,
   Role_RoleSpec,

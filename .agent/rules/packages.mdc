@@ -90,6 +90,11 @@ Use **subpath exports only**. Each submodule is imported via its own path.
 Do not re-export children from parent `index.ts` files — this avoids a flat
 namespace that grows unwieldy and risks name collisions.
 
+Generated version exports and matching TypeDoc entry points are ordered by
+numeric version, newest first (`v10`, `v2`, `v1`). A new version can then be
+prepended as complete lines without modifying the previous entry to add a
+trailing comma, keeping routine API scaffolding additions-only.
+
 ```json
 {
   "exports": {

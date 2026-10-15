@@ -1,5 +1,14 @@
 # Version changelog
 
+## Release v0.53.0 (2026-10-15)
+
+### New Features and Improvements
+* Add an Azure DevOps Pipelines OIDC ID token provider for explicit token exchange.
+* Add a GitHub Actions OIDC ID token provider for explicit Databricks token exchange.
+
+### Internal Changes
+* Bump `core` to v0.51.2.
+
 ## Release v0.52.0 (2026-10-12)
 
 ### New Features and Improvements

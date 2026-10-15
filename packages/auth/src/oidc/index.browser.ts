@@ -9,6 +9,8 @@
 
 export type {IdToken, IdTokenProvider} from './oidc';
 export {idTokenProviderFn} from './oidc';
+export type {GithubIdTokenProviderOptions} from './github';
+export {newGithubIdTokenProvider} from './github';
 export type {
   DatabricksOidcTokenProviderConfig,
   OAuthAuthorizationServer,
