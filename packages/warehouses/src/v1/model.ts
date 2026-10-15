@@ -732,6 +732,8 @@ export const WarehouseType = {
   CLASSIC: 'CLASSIC',
   /** Pro warehouse type */
   PRO: 'PRO',
+  /** Real-Time warehouse type */
+  REALTIME: 'REALTIME',
 } as const;
 export type WarehouseType =
   | (typeof WarehouseType)[keyof typeof WarehouseType]

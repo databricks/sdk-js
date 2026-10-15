@@ -99,7 +99,8 @@ export class ClientInfo {
     for (const item of items) {
       const pairs = item instanceof ClientInfo ? item.segments : [item];
       for (const {key, value} of pairs) {
-        if (!isValidSegment(key)) {
+        // Preserve AppKit's existing attribution while it migrates to this SDK.
+        if (key !== '@databricks/appkit' && !isValidSegment(key)) {
           throw new ClientInfoError('INVALID_KEY', `Invalid key: ${key}.`);
         }
         if (!isValidSegment(value)) {

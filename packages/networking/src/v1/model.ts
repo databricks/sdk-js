@@ -393,9 +393,11 @@ export interface AccountIpAccessList {
   listId?: string | undefined;
   /** Label for the IP access list. This **cannot** be empty. */
   label?: string | undefined;
+  /** IP addresses or CIDR ranges in the IP access list. */
   ipAddresses?: string[] | undefined;
   /** Total number of IP or CIDR values. */
   addressCount?: number | undefined;
+  /** Whether the list allows or blocks its IP addresses. */
   listType?: AccountIpAccessListType_IpAccessListType | undefined;
   /** Creation timestamp in milliseconds. */
   createdAt?: bigint | undefined;
@@ -458,13 +460,17 @@ export interface AzurePrivateEndpointInfo {
 /** Details required to configure a block list or allow list. */
 export interface CreateAccountIpAccessListRequest {
   accountId?: string | undefined;
+  /** Label for the IP access list. This **cannot** be empty. */
   label?: string | undefined;
+  /** Whether the list allows or blocks its IP addresses. */
   listType?: AccountIpAccessListType_IpAccessListType | undefined;
+  /** IP addresses or CIDR ranges to include in the IP access list. */
   ipAddresses?: string[] | undefined;
 }
 
 /** An IP access list was successfully created. */
 export interface CreateAccountIpAccessListResponse {
+  /** The IP access list that was created. */
   ipAccessList?: AccountIpAccessList | undefined;
 }
 
