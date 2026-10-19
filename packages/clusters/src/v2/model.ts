@@ -1329,9 +1329,6 @@ export interface ClusterAttributes {
    * The node type of the Spark driver.
    * Note that this field is optional; if unset, the driver node type will be set as the same value
    * as `node_type_id` defined above.
-   *
-   * This field, along with node_type_id, should not be set if virtual_cluster_size is set.
-   * If both driver_node_type_id, node_type_id, and virtual_cluster_size are specified, driver_node_type_id and node_type_id take precedence.
    */
   driverNodeTypeId?: string | undefined;
   /** Flexible node type configuration for worker nodes. */
@@ -1590,9 +1587,6 @@ export interface ClusterInfo {
    * The node type of the Spark driver.
    * Note that this field is optional; if unset, the driver node type will be set as the same value
    * as `node_type_id` defined above.
-   *
-   * This field, along with node_type_id, should not be set if virtual_cluster_size is set.
-   * If both driver_node_type_id, node_type_id, and virtual_cluster_size are specified, driver_node_type_id and node_type_id take precedence.
    */
   driverNodeTypeId?: string | undefined;
   /** Flexible node type configuration for worker nodes. */
@@ -1787,9 +1781,6 @@ export interface ClusterInfo_ComputeSpec {
    * The node type of the Spark driver.
    * Note that this field is optional; if unset, the driver node type will be set as the same value
    * as `node_type_id` defined above.
-   *
-   * This field, along with node_type_id, should not be set if virtual_cluster_size is set.
-   * If both driver_node_type_id, node_type_id, and virtual_cluster_size are specified, driver_node_type_id and node_type_id take precedence.
    */
   driverNodeTypeId?: string | undefined;
   /** Flexible node type configuration for worker nodes. */
@@ -2062,9 +2053,6 @@ export interface CreateClusterRequest {
    * The node type of the Spark driver.
    * Note that this field is optional; if unset, the driver node type will be set as the same value
    * as `node_type_id` defined above.
-   *
-   * This field, along with node_type_id, should not be set if virtual_cluster_size is set.
-   * If both driver_node_type_id, node_type_id, and virtual_cluster_size are specified, driver_node_type_id and node_type_id take precedence.
    */
   driverNodeTypeId?: string | undefined;
   /** Flexible node type configuration for worker nodes. */
@@ -2292,9 +2280,6 @@ export interface EditClusterRequest {
    * The node type of the Spark driver.
    * Note that this field is optional; if unset, the driver node type will be set as the same value
    * as `node_type_id` defined above.
-   *
-   * This field, along with node_type_id, should not be set if virtual_cluster_size is set.
-   * If both driver_node_type_id, node_type_id, and virtual_cluster_size are specified, driver_node_type_id and node_type_id take precedence.
    */
   driverNodeTypeId?: string | undefined;
   /** Flexible node type configuration for worker nodes. */
@@ -2498,9 +2483,6 @@ export interface EnforcePolicyComplianceForClusterResponse_ClusterSettings {
    * The node type of the Spark driver.
    * Note that this field is optional; if unset, the driver node type will be set as the same value
    * as `node_type_id` defined above.
-   *
-   * This field, along with node_type_id, should not be set if virtual_cluster_size is set.
-   * If both driver_node_type_id, node_type_id, and virtual_cluster_size are specified, driver_node_type_id and node_type_id take precedence.
    */
   driverNodeTypeId?: string | undefined;
   /** Flexible node type configuration for worker nodes. */
@@ -3520,9 +3502,6 @@ export interface UpdateClusterRequest_UpdateClusterResource {
    * The node type of the Spark driver.
    * Note that this field is optional; if unset, the driver node type will be set as the same value
    * as `node_type_id` defined above.
-   *
-   * This field, along with node_type_id, should not be set if virtual_cluster_size is set.
-   * If both driver_node_type_id, node_type_id, and virtual_cluster_size are specified, driver_node_type_id and node_type_id take precedence.
    */
   driverNodeTypeId?: string | undefined;
   /** Flexible node type configuration for worker nodes. */

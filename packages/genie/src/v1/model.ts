@@ -1,7 +1,19 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {Temporal} from '@js-temporal/polyfill';
+import type {JsonValue} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
+
+const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
+  z.union([
+    z.null(),
+    z.number(),
+    z.string(),
+    z.boolean(),
+    z.record(z.string(), jsonValueSchema),
+    z.array(jsonValueSchema),
+  ])
+);
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ColumnTypeName = {
@@ -612,23 +624,6 @@ export const GenieFeedbackRating = {
 } as const;
 export type GenieFeedbackRating =
   | (typeof GenieFeedbackRating)[keyof typeof GenieFeedbackRating]
-  | (string & {});
-
-/**
- * copied from proto3 / Google Well Known Types, source:
- * https://github.com/protocolbuffers/protobuf/blob/450d24ca820750c5db5112a6f0b0c2efb9758021/src/google/protobuf/struct.proto
- * `NullValue` is a singleton enumeration to represent the null value for the
- * `Value` type union.
- *
- * The JSON representation for `NullValue` is JSON `null`.
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
-export const NullValue = {
-  /** Null value. */
-  NULL_VALUE: 'NULL_VALUE',
-} as const;
-export type NullValue =
-  | (typeof NullValue)[keyof typeof NullValue]
   | (string & {});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -1699,28 +1694,6 @@ export interface GenieVizAttachment {
   queryAttachmentId?: string | undefined;
 }
 
-/**
- * copied from proto3 / Google Well Known Types, source:
- * https://github.com/protocolbuffers/protobuf/blob/450d24ca820750c5db5112a6f0b0c2efb9758021/src/google/protobuf/struct.proto
- * `ListValue` is a wrapper around a repeated field of values.
- *
- * The JSON representation for `ListValue` is JSON array.
- */
-export interface ListValue {
-  /** Repeated field of dynamically typed values. */
-  values?: Value[] | undefined;
-}
-
-/**
- * <Databricks> proto compiler is too old and does not support map.
- * This is wire compatible with map<string,string>.
- * See https://developers.google.com/protocol-buffers/docs/proto#backwards_compatibility.
- */
-export interface MapStringValueEntry {
-  key?: string | undefined;
-  value?: Value | undefined;
-}
-
 export interface MessageError {
   error?: string | undefined;
   type?: MessageError_Type | undefined;
@@ -1779,7 +1752,7 @@ export interface ResultData {
    * The `JSON_ARRAY` format is an array of arrays of values, where each non-null value is
    * formatted as a string. Null values are encoded as JSON `null`.
    */
-  dataArray?: ListValue[] | undefined;
+  dataArray?: JsonValue[][] | undefined;
   /** The position within the sequence of result set chunks. */
   chunkIndex?: number | undefined;
   /** The starting row offset within the result set. */
@@ -1862,23 +1835,6 @@ export interface StatementStatus {
 }
 
 /**
- * copied from proto3 / Google Well Known Types, source:
- * https://github.com/protocolbuffers/protobuf/blob/450d24ca820750c5db5112a6f0b0c2efb9758021/src/google/protobuf/struct.proto
- * `Struct` represents a structured data value, consisting of fields
- * which map to dynamically typed values. In some languages, `Struct`
- * might be supported by a native representation. For example, in
- * scripting languages like JS a struct is represented as an
- * object. The details of that representation are described together
- * with the proto support for the language.
- *
- * The JSON representation for `Struct` is JSON object.
- */
-export interface Struct {
-  /** Unordered map of dynamically typed values. */
-  fields?: MapStringValueEntry[] | undefined;
-}
-
-/**
  * A text response on a conversation message: the answer, the final summary, or a
  * clarifying follow-up question, along with optional phase and verification metadata.
  */
@@ -1909,52 +1865,6 @@ export interface Thought {
   thoughtType?: ThoughtType | undefined;
   /** The md formatted content for this thought. */
   content?: string | undefined;
-}
-
-/**
- * copied from proto3 / Google Well Known Types, source:
- * https://github.com/protocolbuffers/protobuf/blob/450d24ca820750c5db5112a6f0b0c2efb9758021/src/google/protobuf/struct.proto
- * `Value` represents a dynamically typed value which can be either
- * null, a number, a string, a boolean, a recursive struct value, or a
- * list of values. A producer of value is expected to set one of these
- * variants. Absence of any variant indicates an error.
- *
- * The JSON representation for `Value` is JSON value.
- */
-export interface Value {
-  /** The kind of value. */
-  kind?:
-    | {
-        $case: 'nullValue';
-        /** Represents a null value. */
-        nullValue: NullValue;
-      }
-    | {
-        $case: 'numberValue';
-        /** Represents a double value. */
-        numberValue: number;
-      }
-    | {
-        $case: 'stringValue';
-        /** Represents a string value. */
-        stringValue: string;
-      }
-    | {
-        $case: 'boolValue';
-        /** Represents a boolean value. */
-        boolValue: boolean;
-      }
-    | {
-        $case: 'structValue';
-        /** Represents a structured value. */
-        structValue: Struct;
-      }
-    | {
-        $case: 'listValue';
-        /** Represents a repeated `Value`. */
-        listValue: ListValue;
-      }
-    | undefined;
 }
 
 export const unmarshalChunkInfoSchema: z.ZodType<ChunkInfo> = z
@@ -2571,25 +2481,6 @@ export const unmarshalGenieVizAttachmentSchema: z.ZodType<GenieVizAttachment> =
       queryAttachmentId: d.query_attachment_id,
     }));
 
-export const unmarshalListValueSchema: z.ZodType<ListValue> = z
-  .object({
-    values: z.array(z.lazy(() => unmarshalValueSchema)).optional(),
-  })
-  .transform(d => ({
-    values: d.values,
-  }));
-
-export const unmarshalMapStringValueEntrySchema: z.ZodType<MapStringValueEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.lazy(() => unmarshalValueSchema).optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const unmarshalMessageErrorSchema: z.ZodType<MessageError> = z
   .object({
     error: z.string().optional(),
@@ -2650,7 +2541,7 @@ export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
     external_links: z
       .array(z.lazy(() => unmarshalExternalLinkSchema))
       .optional(),
-    data_array: z.array(z.lazy(() => unmarshalListValueSchema)).optional(),
+    data_array: z.array(z.array(jsonValueSchema)).optional(),
     chunk_index: z.number().optional(),
     row_offset: z
       .union([z.number(), z.bigint(), z.string()])
@@ -2742,16 +2633,6 @@ export const unmarshalStatementStatusSchema: z.ZodType<StatementStatus> = z
     sqlState: d.sql_state,
   }));
 
-export const unmarshalStructSchema: z.ZodType<Struct> = z
-  .object({
-    fields: z
-      .array(z.lazy(() => unmarshalMapStringValueEntrySchema))
-      .optional(),
-  })
-  .transform(d => ({
-    fields: d.fields,
-  }));
-
 export const unmarshalTextAttachmentSchema: z.ZodType<TextAttachment> = z
   .object({
     content: z.string().optional(),
@@ -2772,32 +2653,6 @@ export const unmarshalThoughtSchema: z.ZodType<Thought> = z
   .transform(d => ({
     thoughtType: d.thought_type,
     content: d.content,
-  }));
-
-export const unmarshalValueSchema: z.ZodType<Value> = z
-  .object({
-    null_value: z.string().optional(),
-    number_value: z.number().optional(),
-    string_value: z.string().optional(),
-    bool_value: z.boolean().optional(),
-    struct_value: z.lazy(() => unmarshalStructSchema).optional(),
-    list_value: z.lazy(() => unmarshalListValueSchema).optional(),
-  })
-  .transform(d => ({
-    kind:
-      d.null_value !== undefined
-        ? {$case: 'nullValue' as const, nullValue: d.null_value}
-        : d.number_value !== undefined
-          ? {$case: 'numberValue' as const, numberValue: d.number_value}
-          : d.string_value !== undefined
-            ? {$case: 'stringValue' as const, stringValue: d.string_value}
-            : d.bool_value !== undefined
-              ? {$case: 'boolValue' as const, boolValue: d.bool_value}
-              : d.struct_value !== undefined
-                ? {$case: 'structValue' as const, structValue: d.struct_value}
-                : d.list_value !== undefined
-                  ? {$case: 'listValue' as const, listValue: d.list_value}
-                  : undefined,
   }));
 
 export const marshalGenieCancelResponseRequestSchema: z.ZodType = z

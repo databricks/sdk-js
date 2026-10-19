@@ -147,6 +147,11 @@ export interface ConnectionInfo {
   provisioningInfo?: ProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
+  /**
+   * A map of option names to UC Secret references. Keys are connection option names
+   * (same as in OptionsKVPairs) and values are UC Secret fully qualified names.
+   */
+  secrets?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
 }
@@ -191,6 +196,11 @@ export interface CreateConnectionRequest {
   provisioningInfo?: ProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
+  /**
+   * A map of option names to UC Secret references. Keys are connection option names
+   * (same as in OptionsKVPairs) and values are UC Secret fully qualified names.
+   */
+  secrets?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
 }
@@ -283,6 +293,11 @@ export interface UpdateConnectionRequest {
   provisioningInfo?: ProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
+  /**
+   * A map of option names to UC Secret references. Keys are connection option names
+   * (same as in OptionsKVPairs) and values are UC Secret fully qualified names.
+   */
+  secrets?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
 }
@@ -315,6 +330,7 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     securable_type: z.string().optional(),
     provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
     options: z.record(z.string(), z.string()).optional(),
+    secrets: z.record(z.string(), z.string()).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -336,6 +352,7 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     securableType: d.securable_type,
     provisioningInfo: d.provisioning_info,
     options: d.options,
+    secrets: d.secrets,
     properties: d.properties,
   }));
 
@@ -397,6 +414,7 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
     securableType: z.string().optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     options: z.record(z.string(), z.string()).optional(),
+    secrets: z.record(z.string(), z.string()).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -419,6 +437,7 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
     securable_type: d.securableType,
     provisioning_info: d.provisioningInfo,
     options: d.options,
+    secrets: d.secrets,
     properties: d.properties,
   }));
 
@@ -464,6 +483,7 @@ export const marshalUpdateConnectionRequestSchema: z.ZodType = z
     securableType: z.string().optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     options: z.record(z.string(), z.string()).optional(),
+    secrets: z.record(z.string(), z.string()).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -487,5 +507,6 @@ export const marshalUpdateConnectionRequestSchema: z.ZodType = z
     securable_type: d.securableType,
     provisioning_info: d.provisioningInfo,
     options: d.options,
+    secrets: d.secrets,
     properties: d.properties,
   }));

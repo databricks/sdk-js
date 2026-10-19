@@ -76,8 +76,10 @@ export type EventLevel =
   | (typeof EventLevel)[keyof typeof EventLevel]
   | (string & {});
 
+/** Type of source system that a managed ingestion pipeline reads from. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const IngestionSourceType = {
+  /** Default value. Returned when the ingestion source type is unknown or not set. */
   INGESTION_SOURCE_TYPE_UNSPECIFIED: 'INGESTION_SOURCE_TYPE_UNSPECIFIED',
   MYSQL: 'MYSQL',
   POSTGRESQL: 'POSTGRESQL',

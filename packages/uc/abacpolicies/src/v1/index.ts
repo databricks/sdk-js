@@ -18,6 +18,7 @@ export type {
   FunctionArgExpression,
   FunctionArgument,
   GetPolicyRequest,
+  GovernedTagReference,
   GrantOptions,
   ListPoliciesRequest,
   ListPoliciesResponse,

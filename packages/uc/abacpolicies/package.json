@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-uc-abacpolicies",
-  "version": "0.53.2",
+  "version": "0.53.3",
   "description": "",
   "type": "module",
   "exports": {
