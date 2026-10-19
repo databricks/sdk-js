@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-disasterrecovery",
-  "version": "0.51.2",
+  "version": "0.51.3",
   "description": "",
   "type": "module",
   "exports": {

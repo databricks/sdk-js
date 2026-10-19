@@ -6,22 +6,33 @@
 
 export {SandboxClient} from './client';
 
-export {ExecuteCommandStatus, SandboxState} from './model';
+export {ExecuteCommandStatus, SandboxFileType, SandboxState} from './model';
 
 export type {
   Command,
   ComputeSpec,
+  CreateDirectoryRequest,
+  CreateDirectoryResponse,
   CreateSandboxRequest,
+  DeletePathRequest,
+  DeletePathResponse,
   DeleteSandboxRequest,
   EnvironmentSpec,
   ExecuteCommandSyncRequest,
   ExecuteCommandSyncResponse,
+  GetMetadataRequest,
+  GetMetadataResponse,
   GetSandboxRequest,
   ListCommandsRequest,
   ListCommandsResponse,
+  ListDirectoryContentsRequest,
+  ListDirectoryContentsResponse,
   ListSandboxesRequest,
   ListSandboxesResponse,
+  RenamePathRequest,
+  RenamePathResponse,
   Sandbox,
+  SandboxFileInfo,
   SandboxSpec,
   SandboxStatus,
   StartSandboxRequest,

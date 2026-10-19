@@ -24,6 +24,19 @@ export type ExecuteCommandStatus =
   | (typeof ExecuteCommandStatus)[keyof typeof ExecuteCommandStatus]
   | (string & {});
 
+/** Type of a sandbox filesystem entry without following its final symlink. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SandboxFileType = {
+  SANDBOX_FILE_TYPE_UNSPECIFIED: 'SANDBOX_FILE_TYPE_UNSPECIFIED',
+  SANDBOX_FILE_TYPE_FILE: 'SANDBOX_FILE_TYPE_FILE',
+  SANDBOX_FILE_TYPE_DIRECTORY: 'SANDBOX_FILE_TYPE_DIRECTORY',
+  SANDBOX_FILE_TYPE_SYMLINK: 'SANDBOX_FILE_TYPE_SYMLINK',
+  SANDBOX_FILE_TYPE_OTHER: 'SANDBOX_FILE_TYPE_OTHER',
+} as const;
+export type SandboxFileType =
+  | (typeof SandboxFileType)[keyof typeof SandboxFileType]
+  | (string & {});
+
 /**
  * Lifecycle state of a Sandbox resource. STOPPING is the transient state while the
  * sandbox is being stopped -- by a Stop request or inactivity auto-termination
@@ -65,6 +78,19 @@ export interface ComputeSpec {
   inactivityTimeout?: Temporal.Duration | undefined;
 }
 
+/** Selects a sandbox directory to create and whether to create its parents. */
+export interface CreateDirectoryRequest {
+  parent?: string | undefined;
+  /** Absolute UTF-8 path of the directory. */
+  path?: string | undefined;
+  /** Defaults to true, which also succeeds when the directory already exists. */
+  parents?: boolean | undefined;
+}
+
+/** Confirms that the requested directory exists. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CreateDirectoryResponse {}
+
 /** A request to create a Sandbox. */
 export interface CreateSandboxRequest {
   /** The sandbox to create. */
@@ -72,6 +98,19 @@ export interface CreateSandboxRequest {
   /** Client-supplied ID that becomes the final path segment of the resource name. */
   sandboxId?: string | undefined;
 }
+
+/** Selects a sandbox path to delete and whether to delete its contents. */
+export interface DeletePathRequest {
+  parent?: string | undefined;
+  /** Absolute UTF-8 path of the entry to delete. */
+  path?: string | undefined;
+  /** Required for a non-empty directory. */
+  recursive?: boolean | undefined;
+}
+
+/** Confirms that the requested path is absent. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeletePathResponse {}
 
 /** A request to delete a Sandbox. */
 export interface DeleteSandboxRequest {
@@ -148,6 +187,18 @@ export interface ExecuteCommandSyncResponse {
   truncated?: boolean | undefined;
 }
 
+/** Selects a sandbox path for metadata inspection. */
+export interface GetMetadataRequest {
+  parent?: string | undefined;
+  /** Absolute UTF-8 path of the entry to inspect. */
+  path?: string | undefined;
+}
+
+/** Contains metadata for the requested path without following its final symlink. */
+export interface GetMetadataResponse {
+  file?: SandboxFileInfo | undefined;
+}
+
 /** A request to retrieve a Sandbox. */
 export interface GetSandboxRequest {
   name?: string | undefined;
@@ -177,6 +228,26 @@ export interface ListCommandsResponse {
   nextPageToken?: string | undefined;
 }
 
+/** Selects a page of immediate entries from a sandbox directory. */
+export interface ListDirectoryContentsRequest {
+  parent?: string | undefined;
+  /** Absolute UTF-8 path of the directory. */
+  path?: string | undefined;
+  /** The token from a prior response. Keep parent and path unchanged between pages. */
+  pageToken?: string | undefined;
+  /** Zero uses the default of 1000; values above 1000 are clamped to 1000. */
+  pageSize?: number | undefined;
+}
+
+/**
+ * Contains a page of immediate directory entries and an optional continuation token.
+ * An empty token marks the final page. Pages reflect concurrent directory changes.
+ */
+export interface ListDirectoryContentsResponse {
+  contents?: SandboxFileInfo[] | undefined;
+  nextPageToken?: string | undefined;
+}
+
 /** A request to list Sandboxes. */
 export interface ListSandboxesRequest {
   pageToken?: string | undefined;
@@ -188,6 +259,20 @@ export interface ListSandboxesResponse {
   sandboxes?: Sandbox[] | undefined;
   nextPageToken?: string | undefined;
 }
+
+/** Identifies the source and exact destination for a sandbox path rename. */
+export interface RenamePathRequest {
+  /** Sandbox resource name, for example `sandboxes/my-sandbox`. */
+  parent?: string | undefined;
+  /** Absolute UTF-8 path to move. */
+  source?: string | undefined;
+  /** Exact absolute UTF-8 destination; it must not already exist. */
+  destination?: string | undefined;
+}
+
+/** Confirms that the sandbox path was renamed. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface RenamePathResponse {}
 
 /** A Sandbox resource representing an execution environment. */
 export interface Sandbox {
@@ -206,6 +291,21 @@ export interface Sandbox {
   updateTime?: Temporal.Instant | undefined;
   /** Human-readable display label for the sandbox. At most 256 characters. */
   displayName?: string | undefined;
+}
+
+/** Metadata for a sandbox filesystem entry, describing a final symlink itself. */
+export interface SandboxFileInfo {
+  name?: string | undefined;
+  path?: string | undefined;
+  fileType?: SandboxFileType | undefined;
+  size?: bigint | undefined;
+  mode?: number | undefined;
+  permissions?: string | undefined;
+  owner?: string | undefined;
+  group?: string | undefined;
+  /** Nanosecond precision is preserved on the wire. */
+  modifyTime?: Temporal.Instant | undefined;
+  symlinkTarget?: string | undefined;
 }
 
 export interface SandboxSpec {
@@ -282,6 +382,12 @@ export const unmarshalComputeSpecSchema: z.ZodType<ComputeSpec> = z
     inactivityTimeout: d.inactivity_timeout,
   }));
 
+export const unmarshalCreateDirectoryResponseSchema: z.ZodType<CreateDirectoryResponse> =
+  z.object({});
+
+export const unmarshalDeletePathResponseSchema: z.ZodType<DeletePathResponse> =
+  z.object({});
+
 export const unmarshalEnvironmentSpecSchema: z.ZodType<EnvironmentSpec> = z
   .object({
     image_uri: z.string().optional(),
@@ -309,6 +415,15 @@ export const unmarshalExecuteCommandSyncResponseSchema: z.ZodType<ExecuteCommand
       truncated: d.truncated,
     }));
 
+export const unmarshalGetMetadataResponseSchema: z.ZodType<GetMetadataResponse> =
+  z
+    .object({
+      file: z.lazy(() => unmarshalSandboxFileInfoSchema).optional(),
+    })
+    .transform(d => ({
+      file: d.file,
+    }));
+
 export const unmarshalListCommandsResponseSchema: z.ZodType<ListCommandsResponse> =
   z
     .object({
@@ -317,6 +432,19 @@ export const unmarshalListCommandsResponseSchema: z.ZodType<ListCommandsResponse
     })
     .transform(d => ({
       commands: d.commands,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalListDirectoryContentsResponseSchema: z.ZodType<ListDirectoryContentsResponse> =
+  z
+    .object({
+      contents: z
+        .array(z.lazy(() => unmarshalSandboxFileInfoSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      contents: d.contents,
       nextPageToken: d.next_page_token,
     }));
 
@@ -330,6 +458,9 @@ export const unmarshalListSandboxesResponseSchema: z.ZodType<ListSandboxesRespon
       sandboxes: d.sandboxes,
       nextPageToken: d.next_page_token,
     }));
+
+export const unmarshalRenamePathResponseSchema: z.ZodType<RenamePathResponse> =
+  z.object({});
 
 export const unmarshalSandboxSchema: z.ZodType<Sandbox> = z
   .object({
@@ -353,6 +484,38 @@ export const unmarshalSandboxSchema: z.ZodType<Sandbox> = z
     createTime: d.create_time,
     updateTime: d.update_time,
     displayName: d.display_name,
+  }));
+
+export const unmarshalSandboxFileInfoSchema: z.ZodType<SandboxFileInfo> = z
+  .object({
+    name: z.string().optional(),
+    path: z.string().optional(),
+    file_type: z.string().optional(),
+    size: z
+      .union([z.number(), z.bigint(), z.string()])
+      .transform(v => BigInt(v))
+      .optional(),
+    mode: z.number().optional(),
+    permissions: z.string().optional(),
+    owner: z.string().optional(),
+    group: z.string().optional(),
+    modify_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    symlink_target: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    path: d.path,
+    fileType: d.file_type,
+    size: d.size,
+    mode: d.mode,
+    permissions: d.permissions,
+    owner: d.owner,
+    group: d.group,
+    modifyTime: d.modify_time,
+    symlinkTarget: d.symlink_target,
   }));
 
 export const unmarshalSandboxSpecSchema: z.ZodType<SandboxSpec> = z
@@ -384,6 +547,30 @@ export const marshalComputeSpecSchema: z.ZodType = z
     inactivity_timeout: d.inactivityTimeout,
   }));
 
+export const marshalCreateDirectoryRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    path: z.string().optional(),
+    parents: z.boolean().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    path: d.path,
+    parents: d.parents,
+  }));
+
+export const marshalDeletePathRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    path: z.string().optional(),
+    recursive: z.boolean().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    path: d.path,
+    recursive: d.recursive,
+  }));
+
 export const marshalEnvironmentSpecSchema: z.ZodType = z
   .object({
     imageUri: z.string().optional(),
@@ -409,6 +596,18 @@ export const marshalExecuteCommandSyncRequestSchema: z.ZodType = z
     args: d.args,
     envs: d.envs,
     execution_timeout: d.executionTimeout,
+  }));
+
+export const marshalRenamePathRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    source: z.string().optional(),
+    destination: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    source: d.source,
+    destination: d.destination,
   }));
 
 export const marshalSandboxSchema: z.ZodType = z

@@ -153,6 +153,14 @@ export interface GetPolicyRequest {
   name?: string | undefined;
 }
 
+/** A governed tag referenced by a policy condition. */
+export interface GovernedTagReference {
+  /** The governed tag key. */
+  tagKey?: string | undefined;
+  /** The governed tag value, when the policy references a specific value. */
+  tagValue?: string | undefined;
+}
+
 export interface GrantOptions {
   /**
    * List of privileges to grant.
@@ -293,6 +301,8 @@ export interface PolicyInfo {
   updatedAt?: bigint | undefined;
   /** Username of the user who last modified the policy. Output only. */
   updatedBy?: string | undefined;
+  /** Governed tag keys and values referenced by this policy's conditions and function arguments. Output only. */
+  governedTags?: GovernedTagReference[] | undefined;
 }
 
 export interface RowFilterOptions {
@@ -430,6 +440,17 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
             : undefined,
   }));
 
+export const unmarshalGovernedTagReferenceSchema: z.ZodType<GovernedTagReference> =
+  z
+    .object({
+      tag_key: z.string().optional(),
+      tag_value: z.string().optional(),
+    })
+    .transform(d => ({
+      tagKey: d.tag_key,
+      tagValue: d.tag_value,
+    }));
+
 export const unmarshalGrantOptionsSchema: z.ZodType<GrantOptions> = z
   .object({
     privileges: z.array(z.string()).optional(),
@@ -486,6 +507,9 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
       .transform(v => BigInt(v))
       .optional(),
     updated_by: z.string().optional(),
+    governed_tags: z
+      .array(z.lazy(() => unmarshalGovernedTagReferenceSchema))
+      .optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -513,6 +537,7 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
     createdBy: d.created_by,
     updatedAt: d.updated_at,
     updatedBy: d.updated_by,
+    governedTags: d.governed_tags,
   }));
 
 export const unmarshalRowFilterOptionsSchema: z.ZodType<RowFilterOptions> = z
@@ -626,6 +651,16 @@ export const marshalFunctionArgumentSchema: z.ZodType = z
     }),
   }));
 
+export const marshalGovernedTagReferenceSchema: z.ZodType = z
+  .object({
+    tagKey: z.string().optional(),
+    tagValue: z.string().optional(),
+  })
+  .transform(d => ({
+    tag_key: d.tagKey,
+    tag_value: d.tagValue,
+  }));
+
 export const marshalGrantOptionsSchema: z.ZodType = z
   .object({
     privileges: z.array(z.string()).optional(),
@@ -681,6 +716,9 @@ export const marshalPolicyInfoSchema: z.ZodType = z
     createdBy: z.string().optional(),
     updatedAt: z.bigint().optional(),
     updatedBy: z.string().optional(),
+    governedTags: z
+      .array(z.lazy(() => marshalGovernedTagReferenceSchema))
+      .optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -704,6 +742,7 @@ export const marshalPolicyInfoSchema: z.ZodType = z
     created_by: d.createdBy,
     updated_at: d.updatedAt,
     updated_by: d.updatedBy,
+    governed_tags: d.governedTags,
   }));
 
 export const marshalRowFilterOptionsSchema: z.ZodType = z
@@ -771,6 +810,7 @@ const policyInfoFieldMaskSchema: FieldMaskSchema = {
   deny: {wire: 'deny', children: () => denyOptionsFieldMaskSchema},
   exceptPrincipals: {wire: 'except_principals'},
   forSecurableType: {wire: 'for_securable_type'},
+  governedTags: {wire: 'governed_tags'},
   grant: {wire: 'grant', children: () => grantOptionsFieldMaskSchema},
   id: {wire: 'id'},
   matchColumns: {wire: 'match_columns'},
