@@ -1,5 +1,10 @@
 # Version changelog
 
+## Release v0.54.3 (2026-10-19)
+
+### Bug Fixes
+* Fix query-result deserialization to accept JSON array rows and null cells.
+
 ## Release v0.54.2 (2026-10-15)
 
 ### Internal Changes

@@ -20,6 +20,7 @@ export type {
   FailoverGroup,
   GetFailoverGroupRequest,
   GetStableUrlRequest,
+  InitialReplicationProgress,
   ListFailoverGroupsRequest,
   ListFailoverGroupsResponse,
   ListStableUrlsRequest,

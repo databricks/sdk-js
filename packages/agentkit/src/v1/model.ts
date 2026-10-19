@@ -16,13 +16,13 @@ const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
   ])
 );
 
-/** Identifies the source that created a managed memory entry. */
+/** Identifies the source that created a memory entry. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ManagedMemoryEntrySourceType = {
-  /** The managed memory entry was created by an agent during a live conversation. */
+  /** The memory entry was created by an agent during a live conversation. */
   MANAGED_MEMORY_ENTRY_SOURCE_TYPE_AGENT:
     'MANAGED_MEMORY_ENTRY_SOURCE_TYPE_AGENT',
-  /** The managed memory entry was distilled from prior sessions by the dreamer pipeline. */
+  /** The memory entry was distilled from prior sessions by the dreamer pipeline. */
   MANAGED_MEMORY_ENTRY_SOURCE_TYPE_DREAMER:
     'MANAGED_MEMORY_ENTRY_SOURCE_TYPE_DREAMER',
 } as const;
@@ -30,7 +30,7 @@ export type ManagedMemoryEntrySourceType =
   | (typeof ManagedMemoryEntrySourceType)[keyof typeof ManagedMemoryEntrySourceType]
   | (string & {});
 
-/** Controls how much managed memory entry data is returned. */
+/** Controls how much memory entry data is returned. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ManagedMemoryEntryView = {
   /** Default view. Returns all entry fields, including `content`. */
@@ -45,12 +45,12 @@ export type ManagedMemoryEntryView =
   | (typeof ManagedMemoryEntryView)[keyof typeof ManagedMemoryEntryView]
   | (string & {});
 
-/** Type of service-managed storage backing a managed memory store. */
+/** Type of service-managed storage backing a memory store. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const StorageBackendType = {
   /** Default value. Returned when the storage backend type is not set. */
   STORAGE_BACKEND_TYPE_UNSPECIFIED: 'STORAGE_BACKEND_TYPE_UNSPECIFIED',
-  /** Lakebase-managed storage backing the managed memory store. */
+  /** Lakebase-managed storage backing the memory store. */
   STORAGE_BACKEND_TYPE_LAKEBASE: 'STORAGE_BACKEND_TYPE_LAKEBASE',
 } as const;
 export type StorageBackendType =
@@ -90,25 +90,25 @@ export interface ClearSessionItemsRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ClearSessionItemsResponse {}
 
-/** Request to create a managed memory entry. */
+/** Request to create a memory entry. */
 export interface CreateManagedMemoryEntryRequest {
   /**
-   * Managed memory store that will contain the entry, in the form
+   * Memory store that will contain the entry, in the form
    * `memory-stores/{managed_memory_store_id}`.
    */
   parent?: string | undefined;
-  /** The managed memory entry to create. */
+  /** The memory entry to create. */
   managedMemoryEntry?: ManagedMemoryEntry | undefined;
-  /** Optional caller-selected managed memory entry ID. The service generates an ID when omitted. */
+  /** Optional caller-selected memory entry ID. The service generates an ID when omitted. */
   managedMemoryEntryId?: string | undefined;
 }
 
-/** Request to create a managed memory store. */
+/** Request to create a memory store. */
 export interface CreateManagedMemoryStoreRequest {
-  /** The managed memory store to create. */
+  /** The memory store to create. */
   managedMemoryStore?: ManagedMemoryStore | undefined;
   /**
-   * Caller-provided, workspace-unique managed memory store ID. It must be 3-56 characters, begin
+   * Caller-provided, workspace-unique memory store ID. It must be 3-56 characters, begin
    * with a lowercase letter, contain only lowercase letters, digits, and hyphens, and end with a
    * letter or digit.
    */
@@ -145,7 +145,7 @@ export interface CreateSessionStoreRequest {
   sessionStoreId?: string | undefined;
 }
 
-/** Request to delete a managed memory entry by resource name. */
+/** Request to delete a memory entry by resource name. */
 export interface DeleteManagedMemoryEntryRequest {
   /**
    * Resource name in the form
@@ -154,7 +154,7 @@ export interface DeleteManagedMemoryEntryRequest {
   name?: string | undefined;
 }
 
-/** Request to delete a managed memory store by resource name. */
+/** Request to delete a memory store by resource name. */
 export interface DeleteManagedMemoryStoreRequest {
   /** Resource name in the form `memory-stores/{managed_memory_store_id}`. */
   name?: string | undefined;
@@ -178,7 +178,7 @@ export interface DeleteSessionStoreRequest {
 /** Request to synchronously extract memories from a single session. */
 export interface ExtractMemoriesRequest {
   /**
-   * Managed memory store the extracted entries are written to, in the form
+   * Memory store the extracted entries are written to, in the form
    * `memory-stores/{managed_memory_store_id}`.
    */
   memoryStore?: string | undefined;
@@ -231,7 +231,7 @@ export interface ForkSessionResponse {
   session?: Session | undefined;
 }
 
-/** Request to retrieve a managed memory entry by resource name. */
+/** Request to retrieve a memory entry by resource name. */
 export interface GetManagedMemoryEntryRequest {
   /**
    * Resource name in the form
@@ -242,7 +242,7 @@ export interface GetManagedMemoryEntryRequest {
   view?: ManagedMemoryEntryView | undefined;
 }
 
-/** Request to retrieve a managed memory store by resource name. */
+/** Request to retrieve a memory store by resource name. */
 export interface GetManagedMemoryStoreRequest {
   /** Resource name in the form `memory-stores/{managed_memory_store_id}`. */
   name?: string | undefined;
@@ -264,12 +264,12 @@ export interface GetSessionStoreRequest {
 }
 
 /**
- * Request to list managed memory entries for one actor, optionally restricted by session and
+ * Request to list memory entries for one actor, optionally restricted by session and
  * path prefix, or matched by exact path regardless of session.
  */
 export interface ListManagedMemoryEntriesRequest {
   /**
-   * Managed memory store whose entries are listed, in the form
+   * Memory store whose entries are listed, in the form
    * `memory-stores/{managed_memory_store_id}`.
    */
   parent?: string | undefined;
@@ -293,15 +293,15 @@ export interface ListManagedMemoryEntriesRequest {
   view?: ManagedMemoryEntryView | undefined;
 }
 
-/** Response containing managed memory entries. */
+/** Response containing memory entries. */
 export interface ListManagedMemoryEntriesResponse {
-  /** Managed memory entries matching the request and selected response view. */
+  /** Memory entries matching the request and selected response view. */
   managedMemoryEntries?: ManagedMemoryEntry[] | undefined;
   /** Opaque pagination token. This field is omitted when there are no more results. */
   nextPageToken?: string | undefined;
 }
 
-/** Request to list managed memory stores in the caller's workspace. */
+/** Request to list memory stores in the caller's workspace. */
 export interface ListManagedMemoryStoresRequest {
   /**
    * Maximum number of stores to return. The service may return fewer stores than requested.
@@ -312,9 +312,9 @@ export interface ListManagedMemoryStoresRequest {
   pageToken?: string | undefined;
 }
 
-/** Response containing managed memory stores in the caller's workspace. */
+/** Response containing memory stores in the caller's workspace. */
 export interface ListManagedMemoryStoresResponse {
-  /** Managed memory stores in the caller's workspace. */
+  /** Memory stores in the caller's workspace. */
   managedMemoryStores?: ManagedMemoryStore[] | undefined;
   /** Opaque pagination token. This field is omitted when there are no more results. */
   nextPageToken?: string | undefined;
@@ -396,7 +396,7 @@ export interface ListSessionsResponse {
   nextPageToken?: string | undefined;
 }
 
-/** A workspace-scoped entry in a managed memory store. */
+/** A workspace-scoped entry in a memory store. */
 export interface ManagedMemoryEntry {
   /**
    * Resource name in the form
@@ -427,20 +427,20 @@ export interface ManagedMemoryEntry {
   updateTime?: Temporal.Instant | undefined;
 }
 
-/** One relevance-ranked managed memory search result. */
+/** One relevance-ranked memory search result. */
 export interface ManagedMemoryEntrySearchResult {
-  /** Managed memory entry matching the query. */
+  /** Memory entry matching the query. */
   managedMemoryEntry?: ManagedMemoryEntry | undefined;
   /** Relevance score for the result. Higher scores are more relevant. */
   score?: number | undefined;
 }
 
-/** A workspace-scoped managed memory store backed by service-managed storage. */
+/** A workspace-scoped memory store backed by service-managed storage. */
 export interface ManagedMemoryStore {
   /** Resource name in the form `memory-stores/{managed_memory_store_id}`. */
   name?: string | undefined;
   /**
-   * Deprecated compatibility alias for the caller-provided managed memory store ID. Canonical
+   * Deprecated compatibility alias for the caller-provided memory store ID. Canonical
    * clients provide the ID through `CreateMemoryStoreRequest.managed_memory_store_id` and use
    * `name` as the resource identifier.
    */
@@ -484,12 +484,12 @@ export interface PopSessionItemResponse {
 }
 
 /**
- * Request to search managed memory entries by text query for one actor.
+ * Request to search memory entries by text query for one actor.
  * Search returns a relevance-ranked top-N result set and does not currently paginate.
  */
 export interface SearchManagedMemoryEntriesRequest {
   /**
-   * Managed memory store whose entries are searched, in the form
+   * Memory store whose entries are searched, in the form
    * `memory-stores/{managed_memory_store_id}`.
    */
   parent?: string | undefined;
@@ -527,7 +527,7 @@ export interface SearchManagedMemoryEntriesRequest {
   view?: ManagedMemoryEntryView | undefined;
 }
 
-/** Response containing managed memory entries ranked by relevance. */
+/** Response containing memory entries ranked by relevance. */
 export interface SearchManagedMemoryEntriesResponse {
   /**
    * Deprecated compatibility alias for clients migrating to `results`. This contains the same
@@ -616,7 +616,7 @@ export interface SessionStore {
   name?: string | undefined;
 }
 
-/** Service-managed storage backing a managed memory store. */
+/** Service-managed storage backing a memory store. */
 export interface StorageBackend {
   /** Type of the storage backend. */
   backendType?: StorageBackendType | undefined;
@@ -624,17 +624,17 @@ export interface StorageBackend {
   backendId?: string | undefined;
 }
 
-/** Request to update a managed memory entry. */
+/** Request to update a memory entry. */
 export interface UpdateManagedMemoryEntryRequest {
-  /** The managed memory entry to update. */
+  /** The memory entry to update. */
   managedMemoryEntry?: ManagedMemoryEntry | undefined;
   /** Fields to update. Only `content` and `description` may be updated. */
   updateMask?: FieldMask<ManagedMemoryEntry> | undefined;
 }
 
-/** Request to update the description and metadata on a managed memory store. */
+/** Request to update the description and metadata on a memory store. */
 export interface UpdateManagedMemoryStoreRequest {
-  /** The managed memory store to update. `name` is taken from the URL. */
+  /** The memory store to update. `name` is taken from the URL. */
   managedMemoryStore?: ManagedMemoryStore | undefined;
   /** Only `description` and `metadata` may be updated. Selecting `metadata` replaces the entire map. */
   updateMask?: FieldMask<ManagedMemoryStore> | undefined;

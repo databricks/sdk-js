@@ -1430,6 +1430,13 @@ export interface BaseRun {
    * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
+  /**
+   * The window the run aims to finish within, in hours, for a Cost-optimized serverless run.
+   * Required only when `performance_target` is `COST_OPTIMIZED`. Must be one of the
+   * supported values: `NO_FLEXIBILITY`, `4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run
+   * uses the default cost-optimized performance level without additional cost-saving optimizations.
+   */
+  durationTarget?: string | undefined;
   /** The id of the usage policy used by this run for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
   /**
@@ -1657,9 +1664,6 @@ export interface ClusterSpec_NewCluster {
    * The node type of the Spark driver.
    * Note that this field is optional; if unset, the driver node type will be set as the same value
    * as `node_type_id` defined above.
-   *
-   * This field, along with node_type_id, should not be set if virtual_cluster_size is set.
-   * If both driver_node_type_id, node_type_id, and virtual_cluster_size are specified, driver_node_type_id and node_type_id take precedence.
    */
   driverNodeTypeId?: string | undefined;
   /** Flexible node type configuration for worker nodes. */
@@ -1984,6 +1988,13 @@ export interface CreateJobRequest {
    * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
+  /**
+   * The window the run aims to finish within, in hours, for a Cost-optimized serverless run.
+   * Required only when `performance_target` is `COST_OPTIMIZED`. Must be one of the
+   * supported values: `NO_FLEXIBILITY`, `4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run
+   * uses the default cost-optimized performance level without additional cost-saving optimizations.
+   */
+  durationTarget?: string | undefined;
   /** Path of the job parent folder in workspace file tree. If absent, the job doesn't have a workspace object. */
   parentPath?: string | undefined;
   /**
@@ -2766,6 +2777,13 @@ export interface GetRunResponse {
    * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
+  /**
+   * The window the run aims to finish within, in hours, for a Cost-optimized serverless run.
+   * Required only when `performance_target` is `COST_OPTIMIZED`. Must be one of the
+   * supported values: `NO_FLEXIBILITY`, `4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run
+   * uses the default cost-optimized performance level without additional cost-saving optimizations.
+   */
+  durationTarget?: string | undefined;
   /** The id of the usage policy used by this run for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
   /**
@@ -3171,6 +3189,13 @@ export interface JobSettings {
    * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
+  /**
+   * The window the run aims to finish within, in hours, for a Cost-optimized serverless run.
+   * Required only when `performance_target` is `COST_OPTIMIZED`. Must be one of the
+   * supported values: `NO_FLEXIBILITY`, `4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run
+   * uses the default cost-optimized performance level without additional cost-saving optimizations.
+   */
+  durationTarget?: string | undefined;
   /** Path of the job parent folder in workspace file tree. If absent, the job doesn't have a workspace object. */
   parentPath?: string | undefined;
   /**
@@ -3817,6 +3842,13 @@ export interface RepairRunRequest {
    * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
+  /**
+   * The window the run aims to finish within, in hours, for a Cost-optimized serverless run.
+   * Required only when `performance_target` is `COST_OPTIMIZED`. Must be one of the
+   * supported values: `NO_FLEXIBILITY`, `4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run
+   * uses the default cost-optimized performance level without additional cost-saving optimizations.
+   */
+  durationTarget?: string | undefined;
   /** Controls whether the pipeline should perform a full refresh */
   pipelineParams?: PipelineParameters | undefined;
   /**
@@ -4095,6 +4127,13 @@ export interface Run {
    * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
+  /**
+   * The window the run aims to finish within, in hours, for a Cost-optimized serverless run.
+   * Required only when `performance_target` is `COST_OPTIMIZED`. Must be one of the
+   * supported values: `NO_FLEXIBILITY`, `4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run
+   * uses the default cost-optimized performance level without additional cost-saving optimizations.
+   */
+  durationTarget?: string | undefined;
   /** The id of the usage policy used by this run for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
   /**
@@ -4261,6 +4300,13 @@ export interface RunNowRequest {
    * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
+  /**
+   * The window the run aims to finish within, in hours, for a Cost-optimized serverless run.
+   * Required only when `performance_target` is `COST_OPTIMIZED`. Must be one of the
+   * supported values: `NO_FLEXIBILITY`, `4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run
+   * uses the default cost-optimized performance level without additional cost-saving optimizations.
+   */
+  durationTarget?: string | undefined;
   /** Controls whether the pipeline should perform a full refresh */
   pipelineParams?: PipelineParameters | undefined;
   /**
@@ -5254,6 +5300,13 @@ export interface SubmitRunRequest {
    * * `COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your selected target duration time. Must provide a duration target.
    */
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
+  /**
+   * The window the run aims to finish within, in hours, for a Cost-optimized serverless run.
+   * Required only when `performance_target` is `COST_OPTIMIZED`. Must be one of the
+   * supported values: `NO_FLEXIBILITY`, `4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run
+   * uses the default cost-optimized performance level without additional cost-saving optimizations.
+   */
+  durationTarget?: string | undefined;
 }
 
 /** Run was created and started successfully. */
@@ -6049,6 +6102,7 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
       .optional(),
     has_more: z.boolean().optional(),
     effective_performance_target: z.string().optional(),
+    duration_target: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
     environment_variables: z
       .array(z.lazy(() => unmarshalJobEnvironmentVariablesSchema))
@@ -6111,6 +6165,7 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
     jobRunId: d.job_run_id,
     hasMore: d.has_more,
     effectivePerformanceTarget: d.effective_performance_target,
+    durationTarget: d.duration_target,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
     environmentVariables: d.environment_variables,
     deploymentId: d.deployment_id,
@@ -6988,6 +7043,7 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
       .optional(),
     has_more: z.boolean().optional(),
     effective_performance_target: z.string().optional(),
+    duration_target: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
     environment_variables: z
       .array(z.lazy(() => unmarshalJobEnvironmentVariablesSchema))
@@ -7051,6 +7107,7 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
     jobRunId: d.job_run_id,
     hasMore: d.has_more,
     effectivePerformanceTarget: d.effective_performance_target,
+    durationTarget: d.duration_target,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
     environmentVariables: d.environment_variables,
     deploymentId: d.deployment_id,
@@ -7278,6 +7335,7 @@ export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
     budget_policy_id: z.string().optional(),
     usage_policy_id: z.string().optional(),
     performance_target: z.string().optional(),
+    duration_target: z.string().optional(),
     parent_path: z.string().optional(),
     triggers: z
       .array(z.lazy(() => unmarshalTriggerConfigurationSchema))
@@ -7316,6 +7374,7 @@ export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
     budgetPolicyId: d.budget_policy_id,
     usagePolicyId: d.usage_policy_id,
     performanceTarget: d.performance_target,
+    durationTarget: d.duration_target,
     parentPath: d.parent_path,
     triggers: d.triggers,
     environmentVariables: d.environment_variables,
@@ -8098,6 +8157,7 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
       .optional(),
     has_more: z.boolean().optional(),
     effective_performance_target: z.string().optional(),
+    duration_target: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
     environment_variables: z
       .array(z.lazy(() => unmarshalJobEnvironmentVariablesSchema))
@@ -8160,6 +8220,7 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
     jobRunId: d.job_run_id,
     hasMore: d.has_more,
     effectivePerformanceTarget: d.effective_performance_target,
+    durationTarget: d.duration_target,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
     environmentVariables: d.environment_variables,
     deploymentId: d.deployment_id,
@@ -9865,6 +9926,7 @@ export const marshalCreateJobRequestSchema: z.ZodType = z
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
     performanceTarget: z.string().optional(),
+    durationTarget: z.string().optional(),
     parentPath: z.string().optional(),
     triggers: z
       .array(z.lazy(() => marshalTriggerConfigurationSchema))
@@ -9904,6 +9966,7 @@ export const marshalCreateJobRequestSchema: z.ZodType = z
     budget_policy_id: d.budgetPolicyId,
     usage_policy_id: d.usagePolicyId,
     performance_target: d.performanceTarget,
+    duration_target: d.durationTarget,
     parent_path: d.parentPath,
     triggers: d.triggers,
     environment_variables: d.environmentVariables,
@@ -10394,6 +10457,7 @@ export const marshalJobSettingsSchema: z.ZodType = z
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
     performanceTarget: z.string().optional(),
+    durationTarget: z.string().optional(),
     parentPath: z.string().optional(),
     triggers: z
       .array(z.lazy(() => marshalTriggerConfigurationSchema))
@@ -10432,6 +10496,7 @@ export const marshalJobSettingsSchema: z.ZodType = z
     budget_policy_id: d.budgetPolicyId,
     usage_policy_id: d.usagePolicyId,
     performance_target: d.performanceTarget,
+    duration_target: d.durationTarget,
     parent_path: d.parentPath,
     triggers: d.triggers,
     environment_variables: d.environmentVariables,
@@ -10775,6 +10840,7 @@ export const marshalRepairRunRequestSchema: z.ZodType = z
     rerunAllFailedTasks: z.boolean().optional(),
     rerunDependentTasks: z.boolean().optional(),
     performanceTarget: z.string().optional(),
+    durationTarget: z.string().optional(),
     pipelineParams: z.lazy(() => marshalPipelineParametersSchema).optional(),
     jarParams: z.array(z.string()).optional(),
     notebookParams: z.record(z.string(), z.string()).optional(),
@@ -10792,6 +10858,7 @@ export const marshalRepairRunRequestSchema: z.ZodType = z
     rerun_all_failed_tasks: d.rerunAllFailedTasks,
     rerun_dependent_tasks: d.rerunDependentTasks,
     performance_target: d.performanceTarget,
+    duration_target: d.durationTarget,
     pipeline_params: d.pipelineParams,
     jar_params: d.jarParams,
     notebook_params: d.notebookParams,
@@ -10846,6 +10913,7 @@ export const marshalRunNowRequestSchema: z.ZodType = z
     queue: z.lazy(() => marshalQueueSettingsSchema).optional(),
     only: z.array(z.string()).optional(),
     performanceTarget: z.string().optional(),
+    durationTarget: z.string().optional(),
     pipelineParams: z.lazy(() => marshalPipelineParametersSchema).optional(),
     jarParams: z.array(z.string()).optional(),
     notebookParams: z.record(z.string(), z.string()).optional(),
@@ -10862,6 +10930,7 @@ export const marshalRunNowRequestSchema: z.ZodType = z
     queue: d.queue,
     only: d.only,
     performance_target: d.performanceTarget,
+    duration_target: d.durationTarget,
     pipeline_params: d.pipelineParams,
     jar_params: d.jarParams,
     notebook_params: d.notebookParams,
@@ -11298,6 +11367,7 @@ export const marshalSubmitRunRequestSchema: z.ZodType = z
       .array(z.lazy(() => marshalJobEnvironmentVariablesSchema))
       .optional(),
     performanceTarget: z.string().optional(),
+    durationTarget: z.string().optional(),
   })
   .transform(d => ({
     access_control_list: d.accessControlList,
@@ -11317,6 +11387,7 @@ export const marshalSubmitRunRequestSchema: z.ZodType = z
     usage_policy_id: d.usagePolicyId,
     environment_variables: d.environmentVariables,
     performance_target: d.performanceTarget,
+    duration_target: d.durationTarget,
   }));
 
 export const marshalSubscriptionSchema: z.ZodType = z

@@ -17,28 +17,47 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
+  CreateDirectoryRequest,
+  CreateDirectoryResponse,
   CreateSandboxRequest,
+  DeletePathRequest,
+  DeletePathResponse,
   DeleteSandboxRequest,
   ExecuteCommandSyncRequest,
   ExecuteCommandSyncResponse,
+  GetMetadataRequest,
+  GetMetadataResponse,
   GetSandboxRequest,
   ListCommandsRequest,
   ListCommandsResponse,
+  ListDirectoryContentsRequest,
+  ListDirectoryContentsResponse,
   ListSandboxesRequest,
   ListSandboxesResponse,
+  RenamePathRequest,
+  RenamePathResponse,
   Sandbox,
+  SandboxFileInfo,
   StartSandboxRequest,
   StopSandboxRequest,
   UpdateSandboxRequest,
 } from './model';
 import {
+  marshalCreateDirectoryRequestSchema,
+  marshalDeletePathRequestSchema,
   marshalExecuteCommandSyncRequestSchema,
+  marshalRenamePathRequestSchema,
   marshalSandboxSchema,
   marshalStartSandboxRequestSchema,
   marshalStopSandboxRequestSchema,
+  unmarshalCreateDirectoryResponseSchema,
+  unmarshalDeletePathResponseSchema,
   unmarshalExecuteCommandSyncResponseSchema,
+  unmarshalGetMetadataResponseSchema,
   unmarshalListCommandsResponseSchema,
+  unmarshalListDirectoryContentsResponseSchema,
   unmarshalListSandboxesResponseSchema,
+  unmarshalRenamePathResponseSchema,
   unmarshalSandboxSchema,
 } from './model';
 
@@ -330,6 +349,195 @@ export class SandboxClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSandboxSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Creates a directory in a sandbox, including missing parents by default. */
+  async createDirectory(
+    req: CreateDirectoryRequest,
+    options?: CallOptions
+  ): Promise<CreateDirectoryResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/directories:make`;
+    const body = marshalRequest(req, marshalCreateDirectoryRequestSchema);
+    let resp: CreateDirectoryResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCreateDirectoryResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Deletes a file, symlink, or empty directory, with an option for recursive deletion.
+   * Succeeds if the path is already absent.
+   */
+  async deletePath(
+    req: DeletePathRequest,
+    options?: CallOptions
+  ): Promise<DeletePathResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/paths:remove`;
+    const body = marshalRequest(req, marshalDeletePathRequestSchema);
+    let resp: DeletePathResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDeletePathResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Returns metadata for a path without following its final symlink. */
+  async getMetadata(
+    req: GetMetadataRequest,
+    options?: CallOptions
+  ): Promise<GetMetadataResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/paths:describe`;
+    const params = new URLSearchParams();
+    if (req.path !== undefined) {
+      params.append('path', req.path);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetMetadataResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalGetMetadataResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Lists a directory's immediate children in UTF-8 name order. Later pages may reflect concurrent changes. */
+  async listDirectoryContents(
+    req: ListDirectoryContentsRequest,
+    options?: CallOptions
+  ): Promise<ListDirectoryContentsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/directory-entries`;
+    const params = new URLSearchParams();
+    if (req.path !== undefined) {
+      params.append('path', req.path);
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListDirectoryContentsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListDirectoryContentsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listDirectoryContentsIter(
+    req: ListDirectoryContentsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<SandboxFileInfo> {
+    const pageReq: ListDirectoryContentsRequest = {...req};
+    for (;;) {
+      const resp = await this.listDirectoryContents(pageReq, options);
+      for (const item of resp.contents ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Renames a path within a sandbox. The destination must be absent and on the same filesystem. */
+  async renamePath(
+    req: RenamePathRequest,
+    options?: CallOptions
+  ): Promise<RenamePathResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/paths:rename`;
+    const body = marshalRequest(req, marshalRenamePathRequestSchema);
+    let resp: RenamePathResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalRenamePathResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

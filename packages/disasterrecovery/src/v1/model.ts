@@ -152,6 +152,10 @@ export interface FailoverGroup {
    * primary region. Not returned in responses.
    */
   initialPrimaryRegion?: string | undefined;
+  /** Initial replication progress of all in-scope assets. Set only when the FailoverGroup is in INITIAL_REPLICATION state. */
+  initialReplicationProgress?: InitialReplicationProgress | undefined;
+  /** True if errors currently block the replication point. */
+  hasReplicationPointBlockingErrors?: boolean | undefined;
 }
 
 /** Request to get a failover group. */
@@ -170,6 +174,16 @@ export interface GetStableUrlRequest {
    * Format: accounts/{account_id}/stable-urls/{stable_url_id}.
    */
   name?: string | undefined;
+}
+
+/**
+ * Progress of the initial replication of all in-scope assets (Unity Catalog and
+ * workspace assets) of a FailoverGroup. Populated only while the FailoverGroup
+ * is in INITIAL_REPLICATION.
+ */
+export interface InitialReplicationProgress {
+  /** Percent complete, 0-100. */
+  completed?: number | undefined;
 }
 
 /** Request to list failover groups for an account. */
@@ -388,6 +402,10 @@ export const unmarshalFailoverGroupSchema: z.ZodType<FailoverGroup> = z
       .transform(s => Temporal.Instant.from(s))
       .optional(),
     initial_primary_region: z.string().optional(),
+    initial_replication_progress: z
+      .lazy(() => unmarshalInitialReplicationProgressSchema)
+      .optional(),
+    has_replication_point_blocking_errors: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -401,7 +419,18 @@ export const unmarshalFailoverGroupSchema: z.ZodType<FailoverGroup> = z
     updateTime: d.update_time,
     replicationPoint: d.replication_point,
     initialPrimaryRegion: d.initial_primary_region,
+    initialReplicationProgress: d.initial_replication_progress,
+    hasReplicationPointBlockingErrors: d.has_replication_point_blocking_errors,
   }));
+
+export const unmarshalInitialReplicationProgressSchema: z.ZodType<InitialReplicationProgress> =
+  z
+    .object({
+      completed: z.number().optional(),
+    })
+    .transform(d => ({
+      completed: d.completed,
+    }));
 
 export const unmarshalListFailoverGroupsResponseSchema: z.ZodType<ListFailoverGroupsResponse> =
   z
@@ -543,6 +572,10 @@ export const marshalFailoverGroupSchema: z.ZodType = z
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     initialPrimaryRegion: z.string().optional(),
+    initialReplicationProgress: z
+      .lazy(() => marshalInitialReplicationProgressSchema)
+      .optional(),
+    hasReplicationPointBlockingErrors: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -556,6 +589,16 @@ export const marshalFailoverGroupSchema: z.ZodType = z
     update_time: d.updateTime,
     replication_point: d.replicationPoint,
     initial_primary_region: d.initialPrimaryRegion,
+    initial_replication_progress: d.initialReplicationProgress,
+    has_replication_point_blocking_errors: d.hasReplicationPointBlockingErrors,
+  }));
+
+export const marshalInitialReplicationProgressSchema: z.ZodType = z
+  .object({
+    completed: z.number().optional(),
+  })
+  .transform(d => ({
+    completed: d.completed,
   }));
 
 export const marshalLocationMappingSchema: z.ZodType = z
@@ -638,7 +681,14 @@ const failoverGroupFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   effectivePrimaryRegion: {wire: 'effective_primary_region'},
   etag: {wire: 'etag'},
+  hasReplicationPointBlockingErrors: {
+    wire: 'has_replication_point_blocking_errors',
+  },
   initialPrimaryRegion: {wire: 'initial_primary_region'},
+  initialReplicationProgress: {
+    wire: 'initial_replication_progress',
+    children: () => initialReplicationProgressFieldMaskSchema,
+  },
   name: {wire: 'name'},
   regions: {wire: 'regions'},
   replicationPoint: {wire: 'replication_point'},
@@ -656,6 +706,10 @@ export function failoverGroupFieldMask(
 ): FieldMask<FailoverGroup> {
   return FieldMask.build<FailoverGroup>(paths, failoverGroupFieldMaskSchema);
 }
+
+const initialReplicationProgressFieldMaskSchema: FieldMaskSchema = {
+  completed: {wire: 'completed'},
+};
 
 const ucReplicationConfigFieldMaskSchema: FieldMaskSchema = {
   catalogs: {wire: 'catalogs'},
