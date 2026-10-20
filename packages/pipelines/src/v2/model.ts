@@ -1774,7 +1774,7 @@ export interface ListPipelinesRequest {
   maxResults?: number | undefined;
   /**
    * A list of strings specifying the order of results.
-   * Supported order_by fields are id and name. The default is id asc.
+   * The supported order_by field is id. The default is id asc.
    * This field is optional.
    */
   orderBy?: string[] | undefined;

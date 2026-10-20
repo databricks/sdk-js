@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-auth",
-  "version": "0.53.0",
+  "version": "0.54.0",
   "description": "Databricks authentication library for JavaScript/TypeScript",
   "type": "module",
   "main": "./dist/index.js",

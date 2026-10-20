@@ -1,5 +1,10 @@
 # Version changelog
 
+## Release v0.54.0 (2026-10-20)
+
+### New Features and Improvements
+* Add `newCachedTokenProvider`, which caches the tokens of a `TokenProvider` and refreshes them asynchronously before they expire.
+
 ## Release v0.53.0 (2026-10-15)
 
 ### New Features and Improvements
