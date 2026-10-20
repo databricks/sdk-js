@@ -476,7 +476,7 @@ export interface ListMcpServicesRequest {
    */
   parent?: string | undefined;
   /**
-   * Maximum number of MCP services to return. Defaults to 100 when unset or 0;
+   * Maximum number of MCP services to return. Defaults to 200 when unset or 0;
    * the maximum is 200. Use `page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
@@ -513,7 +513,7 @@ export interface ListModelProviderServicesRequest {
    */
   parent?: string | undefined;
   /**
-   * Maximum number of provider services to return. Defaults to 100 when unset or
+   * Maximum number of provider services to return. Defaults to 200 when unset or
    * 0; the maximum is 200. Use `page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
@@ -548,7 +548,7 @@ export interface ListModelServicesRequest {
    */
   parent?: string | undefined;
   /**
-   * Maximum number of model services to return. Defaults to 100 when unset or 0;
+   * Maximum number of model services to return. Defaults to 200 when unset or 0;
    * the maximum is 200. Use `page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
@@ -588,7 +588,7 @@ export interface ListSkillsRequest {
    */
   parent?: string | undefined;
   /**
-   * Maximum number of skills to return. Defaults to 100 when unset or 0; the
+   * Maximum number of skills to return. Defaults to 200 when unset or 0; the
    * maximum is 200. Use `page_token` to retrieve additional pages.
    */
   pageSize?: number | undefined;
@@ -1153,10 +1153,7 @@ export interface ModelProviderServiceConfig_CustomProviderApiKeyHeaderAuth {
   apiKeyValue?: ModelProviderServiceConfig_ProviderSecret | undefined;
 }
 
-/**
- * Custom OpenAI-compatible provider configuration with bearer-token
- * authentication.
- */
+/** Custom OpenAI-compatible provider configuration. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelProviderServiceConfig_CustomProviderConfig {
   /**
