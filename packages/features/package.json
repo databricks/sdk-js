@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-features",
-  "version": "0.57.3",
+  "version": "0.57.4",
   "description": "",
   "type": "module",
   "exports": {

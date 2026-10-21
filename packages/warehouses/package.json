@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-warehouses",
-  "version": "0.53.3",
+  "version": "0.53.4",
   "description": "",
   "type": "module",
   "exports": {
