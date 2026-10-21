@@ -872,6 +872,26 @@ export interface CreateWarehouseRequest {
   warehouseType?: WarehouseType | undefined;
   /** Warehouse statement timeout in seconds. */
   statementTimeout?: number | undefined;
+  /**
+   * Cluster size multiplier for Reyden warehouses. Scales the effective compute
+   * capacity relative to the nominal virtual cluster size. Only meaningful when
+   * the warehouse is of Reyden type.
+   *
+   * Accepted range: 1.0 to the workspace-configured maximum (decimals
+   * allowed). The default maximum is 100.0.
+   * - Values below 1.0 are normalized to 1.0.
+   * - Values above the configured maximum are capped at that maximum.
+   * - When absent, the warehouse is treated as having a multiplier of 1.0.
+   */
+  reydenClusterSizeMultiplier?: number | undefined;
+  /** Compute version label for a REALTIME warehouse. This field is output only. */
+  customerVersionLabel?: string | undefined;
+  /**
+   * Maximum compute capacity of a real-time SQL warehouse, in DBU per hour.
+   * Must be a multiple of 3 between 3 and 960. The effective maximum cannot be
+   * lower than the warehouse's minimum capacity.
+   */
+  maxDbu?: number | undefined;
 }
 
 export interface CreateWarehouseResponse {
@@ -1020,6 +1040,26 @@ export interface EditWarehouseRequest {
   warehouseType?: WarehouseType | undefined;
   /** Warehouse statement timeout in seconds. */
   statementTimeout?: number | undefined;
+  /**
+   * Cluster size multiplier for Reyden warehouses. Scales the effective compute
+   * capacity relative to the nominal virtual cluster size. Only meaningful when
+   * the warehouse is of Reyden type.
+   *
+   * Accepted range: 1.0 to the workspace-configured maximum (decimals
+   * allowed). The default maximum is 100.0.
+   * - Values below 1.0 are normalized to 1.0.
+   * - Values above the configured maximum are capped at that maximum.
+   * - When absent, the warehouse is treated as having a multiplier of 1.0.
+   */
+  reydenClusterSizeMultiplier?: number | undefined;
+  /** Compute version label for a REALTIME warehouse. This field is output only. */
+  customerVersionLabel?: string | undefined;
+  /**
+   * Maximum compute capacity of a real-time SQL warehouse, in DBU per hour.
+   * Must be a multiple of 3 between 3 and 960. The effective maximum cannot be
+   * lower than the warehouse's minimum capacity.
+   */
+  maxDbu?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1140,6 +1180,26 @@ export interface EndpointInfo {
   warehouseType?: WarehouseType | undefined;
   /** Warehouse statement timeout in seconds. */
   statementTimeout?: number | undefined;
+  /**
+   * Cluster size multiplier for Reyden warehouses. Scales the effective compute
+   * capacity relative to the nominal virtual cluster size. Only meaningful when
+   * the warehouse is of Reyden type.
+   *
+   * Accepted range: 1.0 to the workspace-configured maximum (decimals
+   * allowed). The default maximum is 100.0.
+   * - Values below 1.0 are normalized to 1.0.
+   * - Values above the configured maximum are capped at that maximum.
+   * - When absent, the warehouse is treated as having a multiplier of 1.0.
+   */
+  reydenClusterSizeMultiplier?: number | undefined;
+  /** Compute version label for a REALTIME warehouse. This field is output only. */
+  customerVersionLabel?: string | undefined;
+  /**
+   * Maximum compute capacity of a real-time SQL warehouse, in DBU per hour.
+   * Must be a multiple of 3 between 3 and 960. The effective maximum cannot be
+   * lower than the warehouse's minimum capacity.
+   */
+  maxDbu?: number | undefined;
   /** current number of clusters running for the service */
   numClusters?: number | undefined;
   /** Deprecated. current number of active sessions for the warehouse */
@@ -1276,6 +1336,26 @@ export interface GetWarehouseResponse {
   warehouseType?: WarehouseType | undefined;
   /** Warehouse statement timeout in seconds. */
   statementTimeout?: number | undefined;
+  /**
+   * Cluster size multiplier for Reyden warehouses. Scales the effective compute
+   * capacity relative to the nominal virtual cluster size. Only meaningful when
+   * the warehouse is of Reyden type.
+   *
+   * Accepted range: 1.0 to the workspace-configured maximum (decimals
+   * allowed). The default maximum is 100.0.
+   * - Values below 1.0 are normalized to 1.0.
+   * - Values above the configured maximum are capped at that maximum.
+   * - When absent, the warehouse is treated as having a multiplier of 1.0.
+   */
+  reydenClusterSizeMultiplier?: number | undefined;
+  /** Compute version label for a REALTIME warehouse. This field is output only. */
+  customerVersionLabel?: string | undefined;
+  /**
+   * Maximum compute capacity of a real-time SQL warehouse, in DBU per hour.
+   * Must be a multiple of 3 between 3 and 960. The effective maximum cannot be
+   * lower than the warehouse's minimum capacity.
+   */
+  maxDbu?: number | undefined;
   /** current number of clusters running for the service */
   numClusters?: number | undefined;
   /** Deprecated. current number of active sessions for the warehouse */
@@ -1626,6 +1706,9 @@ export const unmarshalEndpointInfoSchema: z.ZodType<EndpointInfo> = z
     enable_serverless_compute: z.boolean().optional(),
     warehouse_type: z.string().optional(),
     statement_timeout: z.number().optional(),
+    reyden_cluster_size_multiplier: z.number().optional(),
+    customer_version_label: z.string().optional(),
+    max_dbu: z.number().optional(),
     num_clusters: z.number().optional(),
     num_active_sessions: z
       .union([z.number(), z.bigint(), z.string()])
@@ -1652,6 +1735,9 @@ export const unmarshalEndpointInfoSchema: z.ZodType<EndpointInfo> = z
     enableServerlessCompute: d.enable_serverless_compute,
     warehouseType: d.warehouse_type,
     statementTimeout: d.statement_timeout,
+    reydenClusterSizeMultiplier: d.reyden_cluster_size_multiplier,
+    customerVersionLabel: d.customer_version_label,
+    maxDbu: d.max_dbu,
     numClusters: d.num_clusters,
     numActiveSessions: d.num_active_sessions,
     state: d.state,
@@ -1698,6 +1784,9 @@ export const unmarshalGetWarehouseResponseSchema: z.ZodType<GetWarehouseResponse
       enable_serverless_compute: z.boolean().optional(),
       warehouse_type: z.string().optional(),
       statement_timeout: z.number().optional(),
+      reyden_cluster_size_multiplier: z.number().optional(),
+      customer_version_label: z.string().optional(),
+      max_dbu: z.number().optional(),
       num_clusters: z.number().optional(),
       num_active_sessions: z
         .union([z.number(), z.bigint(), z.string()])
@@ -1724,6 +1813,9 @@ export const unmarshalGetWarehouseResponseSchema: z.ZodType<GetWarehouseResponse
       enableServerlessCompute: d.enable_serverless_compute,
       warehouseType: d.warehouse_type,
       statementTimeout: d.statement_timeout,
+      reydenClusterSizeMultiplier: d.reyden_cluster_size_multiplier,
+      customerVersionLabel: d.customer_version_label,
+      maxDbu: d.max_dbu,
       numClusters: d.num_clusters,
       numActiveSessions: d.num_active_sessions,
       state: d.state,
@@ -1881,6 +1973,9 @@ export const marshalCreateWarehouseRequestSchema: z.ZodType = z
     enableServerlessCompute: z.boolean().optional(),
     warehouseType: z.string().optional(),
     statementTimeout: z.number().optional(),
+    reydenClusterSizeMultiplier: z.number().optional(),
+    customerVersionLabel: z.string().optional(),
+    maxDbu: z.number().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1897,6 +1992,9 @@ export const marshalCreateWarehouseRequestSchema: z.ZodType = z
     enable_serverless_compute: d.enableServerlessCompute,
     warehouse_type: d.warehouseType,
     statement_timeout: d.statementTimeout,
+    reyden_cluster_size_multiplier: d.reydenClusterSizeMultiplier,
+    customer_version_label: d.customerVersionLabel,
+    max_dbu: d.maxDbu,
   }));
 
 export const marshalDefaultWarehouseOverrideSchema: z.ZodType = z
@@ -1930,6 +2028,9 @@ export const marshalEditWarehouseRequestSchema: z.ZodType = z
     enableServerlessCompute: z.boolean().optional(),
     warehouseType: z.string().optional(),
     statementTimeout: z.number().optional(),
+    reydenClusterSizeMultiplier: z.number().optional(),
+    customerVersionLabel: z.string().optional(),
+    maxDbu: z.number().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -1947,6 +2048,9 @@ export const marshalEditWarehouseRequestSchema: z.ZodType = z
     enable_serverless_compute: d.enableServerlessCompute,
     warehouse_type: d.warehouseType,
     statement_timeout: d.statementTimeout,
+    reyden_cluster_size_multiplier: d.reydenClusterSizeMultiplier,
+    customer_version_label: d.customerVersionLabel,
+    max_dbu: d.maxDbu,
   }));
 
 export const marshalEndpointConfPairSchema: z.ZodType = z

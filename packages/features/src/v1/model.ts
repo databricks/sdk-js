@@ -555,6 +555,31 @@ export type ScalarDataType =
   | (typeof ScalarDataType)[keyof typeof ScalarDataType]
   | (string & {});
 
+/** State of the SDP source relative to pipeline execution and output table validation. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SdpSourceState = {
+  /** Default value, not used. */
+  SDP_SOURCE_STATE_UNSPECIFIED: 'SDP_SOURCE_STATE_UNSPECIFIED',
+  /**
+   * The pipeline has not run yet, so the output table does not exist. Feature Store will check
+   * the output table's columns and validate pipeline inputs after the pipeline first executes.
+   */
+  PENDING: 'PENDING',
+  /**
+   * The pipeline has executed successfully. The output table exists and its columns have been
+   * validated. The pipeline reads from the specified input tables.
+   */
+  RESOLVED: 'RESOLVED',
+  /**
+   * The pipeline execution failed, or output table validation failed. The feature requires
+   * manual intervention or pipeline rerun to resolve.
+   */
+  ERROR: 'ERROR',
+} as const;
+export type SdpSourceState =
+  | (typeof SdpSourceState)[keyof typeof SdpSourceState]
+  | (string & {});
+
 /** Lifecycle state of a backfill. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const BackfillOperationMetadata_State = {
@@ -932,6 +957,7 @@ export interface CustomUdf {
 
 /** Specifies the data source backing a feature. Exactly one source type must be set. */
 export interface DataSource {
+  /** (-- Next ID: 8. --) */
   dataSource?:
     | {
         $case: 'deltaTableSource';
@@ -957,6 +983,11 @@ export interface DataSource {
         $case: 'featureViewSource';
         /** A data source composed from registered upstream Features. */
         featureViewSource: FeatureViewSource;
+      }
+    | {
+        $case: 'sdpSource';
+        /** A Spark Declarative Pipeline data source. */
+        sdpSource: SdpSource;
       }
     | undefined;
   /**
@@ -2021,6 +2052,49 @@ export interface SchemaRegistryConfig {
   keySchemaLocator?: SchemaLocator | undefined;
 }
 
+/** A Spark Declarative Pipeline (SDP) data source. */
+export interface SdpSource {
+  /**
+   * The ID of the Spark Declarative Pipeline that Feature Store runs to produce this source, before
+   * each materialization or backfill. The pipeline must already exist when the feature is created,
+   * and you need CAN_RUN, CAN_MANAGE, or owner permission on it. It doesn't need to have run yet.
+   * Deleting the feature doesn't delete the pipeline. If the pipeline is deleted, this field reads
+   * back empty. Required.
+   */
+  pipelineId?: string | undefined;
+  /**
+   * The full three-part (catalog, schema, table) name of the pipeline's output table to read from.
+   * The table doesn't need to exist until the pipeline first runs. Required.
+   */
+  outputTable?: string | undefined;
+  /**
+   * The full three-part names of the tables the pipeline reads from. Required to materialize this
+   * feature with a TableTrigger, which starts a run when these tables update. Each table must exist
+   * when the feature is created. After the pipeline runs, Feature Store checks that it reads from
+   * these tables, and the run fails if it doesn't. At most 100 tables.
+   */
+  inputTables?: string[] | undefined;
+  /**
+   * State tracking pipeline execution and output table validation. PENDING until the pipeline
+   * has run at least once and created the output table; then RESOLVED on success, or ERROR on failure.
+   */
+  pipelineState?: SdpSourceState | undefined;
+  /** Single WHERE clause to filter the pipeline's output table before applying transformations. Will be row-wise evaluated, so should only include conditionals and projections. */
+  filterCondition?: string | undefined;
+  /**
+   * A single SQL SELECT expression applied after filter_condition.
+   * Should contain all the columns needed (eg. "SELECT *, col_a + col_b AS col_c FROM x.y.z WHERE col_a > 0" would have `transformation_sql` "*, col_a + col_b AS col_c")
+   * If transformation_sql is not provided, all columns of the pipeline's output table are present in the DataSource dataframe.
+   */
+  transformationSql?: string | undefined;
+  /**
+   * Schema of the resulting dataframe after transformations, in Spark StructType JSON format (from df.schema.json()).
+   * Required if transformation_sql is specified.
+   * Example: {"type":"struct","fields":[{"name":"col_a","type":"integer","nullable":true,"metadata":{}},{"name":"col_c","type":"integer","nullable":true,"metadata":{}}]}
+   */
+  dataframeSchema?: string | undefined;
+}
+
 /** Reference to an entry in a <Databricks> secret scope. */
 export interface SecretScopeReference {
   /** The <Databricks> secret scope name. */
@@ -2679,6 +2753,7 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
     feature_view_source: z
       .lazy(() => unmarshalFeatureViewSourceSchema)
       .optional(),
+    sdp_source: z.lazy(() => unmarshalSdpSourceSchema).optional(),
     lateness: z.lazy(() => unmarshalSourceLatenessSchema).optional(),
   })
   .transform(d => ({
@@ -2699,7 +2774,9 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
                     $case: 'featureViewSource' as const,
                     featureViewSource: d.feature_view_source,
                   }
-                : undefined,
+                : d.sdp_source !== undefined
+                  ? {$case: 'sdpSource' as const, sdpSource: d.sdp_source}
+                  : undefined,
     lateness: d.lateness,
   }));
 
@@ -3546,6 +3623,26 @@ export const unmarshalSchemaRegistryConfigSchema: z.ZodType<SchemaRegistryConfig
       keySchemaLocator: d.key_schema_locator,
     }));
 
+export const unmarshalSdpSourceSchema: z.ZodType<SdpSource> = z
+  .object({
+    pipeline_id: z.string().optional(),
+    output_table: z.string().optional(),
+    input_tables: z.array(z.string()).optional(),
+    pipeline_state: z.string().optional(),
+    filter_condition: z.string().optional(),
+    transformation_sql: z.string().optional(),
+    dataframe_schema: z.string().optional(),
+  })
+  .transform(d => ({
+    pipelineId: d.pipeline_id,
+    outputTable: d.output_table,
+    inputTables: d.input_tables,
+    pipelineState: d.pipeline_state,
+    filterCondition: d.filter_condition,
+    transformationSql: d.transformation_sql,
+    dataframeSchema: d.dataframe_schema,
+  }));
+
 export const unmarshalSecretScopeReferenceSchema: z.ZodType<SecretScopeReference> =
   z
     .object({
@@ -4205,6 +4302,10 @@ export const marshalDataSourceSchema: z.ZodType = z
           $case: z.literal('featureViewSource'),
           featureViewSource: z.lazy(() => marshalFeatureViewSourceSchema),
         }),
+        z.object({
+          $case: z.literal('sdpSource'),
+          sdpSource: z.lazy(() => marshalSdpSourceSchema),
+        }),
       ])
       .optional(),
     lateness: z.lazy(() => marshalSourceLatenessSchema).optional(),
@@ -4224,6 +4325,9 @@ export const marshalDataSourceSchema: z.ZodType = z
     }),
     ...(d.dataSource?.$case === 'featureViewSource' && {
       feature_view_source: d.dataSource.featureViewSource,
+    }),
+    ...(d.dataSource?.$case === 'sdpSource' && {
+      sdp_source: d.dataSource.sdpSource,
     }),
     lateness: d.lateness,
   }));
@@ -4962,6 +5066,26 @@ export const marshalSchemaRegistryConfigSchema: z.ZodType = z
     key_schema_locator: d.keySchemaLocator,
   }));
 
+export const marshalSdpSourceSchema: z.ZodType = z
+  .object({
+    pipelineId: z.string().optional(),
+    outputTable: z.string().optional(),
+    inputTables: z.array(z.string()).optional(),
+    pipelineState: z.string().optional(),
+    filterCondition: z.string().optional(),
+    transformationSql: z.string().optional(),
+    dataframeSchema: z.string().optional(),
+  })
+  .transform(d => ({
+    pipeline_id: d.pipelineId,
+    output_table: d.outputTable,
+    input_tables: d.inputTables,
+    pipeline_state: d.pipelineState,
+    filter_condition: d.filterCondition,
+    transformation_sql: d.transformationSql,
+    dataframe_schema: d.dataframeSchema,
+  }));
+
 export const marshalSecretScopeReferenceSchema: z.ZodType = z
   .object({
     scope: z.string().optional(),
@@ -5421,6 +5545,7 @@ const dataSourceFieldMaskSchema: FieldMaskSchema = {
     wire: 'request_source',
     children: () => requestSourceFieldMaskSchema,
   },
+  sdpSource: {wire: 'sdp_source', children: () => sdpSourceFieldMaskSchema},
   streamSource: {
     wire: 'stream_source',
     children: () => streamSourceFieldMaskSchema,
@@ -5789,6 +5914,16 @@ const schemaRegistryConfigFieldMaskSchema: FieldMaskSchema = {
     children: () => schemaLocatorFieldMaskSchema,
   },
   ucConnection: {wire: 'uc_connection'},
+};
+
+const sdpSourceFieldMaskSchema: FieldMaskSchema = {
+  dataframeSchema: {wire: 'dataframe_schema'},
+  filterCondition: {wire: 'filter_condition'},
+  inputTables: {wire: 'input_tables'},
+  outputTable: {wire: 'output_table'},
+  pipelineId: {wire: 'pipeline_id'},
+  pipelineState: {wire: 'pipeline_state'},
+  transformationSql: {wire: 'transformation_sql'},
 };
 
 const secretScopeReferenceFieldMaskSchema: FieldMaskSchema = {

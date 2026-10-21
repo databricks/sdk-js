@@ -74,7 +74,6 @@ export type {
   RecipientProfile,
   RecipientTokenInfo,
   RegisteredModelAlias,
-  ReplicationConfig,
   RetrieveTokenRequest,
   RetrieveTokenResponse,
   RotateRecipientTokenRequest,

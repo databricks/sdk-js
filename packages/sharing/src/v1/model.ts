@@ -241,8 +241,6 @@ export interface CreateShareRequest {
   comment?: string | undefined;
   /** Storage root URL for the share. */
   storageRoot?: string | undefined;
-  /** Configuration for share replication. */
-  replicationConfig?: ReplicationConfig | undefined;
   /** A list of shared data objects within the share. */
   objects?: SharedDataObject[] | undefined;
   /** Time at which this share was created, in epoch milliseconds. */
@@ -893,15 +891,6 @@ export interface RegisteredModelAlias {
   versionNum?: bigint | undefined;
 }
 
-/**
- * Configuration for Delta Sharing replication on a share. When enabled, the share's data is
- * copied into each recipient's region so recipients can query the share locally.
- */
-export interface ReplicationConfig {
-  /** Whether replication is enabled for the share. */
-  enabled?: boolean | undefined;
-}
-
 export interface RetrieveTokenRequest {
   /** The one time activation url. It also accepts activation token. */
   activationUrl?: string | undefined;
@@ -943,8 +932,6 @@ export interface ShareInfo {
   comment?: string | undefined;
   /** Storage root URL for the share. */
   storageRoot?: string | undefined;
-  /** Configuration for share replication. */
-  replicationConfig?: ReplicationConfig | undefined;
   /** A list of shared data objects within the share. */
   objects?: SharedDataObject[] | undefined;
   /** Time at which this share was created, in epoch milliseconds. */
@@ -1233,8 +1220,6 @@ export interface UpdateShareRequest {
   comment?: string | undefined;
   /** Storage root URL for the share. */
   storageRoot?: string | undefined;
-  /** Configuration for share replication. */
-  replicationConfig?: ReplicationConfig | undefined;
   /** A list of shared data objects within the share. */
   objects?: SharedDataObject[] | undefined;
   /** Time at which this share was created, in epoch milliseconds. */
@@ -1789,14 +1774,6 @@ export const unmarshalRegisteredModelAliasSchema: z.ZodType<RegisteredModelAlias
       versionNum: d.version_num,
     }));
 
-export const unmarshalReplicationConfigSchema: z.ZodType<ReplicationConfig> = z
-  .object({
-    enabled: z.boolean().optional(),
-  })
-  .transform(d => ({
-    enabled: d.enabled,
-  }));
-
 export const unmarshalRetrieveTokenResponseSchema: z.ZodType<RetrieveTokenResponse> =
   z
     .object({
@@ -1828,9 +1805,6 @@ export const unmarshalShareInfoSchema: z.ZodType<ShareInfo> = z
     owner: z.string().optional(),
     comment: z.string().optional(),
     storage_root: z.string().optional(),
-    replication_config: z
-      .lazy(() => unmarshalReplicationConfigSchema)
-      .optional(),
     objects: z.array(z.lazy(() => unmarshalSharedDataObjectSchema)).optional(),
     created_at: z
       .union([z.number(), z.bigint(), z.string()])
@@ -1849,7 +1823,6 @@ export const unmarshalShareInfoSchema: z.ZodType<ShareInfo> = z
     owner: d.owner,
     comment: d.comment,
     storageRoot: d.storage_root,
-    replicationConfig: d.replication_config,
     objects: d.objects,
     createdAt: d.created_at,
     createdBy: d.created_by,
@@ -2072,7 +2045,6 @@ export const marshalCreateShareRequestSchema: z.ZodType = z
     owner: z.string().optional(),
     comment: z.string().optional(),
     storageRoot: z.string().optional(),
-    replicationConfig: z.lazy(() => marshalReplicationConfigSchema).optional(),
     objects: z.array(z.lazy(() => marshalSharedDataObjectSchema)).optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
@@ -2085,7 +2057,6 @@ export const marshalCreateShareRequestSchema: z.ZodType = z
     owner: d.owner,
     comment: d.comment,
     storage_root: d.storageRoot,
-    replication_config: d.replicationConfig,
     objects: d.objects,
     created_at: d.createdAt,
     created_by: d.createdBy,
@@ -2228,14 +2199,6 @@ export const marshalRecipientTokenInfoSchema: z.ZodType = z
     expiration_time: d.expirationTime,
     updated_at: d.updatedAt,
     updated_by: d.updatedBy,
-  }));
-
-export const marshalReplicationConfigSchema: z.ZodType = z
-  .object({
-    enabled: z.boolean().optional(),
-  })
-  .transform(d => ({
-    enabled: d.enabled,
   }));
 
 export const marshalRotateRecipientTokenRequestSchema: z.ZodType = z
@@ -2395,7 +2358,6 @@ export const marshalUpdateShareRequestSchema: z.ZodType = z
     owner: z.string().optional(),
     comment: z.string().optional(),
     storageRoot: z.string().optional(),
-    replicationConfig: z.lazy(() => marshalReplicationConfigSchema).optional(),
     objects: z.array(z.lazy(() => marshalSharedDataObjectSchema)).optional(),
     createdAt: z.bigint().optional(),
     createdBy: z.string().optional(),
@@ -2411,7 +2373,6 @@ export const marshalUpdateShareRequestSchema: z.ZodType = z
     owner: d.owner,
     comment: d.comment,
     storage_root: d.storageRoot,
-    replication_config: d.replicationConfig,
     objects: d.objects,
     created_at: d.createdAt,
     created_by: d.createdBy,
