@@ -47,6 +47,8 @@ import type {
   RetrieveUserVisibleMetricsResponse,
   ScanVectorIndexRequest,
   ScanVectorIndexResponse,
+  StartEndpointRequest,
+  StopEndpointRequest,
   SyncVectorIndexRequest,
   SyncVectorIndexResponse,
   UpdateEndpointCustomTagsRequest,
@@ -65,6 +67,8 @@ import {
   marshalQueryVectorIndexRequestSchema,
   marshalRetrieveUserVisibleMetricsRequestSchema,
   marshalScanVectorIndexRequestSchema,
+  marshalStartEndpointRequestSchema,
+  marshalStopEndpointRequestSchema,
   marshalSyncVectorIndexRequestSchema,
   marshalUpdateEndpointCustomTagsRequestSchema,
   marshalUpsertDataVectorIndexRequestSchema,
@@ -646,6 +650,69 @@ export class VectorSearchClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalScanVectorIndexResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Start a stopped endpoint. The endpoint serves the same indexes it had when it stopped. */
+  async startEndpoint(
+    req: StartEndpointRequest,
+    options?: CallOptions
+  ): Promise<Endpoint> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/start`;
+    const body = marshalRequest(req, marshalStartEndpointRequestSchema);
+    let resp: Endpoint | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalEndpointSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Stop an endpoint. Stopping removes the endpoint's serving compute and retains its indexes.
+   * A stopped endpoint can't serve queries or sync indexes until it is started.
+   */
+  async stopEndpoint(
+    req: StopEndpointRequest,
+    options?: CallOptions
+  ): Promise<Endpoint> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/stop`;
+    const body = marshalRequest(req, marshalStopEndpointRequestSchema);
+    let resp: Endpoint | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalEndpointSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

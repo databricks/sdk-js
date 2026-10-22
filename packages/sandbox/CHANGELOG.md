@@ -1,5 +1,7 @@
 # Version changelog
 
+## Release v0.1.5 (2026-10-22)
+
 ## Release v0.1.4 (2026-10-20)
 
 ### Internal Changes

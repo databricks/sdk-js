@@ -22,6 +22,7 @@ export {
   PurgeFeatureEntitiesResult_State,
   SchemaLocator_Format,
   StreamingMode_StreamingModeType,
+  TableTrigger_TableTriggerCondition,
 } from './model';
 
 export type {

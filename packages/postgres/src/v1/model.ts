@@ -2681,10 +2681,7 @@ export interface SyncedTable {
   name?: string | undefined;
   /** The Unity Catalog table ID for this synced table. */
   uid?: string | undefined;
-  /**
-   * Configuration details of the synced table, such as the source table, scheduling policy, etc.
-   * This attribute is specified at creation time and most fields are returned as is on subsequent queries.
-   */
+  /** Configuration details of the synced table, such as the source table, scheduling policy, etc. */
   spec?: SyncedTable_SyncedTableSpec | undefined;
   /** Synced Table data synchronization status. */
   status?: SyncedTable_SyncedTableStatus | undefined;

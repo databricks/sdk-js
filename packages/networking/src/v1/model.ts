@@ -1092,6 +1092,10 @@ export interface IngressNetworkPolicy {
    * Configures how requests arriving over private connectivity are governed.
    */
   privateAccess?: IngressNetworkPolicy_PrivateAccess | undefined;
+  /**
+   * The network policy restrictions for cross-workspace access: which other workspaces may
+   * access this workspace.
+   */
   crossWorkspaceAccess?: IngressNetworkPolicy_CrossWorkspaceAccess | undefined;
 }
 

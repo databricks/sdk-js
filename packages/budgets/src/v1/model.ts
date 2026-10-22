@@ -132,6 +132,11 @@ export interface BudgetConfiguration {
   filter?: BudgetConfigurationFilter | undefined;
   /** Human-readable name of budget configuration. Max Length: 128 */
   displayName?: string | undefined;
+  /**
+   * Whether this budget tracks external pass-through spend (third-party costs billed through a <Databricks> product) in addition to internal <Databricks> spend.
+   * Only applicable to Unity Gateway budgets, i.e. when `resource_type` is `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`. This field is immutable after create.
+   */
+  includeExternalSpend?: boolean | undefined;
   /** The resource scope for this budget. Determines whether the budget tracks all resources or a specific resource. */
   resourceType?: BudgetResourceType | undefined;
 }
@@ -185,6 +190,11 @@ export interface CreateBudgetConfigurationBudget {
   filter?: BudgetConfigurationFilter | undefined;
   /** Human-readable name of budget configuration. Max Length: 128 */
   displayName?: string | undefined;
+  /**
+   * Whether this budget tracks external pass-through spend (third-party costs billed through a <Databricks> product) in addition to internal <Databricks> spend.
+   * Only applicable to Unity Gateway budgets, i.e. when `resource_type` is `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`. This field is immutable after create.
+   */
+  includeExternalSpend?: boolean | undefined;
   /** The resource scope for this budget. Determines whether the budget tracks all resources or a specific resource. */
   resourceType?: BudgetResourceType | undefined;
 }
@@ -295,6 +305,11 @@ export interface UpdateBudgetConfigurationBudget {
   filter?: BudgetConfigurationFilter | undefined;
   /** Human-readable name of budget configuration. Max Length: 128 */
   displayName?: string | undefined;
+  /**
+   * Whether this budget tracks external pass-through spend (third-party costs billed through a <Databricks> product) in addition to internal <Databricks> spend.
+   * Only applicable to Unity Gateway budgets, i.e. when `resource_type` is `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`. This field is immutable after create.
+   */
+  includeExternalSpend?: boolean | undefined;
   /** The resource scope for this budget. Determines whether the budget tracks all resources or a specific resource. */
   resourceType?: BudgetResourceType | undefined;
 }
@@ -369,6 +384,7 @@ export const unmarshalBudgetConfigurationSchema: z.ZodType<BudgetConfiguration> 
         .optional(),
       filter: z.lazy(() => unmarshalBudgetConfigurationFilterSchema).optional(),
       display_name: z.string().optional(),
+      include_external_spend: z.boolean().optional(),
       resource_type: z.string().optional(),
     })
     .transform(d => ({
@@ -379,6 +395,7 @@ export const unmarshalBudgetConfigurationSchema: z.ZodType<BudgetConfiguration> 
       alertConfigurations: d.alert_configurations,
       filter: d.filter,
       displayName: d.display_name,
+      includeExternalSpend: d.include_external_spend,
       resourceType: d.resource_type,
     }));
 
@@ -597,6 +614,7 @@ export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
       .optional(),
     filter: z.lazy(() => marshalBudgetConfigurationFilterSchema).optional(),
     displayName: z.string().optional(),
+    includeExternalSpend: z.boolean().optional(),
     resourceType: z.string().optional(),
   })
   .transform(d => ({
@@ -604,6 +622,7 @@ export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
     alert_configurations: d.alertConfigurations,
     filter: d.filter,
     display_name: d.displayName,
+    include_external_spend: d.includeExternalSpend,
     resource_type: d.resourceType,
   }));
 
@@ -677,6 +696,7 @@ export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
       .optional(),
     filter: z.lazy(() => marshalBudgetConfigurationFilterSchema).optional(),
     displayName: z.string().optional(),
+    includeExternalSpend: z.boolean().optional(),
     resourceType: z.string().optional(),
   })
   .transform(d => ({
@@ -685,6 +705,7 @@ export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
     alert_configurations: d.alertConfigurations,
     filter: d.filter,
     display_name: d.displayName,
+    include_external_spend: d.includeExternalSpend,
     resource_type: d.resourceType,
   }));
 
