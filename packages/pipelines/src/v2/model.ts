@@ -103,6 +103,7 @@ export const IngestionSourceType = {
   ZENDESK: 'ZENDESK',
   SMARTSHEET: 'SMARTSHEET',
   RABBITMQ: 'RABBITMQ',
+  ONEDRIVE: 'ONEDRIVE',
   FOREIGN_CATALOG: 'FOREIGN_CATALOG',
 } as const;
 export type IngestionSourceType =
@@ -413,6 +414,18 @@ export type LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsTimeGra
     | (typeof LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsTimeGranularity)[keyof typeof LinkedInAdsOptions_LinkedInAdsCustomReportOptions_LinkedInAdsTimeGranularity]
     | (string & {});
 
+/** The type of OneDrive entity to ingest. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const OneDriveOptions_OneDriveEntityType = {
+  ONE_DRIVE_ENTITY_TYPE_UNSPECIFIED: 'ONE_DRIVE_ENTITY_TYPE_UNSPECIFIED',
+  FILE: 'FILE',
+  FILE_METADATA: 'FILE_METADATA',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type OneDriveOptions_OneDriveEntityType =
+  | (typeof OneDriveOptions_OneDriveEntityType)[keyof typeof OneDriveOptions_OneDriveEntityType]
+  | (string & {});
+
 /** The pipeline state. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const PipelineState_PipelineState = {
@@ -722,6 +735,7 @@ export interface ConnectorOptions {
         /** Connector-specific options for API Source connectors. */
         apiSourceConnectorOptions: ApiSourceConnectorOptions;
       }
+    | {$case: 'onedriveOptions'; onedriveOptions: OneDriveOptions}
     | undefined;
 }
 
@@ -1923,6 +1937,18 @@ export interface Notifications {
    * * `on-flow-failure`: A single data flow fails.
    */
   alerts?: string[] | undefined;
+}
+
+export interface OneDriveOptions {
+  /** Required. The OneDrive URL. */
+  url?: string | undefined;
+  /**
+   * (Optional) The type of OneDrive entity to ingest.
+   * If not specified, defaults to FILE.
+   */
+  entityType?: OneDriveOptions_OneDriveEntityType | undefined;
+  /** (Optional) File ingestion options for processing files. */
+  fileIngestionOptions?: FileIngestionOptions | undefined;
 }
 
 /** Proto representing a window */
@@ -3292,6 +3318,7 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
     api_source_connector_options: z
       .lazy(() => unmarshalApiSourceConnectorOptionsSchema)
       .optional(),
+    onedrive_options: z.lazy(() => unmarshalOneDriveOptionsSchema).optional(),
   })
   .transform(d => ({
     connectorOptions:
@@ -3379,7 +3406,12 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
                                           apiSourceConnectorOptions:
                                             d.api_source_connector_options,
                                         }
-                                      : undefined,
+                                      : d.onedrive_options !== undefined
+                                        ? {
+                                            $case: 'onedriveOptions' as const,
+                                            onedriveOptions: d.onedrive_options,
+                                          }
+                                        : undefined,
   }));
 
 export const unmarshalCreatePipelineResponseSchema: z.ZodType<CreatePipelineResponse> =
@@ -4121,6 +4153,20 @@ export const unmarshalNotificationsSchema: z.ZodType<Notifications> = z
   .transform(d => ({
     emailRecipients: d.email_recipients,
     alerts: d.alerts,
+  }));
+
+export const unmarshalOneDriveOptionsSchema: z.ZodType<OneDriveOptions> = z
+  .object({
+    url: z.string().optional(),
+    entity_type: z.string().optional(),
+    file_ingestion_options: z
+      .lazy(() => unmarshalFileIngestionOptionsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    url: d.url,
+    entityType: d.entity_type,
+    fileIngestionOptions: d.file_ingestion_options,
   }));
 
 export const unmarshalOperationTimeWindowSchema: z.ZodType<OperationTimeWindow> =
@@ -5218,6 +5264,10 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
             () => marshalApiSourceConnectorOptionsSchema
           ),
         }),
+        z.object({
+          $case: z.literal('onedriveOptions'),
+          onedriveOptions: z.lazy(() => marshalOneDriveOptionsSchema),
+        }),
       ])
       .optional(),
   })
@@ -5270,6 +5320,9 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
     ...(d.connectorOptions?.$case === 'apiSourceConnectorOptions' && {
       api_source_connector_options:
         d.connectorOptions.apiSourceConnectorOptions,
+    }),
+    ...(d.connectorOptions?.$case === 'onedriveOptions' && {
+      onedrive_options: d.connectorOptions.onedriveOptions,
     }),
   }));
 
@@ -6023,6 +6076,20 @@ export const marshalNotificationsSchema: z.ZodType = z
   .transform(d => ({
     email_recipients: d.emailRecipients,
     alerts: d.alerts,
+  }));
+
+export const marshalOneDriveOptionsSchema: z.ZodType = z
+  .object({
+    url: z.string().optional(),
+    entityType: z.string().optional(),
+    fileIngestionOptions: z
+      .lazy(() => marshalFileIngestionOptionsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    url: d.url,
+    entity_type: d.entityType,
+    file_ingestion_options: d.fileIngestionOptions,
   }));
 
 export const marshalOperationTimeWindowSchema: z.ZodType = z

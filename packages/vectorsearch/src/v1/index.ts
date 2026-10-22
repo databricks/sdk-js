@@ -63,6 +63,8 @@ export type {
   RetrieveUserVisibleMetricsResponse,
   ScanVectorIndexRequest,
   ScanVectorIndexResponse,
+  StartEndpointRequest,
+  StopEndpointRequest,
   Struct,
   SyncVectorIndexRequest,
   SyncVectorIndexResponse,

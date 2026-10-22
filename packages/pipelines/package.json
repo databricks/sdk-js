@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-pipelines",
-  "version": "0.58.4",
+  "version": "0.58.5",
   "description": "",
   "type": "module",
   "exports": {

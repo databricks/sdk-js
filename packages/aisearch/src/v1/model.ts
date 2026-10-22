@@ -174,6 +174,12 @@ export const EndpointStatus_State = {
    * be retrievable.
    */
   DELETED: 'DELETED',
+  /** Serving compute is being removed. Indexes and their data are retained. */
+  STOPPING: 'STOPPING',
+  /** The endpoint has no serving compute. Start it to serve queries again. */
+  STOPPED: 'STOPPED',
+  /** Serving compute is being restored; the endpoint becomes ONLINE when ready. */
+  STARTING: 'STARTING',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type EndpointStatus_State =

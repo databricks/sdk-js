@@ -712,6 +712,21 @@ export type StreamingMode_StreamingModeType =
   | (typeof StreamingMode_StreamingModeType)[keyof typeof StreamingMode_StreamingModeType]
   | (string & {});
 
+/** Which source table updates trigger a materialization run. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TableTrigger_TableTriggerCondition = {
+  /** Default value, not used. Treated as TABLE_TRIGGER_CONDITION_ANY_UPDATED. */
+  TABLE_TRIGGER_CONDITION_UNSPECIFIED: 'TABLE_TRIGGER_CONDITION_UNSPECIFIED',
+  /** Fire when any source table updates. */
+  TABLE_TRIGGER_CONDITION_ANY_UPDATED: 'TABLE_TRIGGER_CONDITION_ANY_UPDATED',
+  /** Fire only once every source table has updated. */
+  TABLE_TRIGGER_CONDITION_ALL_UPDATED: 'TABLE_TRIGGER_CONDITION_ALL_UPDATED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type TableTrigger_TableTriggerCondition =
+  | (typeof TableTrigger_TableTriggerCondition)[keyof typeof TableTrigger_TableTriggerCondition]
+  | (string & {});
+
 /** An aggregation function applied over a time window. */
 export interface AggregationFunction {
   /** The type of the aggregation function. */
@@ -753,8 +768,20 @@ export interface ApiError {
 export interface ApproxCountDistinctFunction {
   /** The input column from which the approximate count of distinct values is computed. */
   input?: string | undefined;
-  /** The maximum relative standard deviation allowed (default defined by Spark). */
+  /**
+   * The maximum relative standard deviation allowed (default defined by Spark).
+   * Deprecated: use relative_error. When relative_error is set, reads return the same value here
+   * for clients that don't have relative_error, and a request may only send that value.
+   */
   relativeSd?: number | undefined;
+  /**
+   * The error the user accepts, as a fraction of the count, between 0.02 (by default) and 0.3.
+   * This is one standard error of the estimate, the same meaning as Spark's relativeSD: 0.02 means
+   * the result is within ±2% of the true count about 68% of the time (one standard deviation covers
+   * 68% of the region). Feature Store picks the sketch size that gives this relative error. If
+   * neither relative_error nor relative_sd is set, 0.02 is default chosen at feature creation.
+   */
+  relativeError?: number | undefined;
 }
 
 /** Computes the approximate percentile of values. */
@@ -763,8 +790,21 @@ export interface ApproxPercentileFunction {
   input?: string | undefined;
   /** The percentile value to compute (between 0 and 1). */
   percentile?: number | undefined;
-  /** The accuracy parameter (higher is more accurate but slower). */
+  /**
+   * The accuracy parameter (higher is more accurate but slower).
+   * Deprecated: use relative_error. When relative_error is set, reads return ceil(1 /
+   * relative_error) here for clients that don't have relative_error, and a request may only send
+   * that value.
+   */
   accuracy?: bigint | undefined;
+  /**
+   * The error the user accepts, as a fraction of rank, between 0.01 (by default) and 0.3. The
+   * result is within this rank error with 99% confidence: at 0.01, the value returned for p95 is
+   * between the true p94 and p96 at least 99% of the time. Feature Store picks the sketch size that
+   * gives this error.
+   * If neither relative_error nor accuracy is set, 0.01 is default chosen at feature creation.
+   */
+  relativeError?: number | undefined;
 }
 
 export interface AuthConfig {
@@ -2346,9 +2386,29 @@ export interface SumFunction {
   input?: string | undefined;
 }
 
-/** A trigger that fires when the upstream source table changes. */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface TableTrigger {}
+/**
+ * A trigger that fires when the feature's source table changes: a DeltaTableSource's table, or an
+ * SdpSource's input_tables.
+ */
+export interface TableTrigger {
+  /**
+   * The minimum time between two triggered runs, so a frequently updated source table does not
+   * trigger runs too often. If not set, a feature with a sliding window uses half its
+   * slide_duration and a feature with a tumbling window uses half its window_duration, clamped to
+   * between 5 minutes and 1 hour. Other features have no minimum.
+   */
+  minTimeBetweenTriggers?: Temporal.Duration | undefined;
+  /**
+   * How long the source table must go without updates before a run starts, so a series of
+   * updates settles before the run. If not set, a run starts as soon as the source table updates.
+   */
+  waitAfterLastChange?: Temporal.Duration | undefined;
+  /**
+   * Which source table updates trigger a materialization run. If not set, any source table update
+   * triggers a run.
+   */
+  condition?: TableTrigger_TableTriggerCondition | undefined;
+}
 
 export interface TimeWindow {
   windowType?:
@@ -2564,10 +2624,12 @@ export const unmarshalApproxCountDistinctFunctionSchema: z.ZodType<ApproxCountDi
     .object({
       input: z.string().optional(),
       relative_sd: z.number().optional(),
+      relative_error: z.number().optional(),
     })
     .transform(d => ({
       input: d.input,
       relativeSd: d.relative_sd,
+      relativeError: d.relative_error,
     }));
 
 export const unmarshalApproxPercentileFunctionSchema: z.ZodType<ApproxPercentileFunction> =
@@ -2579,11 +2641,13 @@ export const unmarshalApproxPercentileFunctionSchema: z.ZodType<ApproxPercentile
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
+      relative_error: z.number().optional(),
     })
     .transform(d => ({
       input: d.input,
       percentile: d.percentile,
       accuracy: d.accuracy,
+      relativeError: d.relative_error,
     }));
 
 export const unmarshalAuthConfigSchema: z.ZodType<AuthConfig> = z
@@ -3886,9 +3950,23 @@ export const unmarshalSumFunctionSchema: z.ZodType<SumFunction> = z
     input: d.input,
   }));
 
-export const unmarshalTableTriggerSchema: z.ZodType<TableTrigger> = z.object(
-  {}
-);
+export const unmarshalTableTriggerSchema: z.ZodType<TableTrigger> = z
+  .object({
+    min_time_between_triggers: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+    wait_after_last_change: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+    condition: z.string().optional(),
+  })
+  .transform(d => ({
+    minTimeBetweenTriggers: d.min_time_between_triggers,
+    waitAfterLastChange: d.wait_after_last_change,
+    condition: d.condition,
+  }));
 
 export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
   .object({
@@ -4080,10 +4158,12 @@ export const marshalApproxCountDistinctFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
     relativeSd: z.number().optional(),
+    relativeError: z.number().optional(),
   })
   .transform(d => ({
     input: d.input,
     relative_sd: d.relativeSd,
+    relative_error: d.relativeError,
   }));
 
 export const marshalApproxPercentileFunctionSchema: z.ZodType = z
@@ -4091,11 +4171,13 @@ export const marshalApproxPercentileFunctionSchema: z.ZodType = z
     input: z.string().optional(),
     percentile: z.number().optional(),
     accuracy: z.bigint().optional(),
+    relativeError: z.number().optional(),
   })
   .transform(d => ({
     input: d.input,
     percentile: d.percentile,
     accuracy: d.accuracy,
+    relative_error: d.relativeError,
   }));
 
 export const marshalAuthConfigSchema: z.ZodType = z
@@ -5336,7 +5418,23 @@ export const marshalSumFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
-export const marshalTableTriggerSchema: z.ZodType = z.object({});
+export const marshalTableTriggerSchema: z.ZodType = z
+  .object({
+    minTimeBetweenTriggers: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    waitAfterLastChange: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    condition: z.string().optional(),
+  })
+  .transform(d => ({
+    min_time_between_triggers: d.minTimeBetweenTriggers,
+    wait_after_last_change: d.waitAfterLastChange,
+    condition: d.condition,
+  }));
 
 export const marshalTimeWindowSchema: z.ZodType = z
   .object({
@@ -5473,6 +5571,7 @@ const aggregationFunctionFieldMaskSchema: FieldMaskSchema = {
 
 const approxCountDistinctFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
+  relativeError: {wire: 'relative_error'},
   relativeSd: {wire: 'relative_sd'},
 };
 
@@ -5480,6 +5579,7 @@ const approxPercentileFunctionFieldMaskSchema: FieldMaskSchema = {
   accuracy: {wire: 'accuracy'},
   input: {wire: 'input'},
   percentile: {wire: 'percentile'},
+  relativeError: {wire: 'relative_error'},
 };
 
 const authConfigFieldMaskSchema: FieldMaskSchema = {
@@ -6043,7 +6143,11 @@ const sumFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-const tableTriggerFieldMaskSchema: FieldMaskSchema = {};
+const tableTriggerFieldMaskSchema: FieldMaskSchema = {
+  condition: {wire: 'condition'},
+  minTimeBetweenTriggers: {wire: 'min_time_between_triggers'},
+  waitAfterLastChange: {wire: 'wait_after_last_change'},
+};
 
 const timeWindowFieldMaskSchema: FieldMaskSchema = {
   continuous: {

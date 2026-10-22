@@ -109,6 +109,12 @@ export const EndpointStatus_State = {
    * be retrievable.
    */
   DELETED: 'DELETED',
+  /** Serving compute is being removed. Indexes and their data are retained. */
+  STOPPING: 'STOPPING',
+  /** The endpoint has no serving compute. Start it to serve queries again. */
+  STOPPED: 'STOPPED',
+  /** Serving compute is being restored; the endpoint becomes ONLINE when ready. */
+  STARTING: 'STARTING',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type EndpointStatus_State =
@@ -651,6 +657,16 @@ export interface ScanVectorIndexResponse {
   data?: Struct[] | undefined;
   /** Primary key of the last entry. */
   lastPrimaryKey?: string | undefined;
+}
+
+export interface StartEndpointRequest {
+  /** Name of the AI Search endpoint */
+  name?: string | undefined;
+}
+
+export interface StopEndpointRequest {
+  /** Name of the AI Search endpoint */
+  name?: string | undefined;
 }
 
 export interface Struct {
@@ -1543,6 +1559,22 @@ export const marshalScanVectorIndexRequestSchema: z.ZodType = z
     name: d.name,
     num_results: d.numResults,
     last_primary_key: d.lastPrimaryKey,
+  }));
+
+export const marshalStartEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalStopEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalSyncVectorIndexRequestSchema: z.ZodType = z
