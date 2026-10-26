@@ -1,6 +1,8 @@
 import type {Profile} from '@databricks/sdk-core/profiles';
 
 import type {Credentials, Header} from '../../auth';
+import {newTokenCredentials} from '../../auth';
+import {newCachedTokenProvider} from '../../cache';
 import {newM2mCredentials} from '../m2m';
 import {newPatCredentials} from '../pat';
 
@@ -30,9 +32,16 @@ const NO_AUTH_CONFIGURED_MESSAGE = `cannot configure default credentials, please
  * If the profile sets `authType`, the strategy whose name matches it is
  * selected. Otherwise the strategies are tried in order and the first
  * configured one wins.
+ *
+ * Resolution attempts run one at a time. A successful resolution is reused
+ * by every later call, including concurrent first calls. A failed one is
+ * not kept, so the next call tries again.
  */
 export class DefaultCredentials implements Credentials {
   private resolved: Credentials | undefined;
+
+  // The latest resolution attempt, which the next attempt waits for.
+  private lastAttempt: Promise<unknown> = Promise.resolve();
 
   constructor(
     private readonly strategies: readonly Strategy[],
@@ -49,8 +58,16 @@ export class DefaultCredentials implements Credentials {
   }
 
   async authHeaders(): Promise<Header[]> {
-    this.resolved ??= await this.resolveChain();
-    return this.resolved.authHeaders();
+    const credentials = this.resolved ?? (await this.resolve());
+    return credentials.authHeaders();
+  }
+
+  private resolve(): Promise<Credentials> {
+    const attempt = this.lastAttempt.then(
+      async () => (this.resolved ??= await this.resolveChain())
+    );
+    this.lastAttempt = attempt.catch(() => undefined);
+    return attempt;
   }
 
   private async resolveChain(): Promise<Credentials> {
@@ -119,7 +136,9 @@ export const patStrategy: Strategy = {
 
 /**
  * OAuth M2M strategy: configured when `clientId` and `clientSecret` are
- * both set in the profile.
+ * both set in the profile. The token provider is wrapped in a cache so a
+ * token is reused until it nears expiry rather than re-minted on every
+ * request.
  */
 export const m2mStrategy: Strategy = {
   name: 'oauth-m2m',
@@ -128,12 +147,16 @@ export const m2mStrategy: Strategy = {
     if (profile.host === undefined) return undefined;
     if (profile.clientId === undefined) return undefined;
     if (profile.clientSecret === undefined) return undefined;
-    return newM2mCredentials({
+    const credentials = newM2mCredentials({
       host: profile.host,
       clientId: profile.clientId,
       clientSecret: profile.clientSecret.value,
       ...(profile.accountId !== undefined && {accountId: profile.accountId}),
       ...(profile.groupId !== undefined && {groupId: profile.groupId}),
     });
+    return newTokenCredentials(
+      credentials.name(),
+      newCachedTokenProvider(credentials)
+    );
   },
 };

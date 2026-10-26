@@ -276,6 +276,8 @@ export interface RenamePathResponse {}
 
 /** A Sandbox resource representing an execution environment. */
 export interface Sandbox {
+  /** Metadata associated with the sandbox. */
+  metadata?: SandboxMetadata | undefined;
   /** The desired configuration of the sandbox, supplied by the caller at creation time. */
   spec?: SandboxSpec | undefined;
   /** The observed runtime state of the sandbox, populated by the server. */
@@ -306,6 +308,15 @@ export interface SandboxFileInfo {
   /** Nanosecond precision is preserved on the wire. */
   modifyTime?: Temporal.Instant | undefined;
   symlinkTarget?: string | undefined;
+}
+
+/** Metadata associated with a sandbox. */
+export interface SandboxMetadata {
+  /**
+   * Key-value tags associated with the sandbox. Supports up to 54 tags. Keys must be between
+   * 1 and 512 characters, and values must not exceed 256 characters.
+   */
+  customTags?: Record<string, string> | undefined;
 }
 
 export interface SandboxSpec {
@@ -464,6 +475,7 @@ export const unmarshalRenamePathResponseSchema: z.ZodType<RenamePathResponse> =
 
 export const unmarshalSandboxSchema: z.ZodType<Sandbox> = z
   .object({
+    metadata: z.lazy(() => unmarshalSandboxMetadataSchema).optional(),
     spec: z.lazy(() => unmarshalSandboxSpecSchema).optional(),
     status: z.lazy(() => unmarshalSandboxStatusSchema).optional(),
     name: z.string().optional(),
@@ -478,6 +490,7 @@ export const unmarshalSandboxSchema: z.ZodType<Sandbox> = z
     display_name: z.string().optional(),
   })
   .transform(d => ({
+    metadata: d.metadata,
     spec: d.spec,
     status: d.status,
     name: d.name,
@@ -516,6 +529,14 @@ export const unmarshalSandboxFileInfoSchema: z.ZodType<SandboxFileInfo> = z
     group: d.group,
     modifyTime: d.modify_time,
     symlinkTarget: d.symlink_target,
+  }));
+
+export const unmarshalSandboxMetadataSchema: z.ZodType<SandboxMetadata> = z
+  .object({
+    custom_tags: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    customTags: d.custom_tags,
   }));
 
 export const unmarshalSandboxSpecSchema: z.ZodType<SandboxSpec> = z
@@ -612,6 +633,7 @@ export const marshalRenamePathRequestSchema: z.ZodType = z
 
 export const marshalSandboxSchema: z.ZodType = z
   .object({
+    metadata: z.lazy(() => marshalSandboxMetadataSchema).optional(),
     spec: z.lazy(() => marshalSandboxSpecSchema).optional(),
     status: z.lazy(() => marshalSandboxStatusSchema).optional(),
     name: z.string().optional(),
@@ -626,12 +648,21 @@ export const marshalSandboxSchema: z.ZodType = z
     displayName: z.string().optional(),
   })
   .transform(d => ({
+    metadata: d.metadata,
     spec: d.spec,
     status: d.status,
     name: d.name,
     create_time: d.createTime,
     update_time: d.updateTime,
     display_name: d.displayName,
+  }));
+
+export const marshalSandboxMetadataSchema: z.ZodType = z
+  .object({
+    customTags: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    custom_tags: d.customTags,
   }));
 
 export const marshalSandboxSpecSchema: z.ZodType = z
@@ -679,6 +710,7 @@ const environmentSpecFieldMaskSchema: FieldMaskSchema = {
 const sandboxFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   displayName: {wire: 'display_name'},
+  metadata: {wire: 'metadata', children: () => sandboxMetadataFieldMaskSchema},
   name: {wire: 'name'},
   spec: {wire: 'spec', children: () => sandboxSpecFieldMaskSchema},
   status: {wire: 'status', children: () => sandboxStatusFieldMaskSchema},
@@ -688,6 +720,10 @@ const sandboxFieldMaskSchema: FieldMaskSchema = {
 export function sandboxFieldMask(...paths: string[]): FieldMask<Sandbox> {
   return FieldMask.build<Sandbox>(paths, sandboxFieldMaskSchema);
 }
+
+const sandboxMetadataFieldMaskSchema: FieldMaskSchema = {
+  customTags: {wire: 'custom_tags'},
+};
 
 const sandboxSpecFieldMaskSchema: FieldMaskSchema = {
   compute: {wire: 'compute', children: () => computeSpecFieldMaskSchema},

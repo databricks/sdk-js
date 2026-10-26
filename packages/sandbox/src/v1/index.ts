@@ -33,6 +33,7 @@ export type {
   RenamePathResponse,
   Sandbox,
   SandboxFileInfo,
+  SandboxMetadata,
   SandboxSpec,
   SandboxStatus,
   StartSandboxRequest,

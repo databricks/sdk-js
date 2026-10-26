@@ -2985,6 +2985,10 @@ export interface StartUpdateRequest {
    * that the states of the table will be reset before the refresh.
    */
   fullRefreshSelection?: string[] | undefined;
+  /** A list of file paths that identify the tables to update. */
+  refreshSelectionByPath?: string[] | undefined;
+  /** A list of file paths that identify the tables to update with a full refresh. */
+  fullRefreshSelectionByPath?: string[] | undefined;
   /**
    * A list of flows for which this update should reset the streaming checkpoint. This selection will not clear
    * the data in the flow's target table. Flows in this list may also appear in refresh_selection and full_refresh_selection.
@@ -3169,6 +3173,10 @@ export interface UpdateInfo {
    * that the states of the table will be reset before the refresh.
    */
   fullRefreshSelection?: string[] | undefined;
+  /** A list of file paths that identify the tables to update. */
+  refreshSelectionByPath?: string[] | undefined;
+  /** A list of file paths that identify the tables to update with a full refresh. */
+  fullRefreshSelectionByPath?: string[] | undefined;
   /** If true, this update only validates the correctness of pipeline source code but does not materialize or publish any datasets. */
   validateOnly?: boolean | undefined;
   /**
@@ -4999,6 +5007,8 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
     full_refresh: z.boolean().optional(),
     refresh_selection: z.array(z.string()).optional(),
     full_refresh_selection: z.array(z.string()).optional(),
+    refresh_selection_by_path: z.array(z.string()).optional(),
+    full_refresh_selection_by_path: z.array(z.string()).optional(),
     validate_only: z.boolean().optional(),
     mode: z.string().optional(),
     parameters: z.record(z.string(), z.string()).optional(),
@@ -5014,6 +5024,8 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
     fullRefresh: d.full_refresh,
     refreshSelection: d.refresh_selection,
     fullRefreshSelection: d.full_refresh_selection,
+    refreshSelectionByPath: d.refresh_selection_by_path,
+    fullRefreshSelectionByPath: d.full_refresh_selection_by_path,
     validateOnly: d.validate_only,
     mode: d.mode,
     parameters: d.parameters,
@@ -6639,6 +6651,8 @@ export const marshalStartUpdateRequestSchema: z.ZodType = z
     cause: z.string().optional(),
     refreshSelection: z.array(z.string()).optional(),
     fullRefreshSelection: z.array(z.string()).optional(),
+    refreshSelectionByPath: z.array(z.string()).optional(),
+    fullRefreshSelectionByPath: z.array(z.string()).optional(),
     resetCheckpointSelection: z.array(z.string()).optional(),
     validateOnly: z.boolean().optional(),
     development: z.boolean().optional(),
@@ -6654,6 +6668,8 @@ export const marshalStartUpdateRequestSchema: z.ZodType = z
     cause: d.cause,
     refresh_selection: d.refreshSelection,
     full_refresh_selection: d.fullRefreshSelection,
+    refresh_selection_by_path: d.refreshSelectionByPath,
+    full_refresh_selection_by_path: d.fullRefreshSelectionByPath,
     reset_checkpoint_selection: d.resetCheckpointSelection,
     validate_only: d.validateOnly,
     development: d.development,

@@ -132,6 +132,20 @@ export type RefreshTrigger =
 export interface AnomalyDetectionConfig {
   /** List of fully qualified table names to exclude from anomaly detection. */
   excludedTableFullNames?: string[] | undefined;
+  /**
+   * Who to alert when anomaly detection finds unhealthy tables in this schema. Applicable to
+   * `schema` monitors only. This is the same schema alert you manage from **Manage alerts** in the
+   * Data Quality Monitoring UI, so a change made in either place shows in both.
+   *
+   * Set the recipients in `on_unhealthy_table`; `on_failure` is not supported here. Only
+   * `destination_ids` and `destination_user_ids` are supported.
+   *
+   * On update, an update mask of `*`, `anomaly_detection_config`, or
+   * `anomaly_detection_config.notification_settings` replaces the alert's recipients with the ones
+   * in the request; omitting the field, or leaving both recipient lists empty, removes the alert.
+   * Other masks leave the alert unchanged.
+   */
+  notificationSettings?: NotificationSettings | undefined;
 }
 
 /** Request to cancel a refresh. */
@@ -442,12 +456,30 @@ export interface Monitor {
 export interface NotificationDestination {
   /** The list of email addresses to send the notification to. A maximum of 5 email addresses is supported. */
   emailAddresses?: string[] | undefined;
+  /**
+   * The notification-destination IDs (Slack / Teams / webhook) to send the notification to. The
+   * destinations must already exist in the workspace; a workspace admin creates them. A maximum of
+   * 25 destination IDs is supported.
+   * Only supported on schema monitors, via `anomaly_detection_config`; rejected on table monitors.
+   */
+  destinationIds?: string[] | undefined;
+  /**
+   * The IDs of the workspace users to notify by email. A maximum of 25 user IDs is supported.
+   * Only supported on schema monitors, via `anomaly_detection_config`; rejected on table monitors.
+   */
+  destinationUserIds?: bigint[] | undefined;
 }
 
 /** Settings for sending notifications on the data quality monitoring. */
 export interface NotificationSettings {
   /** Destinations to send notifications on failure/timeout. */
   onFailure?: NotificationDestination | undefined;
+  /**
+   * Recipients to notify when anomaly detection finds unhealthy tables in the schema. Each
+   * recipient gets one notification per important unhealthy table. Only supported on schema
+   * monitors, via `anomaly_detection_config`.
+   */
+  onUnhealthyTable?: NotificationDestination | undefined;
 }
 
 /** The Refresh object gives information on a refresh of the data quality monitoring pipeline. */
@@ -545,9 +577,13 @@ export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionCo
   z
     .object({
       excluded_table_full_names: z.array(z.string()).optional(),
+      notification_settings: z
+        .lazy(() => unmarshalNotificationSettingsSchema)
+        .optional(),
     })
     .transform(d => ({
       excludedTableFullNames: d.excluded_table_full_names,
+      notificationSettings: d.notification_settings,
     }));
 
 export const unmarshalCancelRefreshResponseSchema: z.ZodType<CancelRefreshResponse> =
@@ -710,9 +746,19 @@ export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDesti
   z
     .object({
       email_addresses: z.array(z.string()).optional(),
+      destination_ids: z.array(z.string()).optional(),
+      destination_user_ids: z
+        .array(
+          z
+            .union([z.number(), z.bigint(), z.string()])
+            .transform(v => BigInt(v))
+        )
+        .optional(),
     })
     .transform(d => ({
       emailAddresses: d.email_addresses,
+      destinationIds: d.destination_ids,
+      destinationUserIds: d.destination_user_ids,
     }));
 
 export const unmarshalNotificationSettingsSchema: z.ZodType<NotificationSettings> =
@@ -721,9 +767,13 @@ export const unmarshalNotificationSettingsSchema: z.ZodType<NotificationSettings
       on_failure: z
         .lazy(() => unmarshalNotificationDestinationSchema)
         .optional(),
+      on_unhealthy_table: z
+        .lazy(() => unmarshalNotificationDestinationSchema)
+        .optional(),
     })
     .transform(d => ({
       onFailure: d.on_failure,
+      onUnhealthyTable: d.on_unhealthy_table,
     }));
 
 export const unmarshalRefreshSchema: z.ZodType<Refresh> = z
@@ -773,9 +823,13 @@ export const unmarshalTimeSeriesConfigSchema: z.ZodType<TimeSeriesConfig> = z
 export const marshalAnomalyDetectionConfigSchema: z.ZodType = z
   .object({
     excludedTableFullNames: z.array(z.string()).optional(),
+    notificationSettings: z
+      .lazy(() => marshalNotificationSettingsSchema)
+      .optional(),
   })
   .transform(d => ({
     excluded_table_full_names: d.excludedTableFullNames,
+    notification_settings: d.notificationSettings,
   }));
 
 export const marshalCancelRefreshRequestSchema: z.ZodType = z
@@ -926,17 +980,25 @@ export const marshalMonitorSchema: z.ZodType = z
 export const marshalNotificationDestinationSchema: z.ZodType = z
   .object({
     emailAddresses: z.array(z.string()).optional(),
+    destinationIds: z.array(z.string()).optional(),
+    destinationUserIds: z.array(z.bigint()).optional(),
   })
   .transform(d => ({
     email_addresses: d.emailAddresses,
+    destination_ids: d.destinationIds,
+    destination_user_ids: d.destinationUserIds,
   }));
 
 export const marshalNotificationSettingsSchema: z.ZodType = z
   .object({
     onFailure: z.lazy(() => marshalNotificationDestinationSchema).optional(),
+    onUnhealthyTable: z
+      .lazy(() => marshalNotificationDestinationSchema)
+      .optional(),
   })
   .transform(d => ({
     on_failure: d.onFailure,
+    on_unhealthy_table: d.onUnhealthyTable,
   }));
 
 export const marshalRefreshSchema: z.ZodType = z
@@ -975,6 +1037,10 @@ export const marshalTimeSeriesConfigSchema: z.ZodType = z
 
 const anomalyDetectionConfigFieldMaskSchema: FieldMaskSchema = {
   excludedTableFullNames: {wire: 'excluded_table_full_names'},
+  notificationSettings: {
+    wire: 'notification_settings',
+    children: () => notificationSettingsFieldMaskSchema,
+  },
 };
 
 const cronScheduleFieldMaskSchema: FieldMaskSchema = {
@@ -1042,12 +1108,18 @@ export function monitorFieldMask(...paths: string[]): FieldMask<Monitor> {
 }
 
 const notificationDestinationFieldMaskSchema: FieldMaskSchema = {
+  destinationIds: {wire: 'destination_ids'},
+  destinationUserIds: {wire: 'destination_user_ids'},
   emailAddresses: {wire: 'email_addresses'},
 };
 
 const notificationSettingsFieldMaskSchema: FieldMaskSchema = {
   onFailure: {
     wire: 'on_failure',
+    children: () => notificationDestinationFieldMaskSchema,
+  },
+  onUnhealthyTable: {
+    wire: 'on_unhealthy_table',
     children: () => notificationDestinationFieldMaskSchema,
   },
 };

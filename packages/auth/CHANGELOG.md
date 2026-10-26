@@ -1,5 +1,10 @@
 # Version changelog
 
+## Release v0.55.0 (2026-10-26)
+
+### New Features and Improvements
+* `defaultCredentials()` now caches OAuth M2M and Databricks CLI tokens and refreshes them asynchronously before they expire. It also resolves its strategy once, including for concurrent first calls.
+
 ## Release v0.54.0 (2026-10-20)
 
 ### New Features and Improvements

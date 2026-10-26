@@ -52,6 +52,9 @@ const DEFAULT_SCOPES: readonly string[] = ['all-apis'];
  * Creates a TokenCredentials that authenticates as a Databricks service
  * principal using the OAuth client credentials grant.
  *
+ * The returned credentials do not cache tokens or retry on failure. Wrap
+ * them with `newCachedTokenProvider` as needed.
+ *
  * @param options - Host plus client credentials.
  * @throws M2mCredentialsError when host, clientId, or clientSecret is empty,
  * when token-endpoint discovery fails, or when the token endpoint returns

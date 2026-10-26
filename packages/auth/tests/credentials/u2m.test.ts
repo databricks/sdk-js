@@ -89,6 +89,7 @@ describe('newU2mCredentials', () => {
     execFileMock.mockReset();
     statMock.mockReset();
     vi.unstubAllEnvs();
+    vi.useRealTimers();
   });
 
   const successCases: {
@@ -143,6 +144,50 @@ describe('newU2mCredentials', () => {
       },
     },
   ];
+
+  it('runs the CLI on every call', async () => {
+    statReturnsModernFile();
+    stubCliRun(okResponse({access_token: 'first-token'}));
+    stubCliRun(okResponse({access_token: 'second-token'}));
+    const creds = newU2mCredentials({profile: DEFAULT_PROFILE});
+
+    expect(await creds.authHeaders()).toStrictEqual([
+      {key: 'Authorization', value: 'Bearer first-token'},
+    ]);
+    expect(await creds.authHeaders()).toStrictEqual([
+      {key: 'Authorization', value: 'Bearer second-token'},
+    ]);
+    expect(execFileMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('caches CLI tokens in the default chain until they expire', async () => {
+    const expiry = new Date('2026-12-31T00:00:00Z');
+    vi.useFakeTimers({toFake: ['Date']});
+    vi.setSystemTime(expiry.getTime() - 3600 * 1000);
+    statReturnsModernFile();
+    stubCliRun(
+      okResponse({access_token: 'first-token', expiry: expiry.toISOString()})
+    );
+    stubCliRun(
+      okResponse({access_token: 'second-token', expiry: '2027-01-01T00:00:00Z'})
+    );
+    const creds = defaultCredentials({
+      profile: {name: DEFAULT_PROFILE, host: 'https://workspace.example'},
+    });
+
+    for (let call = 0; call < 5; call += 1) {
+      expect(await creds.authHeaders()).toStrictEqual([
+        {key: 'Authorization', value: 'Bearer first-token'},
+      ]);
+    }
+    expect(execFileMock).toHaveBeenCalledOnce();
+
+    vi.setSystemTime(expiry.getTime() + 1);
+    expect(await creds.authHeaders()).toStrictEqual([
+      {key: 'Authorization', value: 'Bearer second-token'},
+    ]);
+    expect(execFileMock).toHaveBeenCalledTimes(2);
+  });
 
   it.each(successCases)('$name', async ({profile, cliPath, cliStub, want}) => {
     statReturnsModernFile();
