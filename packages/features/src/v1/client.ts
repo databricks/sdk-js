@@ -29,15 +29,18 @@ import type {
   CancelOperationRequest,
   CreateFeatureRequest,
   CreateKafkaConfigRequest,
+  CreateMaterializationSetRequest,
   CreateMaterializedFeatureRequest,
   CreateStreamRequest,
   DeleteFeatureRequest,
   DeleteKafkaConfigRequest,
+  DeleteMaterializationSetRequest,
   DeleteMaterializedFeatureRequest,
   DeleteStreamRequest,
   Feature,
   GetFeatureRequest,
   GetKafkaConfigRequest,
+  GetMaterializationSetRequest,
   GetMaterializedFeatureRequest,
   GetOperationRequest,
   GetStreamRequest,
@@ -50,6 +53,8 @@ import type {
   ListMaterializedFeaturesResponse,
   ListStreamsRequest,
   ListStreamsResponse,
+  MaterializationSet,
+  MaterializationSetOperationMetadata,
   MaterializedFeature,
   Operation,
   PurgeFeatureEntitiesMetadata,
@@ -58,6 +63,7 @@ import type {
   Stream,
   UpdateFeatureRequest,
   UpdateKafkaConfigRequest,
+  UpdateMaterializationSetRequest,
   UpdateMaterializedFeatureRequest,
   UpdateStreamRequest,
 } from './model';
@@ -67,6 +73,7 @@ import {
   marshalCancelOperationRequestSchema,
   marshalFeatureSchema,
   marshalKafkaConfigSchema,
+  marshalMaterializationSetSchema,
   marshalMaterializedFeatureSchema,
   marshalPurgeFeatureEntitiesRequestSchema,
   marshalStreamSchema,
@@ -79,6 +86,8 @@ import {
   unmarshalListKafkaConfigsResponseSchema,
   unmarshalListMaterializedFeaturesResponseSchema,
   unmarshalListStreamsResponseSchema,
+  unmarshalMaterializationSetOperationMetadataSchema,
+  unmarshalMaterializationSetSchema,
   unmarshalMaterializedFeatureSchema,
   unmarshalOperationSchema,
   unmarshalPurgeFeatureEntitiesMetadataSchema,
@@ -286,6 +295,62 @@ export class FeaturesClient {
     return resp;
   }
 
+  /** Create a materialization set. */
+  private async createMaterializationSetBase(
+    req: CreateMaterializationSetRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/feature-engineering/materialization-sets`;
+    const params = new URLSearchParams();
+    if (req.requestId !== undefined) {
+      params.append('request_id', req.requestId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(
+      req.materializationSet,
+      marshalMaterializationSetSchema
+    );
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Create a materialization set. */
+  async createMaterializationSet(
+    req: CreateMaterializationSetRequest,
+    options?: CallOptions
+  ): Promise<CreateMaterializationSetOperation> {
+    const op = await this.createMaterializationSetBase(req, options);
+    return new CreateMaterializationSetOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
   /** Create a materialized feature. */
   async createMaterializedFeature(
     req: CreateMaterializedFeatureRequest,
@@ -399,6 +464,61 @@ export class FeaturesClient {
     await executeCall(call, options);
   }
 
+  /**
+   * Delete a materialization set and every materialized feature in it. The set is gone afterwards,
+   * so a later read returns NOT_FOUND and the set id is free to use again.
+   */
+  private async deleteMaterializationSetBase(
+    req: DeleteMaterializationSetRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/feature-engineering/materialization-sets/${req.materializationSetId ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.allowMissing !== undefined) {
+      params.append('allow_missing', String(req.allowMissing));
+    }
+    if (req.requestId !== undefined) {
+      params.append('request_id', req.requestId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Delete a materialization set and every materialized feature in it. The set is gone afterwards,
+   * so a later read returns NOT_FOUND and the set id is free to use again.
+   */
+  async deleteMaterializationSet(
+    req: DeleteMaterializationSetRequest,
+    options?: CallOptions
+  ): Promise<DeleteMaterializationSetOperation> {
+    const op = await this.deleteMaterializationSetBase(req, options);
+    return new DeleteMaterializationSetOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
   /** Delete a materialized feature. */
   async deleteMaterializedFeature(
     req: DeleteMaterializedFeatureRequest,
@@ -499,6 +619,38 @@ export class FeaturesClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalKafkaConfigSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Get a materialization set and the materialized features in it. A set whose materialized
+   * feature members have all been deleted is returned with an empty member list.
+   */
+  async getMaterializationSet(
+    req: GetMaterializationSetRequest,
+    options?: CallOptions
+  ): Promise<MaterializationSet> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/feature-engineering/materialization-sets/${req.materializationSetId ?? ''}`;
+    let resp: MaterializationSet | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalMaterializationSetSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -962,6 +1114,73 @@ export class FeaturesClient {
     return resp;
   }
 
+  /**
+   * Update the materialization set's state to match the supplied materialization set. Changes are
+   * applied member by member and are not atomic: when one member fails, the error reports which
+   * members were already changed.
+   */
+  private async updateMaterializationSetBase(
+    req: UpdateMaterializationSetRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/feature-engineering/materialization-sets/${req.materializationSet?.materializationSetId ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    if (req.requestId !== undefined) {
+      params.append('request_id', req.requestId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(
+      req.materializationSet,
+      marshalMaterializationSetSchema
+    );
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Update the materialization set's state to match the supplied materialization set. Changes are
+   * applied member by member and are not atomic: when one member fails, the error reports which
+   * members were already changed.
+   */
+  async updateMaterializationSet(
+    req: UpdateMaterializationSetRequest,
+    options?: CallOptions
+  ): Promise<UpdateMaterializationSetOperation> {
+    const op = await this.updateMaterializationSetBase(req, options);
+    return new UpdateMaterializationSetOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
   /** Update a materialized feature (pause/resume). */
   async updateMaterializedFeature(
     req: UpdateMaterializedFeatureRequest,
@@ -1145,6 +1364,164 @@ export class BackfillFeaturesOperation {
   }
 }
 
+export class CreateMaterializationSetOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<MaterializationSetOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalMaterializationSetOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<MaterializationSet> {
+    let result: MaterializationSet | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z
+        .lazy(() => unmarshalMaterializationSetSchema)
+        .parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class DeleteMaterializationSetOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<MaterializationSetOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalMaterializationSetOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<void> {
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+    };
+
+    await executeWait(call, options);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
 export class PurgeFeatureEntitiesOperation {
   constructor(
     private operation: Operation,
@@ -1213,6 +1590,92 @@ export class PurgeFeatureEntitiesOperation {
 
       result = z
         .lazy(() => unmarshalPurgeFeatureEntitiesResponseSchema)
+        .parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class UpdateMaterializationSetOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<MaterializationSetOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalMaterializationSetOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<MaterializationSet> {
+    let result: MaterializationSet | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z
+        .lazy(() => unmarshalMaterializationSetSchema)
         .parse(op.result.response);
     };
 

@@ -464,10 +464,7 @@ export interface InferenceTableConfig {
   isDeleted?: boolean | undefined;
 }
 
-/**
- * Request to list MCP services. Accepts `parent`, `page_size`, `page_token`,
- * and `view`.
- */
+/** Request to list MCP services. */
 export interface ListMcpServicesRequest {
   /**
    * Parent schema to list within, in the form
@@ -501,10 +498,7 @@ export interface ListMcpServicesResponse {
   nextPageToken?: string | undefined;
 }
 
-/**
- * Request to list model provider services. Accepts `parent`, `page_size`,
- * `page_token`, and `view`.
- */
+/** Request to list model provider services. */
 export interface ListModelProviderServicesRequest {
   /**
    * Parent schema to list within, in the form
@@ -863,10 +857,9 @@ export interface ModelProviderServiceConfig {
       }
     | undefined;
   /**
-   * When true, allows models from the provider's built-in model catalog in
-   * addition to explicit `targets`. When false, only models listed in `targets`
-   * are routable. Defaults to false. CUSTOM providers have no built-in model
-   * catalog and must leave this false and list their models in `targets`.
+   * When true, accepts any model exposed by the upstream provider; `targets`
+   * is not required and does not restrict routability. When false, only
+   * models listed in `targets` are routable. Defaults to false.
    */
   allowAllTargets?: boolean | undefined;
   /**
@@ -874,9 +867,8 @@ export interface ModelProviderServiceConfig {
    * entry must include at least one `native_api_types` value. When
    * `allow_all_targets` is false, at least one entry is required and model
    * service destinations can reference only listed models. When
-   * `allow_all_targets` is true, models from the provider's built-in model
-   * catalog are also routable. CUSTOM providers must explicitly list their
-   * models here and cannot enable `allow_all_targets`.
+   * `allow_all_targets` is true, any upstream model is routable; entries in
+   * this list provide API-type metadata without restricting other models.
    */
   targets?: ModelProviderServiceConfig_ModelTargetConfig[] | undefined;
   /**

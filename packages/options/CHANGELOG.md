@@ -1,5 +1,10 @@
 # Version changelog
 
+## Release v0.51.4 (2026-10-26)
+
+### Internal Changes
+* Bump `auth` to v0.55.0.
+
 ## Release v0.51.3 (2026-10-20)
 
 ### Internal Changes

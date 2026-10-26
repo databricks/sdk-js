@@ -35,14 +35,24 @@ import type {
   ForkSessionResponse,
   GetManagedMemoryEntryRequest,
   GetManagedMemoryStoreRequest,
+  GetMemoryStorePermissionRequest,
   GetSessionRequest,
+  GetSessionStorePermissionRequest,
   GetSessionStoreRequest,
+  GrantMemoryStorePermissionRequest,
+  GrantMemoryStorePermissionResponse,
+  GrantSessionStorePermissionRequest,
+  GrantSessionStorePermissionResponse,
   ListManagedMemoryEntriesRequest,
   ListManagedMemoryEntriesResponse,
   ListManagedMemoryStoresRequest,
   ListManagedMemoryStoresResponse,
+  ListMemoryStorePermissionsRequest,
+  ListMemoryStorePermissionsResponse,
   ListSessionItemsRequest,
   ListSessionItemsResponse,
+  ListSessionStorePermissionsRequest,
+  ListSessionStorePermissionsResponse,
   ListSessionStoresRequest,
   ListSessionStoresResponse,
   ListSessionsRequest,
@@ -50,13 +60,19 @@ import type {
   ManagedMemoryEntry,
   ManagedMemoryEntrySearchResult,
   ManagedMemoryStore,
+  MemoryStorePermission,
   PopSessionItemRequest,
   PopSessionItemResponse,
+  RevokeMemoryStorePermissionRequest,
+  RevokeMemoryStorePermissionResponse,
+  RevokeSessionStorePermissionRequest,
+  RevokeSessionStorePermissionResponse,
   SearchManagedMemoryEntriesRequest,
   SearchManagedMemoryEntriesResponse,
   Session,
   SessionItem,
   SessionStore,
+  SessionStorePermission,
   UpdateManagedMemoryEntryRequest,
   UpdateManagedMemoryStoreRequest,
   UpdateSessionRequest,
@@ -67,9 +83,13 @@ import {
   marshalClearSessionItemsRequestSchema,
   marshalExtractMemoriesRequestSchema,
   marshalForkSessionRequestSchema,
+  marshalGrantMemoryStorePermissionRequestSchema,
+  marshalGrantSessionStorePermissionRequestSchema,
   marshalManagedMemoryEntrySchema,
   marshalManagedMemoryStoreSchema,
   marshalPopSessionItemRequestSchema,
+  marshalRevokeMemoryStorePermissionRequestSchema,
+  marshalRevokeSessionStorePermissionRequestSchema,
   marshalSearchManagedMemoryEntriesRequestSchema,
   marshalSessionSchema,
   marshalSessionStoreSchema,
@@ -77,16 +97,24 @@ import {
   unmarshalClearSessionItemsResponseSchema,
   unmarshalExtractMemoriesResponseSchema,
   unmarshalForkSessionResponseSchema,
+  unmarshalGrantMemoryStorePermissionResponseSchema,
+  unmarshalGrantSessionStorePermissionResponseSchema,
   unmarshalListManagedMemoryEntriesResponseSchema,
   unmarshalListManagedMemoryStoresResponseSchema,
+  unmarshalListMemoryStorePermissionsResponseSchema,
   unmarshalListSessionItemsResponseSchema,
+  unmarshalListSessionStorePermissionsResponseSchema,
   unmarshalListSessionStoresResponseSchema,
   unmarshalListSessionsResponseSchema,
   unmarshalManagedMemoryEntrySchema,
   unmarshalManagedMemoryStoreSchema,
+  unmarshalMemoryStorePermissionSchema,
   unmarshalPopSessionItemResponseSchema,
+  unmarshalRevokeMemoryStorePermissionResponseSchema,
+  unmarshalRevokeSessionStorePermissionResponseSchema,
   unmarshalSearchManagedMemoryEntriesResponseSchema,
   unmarshalSessionSchema,
+  unmarshalSessionStorePermissionSchema,
   unmarshalSessionStoreSchema,
 } from './model';
 
@@ -601,6 +629,35 @@ export class AgentKitClient {
     return resp;
   }
 
+  /** Retrieves the current caller's effective memory store permission. Returns PERMISSION_LEVEL_UNSPECIFIED when the caller has no access. */
+  async getMemoryStorePermission(
+    req: GetMemoryStorePermissionRequest,
+    options?: CallOptions
+  ): Promise<MemoryStorePermission> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/agents/${req.name ?? ''}/permissions/self`;
+    let resp: MemoryStorePermission | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalMemoryStorePermissionSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
   /** Gets a session by resource name. */
   async getSession(
     req: GetSessionRequest,
@@ -651,6 +708,107 @@ export class AgentKitClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalSessionStoreSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Retrieves the current caller's effective session store permission. Returns PERMISSION_LEVEL_UNSPECIFIED when the caller has no access. */
+  async getSessionStorePermission(
+    req: GetSessionStorePermissionRequest,
+    options?: CallOptions
+  ): Promise<SessionStorePermission> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/agents/${req.name ?? ''}/permissions/self`;
+    let resp: SessionStorePermission | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalSessionStorePermissionSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Grants a READ or WRITE permission on a memory store to a principal. Only the owner or a workspace admin may grant permissions. */
+  async grantMemoryStorePermission(
+    req: GrantMemoryStorePermissionRequest,
+    options?: CallOptions
+  ): Promise<GrantMemoryStorePermissionResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/agents/${req.name ?? ''}/permissions:grant`;
+    const body = marshalRequest(
+      req,
+      marshalGrantMemoryStorePermissionRequestSchema
+    );
+    let resp: GrantMemoryStorePermissionResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGrantMemoryStorePermissionResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Grants a READ or WRITE permission on a session store to a principal. Only the owner or a workspace admin may grant permissions. */
+  async grantSessionStorePermission(
+    req: GrantSessionStorePermissionRequest,
+    options?: CallOptions
+  ): Promise<GrantSessionStorePermissionResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/agents/${req.name ?? ''}/permissions:grant`;
+    const body = marshalRequest(
+      req,
+      marshalGrantSessionStorePermissionRequestSchema
+    );
+    let resp: GrantSessionStorePermissionResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGrantSessionStorePermissionResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -724,6 +882,64 @@ export class AgentKitClient {
     for (;;) {
       const resp = await this.listMemories(pageReq, options);
       for (const item of resp.managedMemoryEntries ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Lists explicit memory store grants. Only the owner or a workspace admin may list permissions. */
+  async listMemoryStorePermissions(
+    req: ListMemoryStorePermissionsRequest,
+    options?: CallOptions
+  ): Promise<ListMemoryStorePermissionsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/permissions`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListMemoryStorePermissionsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListMemoryStorePermissionsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listMemoryStorePermissionsIter(
+    req: ListMemoryStorePermissionsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<MemoryStorePermission> {
+    const pageReq: ListMemoryStorePermissionsRequest = {...req};
+    for (;;) {
+      const resp = await this.listMemoryStorePermissions(pageReq, options);
+      for (const item of resp.memoryStorePermissions ?? []) {
         yield item;
       }
       if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
@@ -840,6 +1056,64 @@ export class AgentKitClient {
     for (;;) {
       const resp = await this.listSessionItems(pageReq, options);
       for (const item of resp.sessionItems ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Lists explicit session store grants. Only the owner or a workspace admin may list permissions. */
+  async listSessionStorePermissions(
+    req: ListSessionStorePermissionsRequest,
+    options?: CallOptions
+  ): Promise<ListSessionStorePermissionsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/permissions`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListSessionStorePermissionsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListSessionStorePermissionsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listSessionStorePermissionsIter(
+    req: ListSessionStorePermissionsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<SessionStorePermission> {
+    const pageReq: ListSessionStorePermissionsRequest = {...req};
+    for (;;) {
+      const resp = await this.listSessionStorePermissions(pageReq, options);
+      for (const item of resp.sessionStorePermissions ?? []) {
         yield item;
       }
       if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
@@ -987,6 +1261,78 @@ export class AgentKitClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalPopSessionItemResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Removes a principal's explicit READ and WRITE grants on a memory store. Only the owner or a workspace admin may revoke permissions. Ownership and inherited access are unaffected. */
+  async revokeMemoryStorePermission(
+    req: RevokeMemoryStorePermissionRequest,
+    options?: CallOptions
+  ): Promise<RevokeMemoryStorePermissionResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/agents/${req.name ?? ''}/permissions:revoke`;
+    const body = marshalRequest(
+      req,
+      marshalRevokeMemoryStorePermissionRequestSchema
+    );
+    let resp: RevokeMemoryStorePermissionResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalRevokeMemoryStorePermissionResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Removes a principal's explicit READ and WRITE grants on a session store. Only the owner or a workspace admin may revoke permissions. Ownership and inherited access are unaffected. */
+  async revokeSessionStorePermission(
+    req: RevokeSessionStorePermissionRequest,
+    options?: CallOptions
+  ): Promise<RevokeSessionStorePermissionResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/agents/${req.name ?? ''}/permissions:revoke`;
+    const body = marshalRequest(
+      req,
+      marshalRevokeSessionStorePermissionRequestSchema
+    );
+    let resp: RevokeSessionStorePermissionResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalRevokeSessionStorePermissionResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {

@@ -973,6 +973,7 @@ export interface SharedDataObject {
    * Use this field for table-like objects (for example: TABLE, VIEW, MATERIALIZED_VIEW, STREAMING_TABLE, FOREIGN_TABLE).
    * For non-table objects (for example: VOLUME, MODEL, NOTEBOOK_FILE, FUNCTION), use `string_shared_as` instead.
    *
+   *
    * Important: For non-table objects, this field must be omitted entirely.
    *
    * Format: Must be a 2-part name `<schema_name>.<table_name>` (e.g., "sales_schema.orders_table")
@@ -1019,6 +1020,7 @@ export interface SharedDataObject {
    * A user-provided alias name for non-table data objects within the share.
    *
    * Use this field for non-table objects (for example: VOLUME, MODEL, NOTEBOOK_FILE, FUNCTION).
+   *
    * For table-like objects (for example: TABLE, VIEW, MATERIALIZED_VIEW, STREAMING_TABLE, FOREIGN_TABLE), use `shared_as` instead.
    *
    * Important: For table-like objects, this field must be omitted entirely.
@@ -1028,6 +1030,7 @@ export interface SharedDataObject {
    * - For FUNCTION: Must be a 2-part name `<schema_name>.<function_name>` (e.g., "udf_schema.calculate_tax")
    * - For MODEL: Must be a 2-part name `<schema_name>.<model_name>` (e.g., "models.prediction_model")
    * - For NOTEBOOK_FILE: Should be the notebook file name (e.g., "analysis_notebook.py")
+   *
    * - All names must contain only alphanumeric characters and underscores
    * - No periods, spaces, forward slashes, or control characters are allowed within each part
    *
@@ -1039,6 +1042,7 @@ export interface SharedDataObject {
    * Examples:
    * - Valid for VOLUME: "data_schema.training_data"
    * - Valid for FUNCTION: "analytics.calculate_revenue"
+   *
    * - Invalid: "catalog.data_schema.training_data" (3 parts not allowed for volumes)
    * - Invalid: "data-schema.training-data" (hyphens not allowed)
    */

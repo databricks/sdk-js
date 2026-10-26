@@ -1,5 +1,11 @@
 # Version changelog
 
+## Release v0.57.5 (2026-10-26)
+
+### Internal Changes
+* Bump `auth` to v0.55.0.
+* Bump `options` to v0.51.4.
+
 ## Release v0.57.4 (2026-10-20)
 
 ### Internal Changes

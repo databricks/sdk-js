@@ -30,6 +30,10 @@ interface DefaultCredentialsOptions {
  * cannot assume a group are skipped. Explicitly selecting such a strategy
  * through `authType` returns an error.
  *
+ * Resolution is deferred until the first `authHeaders()` call. A successful
+ * resolution is reused by later calls, and a failed one is retried by the
+ * next call.
+ *
  * When no profile is provided via `options.profile`, the profile is
  * resolved on first use from the default config file (~/.databrickscfg)
  * and environment variables.

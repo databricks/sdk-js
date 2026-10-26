@@ -45,6 +45,31 @@ export type ManagedMemoryEntryView =
   | (typeof ManagedMemoryEntryView)[keyof typeof ManagedMemoryEntryView]
   | (string & {});
 
+/** Permission level granted on a store. WRITE is a superset of READ. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PermissionLevel = {
+  PERMISSION_LEVEL_UNSPECIFIED: 'PERMISSION_LEVEL_UNSPECIFIED',
+  READ: 'READ',
+  WRITE: 'WRITE',
+} as const;
+export type PermissionLevel =
+  | (typeof PermissionLevel)[keyof typeof PermissionLevel]
+  | (string & {});
+
+/** The kind of Databricks principal a store permission is granted to. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PrincipalType = {
+  /** Default; an unset principal type is rejected. */
+  PRINCIPAL_TYPE_UNSPECIFIED: 'PRINCIPAL_TYPE_UNSPECIFIED',
+  /** A Databricks user, identified by email. */
+  USER: 'USER',
+  /** A Databricks service principal, identified by its application (client) id. */
+  SERVICE_PRINCIPAL: 'SERVICE_PRINCIPAL',
+} as const;
+export type PrincipalType =
+  | (typeof PrincipalType)[keyof typeof PrincipalType]
+  | (string & {});
+
 /** Type of service-managed storage backing a memory store. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const StorageBackendType = {
@@ -248,6 +273,12 @@ export interface GetManagedMemoryStoreRequest {
   name?: string | undefined;
 }
 
+/** Request to retrieve the current caller's permission on a memory store. */
+export interface GetMemoryStorePermissionRequest {
+  /** Resource name in the form `memory-stores/{managed_memory_store_id}`. */
+  name?: string | undefined;
+}
+
 /** Request to get a session. */
 export interface GetSessionRequest {
   /**
@@ -257,11 +288,51 @@ export interface GetSessionRequest {
   name?: string | undefined;
 }
 
+/** Request to retrieve the current caller's permission on a session store. */
+export interface GetSessionStorePermissionRequest {
+  /** Resource name in the form `session-stores/{session_store_id}`. */
+  name?: string | undefined;
+}
+
 /** Request to get a session store. */
 export interface GetSessionStoreRequest {
   /** Resource name in the form `session-stores/{session_store_id}`. */
   name?: string | undefined;
 }
+
+/**
+ * Request to grant a READ or WRITE permission on a memory store to a principal.
+ * Only the store owner or a workspace admin may grant permissions.
+ */
+export interface GrantMemoryStorePermissionRequest {
+  /** Resource name in the form `memory-stores/{managed_memory_store_id}`. */
+  name?: string | undefined;
+  /** Principal to grant the permission to. */
+  principal?: StorePrincipal | undefined;
+  /** Permission level to grant. */
+  permission?: PermissionLevel | undefined;
+}
+
+/** Response from granting a permission on a memory store. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface GrantMemoryStorePermissionResponse {}
+
+/**
+ * Request to grant a READ or WRITE permission on a session store to a principal.
+ * Only the store owner or a workspace admin may grant permissions.
+ */
+export interface GrantSessionStorePermissionRequest {
+  /** Resource name in the form `session-stores/{session_store_id}`. */
+  name?: string | undefined;
+  /** Principal to grant the permission to. */
+  principal?: StorePrincipal | undefined;
+  /** Permission level to grant. */
+  permission?: PermissionLevel | undefined;
+}
+
+/** Response from granting a permission on a session store. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface GrantSessionStorePermissionResponse {}
 
 /**
  * Request to list memory entries for one actor, optionally restricted by session and
@@ -320,6 +391,24 @@ export interface ListManagedMemoryStoresResponse {
   nextPageToken?: string | undefined;
 }
 
+/** Request to list explicit grants on a memory store. Only the owner or a workspace admin may list permissions. */
+export interface ListMemoryStorePermissionsRequest {
+  /** Resource name of the store, in the form `memory-stores/{managed_memory_store_id}`. */
+  parent?: string | undefined;
+  /** Maximum number of permissions to return. Defaults to 100; maximum is 1000. */
+  pageSize?: number | undefined;
+  /** Continuation token from a previous response. */
+  pageToken?: string | undefined;
+}
+
+/** A page of explicit memory store permissions. */
+export interface ListMemoryStorePermissionsResponse {
+  /** Explicit READ or WRITE grants. Implicit owner/admin access and inherited grants are excluded. */
+  memoryStorePermissions?: MemoryStorePermission[] | undefined;
+  /** Token for the next page, omitted when all permissions have been returned. */
+  nextPageToken?: string | undefined;
+}
+
 /** Request to list items in a session. */
 export interface ListSessionItemsRequest {
   /** Maximum number of items to return. Defaults to 10; must be between 1 and 100. */
@@ -344,6 +433,24 @@ export interface ListSessionItemsResponse {
   /** Session items in the requested page. */
   sessionItems?: SessionItem[] | undefined;
   /** Token to retrieve the next page. */
+  nextPageToken?: string | undefined;
+}
+
+/** Request to list explicit grants on a session store. Only the owner or a workspace admin may list permissions. */
+export interface ListSessionStorePermissionsRequest {
+  /** Resource name of the store, in the form `session-stores/{session_store_id}`. */
+  parent?: string | undefined;
+  /** Maximum number of permissions to return. Defaults to 100; maximum is 1000. */
+  pageSize?: number | undefined;
+  /** Continuation token from a previous response. */
+  pageToken?: string | undefined;
+}
+
+/** A page of explicit session store permissions. */
+export interface ListSessionStorePermissionsResponse {
+  /** Explicit READ or WRITE grants. Implicit owner/admin access and inherited grants are excluded. */
+  sessionStorePermissions?: SessionStorePermission[] | undefined;
+  /** Token for the next page, omitted when all permissions have been returned. */
   nextPageToken?: string | undefined;
 }
 
@@ -401,6 +508,7 @@ export interface ManagedMemoryEntry {
   /**
    * Resource name in the form
    * `memory-stores/{managed_memory_store_id}/entries/{managed_memory_entry_id}`.
+   * Required for updates; assigned by the service on creation.
    */
   name?: string | undefined;
   /** Customer-provided identifier for the actor whose memory this entry represents. */
@@ -468,6 +576,14 @@ export interface ManagedMemoryStore {
   updateTime?: Temporal.Instant | undefined;
 }
 
+/** A principal's permission on a memory store. */
+export interface MemoryStorePermission {
+  /** The principal whose permission is reported. */
+  principal?: StorePrincipal | undefined;
+  /** The permission level. WRITE includes READ; PERMISSION_LEVEL_UNSPECIFIED means neither is available. */
+  permission?: PermissionLevel | undefined;
+}
+
 /** Request to pop an item from a session. */
 export interface PopSessionItemRequest {
   /**
@@ -482,6 +598,30 @@ export interface PopSessionItemResponse {
   /** Removed item, if any. */
   item?: SessionItem | undefined;
 }
+
+/** Request to revoke all explicit access to a memory store. Only the owner or a workspace admin may revoke permissions. */
+export interface RevokeMemoryStorePermissionRequest {
+  /** Resource name in the form `memory-stores/{managed_memory_store_id}`. */
+  name?: string | undefined;
+  /** Principal whose READ and WRITE grants will be removed. */
+  principal?: StorePrincipal | undefined;
+}
+
+/** Response from revoking a memory store permission. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface RevokeMemoryStorePermissionResponse {}
+
+/** Request to revoke all explicit access to a session store. Only the owner or a workspace admin may revoke permissions. */
+export interface RevokeSessionStorePermissionRequest {
+  /** Resource name in the form `session-stores/{session_store_id}`. */
+  name?: string | undefined;
+  /** Principal whose READ and WRITE grants will be removed. */
+  principal?: StorePrincipal | undefined;
+}
+
+/** Response from revoking a session store permission. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface RevokeSessionStorePermissionResponse {}
 
 /**
  * Request to search memory entries by text query for one actor.
@@ -616,12 +756,30 @@ export interface SessionStore {
   name?: string | undefined;
 }
 
+/** A principal's permission on a session store. */
+export interface SessionStorePermission {
+  /** The principal whose permission is reported. */
+  principal?: StorePrincipal | undefined;
+  /** The permission level. WRITE includes READ; PERMISSION_LEVEL_UNSPECIFIED means neither is available. */
+  permission?: PermissionLevel | undefined;
+}
+
 /** Service-managed storage backing a memory store. */
 export interface StorageBackend {
   /** Type of the storage backend. */
   backendType?: StorageBackendType | undefined;
   /** Backend-specific identifier. For Lakebase, this is the project ID. */
   backendId?: string | undefined;
+}
+
+/**
+ * A principal a store permission is granted to. `name` is the principal's Lakebase
+ * identifier: a user's email or a service principal's application (client) id.
+ */
+export interface StorePrincipal {
+  name?: string | undefined;
+  /** The kind of principal. Required unless the deprecated type alias is supplied. */
+  principalType?: PrincipalType | undefined;
 }
 
 /** Request to update a memory entry. */
@@ -698,6 +856,12 @@ export const unmarshalForkSessionResponseSchema: z.ZodType<ForkSessionResponse> 
       session: d.session,
     }));
 
+export const unmarshalGrantMemoryStorePermissionResponseSchema: z.ZodType<GrantMemoryStorePermissionResponse> =
+  z.object({});
+
+export const unmarshalGrantSessionStorePermissionResponseSchema: z.ZodType<GrantSessionStorePermissionResponse> =
+  z.object({});
+
 export const unmarshalListManagedMemoryEntriesResponseSchema: z.ZodType<ListManagedMemoryEntriesResponse> =
   z
     .object({
@@ -724,6 +888,19 @@ export const unmarshalListManagedMemoryStoresResponseSchema: z.ZodType<ListManag
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalListMemoryStorePermissionsResponseSchema: z.ZodType<ListMemoryStorePermissionsResponse> =
+  z
+    .object({
+      memory_store_permissions: z
+        .array(z.lazy(() => unmarshalMemoryStorePermissionSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      memoryStorePermissions: d.memory_store_permissions,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalListSessionItemsResponseSchema: z.ZodType<ListSessionItemsResponse> =
   z
     .object({
@@ -734,6 +911,19 @@ export const unmarshalListSessionItemsResponseSchema: z.ZodType<ListSessionItems
     })
     .transform(d => ({
       sessionItems: d.session_items,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalListSessionStorePermissionsResponseSchema: z.ZodType<ListSessionStorePermissionsResponse> =
+  z
+    .object({
+      session_store_permissions: z
+        .array(z.lazy(() => unmarshalSessionStorePermissionSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      sessionStorePermissions: d.session_store_permissions,
       nextPageToken: d.next_page_token,
     }));
 
@@ -839,6 +1029,17 @@ export const unmarshalManagedMemoryStoreSchema: z.ZodType<ManagedMemoryStore> =
       updateTime: d.update_time,
     }));
 
+export const unmarshalMemoryStorePermissionSchema: z.ZodType<MemoryStorePermission> =
+  z
+    .object({
+      principal: z.lazy(() => unmarshalStorePrincipalSchema).optional(),
+      permission: z.string().optional(),
+    })
+    .transform(d => ({
+      principal: d.principal,
+      permission: d.permission,
+    }));
+
 export const unmarshalPopSessionItemResponseSchema: z.ZodType<PopSessionItemResponse> =
   z
     .object({
@@ -847,6 +1048,12 @@ export const unmarshalPopSessionItemResponseSchema: z.ZodType<PopSessionItemResp
     .transform(d => ({
       item: d.item,
     }));
+
+export const unmarshalRevokeMemoryStorePermissionResponseSchema: z.ZodType<RevokeMemoryStorePermissionResponse> =
+  z.object({});
+
+export const unmarshalRevokeSessionStorePermissionResponseSchema: z.ZodType<RevokeSessionStorePermissionResponse> =
+  z.object({});
 
 export const unmarshalSearchManagedMemoryEntriesResponseSchema: z.ZodType<SearchManagedMemoryEntriesResponse> =
   z
@@ -937,6 +1144,17 @@ export const unmarshalSessionStoreSchema: z.ZodType<SessionStore> = z
     name: d.name,
   }));
 
+export const unmarshalSessionStorePermissionSchema: z.ZodType<SessionStorePermission> =
+  z
+    .object({
+      principal: z.lazy(() => unmarshalStorePrincipalSchema).optional(),
+      permission: z.string().optional(),
+    })
+    .transform(d => ({
+      principal: d.principal,
+      permission: d.permission,
+    }));
+
 export const unmarshalStorageBackendSchema: z.ZodType<StorageBackend> = z
   .object({
     backend_type: z.string().optional(),
@@ -945,6 +1163,16 @@ export const unmarshalStorageBackendSchema: z.ZodType<StorageBackend> = z
   .transform(d => ({
     backendType: d.backend_type,
     backendId: d.backend_id,
+  }));
+
+export const unmarshalStorePrincipalSchema: z.ZodType<StorePrincipal> = z
+  .object({
+    name: z.string().optional(),
+    principal_type: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    principalType: d.principal_type,
   }));
 
 export const marshalAppendSessionItemsRequestSchema: z.ZodType = z
@@ -997,6 +1225,30 @@ export const marshalForkSessionRequestSchema: z.ZodType = z
     actor_id: d.actorId,
     metadata: d.metadata,
     parent: d.parent,
+  }));
+
+export const marshalGrantMemoryStorePermissionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    principal: z.lazy(() => marshalStorePrincipalSchema).optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    principal: d.principal,
+    permission: d.permission,
+  }));
+
+export const marshalGrantSessionStorePermissionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    principal: z.lazy(() => marshalStorePrincipalSchema).optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    principal: d.principal,
+    permission: d.permission,
   }));
 
 export const marshalManagedMemoryEntrySchema: z.ZodType = z
@@ -1065,6 +1317,26 @@ export const marshalPopSessionItemRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     parent: d.parent,
+  }));
+
+export const marshalRevokeMemoryStorePermissionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    principal: z.lazy(() => marshalStorePrincipalSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    principal: d.principal,
+  }));
+
+export const marshalRevokeSessionStorePermissionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    principal: z.lazy(() => marshalStorePrincipalSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    principal: d.principal,
   }));
 
 export const marshalSearchManagedMemoryEntriesRequestSchema: z.ZodType = z
@@ -1171,6 +1443,16 @@ export const marshalStorageBackendSchema: z.ZodType = z
   .transform(d => ({
     backend_type: d.backendType,
     backend_id: d.backendId,
+  }));
+
+export const marshalStorePrincipalSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    principalType: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    principal_type: d.principalType,
   }));
 
 const managedMemoryEntryFieldMaskSchema: FieldMaskSchema = {

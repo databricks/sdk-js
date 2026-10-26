@@ -2367,7 +2367,12 @@ export interface Environment {
   environmentVersion?: string | undefined;
   /** List of java dependencies. Each dependency is a string representing a java library path. For example: `/Volumes/path/to/test.jar`. */
   javaDependencies?: string[] | undefined;
-  /** File path of pyproject.toml file that defines the project-scoped environment. */
+  /**
+   * Path to the `pyproject.toml` file that defines the project environment.
+   * This field cannot be combined with `environment_version`, `base_environment`, dependency fields,
+   * or any other environment-source fields. Set the environment version and dependencies in `pyproject.toml` instead.
+   * For more information, see the serverless dependencies documentation.
+   */
   projectEnvironment?: string | undefined;
 }
 
@@ -5060,6 +5065,33 @@ export interface SqlConditionState {
   latestConditionEvaluationSqlSessionId?: string | undefined;
 }
 
+export interface SqlStatementQueryResult {
+  /** The metadata for each column in the result set. */
+  columns?: SqlStatementQueryResult_Column[] | undefined;
+  /** The rows returned by the query. */
+  rows?: SqlStatementQueryResult_Row[] | undefined;
+  /** Whether the result set was truncated. */
+  truncated?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface SqlStatementQueryResult_Column {
+  /** The name of the column. */
+  name?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface SqlStatementQueryResult_Row {
+  /** The values in the row, ordered to match the columns. */
+  values?: SqlStatementQueryResult_Row_RowValue[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface SqlStatementQueryResult_Row_RowValue {
+  /** The value rendered as a string. */
+  stringValue?: string | undefined;
+}
+
 export interface SqlTask {
   /** Parameters to be used for each run of this job. The SQL alert task does not support custom parameters. */
   parameters?: Record<string, string> | undefined;
@@ -5129,6 +5161,18 @@ export interface SqlTask_SqlDashboardWidgetOutput {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface SqlTask_SqlFileOutput {
+  /** The text of the SQL query. */
+  queryText?: string | undefined;
+  /** Information about SQL statements executed in the run. */
+  sqlStatements?: SqlTask_SqlStatementOutput[] | undefined;
+  /** The result of the executed SQL statement, if available. */
+  queryResult?: SqlStatementQueryResult | undefined;
+  /** The canonical identifier of the SQL warehouse. */
+  warehouseId?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SqlTask_SqlOutput {
   sqlOutputType?:
     | {
@@ -5146,6 +5190,11 @@ export interface SqlTask_SqlOutput {
         /** The output of a SQL alert task, if available. */
         alertOutput: SqlTask_SqlAlertOutput;
       }
+    | {
+        $case: 'fileOutput';
+        /** The output of a SQL file task, if available. */
+        fileOutput: SqlTask_SqlFileOutput;
+      }
     | undefined;
 }
 
@@ -5162,7 +5211,7 @@ export interface SqlTask_SqlQueryOutput {
   endpointId?: string | undefined;
   /** Information about SQL statements executed in the run. */
   sqlStatements?: SqlTask_SqlStatementOutput[] | undefined;
-  /** The link to find the output results. */
+  /** Deprecated. The link to find the output results, which are only accessible from the UI. */
   outputLink?: string | undefined;
   /** The canonical identifier of the SQL warehouse. */
   warehouseId?: string | undefined;
@@ -8725,6 +8774,57 @@ export const unmarshalSqlConditionStateSchema: z.ZodType<SqlConditionState> = z
       d.latest_condition_evaluation_sql_session_id,
   }));
 
+export const unmarshalSqlStatementQueryResultSchema: z.ZodType<SqlStatementQueryResult> =
+  z
+    .object({
+      columns: z
+        .array(z.lazy(() => unmarshalSqlStatementQueryResult_ColumnSchema))
+        .optional(),
+      rows: z
+        .array(z.lazy(() => unmarshalSqlStatementQueryResult_RowSchema))
+        .optional(),
+      truncated: z.boolean().optional(),
+    })
+    .transform(d => ({
+      columns: d.columns,
+      rows: d.rows,
+      truncated: d.truncated,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalSqlStatementQueryResult_ColumnSchema: z.ZodType<SqlStatementQueryResult_Column> =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalSqlStatementQueryResult_RowSchema: z.ZodType<SqlStatementQueryResult_Row> =
+  z
+    .object({
+      values: z
+        .array(
+          z.lazy(() => unmarshalSqlStatementQueryResult_Row_RowValueSchema)
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      values: d.values,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalSqlStatementQueryResult_Row_RowValueSchema: z.ZodType<SqlStatementQueryResult_Row_RowValue> =
+  z
+    .object({
+      string_value: z.string().optional(),
+    })
+    .transform(d => ({
+      stringValue: d.string_value,
+    }));
+
 export const unmarshalSqlTaskSchema: z.ZodType<SqlTask> = z
   .object({
     parameters: z.record(z.string(), z.string()).optional(),
@@ -8812,6 +8912,26 @@ export const unmarshalSqlTask_SqlDashboardWidgetOutputSchema: z.ZodType<SqlTask_
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalSqlTask_SqlFileOutputSchema: z.ZodType<SqlTask_SqlFileOutput> =
+  z
+    .object({
+      query_text: z.string().optional(),
+      sql_statements: z
+        .array(z.lazy(() => unmarshalSqlTask_SqlStatementOutputSchema))
+        .optional(),
+      query_result: z
+        .lazy(() => unmarshalSqlStatementQueryResultSchema)
+        .optional(),
+      warehouse_id: z.string().optional(),
+    })
+    .transform(d => ({
+      queryText: d.query_text,
+      sqlStatements: d.sql_statements,
+      queryResult: d.query_result,
+      warehouseId: d.warehouse_id,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalSqlTask_SqlOutputSchema: z.ZodType<SqlTask_SqlOutput> = z
   .object({
     query_output: z
@@ -8823,6 +8943,7 @@ export const unmarshalSqlTask_SqlOutputSchema: z.ZodType<SqlTask_SqlOutput> = z
     alert_output: z
       .lazy(() => unmarshalSqlTask_SqlAlertOutputSchema)
       .optional(),
+    file_output: z.lazy(() => unmarshalSqlTask_SqlFileOutputSchema).optional(),
   })
   .transform(d => ({
     sqlOutputType:
@@ -8835,7 +8956,9 @@ export const unmarshalSqlTask_SqlOutputSchema: z.ZodType<SqlTask_SqlOutput> = z
             }
           : d.alert_output !== undefined
             ? {$case: 'alertOutput' as const, alertOutput: d.alert_output}
-            : undefined,
+            : d.file_output !== undefined
+              ? {$case: 'fileOutput' as const, fileOutput: d.file_output}
+              : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

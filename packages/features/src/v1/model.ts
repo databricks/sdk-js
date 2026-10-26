@@ -620,6 +620,27 @@ export type CronSchedule_Mode =
   | (typeof CronSchedule_Mode)[keyof typeof CronSchedule_Mode]
   | (string & {});
 
+/** Lifecycle state of a materialization set operation. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const MaterializationSetOperationMetadata_State = {
+  /** The state is unspecified. */
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  /** The operation is pending. */
+  PENDING: 'PENDING',
+  /** The operation is running. */
+  RUNNING: 'RUNNING',
+  /** The operation succeeded. */
+  SUCCEEDED: 'SUCCEEDED',
+  /** The operation failed. */
+  FAILED: 'FAILED',
+  /** The operation was cancelled. */
+  CANCELLED: 'CANCELLED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type MaterializationSetOperationMetadata_State =
+  | (typeof MaterializationSetOperationMetadata_State)[keyof typeof MaterializationSetOperationMetadata_State]
+  | (string & {});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const MaterializedFeature_PipelineScheduleState = {
   /** Default value, not used. */
@@ -951,6 +972,22 @@ export interface CreateKafkaConfigRequest {
   kafkaConfig?: KafkaConfig | undefined;
 }
 
+export interface CreateMaterializationSetRequest {
+  /**
+   * The materialization set to create. Supply materialization_set_id to choose the identifier;
+   * leave it unset to have one assigned.
+   */
+  materializationSet?: MaterializationSet | undefined;
+  /**
+   * Idempotency token for the request. A second request carrying a token that has already been
+   * used returns the operation the first one created, whatever state it reached, and creates no
+   * second set. The token is not checked against the rest of the request, so reusing one for a
+   * different set returns the original operation rather than an error. Omit it and each request
+   * creates its own set.
+   */
+  requestId?: string | undefined;
+}
+
 export interface CreateMaterializedFeatureRequest {
   /** The materialized feature to create. */
   materializedFeature?: MaterializedFeature | undefined;
@@ -1045,6 +1082,23 @@ export interface DeleteFeatureRequest {
 export interface DeleteKafkaConfigRequest {
   /** Name of the Kafka config to delete. */
   name?: string | undefined;
+}
+
+export interface DeleteMaterializationSetRequest {
+  /** The ID of the materialization set to delete. */
+  materializationSetId?: string | undefined;
+  /**
+   * Return success instead of NOT_FOUND when the set does not exist, so a repeated destroy is
+   * idempotent.
+   */
+  allowMissing?: boolean | undefined;
+  /**
+   * Idempotency token for the request. A second request carrying a token that has already been
+   * used returns the operation the first one created, whatever state it reached, and deletes
+   * nothing further. The token is not checked against the rest of the request. Omit it and each
+   * request deletes independently.
+   */
+  requestId?: string | undefined;
 }
 
 export interface DeleteMaterializedFeatureRequest {
@@ -1253,6 +1307,11 @@ export interface GetFeatureRequest {
 export interface GetKafkaConfigRequest {
   /** Name of the Kafka config to get. */
   name?: string | undefined;
+}
+
+export interface GetMaterializationSetRequest {
+  /** The ID of the materialization set. */
+  materializationSetId?: string | undefined;
 }
 
 export interface GetMaterializedFeatureRequest {
@@ -1628,6 +1687,74 @@ export interface MaterializationNotifications {
   onFailure?: MaterializationFailureNotification | undefined;
 }
 
+/** A group of materialized features created and managed as a single unit. */
+export interface MaterializationSet {
+  /** Server-assigned unique identifier for the materialization set. */
+  materializationSetId?: string | undefined;
+  /**
+   * The materialized features in this set. Order is not significant.
+   * Updating the set with a materialized feature removed from this set will cause it to be deleted.
+   */
+  materializedFeatures?: MaterializedFeature[] | undefined;
+}
+
+/**
+ * What a partly failed DeleteMaterializationSet got through, attached to the error so a caller can
+ * tell which materialized feature members are gone and which ones still need attention. The set
+ * itself is left in place whenever any member failed, so a retry can still find the members.
+ */
+export interface MaterializationSetDeletionProgress {
+  /** Members that are no longer materialized, including any that were already gone. */
+  deletedMaterializedFeatureIds?: string[] | undefined;
+  /** Members that could not be deleted, one entry each. */
+  failedMaterializedFeatures?: MaterializedFeatureChangeFailure[] | undefined;
+}
+
+/**
+ * Progress of a materialization set operation. Shared by create, update and delete, because
+ * databricks.longrunning freezes a method's metadata type once it ships.
+ */
+export interface MaterializationSetOperationMetadata {
+  /** Full names of the features the set materializes, one entry per feature. */
+  featureFullNames?: string[] | undefined;
+  /** Current state of the operation. */
+  state?: MaterializationSetOperationMetadata_State | undefined;
+  /** Time at which the operation was requested. */
+  createTime?: Temporal.Instant | undefined;
+  /** ID of the materialization set the operation targets. */
+  materializationSetId?: string | undefined;
+  /**
+   * Records which members a set change applied to and which it did not. It is written once the
+   * operation settles, so a polled operation shows the outcome of a partly failed change. Unset for
+   * a creation, which has no partial outcome.
+   */
+  progress?:
+    | {
+        $case: 'deletionProgress';
+        /** Set by a DeleteMaterializationSet operation. */
+        deletionProgress: MaterializationSetDeletionProgress;
+      }
+    | {
+        $case: 'updateProgress';
+        /** Set by an UpdateMaterializationSet operation. */
+        updateProgress: MaterializationSetUpdateProgress;
+      }
+    | undefined;
+}
+
+/**
+ * What a partly failed UpdateMaterializationSet got through, attached to the error so a caller can
+ * tell which materialized feature members already changed and which ones did not and why it failed.
+ */
+export interface MaterializationSetUpdateProgress {
+  /** Materialized feature members whose mutable state was updated. */
+  updatedMaterializedFeatureIds?: string[] | undefined;
+  /** Materialized feature members that were deleted from the materialization set. */
+  deletedMaterializedFeatureIds?: string[] | undefined;
+  /** Materialized feature members that could not be updated, one entry each. */
+  failedMaterializedFeatures?: MaterializedFeatureChangeFailure[] | undefined;
+}
+
 /** Recipients to notify when a materialization run succeeds. */
 export interface MaterializationSuccessNotification {
   /** Email addresses to notify. */
@@ -1731,6 +1858,21 @@ export interface MaterializedFeature {
    * materialized in the same pipeline will share the same notification.
    */
   notifications?: MaterializationNotifications | undefined;
+  /**
+   * The materialization set this materialized feature was created for, through DABs or
+   * direct-engine creation. Unset for a materialized feature that was not created as part of a set.
+   */
+  materializationSetId?: string | undefined;
+}
+
+/** Why one materialization set member could not be changed. */
+export interface MaterializedFeatureChangeFailure {
+  /** The member that could not be changed. */
+  materializedFeatureId?: string | undefined;
+  /** Databricks error code name of the failure, for example "RESOURCE_CONFLICT". */
+  errorCode?: string | undefined;
+  /** The failure's message. */
+  message?: string | undefined;
 }
 
 /** Computes the maximum value. */
@@ -1898,13 +2040,15 @@ export interface PurgeFeatureEntitiesMetadata {
   state?: PurgeFeatureEntitiesMetadata_State | undefined;
   /** ID of the job that executes this purge. */
   jobId?: bigint | undefined;
+  /** Whether this purge deletes matching rows instead of setting feature values to null. */
+  deleteRows?: boolean | undefined;
 }
 
 /** Request to purge materialized feature values for entities listed in a Unity Catalog Delta table. */
 export interface PurgeFeatureEntitiesRequest {
   /**
    * Fully qualified names of the features to purge. At least one nonempty feature name is required.
-   * A request may contain at most 10000 features; submit additional features in separate requests.
+   * A request may contain at most 500 features; submit additional features in separate requests.
    * Duplicate features are rejected.
    */
   features?: string[] | undefined;
@@ -1937,6 +2081,12 @@ export interface PurgeFeatureEntitiesRequest {
    * purge. If not specified, a default budget policy may be applied.
    */
   budgetPolicyId?: string | undefined;
+  /**
+   * If false feature values are set to null on purge but rows are not deleted. If true then the full rows containing entities are deleted. Defaults to false.
+   * When true, the request must include every feature which shares the same `table_name` property in their MaterializedFeature.
+   * Features from multiple tables may be included if all features materialized in each table are included.
+   */
+  deleteRows?: boolean | undefined;
 }
 
 /** Result of a completed feature entity purge. */
@@ -2110,8 +2260,8 @@ export interface SdpSource {
   /**
    * The full three-part names of the tables the pipeline reads from. Required to materialize this
    * feature with a TableTrigger, which starts a run when these tables update. Each table must exist
-   * when the feature is created. After the pipeline runs, Feature Store checks that it reads from
-   * these tables, and the run fails if it doesn't. At most 100 tables.
+   * when the feature is created. Feature Store doesn't confirm that the pipeline reads from these
+   * tables. At most 100 tables.
    */
   inputTables?: string[] | undefined;
   /**
@@ -2476,6 +2626,20 @@ export interface UpdateKafkaConfigRequest {
   kafkaConfig?: KafkaConfig | undefined;
   /** The list of fields to update. */
   updateMask?: FieldMask<KafkaConfig> | undefined;
+}
+
+export interface UpdateMaterializationSetRequest {
+  /** The desired state of the updated materialization set. materialization_set_id selects the set. */
+  materializationSet?: MaterializationSet | undefined;
+  /** The fields to update. Only 'materialized_features' is supported. */
+  updateMask?: FieldMask<MaterializationSet> | undefined;
+  /**
+   * Idempotency token for the request. A second request carrying a token that has already been
+   * used returns the operation the first one created, whatever state it reached, and changes
+   * nothing further. The token is not checked against the rest of the request. Omit it and each
+   * request updates independently.
+   */
+  requestId?: string | undefined;
 }
 
 export interface UpdateMaterializedFeatureRequest {
@@ -3329,6 +3493,83 @@ export const unmarshalMaterializationNotificationsSchema: z.ZodType<Materializat
       onFailure: d.on_failure,
     }));
 
+export const unmarshalMaterializationSetSchema: z.ZodType<MaterializationSet> =
+  z
+    .object({
+      materialization_set_id: z.string().optional(),
+      materialized_features: z
+        .array(z.lazy(() => unmarshalMaterializedFeatureSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      materializationSetId: d.materialization_set_id,
+      materializedFeatures: d.materialized_features,
+    }));
+
+export const unmarshalMaterializationSetDeletionProgressSchema: z.ZodType<MaterializationSetDeletionProgress> =
+  z
+    .object({
+      deleted_materialized_feature_ids: z.array(z.string()).optional(),
+      failed_materialized_features: z
+        .array(z.lazy(() => unmarshalMaterializedFeatureChangeFailureSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      deletedMaterializedFeatureIds: d.deleted_materialized_feature_ids,
+      failedMaterializedFeatures: d.failed_materialized_features,
+    }));
+
+export const unmarshalMaterializationSetOperationMetadataSchema: z.ZodType<MaterializationSetOperationMetadata> =
+  z
+    .object({
+      feature_full_names: z.array(z.string()).optional(),
+      state: z.string().optional(),
+      create_time: z
+        .string()
+        .transform(s => Temporal.Instant.from(s))
+        .optional(),
+      materialization_set_id: z.string().optional(),
+      deletion_progress: z
+        .lazy(() => unmarshalMaterializationSetDeletionProgressSchema)
+        .optional(),
+      update_progress: z
+        .lazy(() => unmarshalMaterializationSetUpdateProgressSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      featureFullNames: d.feature_full_names,
+      state: d.state,
+      createTime: d.create_time,
+      materializationSetId: d.materialization_set_id,
+      progress:
+        d.deletion_progress !== undefined
+          ? {
+              $case: 'deletionProgress' as const,
+              deletionProgress: d.deletion_progress,
+            }
+          : d.update_progress !== undefined
+            ? {
+                $case: 'updateProgress' as const,
+                updateProgress: d.update_progress,
+              }
+            : undefined,
+    }));
+
+export const unmarshalMaterializationSetUpdateProgressSchema: z.ZodType<MaterializationSetUpdateProgress> =
+  z
+    .object({
+      updated_materialized_feature_ids: z.array(z.string()).optional(),
+      deleted_materialized_feature_ids: z.array(z.string()).optional(),
+      failed_materialized_features: z
+        .array(z.lazy(() => unmarshalMaterializedFeatureChangeFailureSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      updatedMaterializedFeatureIds: d.updated_materialized_feature_ids,
+      deletedMaterializedFeatureIds: d.deleted_materialized_feature_ids,
+      failedMaterializedFeatures: d.failed_materialized_features,
+    }));
+
 export const unmarshalMaterializationSuccessNotificationSchema: z.ZodType<MaterializationSuccessNotification> =
   z
     .object({
@@ -3375,6 +3616,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
       notifications: z
         .lazy(() => unmarshalMaterializationNotificationsSchema)
         .optional(),
+      materialization_set_id: z.string().optional(),
     })
     .transform(d => ({
       materializedFeatureId: d.materialized_feature_id,
@@ -3416,6 +3658,20 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
       pipelineId: d.pipeline_id,
       jobId: d.job_id,
       notifications: d.notifications,
+      materializationSetId: d.materialization_set_id,
+    }));
+
+export const unmarshalMaterializedFeatureChangeFailureSchema: z.ZodType<MaterializedFeatureChangeFailure> =
+  z
+    .object({
+      materialized_feature_id: z.string().optional(),
+      error_code: z.string().optional(),
+      message: z.string().optional(),
+    })
+    .transform(d => ({
+      materializedFeatureId: d.materialized_feature_id,
+      errorCode: d.error_code,
+      message: d.message,
     }));
 
 export const unmarshalMaxFunctionSchema: z.ZodType<MaxFunction> = z
@@ -3530,6 +3786,7 @@ export const unmarshalPurgeFeatureEntitiesMetadataSchema: z.ZodType<PurgeFeature
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
+      delete_rows: z.boolean().optional(),
     })
     .transform(d => ({
       features: d.features,
@@ -3538,6 +3795,7 @@ export const unmarshalPurgeFeatureEntitiesMetadataSchema: z.ZodType<PurgeFeature
       createTime: d.create_time,
       state: d.state,
       jobId: d.job_id,
+      deleteRows: d.delete_rows,
     }));
 
 export const unmarshalPurgeFeatureEntitiesResponseSchema: z.ZodType<PurgeFeatureEntitiesResponse> =
@@ -4840,6 +5098,18 @@ export const marshalMaterializationNotificationsSchema: z.ZodType = z
     on_failure: d.onFailure,
   }));
 
+export const marshalMaterializationSetSchema: z.ZodType = z
+  .object({
+    materializationSetId: z.string().optional(),
+    materializedFeatures: z
+      .array(z.lazy(() => marshalMaterializedFeatureSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    materialization_set_id: d.materializationSetId,
+    materialized_features: d.materializedFeatures,
+  }));
+
 export const marshalMaterializationSuccessNotificationSchema: z.ZodType = z
   .object({
     emailAddresses: z.array(z.string()).optional(),
@@ -4898,6 +5168,7 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     notifications: z
       .lazy(() => marshalMaterializationNotificationsSchema)
       .optional(),
+    materializationSetId: z.string().optional(),
   })
   .transform(d => ({
     materialized_feature_id: d.materializedFeatureId,
@@ -4928,6 +5199,7 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     pipeline_id: d.pipelineId,
     job_id: d.jobId,
     notifications: d.notifications,
+    materialization_set_id: d.materializationSetId,
   }));
 
 export const marshalMaxFunctionSchema: z.ZodType = z
@@ -5018,6 +5290,7 @@ export const marshalPurgeFeatureEntitiesRequestSchema: z.ZodType = z
     requestId: z.string().optional(),
     tags: z.record(z.string(), z.string()).optional(),
     budgetPolicyId: z.string().optional(),
+    deleteRows: z.boolean().optional(),
   })
   .transform(d => ({
     features: d.features,
@@ -5027,6 +5300,7 @@ export const marshalPurgeFeatureEntitiesRequestSchema: z.ZodType = z
     request_id: d.requestId,
     tags: d.tags,
     budget_policy_id: d.budgetPolicyId,
+    delete_rows: d.deleteRows,
   }));
 
 export const marshalRequestSourceSchema: z.ZodType = z
@@ -5866,6 +6140,20 @@ const materializationNotificationsFieldMaskSchema: FieldMaskSchema = {
   },
 };
 
+const materializationSetFieldMaskSchema: FieldMaskSchema = {
+  materializationSetId: {wire: 'materialization_set_id'},
+  materializedFeatures: {wire: 'materialized_features'},
+};
+
+export function materializationSetFieldMask(
+  ...paths: string[]
+): FieldMask<MaterializationSet> {
+  return FieldMask.build<MaterializationSet>(
+    paths,
+    materializationSetFieldMaskSchema
+  );
+}
+
 const materializationSuccessNotificationFieldMaskSchema: FieldMaskSchema = {
   destinationIds: {wire: 'destination_ids'},
   emailAddresses: {wire: 'email_addresses'},
@@ -5883,6 +6171,7 @@ const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
   jobId: {wire: 'job_id'},
   lastMaterializationTime: {wire: 'last_materialization_time'},
   latestBackfillOperation: {wire: 'latest_backfill_operation'},
+  materializationSetId: {wire: 'materialization_set_id'},
   materializedFeatureId: {wire: 'materialized_feature_id'},
   notifications: {
     wire: 'notifications',

@@ -46,6 +46,9 @@ export interface U2mCredentialsOptions {
  * Creates a TokenCredentials that obtains Databricks access tokens by
  * shelling out to the Databricks CLI.
  *
+ * The returned credentials do not cache tokens or retry on failure. Wrap
+ * them with `newCachedTokenProvider` as needed.
+ *
  * @param options - CLI profile (required) and optional CLI binary path.
  * @throws U2mCredentialsError when `profile` is empty, or when the CLI cannot
  * be located, is out of date, or fails to return a usable token.

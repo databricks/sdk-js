@@ -7,7 +7,10 @@
 export {
   FeaturesClient,
   BackfillFeaturesOperation,
+  CreateMaterializationSetOperation,
+  DeleteMaterializationSetOperation,
   PurgeFeatureEntitiesOperation,
+  UpdateMaterializationSetOperation,
 } from './client';
 
 export {
@@ -17,6 +20,7 @@ export {
   SdpSourceState,
   BackfillOperationMetadata_State,
   CronSchedule_Mode,
+  MaterializationSetOperationMetadata_State,
   MaterializedFeature_PipelineScheduleState,
   PurgeFeatureEntitiesMetadata_State,
   PurgeFeatureEntitiesResult_State,
@@ -46,6 +50,7 @@ export type {
   CountFunction,
   CreateFeatureRequest,
   CreateKafkaConfigRequest,
+  CreateMaterializationSetRequest,
   CreateMaterializedFeatureRequest,
   CreateStreamRequest,
   CronSchedule,
@@ -53,6 +58,7 @@ export type {
   DataSource,
   DeleteFeatureRequest,
   DeleteKafkaConfigRequest,
+  DeleteMaterializationSetRequest,
   DeleteMaterializedFeatureRequest,
   DeleteStreamRequest,
   DeltaTableSource,
@@ -71,6 +77,7 @@ export type {
   FunctionExtraParameter,
   GetFeatureRequest,
   GetKafkaConfigRequest,
+  GetMaterializationSetRequest,
   GetMaterializedFeatureRequest,
   GetOperationRequest,
   GetStreamRequest,
@@ -97,8 +104,13 @@ export type {
   ListStreamsResponse,
   MaterializationFailureNotification,
   MaterializationNotifications,
+  MaterializationSet,
+  MaterializationSetDeletionProgress,
+  MaterializationSetOperationMetadata,
+  MaterializationSetUpdateProgress,
   MaterializationSuccessNotification,
   MaterializedFeature,
+  MaterializedFeatureChangeFailure,
   MaxFunction,
   MinFunction,
   MtlsConfig,
@@ -139,6 +151,7 @@ export type {
   TumblingWindow,
   UpdateFeatureRequest,
   UpdateKafkaConfigRequest,
+  UpdateMaterializationSetRequest,
   UpdateMaterializedFeatureRequest,
   UpdateStreamRequest,
   VarPopFunction,
@@ -148,6 +161,7 @@ export type {
 export {
   featureFieldMask,
   kafkaConfigFieldMask,
+  materializationSetFieldMask,
   materializedFeatureFieldMask,
   streamFieldMask,
 } from './model';
