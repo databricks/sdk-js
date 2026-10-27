@@ -114,9 +114,9 @@ export interface Alert {
   schedule?: CronSchedule | undefined;
   /** Indicates whether the query is trashed. */
   lifecycleState?: AlertLifecycleState | undefined;
-  /** Custom summary for the alert. support mustache template. */
+  /** Custom summary for the alert. Interpreted according to `custom_template_format`. */
   customSummary?: string | undefined;
-  /** Custom description for the alert. support mustache template. */
+  /** Custom description for the alert. Interpreted according to `custom_template_format`. */
   customDescription?: string | undefined;
   /**
    * Specifies the identity that will be used to run the alert.

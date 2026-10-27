@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-budgetpolicy",
-  "version": "0.51.4",
+  "version": "0.51.5",
   "description": "",
   "type": "module",
   "exports": {
@@ -22,8 +22,8 @@
     "format:check": "prettier --check \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "test": "echo 'no tests'",
-    "test:browser": "echo 'no tests'"
+    "test": "vitest run --passWithNoTests",
+    "test:browser": "vitest run --config vitest.config.browser.mjs --passWithNoTests"
   },
   "author": "Databricks",
   "license": "Apache-2.0",
