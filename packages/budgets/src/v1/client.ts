@@ -18,24 +18,30 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   BudgetConfiguration,
+  BudgetSpendStatus,
   CreateBudgetConfigurationRequest,
   CreateBudgetConfigurationResponse,
   DeleteBudgetConfigurationRequest,
   DeleteBudgetConfigurationResponse,
   GetBudgetConfigurationRequest,
   GetBudgetConfigurationResponse,
+  GetBudgetSpendStatusRequest,
   ListBudgetConfigurationsRequest,
   ListBudgetConfigurationsResponse,
+  ListBudgetSpendStatusesRequest,
+  ListBudgetSpendStatusesResponse,
   UpdateBudgetConfigurationRequest,
   UpdateBudgetConfigurationResponse,
 } from './model';
 import {
   marshalCreateBudgetConfigurationRequestSchema,
   marshalUpdateBudgetConfigurationRequestSchema,
+  unmarshalBudgetSpendStatusSchema,
   unmarshalCreateBudgetConfigurationResponseSchema,
   unmarshalDeleteBudgetConfigurationResponseSchema,
   unmarshalGetBudgetConfigurationResponseSchema,
   unmarshalListBudgetConfigurationsResponseSchema,
+  unmarshalListBudgetSpendStatusesResponseSchema,
   unmarshalUpdateBudgetConfigurationResponseSchema,
 } from './model';
 
@@ -163,6 +169,40 @@ export class BudgetsClient {
     return resp;
   }
 
+  /**
+   * Get the calling user's live spend against the blocking thresholds of a single Unity Gateway
+   * budget. Any account user can call this for their own spend. Spend is reported in USD at list
+   * price and is near-real-time, so it may differ slightly from billing data. Returns NOT_FOUND if
+   * the budget doesn't exist or has no blocking thresholds.
+   */
+  async getBudgetSpendStatus(
+    req: GetBudgetSpendStatusRequest,
+    options?: CallOptions
+  ): Promise<BudgetSpendStatus> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    let resp: BudgetSpendStatus | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalBudgetSpendStatusSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
   /** Gets all budgets associated with this account. */
   async listBudgetConfigurations(
     req: ListBudgetConfigurationsRequest,
@@ -213,6 +253,56 @@ export class BudgetsClient {
       }
       pageReq.pageToken = resp.nextPageToken;
     }
+  }
+
+  /**
+   * List the calling user's live spend against the blocking thresholds across the account's Unity
+   * Gateway budgets. Any account user can call this for their own spend. Spend is reported in USD
+   * at list price and is near-real-time, so it may differ slightly from billing data. By default,
+   * returns every budget in the account that has a blocking threshold. Use `filter` to narrow
+   * results by workspace.
+   */
+  async listBudgetSpendStatuses(
+    req: ListBudgetSpendStatusesRequest,
+    options?: CallOptions
+  ): Promise<ListBudgetSpendStatusesResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/${req.parent ?? ''}/budget-spend-statuses`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.filter !== undefined) {
+      params.append('filter', req.filter);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListBudgetSpendStatusesResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListBudgetSpendStatusesResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
   }
 
   /** Updates a budget configuration for an account. Both account and budget configuration are specified by ID. */
