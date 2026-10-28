@@ -1,6 +1,86 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {Temporal} from '@js-temporal/polyfill';
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
+
+/** How serious an Issue is, ordered LOW < MEDIUM < HIGH. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const IssueSeverity = {
+  ISSUE_SEVERITY_UNSPECIFIED: 'ISSUE_SEVERITY_UNSPECIFIED',
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+} as const;
+export type IssueSeverity =
+  | (typeof IssueSeverity)[keyof typeof IssueSeverity]
+  | (string & {});
+
+/**
+ * The field that search results are ordered by. SEVERITY breaks ties by
+ * last_seen_time, in the same direction. Results are grouped by status first
+ * (PENDING, RESOLVED, then REJECTED, whatever the sort_order), and remaining
+ * ties are broken by issue ID, so paging is stable.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const IssueSortKey = {
+  ISSUE_SORT_KEY_UNSPECIFIED: 'ISSUE_SORT_KEY_UNSPECIFIED',
+  SEVERITY: 'SEVERITY',
+  LAST_SEEN_TIME: 'LAST_SEEN_TIME',
+  UPDATE_TIME: 'UPDATE_TIME',
+  CREATE_TIME: 'CREATE_TIME',
+} as const;
+export type IssueSortKey =
+  | (typeof IssueSortKey)[keyof typeof IssueSortKey]
+  | (string & {});
+
+/**
+ * What created an Issue: ADHOC_RUN, an issue detection run started on demand;
+ * SCHEDULED_RUN, one started by a schedule; SINGLE_TRACE_ANALYSIS, an analysis
+ * of a single trace; or MANUAL, a person.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const IssueSourceType = {
+  ISSUE_SOURCE_TYPE_UNSPECIFIED: 'ISSUE_SOURCE_TYPE_UNSPECIFIED',
+  ADHOC_RUN: 'ADHOC_RUN',
+  SCHEDULED_RUN: 'SCHEDULED_RUN',
+  SINGLE_TRACE_ANALYSIS: 'SINGLE_TRACE_ANALYSIS',
+  MANUAL: 'MANUAL',
+} as const;
+export type IssueSourceType =
+  | (typeof IssueSourceType)[keyof typeof IssueSourceType]
+  | (string & {});
+
+/**
+ * The triage status of an Issue: PENDING means open and awaiting triage,
+ * RESOLVED means judged real and addressed, and REJECTED means judged not to be
+ * an issue.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const IssueStatus = {
+  ISSUE_STATUS_UNSPECIFIED: 'ISSUE_STATUS_UNSPECIFIED',
+  PENDING: 'PENDING',
+  RESOLVED: 'RESOLVED',
+  REJECTED: 'REJECTED',
+} as const;
+export type IssueStatus =
+  | (typeof IssueStatus)[keyof typeof IssueStatus]
+  | (string & {});
+
+/**
+ * Which fields each search result includes: BASIC has every field except
+ * `description`, and may omit large `metadata` entries; FULL has every field.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const IssueView = {
+  ISSUE_VIEW_UNSPECIFIED: 'ISSUE_VIEW_UNSPECIFIED',
+  BASIC: 'BASIC',
+  FULL: 'FULL',
+} as const;
+export type IssueView =
+  | (typeof IssueView)[keyof typeof IssueView]
+  | (string & {});
 
 /**
  * A LoggedModelStatus enum value represents the status of a logged
@@ -44,6 +124,17 @@ export type RunStatus =
   | (typeof RunStatus)[keyof typeof RunStatus]
   | (string & {});
 
+/** The direction of the ordering. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const SortOrder = {
+  SORT_ORDER_UNSPECIFIED: 'SORT_ORDER_UNSPECIFIED',
+  DESCENDING: 'DESCENDING',
+  ASCENDING: 'ASCENDING',
+} as const;
+export type SortOrder =
+  | (typeof SortOrder)[keyof typeof SortOrder]
+  | (string & {});
+
 /** Qualifier for the view type. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ViewType = {
@@ -83,6 +174,20 @@ export interface CreateExperimentRequest {
 export interface CreateExperimentResponse {
   /** Unique identifier for the experiment. */
   experimentId?: string | undefined;
+}
+
+/** Request for CreateIssue. */
+export interface CreateIssueRequest {
+  /** experiments/{experiment} */
+  parent?: string | undefined;
+  /** Output-only fields are ignored. */
+  issue?: Issue | undefined;
+  /**
+   * Optional client-chosen ID: iss- followed by 32 lowercase hex digits. A retry
+   * with the same ID fails with ALREADY_EXISTS rather than making a duplicate.
+   * The server generates one if unset.
+   */
+  issueId?: string | undefined;
 }
 
 export interface CreateLoggedModelRequest {
@@ -330,6 +435,12 @@ export interface GetExperimentResponse {
   runs?: RunInfo[] | undefined;
 }
 
+/** Request for GetIssue. */
+export interface GetIssueRequest {
+  /** experiments/{experiment}/issues/{issue} */
+  name?: string | undefined;
+}
+
 export interface GetLoggedModelRequest {
   /** The ID of the logged model to retrieve. */
   modelId?: string | undefined;
@@ -374,6 +485,76 @@ export interface InputTag {
   key?: string | undefined;
   /** The tag value. */
   value?: string | undefined;
+}
+
+/** A quality or operational problem found in an experiment's traces. */
+export interface Issue {
+  /** experiments/{experiment}/issues/{issue} */
+  name?: string | undefined;
+  /**
+   * The last segment of `name`. Issue assessments on traces reference the Issue
+   * by this ID.
+   */
+  issueId?: string | undefined;
+  /** Non-empty, at most 250 UTF-8 bytes. */
+  title?: string | undefined;
+  /** Markdown, at most 32 KiB. */
+  description?: string | undefined;
+  /** Defaults to PENDING on create, and can't be cleared. */
+  status?: IssueStatus | undefined;
+  /** Cannot be cleared: an Issue without a severity would match no severity filter. */
+  severity?: IssueSeverity | undefined;
+  /**
+   * At most 10 values of at most 64 UTF-8 bytes each, unique case-insensitively.
+   * Leading and trailing whitespace is trimmed.
+   */
+  categories?: string[] | undefined;
+  /**
+   * Caller-owned; the server never writes system values here. At most 10
+   * entries. Keys match ^[A-Za-z0-9_.:/-]+$ and are at most 128 UTF-8 bytes;
+   * values are at most 256 UTF-8 bytes.
+   */
+  tags?: Record<string, string> | undefined;
+  /**
+   * The request time of the latest trace the Issue affects. Required, and can't
+   * be cleared, unless source_type is MANUAL. A MANUAL Issue without one returns
+   * its create_time.
+   */
+  lastSeenTime?: Temporal.Instant | undefined;
+  /** Set once at create. Defaults to MANUAL. */
+  sourceType?: IssueSourceType | undefined;
+  /**
+   * Set once at create. For ADHOC_RUN and SCHEDULED_RUN, the ID of the issue
+   * detection run in the same experiment that created the Issue. Absent for
+   * MANUAL.
+   */
+  sourceId?: string | undefined;
+  /**
+   * The email of the user whose request created the Issue. source_type tells
+   * whether issue detection created it.
+   */
+  createdBy?: string | undefined;
+  /** When the Issue was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** The email of the user whose request last updated the Issue. */
+  lastUpdatedBy?: string | undefined;
+  /** When the Issue was last updated. */
+  updateTime?: Temporal.Instant | undefined;
+  /**
+   * Additional details about the Issue, such as how issue detection observed it.
+   * Not a stable contract: keys and values can change without notice, so clients
+   * must tolerate unknown and missing keys. At most 20 entries, with keys of at
+   * most 64 UTF-8 bytes.
+   */
+  metadata?: Record<string, string> | undefined;
+}
+
+/** One predicate over Issue.tags. */
+export interface IssueTagFilter {
+  /** Matched exactly. */
+  key?: string | undefined;
+  /** Matched exactly, and ORed together. Empty matches any Issue carrying the key. */
+  values?: string[] | undefined;
 }
 
 export interface ListArtifactsRequest {
@@ -823,6 +1004,51 @@ export interface SearchExperimentsResponse {
   nextPageToken?: string | undefined;
 }
 
+/** Request for SearchIssues. */
+export interface SearchIssuesRequest {
+  /** experiments/{experiment} */
+  parent?: string | undefined;
+  /** Case-insensitive substring match on title. */
+  query?: string | undefined;
+  /**
+   * Matches Issues with any of these statuses. Different filters AND together,
+   * and an empty filter matches every Issue.
+   */
+  statuses?: IssueStatus[] | undefined;
+  /** Matches Issues with any of these severities. */
+  severities?: IssueSeverity[] | undefined;
+  /** Matches Issues with any of these categories, case-insensitively. */
+  categories?: string[] | undefined;
+  /**
+   * Matches Issues that satisfy every filter. At most 10 filters of 20 values
+   * each.
+   */
+  tagFilters?: IssueTagFilter[] | undefined;
+  /** Defaults to SEVERITY. */
+  sortKey?: IssueSortKey | undefined;
+  /** Defaults to DESCENDING. */
+  sortOrder?: SortOrder | undefined;
+  /** Defaults to 20; values above 100 are clamped. */
+  pageSize?: number | undefined;
+  /**
+   * Expires after 15 minutes. Every other argument except `view` must match the
+   * request that returned the token.
+   */
+  pageToken?: string | undefined;
+  /** Defaults to BASIC. */
+  view?: IssueView | undefined;
+}
+
+/** One page of SearchIssues results. */
+export interface SearchIssuesResponse {
+  /** The page's Issues, in the requested order. */
+  issues?: Issue[] | undefined;
+  /** Absent on the last page. */
+  nextPageToken?: string | undefined;
+  /** Exact number of matching Issues. */
+  totalSize?: number | undefined;
+}
+
 export interface SearchLoggedModelsRequest {
   /** The IDs of the experiments in which to search for logged models. */
   experimentIds?: string[] | undefined;
@@ -1000,6 +1226,22 @@ export interface UpdateExperimentRequest {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface UpdateExperimentResponse {}
+
+/** Request for UpdateIssue. */
+export interface UpdateIssueRequest {
+  /** `issue.name` identifies the target. */
+  issue?: Issue | undefined;
+  /**
+   * Accepts title, description, status, severity, categories, tags,
+   * last_seen_time, and metadata.<key>. A path with an empty value clears the
+   * field, except that title, status, and severity can't be cleared, and
+   * last_seen_time can be cleared only when source_type is MANUAL. categories
+   * and tags are replaced whole. metadata is updated per key: a metadata.<key>
+   * path sets that key from issue.metadata, or removes it when issue.metadata
+   * lacks it, and leaves the other keys alone. A bare metadata path is rejected.
+   */
+  updateMask?: FieldMask<Issue> | undefined;
+}
 
 export interface UpdateRunRequest {
   /** ID of the run to update. Must be provided. */
@@ -1237,6 +1479,53 @@ export const unmarshalInputTagSchema: z.ZodType<InputTag> = z
   .transform(d => ({
     key: d.key,
     value: d.value,
+  }));
+
+export const unmarshalIssueSchema: z.ZodType<Issue> = z
+  .object({
+    name: z.string().optional(),
+    issue_id: z.string().optional(),
+    title: z.string().optional(),
+    description: z.string().optional(),
+    status: z.string().optional(),
+    severity: z.string().optional(),
+    categories: z.array(z.string()).optional(),
+    tags: z.record(z.string(), z.string()).optional(),
+    last_seen_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    source_type: z.string().optional(),
+    source_id: z.string().optional(),
+    created_by: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    last_updated_by: z.string().optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    metadata: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    issueId: d.issue_id,
+    title: d.title,
+    description: d.description,
+    status: d.status,
+    severity: d.severity,
+    categories: d.categories,
+    tags: d.tags,
+    lastSeenTime: d.last_seen_time,
+    sourceType: d.source_type,
+    sourceId: d.source_id,
+    createdBy: d.created_by,
+    createTime: d.create_time,
+    lastUpdatedBy: d.last_updated_by,
+    updateTime: d.update_time,
+    metadata: d.metadata,
   }));
 
 export const unmarshalListArtifactsResponseSchema: z.ZodType<ListArtifactsResponse> =
@@ -1516,6 +1805,19 @@ export const unmarshalSearchExperimentsResponseSchema: z.ZodType<SearchExperimen
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalSearchIssuesResponseSchema: z.ZodType<SearchIssuesResponse> =
+  z
+    .object({
+      issues: z.array(z.lazy(() => unmarshalIssueSchema)).optional(),
+      next_page_token: z.string().optional(),
+      total_size: z.number().optional(),
+    })
+    .transform(d => ({
+      issues: d.issues,
+      nextPageToken: d.next_page_token,
+      totalSize: d.total_size,
+    }));
+
 export const unmarshalSearchLoggedModelsResponseSchema: z.ZodType<SearchLoggedModelsResponse> =
   z
     .object({
@@ -1733,6 +2035,63 @@ export const marshalInputTagSchema: z.ZodType = z
   .transform(d => ({
     key: d.key,
     value: d.value,
+  }));
+
+export const marshalIssueSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    issueId: z.string().optional(),
+    title: z.string().optional(),
+    description: z.string().optional(),
+    status: z.string().optional(),
+    severity: z.string().optional(),
+    categories: z.array(z.string()).optional(),
+    tags: z.record(z.string(), z.string()).optional(),
+    lastSeenTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    sourceType: z.string().optional(),
+    sourceId: z.string().optional(),
+    createdBy: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    lastUpdatedBy: z.string().optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    metadata: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    issue_id: d.issueId,
+    title: d.title,
+    description: d.description,
+    status: d.status,
+    severity: d.severity,
+    categories: d.categories,
+    tags: d.tags,
+    last_seen_time: d.lastSeenTime,
+    source_type: d.sourceType,
+    source_id: d.sourceId,
+    created_by: d.createdBy,
+    create_time: d.createTime,
+    last_updated_by: d.lastUpdatedBy,
+    update_time: d.updateTime,
+    metadata: d.metadata,
+  }));
+
+export const marshalIssueTagFilterSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    values: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    values: d.values,
   }));
 
 export const marshalLogBatchRequestSchema: z.ZodType = z
@@ -1953,6 +2312,34 @@ export const marshalSearchExperimentsRequestSchema: z.ZodType = z
     view_type: d.viewType,
   }));
 
+export const marshalSearchIssuesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    query: z.string().optional(),
+    statuses: z.array(z.string()).optional(),
+    severities: z.array(z.string()).optional(),
+    categories: z.array(z.string()).optional(),
+    tagFilters: z.array(z.lazy(() => marshalIssueTagFilterSchema)).optional(),
+    sortKey: z.string().optional(),
+    sortOrder: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    view: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    query: d.query,
+    statuses: d.statuses,
+    severities: d.severities,
+    categories: d.categories,
+    tag_filters: d.tagFilters,
+    sort_key: d.sortKey,
+    sort_order: d.sortOrder,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    view: d.view,
+  }));
+
 export const marshalSearchLoggedModelsRequestSchema: z.ZodType = z
   .object({
     experimentIds: z.array(z.string()).optional(),
@@ -2094,3 +2481,26 @@ export const marshalUpdateRunRequestSchema: z.ZodType = z
     end_time: d.endTime,
     run_name: d.runName,
   }));
+
+const issueFieldMaskSchema: FieldMaskSchema = {
+  categories: {wire: 'categories'},
+  createTime: {wire: 'create_time'},
+  createdBy: {wire: 'created_by'},
+  description: {wire: 'description'},
+  issueId: {wire: 'issue_id'},
+  lastSeenTime: {wire: 'last_seen_time'},
+  lastUpdatedBy: {wire: 'last_updated_by'},
+  metadata: {wire: 'metadata'},
+  name: {wire: 'name'},
+  severity: {wire: 'severity'},
+  sourceId: {wire: 'source_id'},
+  sourceType: {wire: 'source_type'},
+  status: {wire: 'status'},
+  tags: {wire: 'tags'},
+  title: {wire: 'title'},
+  updateTime: {wire: 'update_time'},
+};
+
+export function issueFieldMask(...paths: string[]): FieldMask<Issue> {
+  return FieldMask.build<Issue>(paths, issueFieldMaskSchema);
+}

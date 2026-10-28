@@ -107,6 +107,39 @@ export interface AlertConfiguration {
   principalOverrides?: PrincipalOverride[] | undefined;
 }
 
+/**
+ * The calling user's spend against a single blocking threshold. Values may be omitted if live
+ * spend or threshold data is temporarily unavailable.
+ */
+export interface AlertSpendStatus {
+  /**
+   * Whether the threshold is evaluated per individual user
+   * (`ALERT_CONFIGURATION_SCOPE_TYPE_PER_USER`) or on the shared spend across all users
+   * (`ALERT_CONFIGURATION_SCOPE_TYPE_SHARED`).
+   */
+  scopeType?: AlertConfigurationScopeType | undefined;
+  /** The time window the threshold applies to, for example `MONTH`. */
+  timePeriod?: AlertConfigurationTimePeriod | undefined;
+  /**
+   * The calling user's live spend against this threshold, in USD at list price. Returns "0" if the
+   * caller has no usage. Omitted for shared thresholds, where only `percent_consumed` is returned.
+   */
+  spend?: string | undefined;
+  /**
+   * The calling user's effective threshold, in USD at list price. The effective threshold is the
+   * actual threshold amount that applies to the user, after adjusting for any user or group
+   * overrides. Omitted for shared thresholds, where only `percent_consumed` is returned.
+   */
+  threshold?: string | undefined;
+  /**
+   * Percentage of the threshold consumed, as a decimal string rounded down to one decimal place (for
+   * example, "68.4" means 68.4%). May exceed 100 when spend is over the threshold. Returns "0.0" if
+   * there's no spend, and is omitted if the threshold is $0. For shared thresholds, this is the
+   * only value returned; the absolute `spend` and `threshold` dollar amounts are withheld.
+   */
+  percentConsumed?: string | undefined;
+}
+
 export interface BudgetConfiguration {
   /** <Databricks> budget configuration ID. */
   budgetConfigurationId?: string | undefined;
@@ -167,6 +200,21 @@ export interface BudgetConfigurationFilter_TagClause {
 export interface BudgetConfigurationFilter_WorkspaceIdClause {
   operator?: BudgetConfigurationFilter_Operator | undefined;
   values?: bigint[] | undefined;
+}
+
+/** The calling user's live spend against the blocking thresholds of a single budget. */
+export interface BudgetSpendStatus {
+  /**
+   * The resource name of this budget spend status, of the form
+   * `accounts/{account_id}/budget-spend-statuses/{budget_id}`.
+   */
+  name?: string | undefined;
+  /**
+   * The calling user's spend against each blocking threshold on this budget, one entry per scope
+   * type and time period. A blocking threshold is a threshold that, once reached, blocks further
+   * requests through Unity Gateway.
+   */
+  alertSpendStatuses?: AlertSpendStatus[] | undefined;
 }
 
 export interface CreateBudgetConfigurationBudget {
@@ -260,6 +308,16 @@ export interface GetBudgetConfigurationResponse {
   budget?: BudgetConfiguration | undefined;
 }
 
+/** Request for the calling user's spend status for a single budget. */
+export interface GetBudgetSpendStatusRequest {
+  /**
+   * The resource name of the budget spend status to read, of the form
+   * `accounts/{account_id}/budget-spend-statuses/{budget_id}`. A `budget_id` that isn't a valid
+   * UUID fails with INVALID_PARAMETER_VALUE.
+   */
+  name?: string | undefined;
+}
+
 export interface ListBudgetConfigurationsRequest {
   /** <Databricks> account ID. */
   accountId?: string | undefined;
@@ -273,6 +331,46 @@ export interface ListBudgetConfigurationsRequest {
 export interface ListBudgetConfigurationsResponse {
   budgets?: BudgetConfiguration[] | undefined;
   /** Token which can be sent as `page_token` to retrieve the next page of results. If this field is omitted, there are no subsequent budgets. */
+  nextPageToken?: string | undefined;
+}
+
+/** Request for the calling user's budget spend statuses. */
+export interface ListBudgetSpendStatusesRequest {
+  /** The parent account whose budget spend statuses to list, of the form `accounts/{account_id}`. */
+  parent?: string | undefined;
+  /**
+   * A page token from a previous `ListBudgetSpendStatuses` response, used to fetch the next page.
+   * Requests the first page if absent. All other request parameters except `page_size` must match
+   * the request that returned the token; otherwise the request fails with INVALID_PARAMETER_VALUE.
+   */
+  pageToken?: string | undefined;
+  /**
+   * The maximum number of spend statuses to return per page. If unspecified or 0, at most 100 are
+   * returned. The maximum value is 100; values above 100 are coerced to 100. Negative values fail
+   * with INVALID_PARAMETER_VALUE. The server may return fewer results than requested, including
+   * zero, even when more pages remain; page until `next_page_token` is absent.
+   */
+  pageSize?: number | undefined;
+  /**
+   * A filter expression that narrows the returned budgets by workspace. Only `workspace_id` is
+   * supported, in lower case with numeric workspace IDs, for example `workspace_id = 123` or
+   * `workspace_id IN (123, 456)`. Matches budgets that apply to any of the listed workspaces,
+   * including budgets that apply to all workspaces. Any other expression, such as an empty `IN ()`
+   * list, fails with INVALID_PARAMETER_VALUE. If empty, returns every budget in the account that has
+   * a blocking threshold.
+   */
+  filter?: string | undefined;
+}
+
+/** Response for ListBudgetSpendStatuses. */
+export interface ListBudgetSpendStatusesResponse {
+  /** The calling user's spend status, one entry per returned budget. */
+  budgetSpendStatuses?: BudgetSpendStatus[] | undefined;
+  /**
+   * Token to pass as `page_token` to retrieve the next page. Absent when there are no more results.
+   * A page can contain fewer results than `page_size`, or none, while this token is still set, so
+   * keep paging until it's absent.
+   */
   nextPageToken?: string | undefined;
 }
 
@@ -366,6 +464,22 @@ export const unmarshalAlertConfigurationSchema: z.ZodType<AlertConfiguration> =
       principalOverrides: d.principal_overrides,
     }));
 
+export const unmarshalAlertSpendStatusSchema: z.ZodType<AlertSpendStatus> = z
+  .object({
+    scope_type: z.string().optional(),
+    time_period: z.string().optional(),
+    spend: z.string().optional(),
+    threshold: z.string().optional(),
+    percent_consumed: z.string().optional(),
+  })
+  .transform(d => ({
+    scopeType: d.scope_type,
+    timePeriod: d.time_period,
+    spend: d.spend,
+    threshold: d.threshold,
+    percentConsumed: d.percent_consumed,
+  }));
+
 export const unmarshalBudgetConfigurationSchema: z.ZodType<BudgetConfiguration> =
   z
     .object({
@@ -458,6 +572,18 @@ export const unmarshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodTy
       values: d.values,
     }));
 
+export const unmarshalBudgetSpendStatusSchema: z.ZodType<BudgetSpendStatus> = z
+  .object({
+    name: z.string().optional(),
+    alert_spend_statuses: z
+      .array(z.lazy(() => unmarshalAlertSpendStatusSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    alertSpendStatuses: d.alert_spend_statuses,
+  }));
+
 export const unmarshalCreateBudgetConfigurationResponseSchema: z.ZodType<CreateBudgetConfigurationResponse> =
   z
     .object({
@@ -489,6 +615,19 @@ export const unmarshalListBudgetConfigurationsResponseSchema: z.ZodType<ListBudg
     })
     .transform(d => ({
       budgets: d.budgets,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalListBudgetSpendStatusesResponseSchema: z.ZodType<ListBudgetSpendStatusesResponse> =
+  z
+    .object({
+      budget_spend_statuses: z
+        .array(z.lazy(() => unmarshalBudgetSpendStatusSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      budgetSpendStatuses: d.budget_spend_statuses,
       nextPageToken: d.next_page_token,
     }));
 

@@ -6,11 +6,22 @@
 
 export {ExperimentsClient} from './client';
 
-export {LoggedModelStatus, RunStatus, ViewType} from './model';
+export {
+  IssueSeverity,
+  IssueSortKey,
+  IssueSourceType,
+  IssueStatus,
+  IssueView,
+  LoggedModelStatus,
+  RunStatus,
+  SortOrder,
+  ViewType,
+} from './model';
 
 export type {
   CreateExperimentRequest,
   CreateExperimentResponse,
+  CreateIssueRequest,
   CreateLoggedModelRequest,
   CreateLoggedModelResponse,
   CreateRunRequest,
@@ -39,12 +50,15 @@ export type {
   GetExperimentByNameResponse,
   GetExperimentRequest,
   GetExperimentResponse,
+  GetIssueRequest,
   GetLoggedModelRequest,
   GetLoggedModelResponse,
   GetMetricHistoryResponse,
   GetRunRequest,
   GetRunResponse,
   InputTag,
+  Issue,
+  IssueTagFilter,
   ListArtifactsRequest,
   ListArtifactsResponse,
   ListExperimentsRequest,
@@ -86,6 +100,8 @@ export type {
   RunTag,
   SearchExperimentsRequest,
   SearchExperimentsResponse,
+  SearchIssuesRequest,
+  SearchIssuesResponse,
   SearchLoggedModelsRequest,
   SearchLoggedModelsRequest_Dataset,
   SearchLoggedModelsRequest_OrderBy,
@@ -101,6 +117,9 @@ export type {
   UcTraceLocation,
   UpdateExperimentRequest,
   UpdateExperimentResponse,
+  UpdateIssueRequest,
   UpdateRunRequest,
   UpdateRunResponse,
 } from './model';
+
+export {issueFieldMask} from './model';

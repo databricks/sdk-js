@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-database",
-  "version": "0.51.5",
+  "version": "0.51.6",
   "description": "",
   "type": "module",
   "exports": {

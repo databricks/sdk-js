@@ -108,7 +108,12 @@ export class DatabaseClient {
     return this.config;
   }
 
-  /** Create a Database Catalog. */
+  /**
+   * Create a Database Catalog.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Create a catalog](https://docs.databricks.com/api/postgres/v1/create-catalog).
+   */
   async createDatabaseCatalog(
     req: CreateDatabaseCatalogRequest,
     options?: CallOptions
@@ -138,7 +143,12 @@ export class DatabaseClient {
     return resp;
   }
 
-  /** Create a Database Instance. */
+  /**
+   * Create a Database Instance.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Create a project](https://docs.databricks.com/api/postgres/v1/create-project).
+   */
   private async createDatabaseInstanceBase(
     req: CreateDatabaseInstanceRequest,
     options?: CallOptions
@@ -171,7 +181,12 @@ export class DatabaseClient {
     return resp;
   }
 
-  /** Create a Database Instance. */
+  /**
+   * Create a Database Instance.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Create a project](https://docs.databricks.com/api/postgres/v1/create-project).
+   */
   async createDatabaseInstance(
     req: CreateDatabaseInstanceRequest,
     options?: CallOptions
@@ -183,7 +198,12 @@ export class DatabaseClient {
     return new CreateDatabaseInstanceWaiter(this, resp.name);
   }
 
-  /** Create a role for a Database Instance. */
+  /**
+   * Create a role for a Database Instance.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Create a role](https://docs.databricks.com/api/postgres/v1/create-role).
+   */
   async createDatabaseInstanceRole(
     req: CreateDatabaseInstanceRoleRequest,
     options?: CallOptions
@@ -261,7 +281,12 @@ export class DatabaseClient {
     return resp;
   }
 
-  /** Create a Synced Database Table. */
+  /**
+   * Create a Synced Database Table.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Create a synced table](https://docs.databricks.com/api/postgres/v1/create-synced-table).
+   */
   async createSyncedDatabaseTable(
     req: CreateSyncedDatabaseTableRequest,
     options?: CallOptions
@@ -294,7 +319,12 @@ export class DatabaseClient {
     return resp;
   }
 
-  /** Delete a Database Catalog. */
+  /**
+   * Delete a Database Catalog.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Delete a catalog](https://docs.databricks.com/api/postgres/v1/delete-catalog).
+   */
   async deleteDatabaseCatalog(
     req: DeleteDatabaseCatalogRequest,
     options?: CallOptions
@@ -317,7 +347,12 @@ export class DatabaseClient {
     await executeCall(call, options);
   }
 
-  /** Delete a Database Instance. */
+  /**
+   * Delete a Database Instance.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Delete a project](https://docs.databricks.com/api/postgres/v1/delete-project).
+   */
   async deleteDatabaseInstance(
     req: DeleteDatabaseInstanceRequest,
     options?: CallOptions
@@ -349,7 +384,12 @@ export class DatabaseClient {
     await executeCall(call, options);
   }
 
-  /** Deletes a role for a Database Instance. */
+  /**
+   * Deletes a role for a Database Instance.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Delete a role](https://docs.databricks.com/api/postgres/v1/delete-role).
+   */
   async deleteDatabaseInstanceRole(
     req: DeleteDatabaseInstanceRoleRequest,
     options?: CallOptions
@@ -404,7 +444,12 @@ export class DatabaseClient {
     await executeCall(call, options);
   }
 
-  /** Delete a Synced Database Table. */
+  /**
+   * Delete a Synced Database Table.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Delete a synced table](https://docs.databricks.com/api/postgres/v1/delete-synced-table).
+   */
   async deleteSyncedDatabaseTable(
     req: DeleteSyncedDatabaseTableRequest,
     options?: CallOptions
@@ -468,7 +513,12 @@ export class DatabaseClient {
     return resp;
   }
 
-  /** Generates a credential that can be used to access database instances. */
+  /**
+   * Generates a credential that can be used to access database instances.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Generate a database credential](https://docs.databricks.com/api/postgres/v1/generate-database-credential).
+   */
   async generateDatabaseCredential(
     req: GenerateDatabaseCredentialRequest,
     options?: CallOptions
@@ -501,7 +551,12 @@ export class DatabaseClient {
     return resp;
   }
 
-  /** Get a Database Catalog. */
+  /**
+   * Get a Database Catalog.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Get a catalog](https://docs.databricks.com/api/postgres/v1/get-catalog).
+   */
   async getDatabaseCatalog(
     req: GetDatabaseCatalogRequest,
     options?: CallOptions
@@ -530,7 +585,12 @@ export class DatabaseClient {
     return resp;
   }
 
-  /** Get a Database Instance. */
+  /**
+   * Get a Database Instance.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Get a project](https://docs.databricks.com/api/postgres/v1/get-project).
+   */
   async getDatabaseInstance(
     req: GetDatabaseInstanceRequest,
     options?: CallOptions
@@ -559,7 +619,12 @@ export class DatabaseClient {
     return resp;
   }
 
-  /** Gets a role for a Database Instance. */
+  /**
+   * Gets a role for a Database Instance.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Get a role](https://docs.databricks.com/api/postgres/v1/get-role).
+   */
   async getDatabaseInstanceRole(
     req: GetDatabaseInstanceRoleRequest,
     options?: CallOptions
@@ -617,7 +682,12 @@ export class DatabaseClient {
     return resp;
   }
 
-  /** Get a Synced Database Table. */
+  /**
+   * Get a Synced Database Table.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [Get a synced table](https://docs.databricks.com/api/postgres/v1/get-synced-table).
+   */
   async getSyncedDatabaseTable(
     req: GetSyncedDatabaseTableRequest,
     options?: CallOptions
@@ -705,10 +775,10 @@ export class DatabaseClient {
   }
 
   /**
-   * START OF PG ROLE APIs Section
-   * These APIs are marked a PUBLIC with stage < PUBLIC_PREVIEW. With more recent Lakebase V2 plans, we don't plan to
-   * ever advance these to PUBLIC_PREVIEW. These APIs will remain effectively undocumented/UI-only and we'll aim for a
-   * new public roles API as part of V2 PuPr.
+   * List roles for a Database Instance.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [List roles](https://docs.databricks.com/api/postgres/v1/list-roles).
    */
   async listDatabaseInstanceRoles(
     req: ListDatabaseInstanceRolesRequest,
@@ -767,7 +837,12 @@ export class DatabaseClient {
     }
   }
 
-  /** List Database Instances. */
+  /**
+   * List Database Instances.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalent:
+   * [List projects](https://docs.databricks.com/api/postgres/v1/list-projects).
+   */
   async listDatabaseInstances(
     req: ListDatabaseInstancesRequest,
     options?: CallOptions
@@ -928,7 +1003,13 @@ export class DatabaseClient {
     return resp;
   }
 
-  /** Update a Database Instance. */
+  /**
+   * Update a Database Instance.
+   *
+   * For new workloads, Databricks recommends the Postgres API equivalents:
+   * [Update a project](https://docs.databricks.com/api/postgres/v1/update-project) and
+   * [Update an endpoint](https://docs.databricks.com/api/postgres/v1/update-endpoint).
+   */
   async updateDatabaseInstance(
     req: UpdateDatabaseInstanceRequest,
     options?: CallOptions

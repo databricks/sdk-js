@@ -19,6 +19,7 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateExperimentRequest,
   CreateExperimentResponse,
+  CreateIssueRequest,
   CreateLoggedModelRequest,
   CreateLoggedModelResponse,
   CreateRunRequest,
@@ -43,11 +44,13 @@ import type {
   GetExperimentByNameResponse,
   GetExperimentRequest,
   GetExperimentResponse,
+  GetIssueRequest,
   GetLoggedModelRequest,
   GetLoggedModelResponse,
   GetMetricHistoryResponse,
   GetRunRequest,
   GetRunResponse,
+  Issue,
   ListArtifactsRequest,
   ListArtifactsResponse,
   ListExperimentsRequest,
@@ -77,6 +80,8 @@ import type {
   Run,
   SearchExperimentsRequest,
   SearchExperimentsResponse,
+  SearchIssuesRequest,
+  SearchIssuesResponse,
   SearchLoggedModelsRequest,
   SearchLoggedModelsResponse,
   SearchRunsRequest,
@@ -89,6 +94,7 @@ import type {
   SetTagResponse,
   UpdateExperimentRequest,
   UpdateExperimentResponse,
+  UpdateIssueRequest,
   UpdateRunRequest,
   UpdateRunResponse,
 } from './model';
@@ -101,6 +107,7 @@ import {
   marshalDeleteRunsRequestSchema,
   marshalDeleteTagRequestSchema,
   marshalFinalizeLoggedModelRequestSchema,
+  marshalIssueSchema,
   marshalLogBatchRequestSchema,
   marshalLogInputsRequestSchema,
   marshalLogLoggedModelParamsRequestSchema,
@@ -112,6 +119,7 @@ import {
   marshalRestoreRunRequestSchema,
   marshalRestoreRunsRequestSchema,
   marshalSearchExperimentsRequestSchema,
+  marshalSearchIssuesRequestSchema,
   marshalSearchLoggedModelsRequestSchema,
   marshalSearchRunsRequestSchema,
   marshalSetExperimentTagRequestSchema,
@@ -134,6 +142,7 @@ import {
   unmarshalGetLoggedModelResponseSchema,
   unmarshalGetMetricHistoryResponseSchema,
   unmarshalGetRunResponseSchema,
+  unmarshalIssueSchema,
   unmarshalListArtifactsResponseSchema,
   unmarshalListExperimentsResponseSchema,
   unmarshalLogBatchResponseSchema,
@@ -147,6 +156,7 @@ import {
   unmarshalRestoreRunResponseSchema,
   unmarshalRestoreRunsResponseSchema,
   unmarshalSearchExperimentsResponseSchema,
+  unmarshalSearchIssuesResponseSchema,
   unmarshalSearchLoggedModelsResponseSchema,
   unmarshalSearchRunsResponseSchema,
   unmarshalSetExperimentTagResponseSchema,
@@ -187,6 +197,163 @@ export class ExperimentsClient {
   private resolveConfig(): Promise<ResolvedClientConfig> {
     this.config ??= resolveClientConfig(this.options);
     return this.config;
+  }
+
+  /** Creates an issue in an experiment. */
+  async createIssue(
+    req: CreateIssueRequest,
+    options?: CallOptions
+  ): Promise<Issue> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/${req.parent ?? ''}/issues`;
+    const params = new URLSearchParams();
+    if (req.issueId !== undefined) {
+      params.append('issue_id', req.issueId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.issue, marshalIssueSchema);
+    let resp: Issue | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalIssueSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Gets an issue. */
+  async getIssue(req: GetIssueRequest, options?: CallOptions): Promise<Issue> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/${req.name ?? ''}`;
+    let resp: Issue | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalIssueSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Searches the issues in an experiment, filtered and sorted. */
+  async searchIssues(
+    req: SearchIssuesRequest,
+    options?: CallOptions
+  ): Promise<SearchIssuesResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/${req.parent ?? ''}/issues:search`;
+    const body = marshalRequest(req, marshalSearchIssuesRequestSchema);
+    let resp: SearchIssuesResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalSearchIssuesResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *searchIssuesIter(
+    req: SearchIssuesRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Issue> {
+    const pageReq: SearchIssuesRequest = {...req};
+    for (;;) {
+      const resp = await this.searchIssues(pageReq, options);
+      for (const item of resp.issues ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Updates the fields of an issue named in `update_mask`. */
+  async updateIssue(
+    req: UpdateIssueRequest,
+    options?: CallOptions
+  ): Promise<Issue> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/mlflow/${req.issue?.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.issue, marshalIssueSchema);
+    let resp: Issue | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalIssueSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
   }
 
   /**
