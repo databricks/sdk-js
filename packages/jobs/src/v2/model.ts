@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -515,6 +516,36 @@ export type AccessControlRequest_JobPermission =
   | (typeof AccessControlRequest_JobPermission)[keyof typeof AccessControlRequest_JobPermission]
   | (string & {});
 
+/** The extraction mode. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AiExtractFunction_Mode = {
+  /** Standard extraction. Selected when the mode is left unspecified. */
+  MODE_UNSPECIFIED: 'MODE_UNSPECIFIED',
+  /**
+   * More powerful extraction for complex schemas, long documents, and
+   * reasoning-heavy extractions.
+   */
+  MODE_PRECISION: 'MODE_PRECISION',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type AiExtractFunction_Mode =
+  | (typeof AiExtractFunction_Mode)[keyof typeof AiExtractFunction_Mode]
+  | (string & {});
+
+/** An element type that AI descriptions can be generated for. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AiParseDocumentFunction_DescriptionElementType = {
+  DESCRIPTION_ELEMENT_TYPE_UNSPECIFIED: 'DESCRIPTION_ELEMENT_TYPE_UNSPECIFIED',
+  /** All supported element types. */
+  DESCRIPTION_ELEMENT_TYPE_ALL: 'DESCRIPTION_ELEMENT_TYPE_ALL',
+  /** Figures. */
+  DESCRIPTION_ELEMENT_TYPE_FIGURE: 'DESCRIPTION_ELEMENT_TYPE_FIGURE',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type AiParseDocumentFunction_DescriptionElementType =
+  | (typeof AiParseDocumentFunction_DescriptionElementType)[keyof typeof AiParseDocumentFunction_DescriptionElementType]
+  | (string & {});
+
 /**
  * Scheduling priority class for a workload — its priority and preemptability
  * when the scheduler ranks pending work.
@@ -1024,6 +1055,181 @@ export interface AccessControlRequest {
 export interface Adlsgen2Info {
   /** abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`. */
   destination?: string | undefined;
+}
+
+/**
+ * Configuration for a task that runs the `ai_classify` function.
+ *
+ * The label set comes from exactly one of two places: `inline_labels`, which
+ * holds up to 10 labels, or a Unity Catalog table named by `label_table`. Use
+ * `label_table` for a larger label set.
+ */
+export interface AiClassifyFunction {
+  /** Where the labels come from. Exactly one source must be set. */
+  labelSource?:
+    | {
+        $case: 'inlineLabels';
+        /** Labels listed inline, for a small label set. */
+        inlineLabels: AiClassifyFunction_InlineLabels;
+      }
+    | undefined;
+  /**
+   * Global description of the task and domain, passed to the model to improve
+   * classification quality.
+   */
+  instructions?: string | undefined;
+  /** The ai_classify function version to invoke (for example, `2.1`). */
+  version?: string | undefined;
+  /** When true, more than one label can be returned for each input. */
+  multilabel?: boolean | undefined;
+  /** When true, includes a per-label confidence score in the response. */
+  enableConfidenceScores?: boolean | undefined;
+  /** When true, includes a rationale explaining each classification in the response. */
+  enableRationales?: boolean | undefined;
+}
+
+/** A label set listed inline. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AiClassifyFunction_InlineLabels {
+  /**
+   * The labels an input can be classified as. At least two labels are required
+   * unless `multilabel` is true, which also accepts a single label.
+   */
+  labels?: AiClassifyFunction_Label[] | undefined;
+}
+
+/** One label the input can be classified as. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AiClassifyFunction_Label {
+  /** The name returned when an input is classified as this label. */
+  name?: string | undefined;
+  /** Guidance describing what belongs under this label. */
+  description?: string | undefined;
+}
+
+/**
+ * Configuration for a task that runs the `ai_extract` function.
+ *
+ * The fields to extract come from exactly one of two places: an existing AI
+ * Extract agent, named by `agent_id`, or the inline `schema` and `instructions`.
+ * Set `agent_id` or the inline fields, not both.
+ */
+export interface AiExtractFunction {
+  /**
+   * The extraction schema defining the fields to extract, as a JSON string.
+   * Either an array of field names (e.g. ["company", "valuation"]) or an object
+   * mapping each field name to a type and an optional description. Supported
+   * types are string, integer, number, boolean, enum, object, and array; all
+   * fields are optional.
+   */
+  schema?: string | undefined;
+  /**
+   * Global description of the task and domain, passed to the model to improve
+   * extraction quality.
+   */
+  instructions?: string | undefined;
+  /** The ai_extract function version to invoke (for example, `2.1`). */
+  version?: string | undefined;
+  /** The extraction mode. Defaults to standard extraction when unspecified. */
+  mode?: AiExtractFunction_Mode | undefined;
+  /**
+   * When true, includes citation metadata locating each extracted value in the
+   * source.
+   */
+  enableCitations?: boolean | undefined;
+  /** When true, includes a per-field confidence score in the response. */
+  enableConfidenceScores?: boolean | undefined;
+}
+
+/** A task that applies an AI function to a set of input documents or rows. */
+export interface AiFunctionTask {
+  /** The input the function is applied to. Exactly one source must be set. */
+  source?:
+    | {
+        $case: 'deltaTable';
+        /** A Unity Catalog Delta table. The function is applied to each row. */
+        deltaTable: DeltaTableSource;
+      }
+    | {
+        $case: 'volume';
+        /** A Unity Catalog volume. The function is applied to each file. */
+        volume: VolumeSource;
+      }
+    | undefined;
+  /**
+   * Output destination table. When `table` is unset the task generates a stable name from the
+   * function and task identity so a downstream task can reference it.
+   */
+  output?: QualifiedName | undefined;
+  /**
+   * The AI function this task runs. Exactly one function must be set.
+   * (-- Modelled as a oneof rather than an enum because each function carries
+   * its own settings, which are added to these messages as they land. --)
+   */
+  function?:
+    | {
+        $case: 'aiParseDocument';
+        /** Parses the input documents into structured text. */
+        aiParseDocument: AiParseDocumentFunction;
+      }
+    | {
+        $case: 'aiExtract';
+        /** Extracts structured fields from the input documents or rows. */
+        aiExtract: AiExtractFunction;
+      }
+    | {
+        $case: 'aiClassify';
+        /** Classifies each input document or row into one or more labels. */
+        aiClassify: AiClassifyFunction;
+      }
+    | undefined;
+}
+
+/** The result of an AI function task run. Also reported mid-run, so the counts can be partial. */
+export interface AiFunctionTaskOutput {
+  /**
+   * Inputs to process: rows for a Delta table source, files for a volume source. Stays well inside
+   * 2^53, so a JavaScript client can hold it exactly.
+   */
+  totalRowCount?: bigint | undefined;
+  /** Inputs with a result so far. Reported per batch, so it can lag mid-run. */
+  succeededRowCount?: bigint | undefined;
+  /**
+   * Inputs permanently failed so far. Each lands in the output table as an error row, and does not
+   * on its own fail the run.
+   */
+  failedRowCount?: bigint | undefined;
+  /**
+   * Coarse estimate of the time left to run the function over the inputs, from the throughput so
+   * far. Covers that work only, not the merge into the output table that follows it.
+   */
+  estimatedTimeRemaining?: Temporal.Duration | undefined;
+  /**
+   * The table the run writes its results to. Reported even when `output.table` is unset and the
+   * name is generated, so a client can read the table.
+   */
+  outputTable?: QualifiedName | undefined;
+}
+
+/** Configuration for a task that runs the `ai_parse_document` function. */
+export interface AiParseDocumentFunction {
+  /** The ai_parse_document output schema version to invoke (for example, `2.0`). */
+  version?: string | undefined;
+  /**
+   * Element types to generate AI descriptions for. Leave empty to generate no
+   * descriptions; use ALL for every supported type, or list specific types to
+   * restrict generation to only those.
+   */
+  descriptionElementTypes?:
+    | AiParseDocumentFunction_DescriptionElementType[]
+    | undefined;
+  /** Unity Catalog volume path where rendered page and element images are written. */
+  imageOutputPath?: string | undefined;
+  /**
+   * Pages to parse (1-indexed), as a comma-separated list of page numbers or
+   * ranges (e.g. "1,3,5-10").
+   */
+  pageRange?: string | undefined;
 }
 
 /**
@@ -2217,6 +2423,23 @@ export interface DeleteRunRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeleteRunResponse {}
 
+/** A Unity Catalog Delta table input source. The function is applied to each row. */
+export interface DeltaTableSource {
+  /** Fully qualified three-part name of the source table (catalog.schema.table). */
+  tableName?: string | undefined;
+  /** Name of the column holding the content the function is applied to. */
+  inputColumn?: string | undefined;
+  /**
+   * Columns that together identify a row across incremental runs, so results can
+   * be matched back to their source rows. When unset, the task derives an
+   * implicit key from Delta row tracking. If row tracking is also disabled there
+   * is no stable key, so each run reprocesses the entire source (a full refresh)
+   * rather than only the changed rows; set a key column or enable row tracking to
+   * keep runs incremental.
+   */
+  mergeKeyColumns?: string[] | undefined;
+}
+
 /**
  * DeploymentSpec: configuration for one deployment within an AiRuntimeTask.
  * Each entry in `AiRuntimeTask.deployments` describes a group of nodes that
@@ -2674,6 +2897,11 @@ export interface GetRunOutputResponse {
          * See `tasks/genai/ai_runtime_task.proto:AiRuntimeTaskOutput`.
          */
         aiRuntimeTaskOutput: AiRuntimeTaskOutput;
+      }
+    | {
+        $case: 'aiFunctionTaskOutput';
+        /** The output of an AI function task, if available */
+        aiFunctionTaskOutput: AiFunctionTaskOutput;
       }
     | undefined;
   /**
@@ -3778,6 +4006,16 @@ export interface PythonWheelTask {
   namedParameters?: Record<string, string> | undefined;
 }
 
+/** A three-level Unity Catalog name (catalog.schema.table); any level may be unset. */
+export interface QualifiedName {
+  /** Unity Catalog catalog. */
+  catalog?: string | undefined;
+  /** Unity Catalog schema, within the catalog. */
+  schema?: string | undefined;
+  /** Table, within the catalog and schema. */
+  table?: string | undefined;
+}
+
 export interface QueueDetails {
   code?: QueueDetailsCode_Code | undefined;
   /**
@@ -3989,8 +4227,20 @@ export interface ResolvedValues {
          */
         aiRuntimeTask: ResolvedValues_AiRuntimeTaskResolvedValues;
       }
+    | {
+        $case: 'aiFunctionTask';
+        /**
+         * Resolved values for an AI Function task: the Delta table input with
+         * upstream-task references replaced by concrete values before the run.
+         */
+        aiFunctionTask: ResolvedValues_AiFunctionTaskResolvedValues;
+      }
     | undefined;
 }
+
+/** Resolved values for an AI Function task's Delta table input. */
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
+export interface ResolvedValues_AiFunctionTaskResolvedValues {}
 
 /**
  * Resolved values for an AiRuntimeTask after dynamic-value substitution, so
@@ -4657,6 +4907,11 @@ export interface RunTask {
          */
         aiRuntimeTask: AiRuntimeTask;
       }
+    | {
+        $case: 'aiFunctionTask';
+        /** Applies an AI function to a set of input documents or rows. */
+        aiFunctionTask: AiFunctionTask;
+      }
     | undefined;
   spec?:
     | {
@@ -4862,6 +5117,11 @@ export interface RunTaskSettings {
          * code and MLflow output are stored.
          */
         aiRuntimeTask: AiRuntimeTask;
+      }
+    | {
+        $case: 'aiFunctionTask';
+        /** Applies an AI function to a set of input documents or rows. */
+        aiFunctionTask: AiFunctionTask;
       }
     | undefined;
   spec?:
@@ -5681,6 +5941,11 @@ export interface TaskSettings {
          */
         aiRuntimeTask: AiRuntimeTask;
       }
+    | {
+        $case: 'aiFunctionTask';
+        /** Applies an AI function to a set of input documents or rows. */
+        aiFunctionTask: AiFunctionTask;
+      }
     | undefined;
   spec?:
     | {
@@ -5863,6 +6128,15 @@ export interface ViewItem {
   type?: ViewType | undefined;
 }
 
+/** A Unity Catalog volume input source. The function is applied to each file. */
+export interface VolumeSource {
+  /**
+   * Unity Catalog volume path to the input files
+   * (e.g. `/Volumes/<catalog>/<schema>/<volume>/...`).
+   */
+  volumePath?: string | undefined;
+}
+
 /** A storage location back by UC Volumes. */
 export interface VolumesStorageInfo {
   /**
@@ -5935,6 +6209,148 @@ export const unmarshalAdlsgen2InfoSchema: z.ZodType<Adlsgen2Info> = z
   .transform(d => ({
     destination: d.destination,
   }));
+
+export const unmarshalAiClassifyFunctionSchema: z.ZodType<AiClassifyFunction> =
+  z
+    .object({
+      inline_labels: z
+        .lazy(() => unmarshalAiClassifyFunction_InlineLabelsSchema)
+        .optional(),
+      instructions: z.string().optional(),
+      version: z.string().optional(),
+      multilabel: z.boolean().optional(),
+      enable_confidence_scores: z.boolean().optional(),
+      enable_rationales: z.boolean().optional(),
+    })
+    .transform(d => ({
+      labelSource:
+        d.inline_labels !== undefined
+          ? {$case: 'inlineLabels' as const, inlineLabels: d.inline_labels}
+          : undefined,
+      instructions: d.instructions,
+      version: d.version,
+      multilabel: d.multilabel,
+      enableConfidenceScores: d.enable_confidence_scores,
+      enableRationales: d.enable_rationales,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalAiClassifyFunction_InlineLabelsSchema: z.ZodType<AiClassifyFunction_InlineLabels> =
+  z
+    .object({
+      labels: z
+        .array(z.lazy(() => unmarshalAiClassifyFunction_LabelSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      labels: d.labels,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalAiClassifyFunction_LabelSchema: z.ZodType<AiClassifyFunction_Label> =
+  z
+    .object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      description: d.description,
+    }));
+
+export const unmarshalAiExtractFunctionSchema: z.ZodType<AiExtractFunction> = z
+  .object({
+    schema: z.string().optional(),
+    instructions: z.string().optional(),
+    version: z.string().optional(),
+    mode: z.string().optional(),
+    enable_citations: z.boolean().optional(),
+    enable_confidence_scores: z.boolean().optional(),
+  })
+  .transform(d => ({
+    schema: d.schema,
+    instructions: d.instructions,
+    version: d.version,
+    mode: d.mode,
+    enableCitations: d.enable_citations,
+    enableConfidenceScores: d.enable_confidence_scores,
+  }));
+
+export const unmarshalAiFunctionTaskSchema: z.ZodType<AiFunctionTask> = z
+  .object({
+    delta_table: z.lazy(() => unmarshalDeltaTableSourceSchema).optional(),
+    volume: z.lazy(() => unmarshalVolumeSourceSchema).optional(),
+    output: z.lazy(() => unmarshalQualifiedNameSchema).optional(),
+    ai_parse_document: z
+      .lazy(() => unmarshalAiParseDocumentFunctionSchema)
+      .optional(),
+    ai_extract: z.lazy(() => unmarshalAiExtractFunctionSchema).optional(),
+    ai_classify: z.lazy(() => unmarshalAiClassifyFunctionSchema).optional(),
+  })
+  .transform(d => ({
+    source:
+      d.delta_table !== undefined
+        ? {$case: 'deltaTable' as const, deltaTable: d.delta_table}
+        : d.volume !== undefined
+          ? {$case: 'volume' as const, volume: d.volume}
+          : undefined,
+    output: d.output,
+    function:
+      d.ai_parse_document !== undefined
+        ? {
+            $case: 'aiParseDocument' as const,
+            aiParseDocument: d.ai_parse_document,
+          }
+        : d.ai_extract !== undefined
+          ? {$case: 'aiExtract' as const, aiExtract: d.ai_extract}
+          : d.ai_classify !== undefined
+            ? {$case: 'aiClassify' as const, aiClassify: d.ai_classify}
+            : undefined,
+  }));
+
+export const unmarshalAiFunctionTaskOutputSchema: z.ZodType<AiFunctionTaskOutput> =
+  z
+    .object({
+      total_row_count: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
+      succeeded_row_count: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
+      failed_row_count: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
+      estimated_time_remaining: z
+        .string()
+        .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+        .optional(),
+      output_table: z.lazy(() => unmarshalQualifiedNameSchema).optional(),
+    })
+    .transform(d => ({
+      totalRowCount: d.total_row_count,
+      succeededRowCount: d.succeeded_row_count,
+      failedRowCount: d.failed_row_count,
+      estimatedTimeRemaining: d.estimated_time_remaining,
+      outputTable: d.output_table,
+    }));
+
+export const unmarshalAiParseDocumentFunctionSchema: z.ZodType<AiParseDocumentFunction> =
+  z
+    .object({
+      version: z.string().optional(),
+      description_element_types: z.array(z.string()).optional(),
+      image_output_path: z.string().optional(),
+      page_range: z.string().optional(),
+    })
+    .transform(d => ({
+      version: d.version,
+      descriptionElementTypes: d.description_element_types,
+      imageOutputPath: d.image_output_path,
+      pageRange: d.page_range,
+    }));
 
 export const unmarshalAiRuntimeTaskSchema: z.ZodType<AiRuntimeTask> = z
   .object({
@@ -6724,6 +7140,18 @@ export const unmarshalDeleteJobResponseSchema: z.ZodType<DeleteJobResponse> =
 export const unmarshalDeleteRunResponseSchema: z.ZodType<DeleteRunResponse> =
   z.object({});
 
+export const unmarshalDeltaTableSourceSchema: z.ZodType<DeltaTableSource> = z
+  .object({
+    table_name: z.string().optional(),
+    input_column: z.string().optional(),
+    merge_key_columns: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    tableName: d.table_name,
+    inputColumn: d.input_column,
+    mergeKeyColumns: d.merge_key_columns,
+  }));
+
 export const unmarshalDeploymentSpecSchema: z.ZodType<DeploymentSpec> = z
   .object({
     command_path: z.string().optional(),
@@ -6985,6 +7413,9 @@ export const unmarshalGetRunOutputResponseSchema: z.ZodType<GetRunOutputResponse
       ai_runtime_task_output: z
         .lazy(() => unmarshalAiRuntimeTaskOutputSchema)
         .optional(),
+      ai_function_task_output: z
+        .lazy(() => unmarshalAiFunctionTaskOutputSchema)
+        .optional(),
       logs: z.string().optional(),
       logs_truncated: z.boolean().optional(),
       error_trace: z.string().optional(),
@@ -7038,7 +7469,13 @@ export const unmarshalGetRunOutputResponseSchema: z.ZodType<GetRunOutputResponse
                                 $case: 'aiRuntimeTaskOutput' as const,
                                 aiRuntimeTaskOutput: d.ai_runtime_task_output,
                               }
-                            : undefined,
+                            : d.ai_function_task_output !== undefined
+                              ? {
+                                  $case: 'aiFunctionTaskOutput' as const,
+                                  aiFunctionTaskOutput:
+                                    d.ai_function_task_output,
+                                }
+                              : undefined,
       logs: d.logs,
       logsTruncated: d.logs_truncated,
       errorTrace: d.error_trace,
@@ -7882,6 +8319,18 @@ export const unmarshalPythonWheelTaskSchema: z.ZodType<PythonWheelTask> = z
     namedParameters: d.named_parameters,
   }));
 
+export const unmarshalQualifiedNameSchema: z.ZodType<QualifiedName> = z
+  .object({
+    catalog: z.string().optional(),
+    schema: z.string().optional(),
+    table: z.string().optional(),
+  })
+  .transform(d => ({
+    catalog: d.catalog,
+    schema: d.schema,
+    table: d.table,
+  }));
+
 export const unmarshalQueueDetailsSchema: z.ZodType<QueueDetails> = z
   .object({
     code: z.string().optional(),
@@ -7997,6 +8446,9 @@ export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
     ai_runtime_task: z
       .lazy(() => unmarshalResolvedValues_AiRuntimeTaskResolvedValuesSchema)
       .optional(),
+    ai_function_task: z
+      .lazy(() => unmarshalResolvedValues_AiFunctionTaskResolvedValuesSchema)
+      .optional(),
   })
   .transform(d => ({
     resolved:
@@ -8048,8 +8500,17 @@ export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
                                   $case: 'aiRuntimeTask' as const,
                                   aiRuntimeTask: d.ai_runtime_task,
                                 }
-                              : undefined,
+                              : d.ai_function_task !== undefined
+                                ? {
+                                    $case: 'aiFunctionTask' as const,
+                                    aiFunctionTask: d.ai_function_task,
+                                  }
+                                : undefined,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalResolvedValues_AiFunctionTaskResolvedValuesSchema: z.ZodType<ResolvedValues_AiFunctionTaskResolvedValues> =
+  z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalResolvedValues_AiRuntimeTaskResolvedValuesSchema: z.ZodType<ResolvedValues_AiRuntimeTaskResolvedValues> =
@@ -8466,6 +8927,7 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
       .lazy(() => unmarshalPythonOperatorTaskSchema)
       .optional(),
     ai_runtime_task: z.lazy(() => unmarshalAiRuntimeTaskSchema).optional(),
+    ai_function_task: z.lazy(() => unmarshalAiFunctionTaskSchema).optional(),
     existing_cluster_id: z.string().optional(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
     job_cluster_key: z.string().optional(),
@@ -8624,7 +9086,14 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
                                                   aiRuntimeTask:
                                                     d.ai_runtime_task,
                                                 }
-                                              : undefined,
+                                              : d.ai_function_task !== undefined
+                                                ? {
+                                                    $case:
+                                                      'aiFunctionTask' as const,
+                                                    aiFunctionTask:
+                                                      d.ai_function_task,
+                                                  }
+                                                : undefined,
     spec:
       d.existing_cluster_id !== undefined
         ? {
@@ -9264,6 +9733,7 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
       .lazy(() => unmarshalPythonOperatorTaskSchema)
       .optional(),
     ai_runtime_task: z.lazy(() => unmarshalAiRuntimeTaskSchema).optional(),
+    ai_function_task: z.lazy(() => unmarshalAiFunctionTaskSchema).optional(),
     existing_cluster_id: z.string().optional(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
     job_cluster_key: z.string().optional(),
@@ -9385,7 +9855,14 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
                                                   aiRuntimeTask:
                                                     d.ai_runtime_task,
                                                 }
-                                              : undefined,
+                                              : d.ai_function_task !== undefined
+                                                ? {
+                                                    $case:
+                                                      'aiFunctionTask' as const,
+                                                    aiFunctionTask:
+                                                      d.ai_function_task,
+                                                  }
+                                                : undefined,
     spec:
       d.existing_cluster_id !== undefined
         ? {
@@ -9564,6 +10041,14 @@ export const unmarshalViewItemSchema: z.ZodType<ViewItem> = z
     type: d.type,
   }));
 
+export const unmarshalVolumeSourceSchema: z.ZodType<VolumeSource> = z
+  .object({
+    volume_path: z.string().optional(),
+  })
+  .transform(d => ({
+    volumePath: d.volume_path,
+  }));
+
 export const unmarshalVolumesStorageInfoSchema: z.ZodType<VolumesStorageInfo> =
   z
     .object({
@@ -9681,6 +10166,136 @@ export const marshalAdlsgen2InfoSchema: z.ZodType = z
   })
   .transform(d => ({
     destination: d.destination,
+  }));
+
+export const marshalAiClassifyFunctionSchema: z.ZodType = z
+  .object({
+    labelSource: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('inlineLabels'),
+          inlineLabels: z.lazy(
+            () => marshalAiClassifyFunction_InlineLabelsSchema
+          ),
+        }),
+      ])
+      .optional(),
+    instructions: z.string().optional(),
+    version: z.string().optional(),
+    multilabel: z.boolean().optional(),
+    enableConfidenceScores: z.boolean().optional(),
+    enableRationales: z.boolean().optional(),
+  })
+  .transform(d => ({
+    ...(d.labelSource?.$case === 'inlineLabels' && {
+      inline_labels: d.labelSource.inlineLabels,
+    }),
+    instructions: d.instructions,
+    version: d.version,
+    multilabel: d.multilabel,
+    enable_confidence_scores: d.enableConfidenceScores,
+    enable_rationales: d.enableRationales,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalAiClassifyFunction_InlineLabelsSchema: z.ZodType = z
+  .object({
+    labels: z
+      .array(z.lazy(() => marshalAiClassifyFunction_LabelSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    labels: d.labels,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalAiClassifyFunction_LabelSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    description: d.description,
+  }));
+
+export const marshalAiExtractFunctionSchema: z.ZodType = z
+  .object({
+    schema: z.string().optional(),
+    instructions: z.string().optional(),
+    version: z.string().optional(),
+    mode: z.string().optional(),
+    enableCitations: z.boolean().optional(),
+    enableConfidenceScores: z.boolean().optional(),
+  })
+  .transform(d => ({
+    schema: d.schema,
+    instructions: d.instructions,
+    version: d.version,
+    mode: d.mode,
+    enable_citations: d.enableCitations,
+    enable_confidence_scores: d.enableConfidenceScores,
+  }));
+
+export const marshalAiFunctionTaskSchema: z.ZodType = z
+  .object({
+    source: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('deltaTable'),
+          deltaTable: z.lazy(() => marshalDeltaTableSourceSchema),
+        }),
+        z.object({
+          $case: z.literal('volume'),
+          volume: z.lazy(() => marshalVolumeSourceSchema),
+        }),
+      ])
+      .optional(),
+    output: z.lazy(() => marshalQualifiedNameSchema).optional(),
+    function: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('aiParseDocument'),
+          aiParseDocument: z.lazy(() => marshalAiParseDocumentFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('aiExtract'),
+          aiExtract: z.lazy(() => marshalAiExtractFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('aiClassify'),
+          aiClassify: z.lazy(() => marshalAiClassifyFunctionSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.source?.$case === 'deltaTable' && {delta_table: d.source.deltaTable}),
+    ...(d.source?.$case === 'volume' && {volume: d.source.volume}),
+    output: d.output,
+    ...(d.function?.$case === 'aiParseDocument' && {
+      ai_parse_document: d.function.aiParseDocument,
+    }),
+    ...(d.function?.$case === 'aiExtract' && {
+      ai_extract: d.function.aiExtract,
+    }),
+    ...(d.function?.$case === 'aiClassify' && {
+      ai_classify: d.function.aiClassify,
+    }),
+  }));
+
+export const marshalAiParseDocumentFunctionSchema: z.ZodType = z
+  .object({
+    version: z.string().optional(),
+    descriptionElementTypes: z.array(z.string()).optional(),
+    imageOutputPath: z.string().optional(),
+    pageRange: z.string().optional(),
+  })
+  .transform(d => ({
+    version: d.version,
+    description_element_types: d.descriptionElementTypes,
+    image_output_path: d.imageOutputPath,
+    page_range: d.pageRange,
   }));
 
 export const marshalAiRuntimeTaskSchema: z.ZodType = z
@@ -10201,6 +10816,18 @@ export const marshalDeleteRunRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     run_id: d.runId,
+  }));
+
+export const marshalDeltaTableSourceSchema: z.ZodType = z
+  .object({
+    tableName: z.string().optional(),
+    inputColumn: z.string().optional(),
+    mergeKeyColumns: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    table_name: d.tableName,
+    input_column: d.inputColumn,
+    merge_key_columns: d.mergeKeyColumns,
   }));
 
 export const marshalDeploymentSpecSchema: z.ZodType = z
@@ -10936,6 +11563,18 @@ export const marshalPythonWheelTaskSchema: z.ZodType = z
     named_parameters: d.namedParameters,
   }));
 
+export const marshalQualifiedNameSchema: z.ZodType = z
+  .object({
+    catalog: z.string().optional(),
+    schema: z.string().optional(),
+    table: z.string().optional(),
+  })
+  .transform(d => ({
+    catalog: d.catalog,
+    schema: d.schema,
+    table: d.table,
+  }));
+
 export const marshalQueueSettingsSchema: z.ZodType = z
   .object({
     enabled: z.boolean().optional(),
@@ -11176,6 +11815,10 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
           $case: z.literal('aiRuntimeTask'),
           aiRuntimeTask: z.lazy(() => marshalAiRuntimeTaskSchema),
         }),
+        z.object({
+          $case: z.literal('aiFunctionTask'),
+          aiFunctionTask: z.lazy(() => marshalAiFunctionTaskSchema),
+        }),
       ])
       .optional(),
     spec: z
@@ -11263,6 +11906,9 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
     }),
     ...(d.task?.$case === 'aiRuntimeTask' && {
       ai_runtime_task: d.task.aiRuntimeTask,
+    }),
+    ...(d.task?.$case === 'aiFunctionTask' && {
+      ai_function_task: d.task.aiFunctionTask,
     }),
     ...(d.spec?.$case === 'existingClusterId' && {
       existing_cluster_id: d.spec.existingClusterId,
@@ -11742,6 +12388,10 @@ export const marshalTaskSettingsSchema: z.ZodType = z
           $case: z.literal('aiRuntimeTask'),
           aiRuntimeTask: z.lazy(() => marshalAiRuntimeTaskSchema),
         }),
+        z.object({
+          $case: z.literal('aiFunctionTask'),
+          aiFunctionTask: z.lazy(() => marshalAiFunctionTaskSchema),
+        }),
       ])
       .optional(),
     spec: z
@@ -11829,6 +12479,9 @@ export const marshalTaskSettingsSchema: z.ZodType = z
     }),
     ...(d.task?.$case === 'aiRuntimeTask' && {
       ai_runtime_task: d.task.aiRuntimeTask,
+    }),
+    ...(d.task?.$case === 'aiFunctionTask' && {
+      ai_function_task: d.task.aiFunctionTask,
     }),
     ...(d.spec?.$case === 'existingClusterId' && {
       existing_cluster_id: d.spec.existingClusterId,
@@ -11930,6 +12583,14 @@ export const marshalUpdateJobRequestSchema: z.ZodType = z
     job_id: d.jobId,
     new_settings: d.newSettings,
     fields_to_remove: d.fieldsToRemove,
+  }));
+
+export const marshalVolumeSourceSchema: z.ZodType = z
+  .object({
+    volumePath: z.string().optional(),
+  })
+  .transform(d => ({
+    volume_path: d.volumePath,
   }));
 
 export const marshalVolumesStorageInfoSchema: z.ZodType = z
