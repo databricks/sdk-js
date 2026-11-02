@@ -117,6 +117,62 @@ export interface DeleteSandboxRequest {
   name?: string | undefined;
 }
 
+/**
+ * Parameters for a file download. Range and conditional parameters are aliases
+ * for the corresponding HTTP headers.
+ */
+export interface DownloadFileRequest {
+  /** The sandbox resource name, in the form sandboxes/{sandbox_id}. */
+  parent?: string | undefined;
+  /** The absolute UTF-8 path of the file inside the sandbox. */
+  path?: string | undefined;
+  /** A single byte range, such as bytes=0-1023 or bytes=-1024. Equivalent to the Range header. */
+  range?: string | undefined;
+  /**
+   * A strong entity tag. A mismatch, weak entity tag, or HTTP-date causes a full download.
+   * Equivalent to the If-Range header.
+   */
+  ifRange?: string | undefined;
+  /**
+   * Entity tags or *. A mismatch returns 412 Precondition Failed.
+   * Equivalent to the If-Match header.
+   */
+  ifMatch?: string | undefined;
+  /**
+   * Entity tags or *. A match returns 304 Not Modified.
+   * Equivalent to the If-None-Match header.
+   */
+  ifNoneMatch?: string | undefined;
+  /**
+   * An HTTP-date. Returns 304 if the file has not changed since this time.
+   * Ignored when If-None-Match is present. Equivalent to the If-Modified-Since header.
+   */
+  ifModifiedSince?: string | undefined;
+  /**
+   * An HTTP-date. Returns 412 if the file has changed since this time.
+   * Ignored when If-Match is present. Equivalent to the If-Unmodified-Since header.
+   */
+  ifUnmodifiedSince?: string | undefined;
+}
+
+/** A streamed file body and its HTTP response headers. */
+export interface DownloadFileResponse {
+  /** The full file or the requested byte range. */
+  contents?: ReadableStream | undefined;
+  /** The length of the response body in bytes. */
+  contentLength?: bigint | undefined;
+  /** The entity tag used for conditional requests. */
+  etag?: string | undefined;
+  /** The modification time as an HTTP-date, when representable. */
+  lastModified?: string | undefined;
+  /** The returned byte range and full file length, for a partial response. */
+  contentRange?: string | undefined;
+  /** The supported range unit: bytes. */
+  acceptRanges?: string | undefined;
+  /** The media type of the response body: application/octet-stream. */
+  contentType?: string | undefined;
+}
+
 export interface EnvironmentSpec {
   /**
    * The Unity Catalog container image to use for the sandbox environment
@@ -361,6 +417,20 @@ export interface UpdateSandboxRequest {
   updateMask?: FieldMask<Sandbox> | undefined;
 }
 
+/** Parameters and streamed HTTP body for a whole-file upload. */
+export interface UploadFileRequest {
+  /** The sandbox resource name, in the form sandboxes/{sandbox_id}. */
+  parent?: string | undefined;
+  /** The absolute UTF-8 destination path inside the sandbox. */
+  path?: string | undefined;
+  /** The complete file contents. An empty body creates an empty file. */
+  contents?: ReadableStream | undefined;
+}
+
+/** A successful upload returns no response body. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UploadFileResponse {}
+
 export const unmarshalCommandSchema: z.ZodType<Command> = z
   .object({
     command_id: z.string().optional(),
@@ -556,6 +626,9 @@ export const unmarshalSandboxStatusSchema: z.ZodType<SandboxStatus> = z
   .transform(d => ({
     state: d.state,
   }));
+
+export const unmarshalUploadFileResponseSchema: z.ZodType<UploadFileResponse> =
+  z.object({});
 
 export const marshalComputeSpecSchema: z.ZodType = z
   .object({

@@ -34,6 +34,512 @@ export type EndpointState =
   | (typeof EndpointState)[keyof typeof EndpointState]
   | (string & {});
 
+/** Error codes returned by Databricks APIs to indicate specific failure conditions. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ErrorCode = {
+  /**
+   * Unknown error. This error generally should not be returned explicitly, but will be used
+   * as a fallback if the error enum is missing from the message for some reason.
+   *
+   * It's assigned tag 0 to follow the best practice from
+   * https://developers.google.com/protocol-buffers/docs/style#enums
+   *
+   * TODO(PLAT-55898): Add custom option to declare HTTP and gRPC mappings.
+   * Maps to:
+   * - google.rpc.Code: UNKNOWN = 2;
+   * - HTTP code: 500 Internal Server Error
+   */
+  UNKNOWN: 'UNKNOWN',
+  /**
+   * Internal error. This means that some invariants expected by the underlying system have been
+   * broken. This error code is reserved for serious errors, which generally cannot be resolved
+   * by the user.
+   *
+   * Prefer this over all kinds of detailed error messages (e.g IO_ERROR), unless there's some
+   * automation that relies on the custom error code.
+   *
+   * Maps to:
+   * - google.rpc.Code: INTERNAL = 13;
+   * - HTTP code: 500 Internal Server Error
+   */
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  /**
+   * The service is currently unavailable. This is most likely a transient condition, which can be
+   * corrected by retrying with a backoff. Note that it is not always safe to retry non-idempotent
+   * operations.
+   *
+   * Prefer this over SERVICE_UNDER_MAINTENANCE, WORKSPACE_TEMPORARILY_UNAVAILABLE.
+   *
+   * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
+   * for guideline on how to pick this vs RESOURCE_EXHAUSTED.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNAVAILABLE = 14;
+   * - HTTP code: 503 Service Unavailable
+   */
+  TEMPORARILY_UNAVAILABLE: 'TEMPORARILY_UNAVAILABLE',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * Indicates that an IOException has been internally thrown.
+   */
+  IO_ERROR: 'IO_ERROR',
+  /**
+   * The request is invalid. Prefer more specific error code whenever possible.
+   * Also see similar recommendation for the google.rpc.Code.FAILED_PRECONDITION.
+   *
+   * Prefer this error code over MALFORMED_REQUEST, INVALID_STATE, UNPARSEABLE_HTTP_ERROR.
+   *
+   * Maps to:
+   * - google.rpc.Code: FAILED_PRECONDITION = 9;
+   * - HTTP code: 400 Bad Request
+   */
+  BAD_REQUEST: 'BAD_REQUEST',
+  /**
+   * An external service is unavailable temporarily as it is being updated/re-deployed. Indicates
+   * gateway proxy to safely retry the request.
+   */
+  SERVICE_UNDER_MAINTENANCE: 'SERVICE_UNDER_MAINTENANCE',
+  /** A workspace is temporarily unavailable as the workspace is being re-assigned. */
+  WORKSPACE_TEMPORARILY_UNAVAILABLE: 'WORKSPACE_TEMPORARILY_UNAVAILABLE',
+  /**
+   * The deadline expired before the operation could complete. For operations that change the state
+   * of the system, this error may be returned even if the operation has completed successfully.
+   * For example, a successful response from a server could have been delayed long enough for
+   * the deadline to expire. When possible - implementations should make sure further processing of
+   * the request is aborted, e.g. by throwing an exception instead of making the RPC request,
+   * making the database query, etc.
+   *
+   * Maps to:
+   * - google.rpc.Code: DEADLINE_EXCEEDED = 4;
+   * - HTTP code: 504 Gateway Timeout
+   */
+  DEADLINE_EXCEEDED: 'DEADLINE_EXCEEDED',
+  /**
+   * The operation was canceled by the caller. An example - client closed the connection without
+   * waiting for a response.
+   *
+   * Maps to:
+   * - google.rpc.Code: CANCELLED = 1;
+   * - HTTP code: 499 Client Closed Request
+   */
+  CANCELLED: 'CANCELLED',
+  /**
+   * The operation is rejected because of either rate limiting or resource quota,
+   * such as the client has sent too many requests recently or the client has allocated too many
+   * resources.
+   *
+   * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
+   * for guideline on how to pick this vs TEMPORARILY_UNAVAILABLE.
+   *
+   * Maps to:
+   * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
+   * - HTTP code: 429 Too Many Requests
+   */
+  RESOURCE_EXHAUSTED: 'RESOURCE_EXHAUSTED',
+  /**
+   * The operation was aborted, typically due to a concurrency issue such as a sequencer
+   * check failure, transaction abort, or transaction conflict.
+   *
+   * Maps to:
+   * - google.rpc.Code: ABORTED = 10;
+   * - HTTP code: 409 Conflict
+   */
+  ABORTED: 'ABORTED',
+  /**
+   * Operation was performed on a resource that does not exist,
+   * e.g. file or directory was not found.
+   *
+   * Maps to:
+   * - google.rpc.Code: NOT_FOUND = 5;
+   * - HTTP code: 404 Not Found
+   */
+  NOT_FOUND: 'NOT_FOUND',
+  /**
+   * Operation was rejected due a conflict with an existing resource, e.g. attempted to create
+   * file or directory that already exists.
+   *
+   * Prefer this over RESOURCE_CONFLICT.
+   *
+   * Maps to:
+   * - google.rpc.Code: ALREADY_EXISTS = 6;
+   * - HTTP code: 409 Conflict
+   */
+  ALREADY_EXISTS: 'ALREADY_EXISTS',
+  /**
+   * The request does not have valid authentication (AuthN) credentials for the operation.
+   *
+   * Prefer this over CUSTOMER_UNAUTHORIZED, unless you need to keep consistent behavior with legacy
+   * code.
+   * For authorization (AuthZ) errors use PERMISSION_DENIED.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNAUTHENTICATED = 16;
+   * - HTTP code: 401 Unauthorized
+   */
+  UNAUTHENTICATED: 'UNAUTHENTICATED',
+  /**
+   * The service is currently unavailable. Please note that the unavailability may or may not be transient.
+   * That means if this is a non-transient condition, retrying it does not work. If the unavailability
+   * is certainly a transient condition, pleases use `TEMPORARILY_UNAVAILABLE` which signals its transient
+   * nature explicitly.
+   * An example of this error code’s use case is that when DNS resolution fails, the DNS resolver does
+   * not know whether it is because the domain name is completely wrong (non-transient situation) or
+   * the domain name is valid but the DNS server does not have an entry for this domain name yet (transient
+   * situation). Hence, `UNAVAILABLE`  is suitable for this case.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNAVAILABLE = 14;
+   * - HTTP code: 503 Service Unavailable
+   */
+  UNAVAILABLE: 'UNAVAILABLE',
+  /**
+   * Supplied value for a parameter was invalid (e.g., giving a number for a string parameter).
+   *
+   * Maps to:
+   * - google.rpc.Code: INVALID_ARGUMENT = 3;
+   * - HTTP code: 400 Bad Request
+   */
+  INVALID_PARAMETER_VALUE: 'INVALID_PARAMETER_VALUE',
+  /**
+   * Indicates that the given API endpoint does not exist. Legacy, when possible - NOT_IMPLEMENTED
+   * should be used instead to indicate that API doesn't exist.
+   *
+   * Maps to:
+   * - google.rpc.Code: NOT_FOUND = 5;
+   * - HTTP code: 404 Not Found
+   */
+  ENDPOINT_NOT_FOUND: 'ENDPOINT_NOT_FOUND',
+  /** Indicates that the given API request was malformed. */
+  MALFORMED_REQUEST: 'MALFORMED_REQUEST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * If one or more of the inputs to a given RPC are not in a valid state for the action.
+   */
+  INVALID_STATE: 'INVALID_STATE',
+  /**
+   * The caller does not have permission to execute the specified operation.
+   * PERMISSION_DENIED must not be used for rejections caused by exhausting some resource,
+   * use RESOURCE_EXHAUSTED instead for those errors.
+   * PERMISSION_DENIED must not be used if the caller can not be identified,
+   * use CUSTOMER_UNAUTHORIZED instead for those errors.
+   * This error code does not imply the request is valid or the requested entity exists or
+   * satisfies other pre-conditions.
+   *
+   * Maps to:
+   * - google.rpc.Code: PERMISSION_DENIED = 7;
+   * - HTTP code: 403 Forbidden
+   */
+  PERMISSION_DENIED: 'PERMISSION_DENIED',
+  /**
+   * NOTE: Deprecated due to inconsistent mapping in legacy code, see
+   * https://docs.google.com/document/d/17TZIKX_Y39cJMBr333lc-d5dTvvBLSu3DPUyGU5eMJg/edit?disco=AAAAzVGt6FA.
+   * Prefer using NOT_FOUND or PERMISSION_DENIED.
+   *
+   * If a given user/entity is trying to use a feature which has been disabled.
+   *
+   * Maps to:
+   * - google.rpc.Code: NOT_FOUND = 5;
+   * - HTTP code: 404 Not Found
+   */
+  FEATURE_DISABLED: 'FEATURE_DISABLED',
+  /**
+   * The request does not have valid authentication (AuthN) credentials for the operation.
+   *
+   * For authentication (AuthN) errors prefer using UNAUTHENTICATED, unless you need to keep
+   * consistent behavior with legacy code.
+   * For authorization (AuthZ) errors use PERMISSION_DENIED.
+   *
+   * Important: name is confusing, this error code is for authentication (AuthN) errors, not
+   * authorization (AuthZ) errors. It maps to 401 Unauthorized and suffers from the same confusing
+   * naming. See https://datatracker.ietf.org/doc/html/rfc7235#section-3.1 - "[...] status code
+   * indicates that the request has not been applied because it lacks valid authentication
+   * credentials for the target resource. [...] If the request included authentication credentials,
+   * then the 401 response indicates that authorization has been refused for those credentials."
+   *
+   * Also, see https://stackoverflow.com/a/6937030/16352922, it covers it pretty well.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNAUTHENTICATED = 16;
+   * - HTTP code: 401 Unauthorized
+   */
+  CUSTOMER_UNAUTHORIZED: 'CUSTOMER_UNAUTHORIZED',
+  /**
+   * The operation is rejected because of request rate limit, for example rate limiting applied to
+   * users, workspaces, IP addresses, etc.
+   *
+   * Prefer a more generic RESOURCE_EXHAUSTED for the new use cases.
+   *
+   * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
+   * for guideline on the rate limiting vs throttling.
+   *
+   * Maps to:
+   * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
+   * - HTTP code: 429 Too Many Requests
+   */
+  REQUEST_LIMIT_EXCEEDED: 'REQUEST_LIMIT_EXCEEDED',
+  /** Indicates API request was rejected due a conflict with an existing resource. */
+  RESOURCE_CONFLICT: 'RESOURCE_CONFLICT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * Indicates that the HTTP response cannot be correctly deserialized.
+   * This currently is only used in DUST test clients, and not by any real service code.
+   */
+  UNPARSEABLE_HTTP_ERROR: 'UNPARSEABLE_HTTP_ERROR',
+  /**
+   * The operation is not implemented or is not supported/enabled in this service.
+   *
+   * Maps to:
+   * - google.rpc.Code: UNIMPLEMENTED = 12;
+   * - HTTP code: 501 Not Implemented
+   */
+  NOT_IMPLEMENTED: 'NOT_IMPLEMENTED',
+  /**
+   * Unrecoverable data loss or corruption.
+   *
+   * One of the major use cases is to indicate that server failed to validate the integrity of
+   * the request. This error can occur when the checksum specified in the `X-Databricks-Checksum`
+   * request header (or trailer) doesn't match the actual request content checksum.
+   *
+   * Note, in case of the severe corruption that results in a malformed request, the server may
+   * send a generic `400 Bad Request` response rather than sending this error code.
+   *
+   * Maps to:
+   * - google.rpc.Code: DATA_LOSS = 15;
+   * - HTTP code: 500 Internal Server Error
+   */
+  DATA_LOSS: 'DATA_LOSS',
+  /** If the user attempts to perform an invalid state transition on a shard. */
+  INVALID_STATE_TRANSITION: 'INVALID_STATE_TRANSITION',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * Unable to perform the operation because the shard was locked by some other operation.
+   */
+  COULD_NOT_ACQUIRE_LOCK: 'COULD_NOT_ACQUIRE_LOCK',
+  /**
+   * NOTE: Deprecated, prefer using ALREADY_EXISTS.
+   * Unlike ALREADY_EXISTS - this maps to HTTP code 400 Bad Request due to legacy reasons,
+   * remapping will be a backwards incompatible change.
+   *
+   * Operation was performed on a resource that already exists.
+   */
+  RESOURCE_ALREADY_EXISTS: 'RESOURCE_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated, prefer using NOT_FOUND - see the note for the RESOURCE_ALREADY_EXISTS,
+   * because this pair of codes is related and RESOURCE_ALREADY_EXISTS has bad mapping to the HTTP
+   * codes we added new error codes NOT_FOUND and ALREADY_EXISTS, and recommend to use them instead.
+   *
+   * Operation was performed on a resource that does not exist.
+   */
+  RESOURCE_DOES_NOT_EXIST: 'RESOURCE_DOES_NOT_EXIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MAX_BLOCK_SIZE_EXCEEDED: 'MAX_BLOCK_SIZE_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MAX_READ_SIZE_EXCEEDED: 'MAX_READ_SIZE_EXCEEDED',
+  PARTIAL_DELETE: 'PARTIAL_DELETE',
+  MAX_LIST_SIZE_EXCEEDED: 'MAX_LIST_SIZE_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DRY_RUN_FAILED: 'DRY_RUN_FAILED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   * Cluster request was rejected because it would exceed a resource limit.
+   */
+  RESOURCE_LIMIT_EXCEEDED: 'RESOURCE_LIMIT_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DIRECTORY_NOT_EMPTY: 'DIRECTORY_NOT_EMPTY',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DIRECTORY_PROTECTED: 'DIRECTORY_PROTECTED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MAX_NOTEBOOK_SIZE_EXCEEDED: 'MAX_NOTEBOOK_SIZE_EXCEEDED',
+  MAX_CHILD_NODE_SIZE_EXCEEDED: 'MAX_CHILD_NODE_SIZE_EXCEEDED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SEARCH_QUERY_TOO_LONG: 'SEARCH_QUERY_TOO_LONG',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SEARCH_QUERY_TOO_SHORT: 'SEARCH_QUERY_TOO_SHORT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST:
+    'MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  PERMISSION_NOT_PROPAGATED: 'PERMISSION_NOT_PROPAGATED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DEPLOYMENT_TIMEOUT: 'DEPLOYMENT_TIMEOUT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_CONFLICT: 'GIT_CONFLICT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_UNKNOWN_REF: 'GIT_UNKNOWN_REF',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_SENSITIVE_TOKEN_DETECTED: 'GIT_SENSITIVE_TOKEN_DETECTED',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_URL_NOT_ON_ALLOW_LIST: 'GIT_URL_NOT_ON_ALLOW_LIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  GIT_REMOTE_ERROR: 'GIT_REMOTE_ERROR',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  PROJECTS_OPERATION_TIMEOUT: 'PROJECTS_OPERATION_TIMEOUT',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  IPYNB_FILE_IN_REPO: 'IPYNB_FILE_IN_REPO',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  INSECURE_PARTNER_RESPONSE: 'INSECURE_PARTNER_RESPONSE',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  MALFORMED_PARTNER_RESPONSE: 'MALFORMED_PARTNER_RESPONSE',
+  METASTORE_DOES_NOT_EXIST: 'METASTORE_DOES_NOT_EXIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DAC_DOES_NOT_EXIST: 'DAC_DOES_NOT_EXIST',
+  CATALOG_DOES_NOT_EXIST: 'CATALOG_DOES_NOT_EXIST',
+  SCHEMA_DOES_NOT_EXIST: 'SCHEMA_DOES_NOT_EXIST',
+  TABLE_DOES_NOT_EXIST: 'TABLE_DOES_NOT_EXIST',
+  SHARE_DOES_NOT_EXIST: 'SHARE_DOES_NOT_EXIST',
+  RECIPIENT_DOES_NOT_EXIST: 'RECIPIENT_DOES_NOT_EXIST',
+  STORAGE_CREDENTIAL_DOES_NOT_EXIST: 'STORAGE_CREDENTIAL_DOES_NOT_EXIST',
+  EXTERNAL_LOCATION_DOES_NOT_EXIST: 'EXTERNAL_LOCATION_DOES_NOT_EXIST',
+  PRINCIPAL_DOES_NOT_EXIST: 'PRINCIPAL_DOES_NOT_EXIST',
+  PROVIDER_DOES_NOT_EXIST: 'PROVIDER_DOES_NOT_EXIST',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  METASTORE_ALREADY_EXISTS: 'METASTORE_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  DAC_ALREADY_EXISTS: 'DAC_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  CATALOG_ALREADY_EXISTS: 'CATALOG_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SCHEMA_ALREADY_EXISTS: 'SCHEMA_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  TABLE_ALREADY_EXISTS: 'TABLE_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SHARE_ALREADY_EXISTS: 'SHARE_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  RECIPIENT_ALREADY_EXISTS: 'RECIPIENT_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  STORAGE_CREDENTIAL_ALREADY_EXISTS: 'STORAGE_CREDENTIAL_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  EXTERNAL_LOCATION_ALREADY_EXISTS: 'EXTERNAL_LOCATION_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  PROVIDER_ALREADY_EXISTS: 'PROVIDER_ALREADY_EXISTS',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  CATALOG_NOT_EMPTY: 'CATALOG_NOT_EMPTY',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  SCHEMA_NOT_EMPTY: 'SCHEMA_NOT_EMPTY',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  METASTORE_NOT_EMPTY: 'METASTORE_NOT_EMPTY',
+  /**
+   * NOTE: Deprecated and kept to maintain backwards compatibility for public APIs that use it,
+   * avoid using it in the new APIs, refer error codes listed in the http://go/error-codes.
+   */
+  PROVIDER_SHARE_NOT_ACCESSIBLE: 'PROVIDER_SHARE_NOT_ACCESSIBLE',
+} as const;
+export type ErrorCode =
+  | (typeof ErrorCode)[keyof typeof ErrorCode]
+  | (string & {});
+
 /**
  * Type of IP access list. Valid values are as follows and are case-sensitive:
  *
@@ -387,6 +893,78 @@ export type NetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnect
     | (typeof NetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState)[keyof typeof NetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState]
     | (string & {});
 
+/** The supported destination types. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PrivateNetworkGateway_Destination_DestinationType = {
+  /** No destination type was specified. */
+  DESTINATION_TYPE_UNSPECIFIED: 'DESTINATION_TYPE_UNSPECIFIED',
+  /** A DNS name such as `database.internal`. */
+  DNS_NAME: 'DNS_NAME',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type PrivateNetworkGateway_Destination_DestinationType =
+  | (typeof PrivateNetworkGateway_Destination_DestinationType)[keyof typeof PrivateNetworkGateway_Destination_DestinationType]
+  | (string & {});
+
+/** The lifecycle state of the gateway. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PrivateNetworkGateway_GatewayState = {
+  /** The gateway lifecycle state is not specified. */
+  GATEWAY_STATE_UNSPECIFIED: 'GATEWAY_STATE_UNSPECIFIED',
+  /** The gateway is being provisioned. */
+  CREATING: 'CREATING',
+  /** The gateway is ready to route traffic. */
+  ESTABLISHED: 'ESTABLISHED',
+  /** The gateway could not be provisioned or encountered an unrecoverable error. */
+  FAILED: 'FAILED',
+  /** The gateway is being permanently deleted. */
+  DELETING: 'DELETING',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type PrivateNetworkGateway_GatewayState =
+  | (typeof PrivateNetworkGateway_GatewayState)[keyof typeof PrivateNetworkGateway_GatewayState]
+  | (string & {});
+
+/** The supported resolver types. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PrivateNetworkGateway_PrivateDnsResolver_ResolverType = {
+  /** No DNS resolver type was specified. */
+  RESOLVER_TYPE_UNSPECIFIED: 'RESOLVER_TYPE_UNSPECIFIED',
+  /** An IPv4 address. */
+  IP_ADDRESS: 'IP_ADDRESS',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type PrivateNetworkGateway_PrivateDnsResolver_ResolverType =
+  | (typeof PrivateNetworkGateway_PrivateDnsResolver_ResolverType)[keyof typeof PrivateNetworkGateway_PrivateDnsResolver_ResolverType]
+  | (string & {});
+
+/** The traffic routed through the gateway. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PrivateNetworkGateway_TrafficMode = {
+  /** No traffic routing mode was specified. */
+  TRAFFIC_MODE_UNSPECIFIED: 'TRAFFIC_MODE_UNSPECIFIED',
+  /** Route only the destinations configured on the gateway. */
+  SPECIFIC_DESTINATIONS: 'SPECIFIC_DESTINATIONS',
+  /** Route all traffic through the gateway. */
+  ALL_TRAFFIC: 'ALL_TRAFFIC',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type PrivateNetworkGateway_TrafficMode =
+  | (typeof PrivateNetworkGateway_TrafficMode)[keyof typeof PrivateNetworkGateway_TrafficMode]
+  | (string & {});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const PrivateNetworkGatewayOperationMetadata_OperationType = {
+  /** The operation type is not specified. */
+  OPERATION_TYPE_UNSPECIFIED: 'OPERATION_TYPE_UNSPECIFIED',
+  /** A gateway create operation. */
+  CREATE: 'CREATE',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type PrivateNetworkGatewayOperationMetadata_OperationType =
+  | (typeof PrivateNetworkGatewayOperationMetadata_OperationType)[keyof typeof PrivateNetworkGatewayOperationMetadata_OperationType]
+  | (string & {});
+
 /** Definition of an IP Access list */
 export interface AccountIpAccessList {
   /** Universally unique identifier (UUID) of the IP access list. */
@@ -429,6 +1007,14 @@ export interface AccountNetworkPolicy {
    * and emit logs only without blocking requests.
    */
   ingressDryRun?: IngressNetworkPolicy | undefined;
+}
+
+/** Databricks Error that is returned by all Databricks APIs. */
+export interface ApiError {
+  errorCode?: ErrorCode | undefined;
+  message?: string | undefined;
+  stackTrace?: string | undefined;
+  details?: Record<string, unknown>[] | undefined;
 }
 
 export interface AwsVpcEndpointInfo {
@@ -659,6 +1245,15 @@ export interface CreatePrivateEndpointRule {
   endpoint?: {$case: 'gcpEndpoint'; gcpEndpoint: GcpEndpoint} | undefined;
 }
 
+export interface CreatePrivateNetworkGatewayRequest {
+  /** The network connectivity configuration that will contain the gateway. */
+  parent?: string | undefined;
+  /** The gateway to create. */
+  privateNetworkGateway?: PrivateNetworkGateway | undefined;
+  /** A unique identifier for this request. The request is idempotent when this is provided. */
+  requestId?: string | undefined;
+}
+
 export interface CreateVpcEndpointRequest {
   accountId?: string | undefined;
   /** The human-readable name of the storage configuration. */
@@ -761,6 +1356,11 @@ export interface DeleteNetworkRequest {
 export interface DeletePrivateAccessSettingsRequest {
   privateAccessSettingsId?: string | undefined;
   accountId?: string | undefined;
+}
+
+export interface DeletePrivateNetworkGatewayRequest {
+  /** The canonical resource name of the gateway. */
+  name?: string | undefined;
 }
 
 export interface DeleteVpcEndpointRequest {
@@ -1050,9 +1650,20 @@ export interface GetNetworkRequest {
   accountId?: string | undefined;
 }
 
+/** The request message for `GetOperation` method. */
+export interface GetOperationRequest {
+  /** The name of the operation resource. */
+  name?: string | undefined;
+}
+
 export interface GetPrivateAccessSettingsRequest {
   privateAccessSettingsId?: string | undefined;
   accountId?: string | undefined;
+}
+
+export interface GetPrivateNetworkGatewayRequest {
+  /** The canonical resource name of the gateway. */
+  name?: string | undefined;
 }
 
 export interface GetVpcEndpointRequest {
@@ -1526,6 +2137,19 @@ export interface ListPrivateAccessSettingsResponse {
   privateAccessSettings?: PrivateAccessSettings[] | undefined;
 }
 
+export interface ListPrivateNetworkGatewaysRequest {
+  /** The network connectivity configuration containing the gateways. */
+  parent?: string | undefined;
+  /** An opaque token returned by a previous list request. */
+  pageToken?: string | undefined;
+}
+
+export interface ListPrivateNetworkGatewaysResponse {
+  privateNetworkGateways?: PrivateNetworkGateway[] | undefined;
+  /** An opaque token for the next page, or empty when there are no more results. */
+  nextPageToken?: string | undefined;
+}
+
 export interface ListVpcEndpointRequest {
   accountId?: string | undefined;
 }
@@ -1662,6 +2286,11 @@ export interface NetworkConnectivityConfig {
   updatedTime?: bigint | undefined;
   /** Time in epoch milliseconds when this object was created. */
   creationTime?: bigint | undefined;
+  /**
+   * The workspace to which charges for this network connectivity configuration are attributed.
+   * The workspace must be active and attached to this network connectivity configuration when set.
+   */
+  billingWorkspaceId?: bigint | undefined;
 }
 
 /**
@@ -1838,6 +2467,49 @@ export interface NetworkWarning {
   warningMessage?: string | undefined;
 }
 
+/**
+ * This resource represents a long-running operation that is the result of a
+ * network API call.
+ */
+export interface Operation {
+  /**
+   * The server-assigned name, which is only unique within the same service that
+   * originally returns it. If you use the default HTTP mapping, the
+   * `name` should be a resource name ending with `operations/{unique_id}`.
+   */
+  name?: string | undefined;
+  /**
+   * Service-specific metadata associated with the operation.  It typically
+   * contains progress information and common metadata such as create time.
+   * Some services might not provide such metadata.
+   */
+  metadata?: Record<string, unknown> | undefined;
+  /**
+   * If the value is `false`, it means the operation is still in progress.
+   * If `true`, the operation is completed, and either `error` or `response` is
+   * available.
+   */
+  done?: boolean | undefined;
+  /**
+   * The operation result, which can be either an `error` or a valid `response`.
+   * If `done` == `false`, neither `error` nor `response` is set.
+   * If `done` == `true`, exactly one of `error` or `response` can be set.
+   * Some services might not provide the result.
+   */
+  result?:
+    | {
+        $case: 'error';
+        /** The error result of the operation in case of failure or cancellation. */
+        error: ApiError;
+      }
+    | {
+        $case: 'response';
+        /** The normal, successful response of the operation. */
+        response: Record<string, unknown>;
+      }
+    | undefined;
+}
+
 /** * */
 export interface PrivateAccessSettings {
   /** <Databricks> private access settings ID. */
@@ -1862,6 +2534,126 @@ export interface PrivateAccessSettings {
    * If hybrid access to your workspace is enabled by setting public_access_enabled to true, this control only works for PrivateLink connections. To control how your workspace is accessed via public internet, see IP access lists.
    */
   allowedVpcEndpointIds?: string[] | undefined;
+}
+
+/**
+ * A private network gateway connects serverless compute to destinations in a
+ * customer-managed VPC or VNet.
+ */
+export interface PrivateNetworkGateway {
+  /**
+   * The canonical resource name of the gateway, in the form
+   * `accounts/{account_id}/network-connectivity-configs/{ncc_id}/private-network-gateways/{gateway_id}`.
+   */
+  name?: string | undefined;
+  /** The human-readable name of the gateway. */
+  displayName?: string | undefined;
+  /** Exactly one cloud connection must be provided when creating a gateway. */
+  cloudConnection?:
+    | {
+        $case: 'azureCloudConnection';
+        /** The Azure connection used by the gateway. */
+        azureCloudConnection: PrivateNetworkGateway_AzureCloudConnection;
+      }
+    | {
+        $case: 'awsCloudConnection';
+        /** The AWS connection used by the gateway. */
+        awsCloudConnection: PrivateNetworkGateway_AwsCloudConnection;
+      }
+    | undefined;
+  /** The destinations routed through this gateway. */
+  destinations?: PrivateNetworkGateway_Destination[] | undefined;
+  /** The DNS resolvers used for private name resolution. */
+  privateDnsResolvers?: PrivateNetworkGateway_PrivateDnsResolver[] | undefined;
+  /** The traffic routed through this gateway. */
+  trafficMode?: PrivateNetworkGateway_TrafficMode | undefined;
+  /** The time when the gateway was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** The time when the gateway was last updated. */
+  updateTime?: Temporal.Instant | undefined;
+  /** The current lifecycle state of the gateway. */
+  state?: PrivateNetworkGateway_GatewayState | undefined;
+  /** The failure reason when the gateway is in the FAILED state. */
+  errorMessage?: string | undefined;
+  /**
+   * The provisioned bandwidth tier for an Azure gateway, in gigabits per second.
+   * Required when creating an Azure gateway.
+   */
+  bandwidthTierGigabitsPerSecond?: number | undefined;
+}
+
+/** AWS connection configuration. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PrivateNetworkGateway_AwsCloudConnection {
+  /** The subnets where the gateway establishes connectivity. */
+  gatewaySubnets?:
+    | PrivateNetworkGateway_AwsCloudConnection_AwsGatewaySubnet[]
+    | undefined;
+  /** The IAM role that <Databricks> assumes to manage gateway resources. */
+  crossAccountRole?:
+    | PrivateNetworkGateway_AwsCloudConnection_CrossAccountRole
+    | undefined;
+  /** The security groups attached to the gateway network interface. */
+  securityGroupIds?: string[] | undefined;
+}
+
+/** An AWS subnet used by the gateway. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PrivateNetworkGateway_AwsCloudConnection_AwsGatewaySubnet {
+  /** The AWS subnet ID. */
+  subnetId?: string | undefined;
+}
+
+/** A cross-account IAM role used to manage gateway resources. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PrivateNetworkGateway_AwsCloudConnection_CrossAccountRole {
+  /** The ARN of the IAM role. */
+  roleArn?: string | undefined;
+}
+
+/** Azure connection configuration. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PrivateNetworkGateway_AzureCloudConnection {
+  /** The subnet where the gateway establishes connectivity. */
+  gatewaySubnet?:
+    | PrivateNetworkGateway_AzureCloudConnection_AzureGatewaySubnet
+    | undefined;
+}
+
+/** An Azure subnet used by the gateway. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PrivateNetworkGateway_AzureCloudConnection_AzureGatewaySubnet {
+  /** The full Azure resource ID of the subnet. */
+  resourceId?: string | undefined;
+}
+
+/** A destination routed through the gateway. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PrivateNetworkGateway_Destination {
+  /** The destination type. */
+  destinationType?:
+    | PrivateNetworkGateway_Destination_DestinationType
+    | undefined;
+  /** The destination value. */
+  value?: string | undefined;
+}
+
+/** A private DNS resolver used by the gateway. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PrivateNetworkGateway_PrivateDnsResolver {
+  /** The resolver type. */
+  resolverType?:
+    | PrivateNetworkGateway_PrivateDnsResolver_ResolverType
+    | undefined;
+  /** The resolver value. */
+  value?: string | undefined;
+}
+
+export interface PrivateNetworkGatewayOperationMetadata {
+  /** The operation performed on the gateway. */
+  operationType?:
+    | PrivateNetworkGatewayOperationMetadata_OperationType
+    | undefined;
 }
 
 /** Details required to replace an IP access list. */
@@ -1944,6 +2736,18 @@ export interface UpdateNccPrivateEndpointRuleRequest {
   privateEndpointRuleId?: string | undefined;
   privateEndpointRule?: UpdatePrivateEndpointRule | undefined;
   updateMask?: FieldMask<UpdatePrivateEndpointRule> | undefined;
+}
+
+/** Request to update a network connectivity configuration. */
+export interface UpdateNetworkConnectivityConfigRequest {
+  /** Your <Databricks> account ID. */
+  accountId?: string | undefined;
+  /** Your Network Connectivity Configuration ID. */
+  networkConnectivityConfigId?: string | undefined;
+  /** The network connectivity configuration fields to update. */
+  networkConnectivityConfig?: NetworkConnectivityConfig | undefined;
+  /** Must contain at least one of `name` or `billing_workspace_id`. */
+  updateMask?: FieldMask<NetworkConnectivityConfig> | undefined;
 }
 
 export interface UpdateNetworkPolicyRequest {
@@ -2033,6 +2837,13 @@ export interface UpdatePrivateEndpointRule {
    */
   enabled?: boolean | undefined;
   endpoint?: {$case: 'gcpEndpoint'; gcpEndpoint: GcpEndpoint} | undefined;
+}
+
+export interface UpdatePrivateNetworkGatewayRequest {
+  /** The gateway containing the desired mutable field values. */
+  privateNetworkGateway?: PrivateNetworkGateway | undefined;
+  /** The fields to update. */
+  updateMask?: FieldMask<PrivateNetworkGateway> | undefined;
 }
 
 export interface UpdateWorkspaceNetworkOptionRequest {
@@ -2149,6 +2960,20 @@ export const unmarshalAccountNetworkPolicySchema: z.ZodType<AccountNetworkPolicy
       ingress: d.ingress,
       ingressDryRun: d.ingress_dry_run,
     }));
+
+export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
+  .object({
+    error_code: z.string().optional(),
+    message: z.string().optional(),
+    stack_trace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    errorCode: d.error_code,
+    message: d.message,
+    stackTrace: d.stack_trace,
+    details: d.details,
+  }));
 
 export const unmarshalAwsVpcEndpointInfoSchema: z.ZodType<AwsVpcEndpointInfo> =
   z
@@ -3074,6 +3899,19 @@ export const unmarshalListNetworkPoliciesResponseSchema: z.ZodType<ListNetworkPo
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalListPrivateNetworkGatewaysResponseSchema: z.ZodType<ListPrivateNetworkGatewaysResponse> =
+  z
+    .object({
+      private_network_gateways: z
+        .array(z.lazy(() => unmarshalPrivateNetworkGatewaySchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      privateNetworkGateways: d.private_network_gateways,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalNccPrivateEndpointRuleSchema: z.ZodType<NccPrivateEndpointRule> =
   z
     .object({
@@ -3195,6 +4033,10 @@ export const unmarshalNetworkConnectivityConfigSchema: z.ZodType<NetworkConnecti
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
+      billing_workspace_id: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
     })
     .transform(d => ({
       networkConnectivityConfigId: d.network_connectivity_config_id,
@@ -3204,6 +4046,7 @@ export const unmarshalNetworkConnectivityConfigSchema: z.ZodType<NetworkConnecti
       egressConfig: d.egress_config,
       updatedTime: d.updated_time,
       creationTime: d.creation_time,
+      billingWorkspaceId: d.billing_workspace_id,
     }));
 
 export const unmarshalNetworkConnectivityConfigAwsPrivateEndpointRuleSchema: z.ZodType<NetworkConnectivityConfigAwsPrivateEndpointRule> =
@@ -3367,6 +4210,26 @@ export const unmarshalNetworkWarningSchema: z.ZodType<NetworkWarning> = z
     warningMessage: d.warning_message,
   }));
 
+export const unmarshalOperationSchema: z.ZodType<Operation> = z
+  .object({
+    name: z.string().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+    done: z.boolean().optional(),
+    error: z.lazy(() => unmarshalApiErrorSchema).optional(),
+    response: z.record(z.string(), z.unknown()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    metadata: d.metadata,
+    done: d.done,
+    result:
+      d.error !== undefined
+        ? {$case: 'error' as const, error: d.error}
+        : d.response !== undefined
+          ? {$case: 'response' as const, response: d.response}
+          : undefined,
+  }));
+
 export const unmarshalPrivateAccessSettingsSchema: z.ZodType<PrivateAccessSettings> =
   z
     .object({
@@ -3386,6 +4249,167 @@ export const unmarshalPrivateAccessSettingsSchema: z.ZodType<PrivateAccessSettin
       publicAccessEnabled: d.public_access_enabled,
       privateAccessLevel: d.private_access_level,
       allowedVpcEndpointIds: d.allowed_vpc_endpoint_ids,
+    }));
+
+export const unmarshalPrivateNetworkGatewaySchema: z.ZodType<PrivateNetworkGateway> =
+  z
+    .object({
+      name: z.string().optional(),
+      display_name: z.string().optional(),
+      azure_cloud_connection: z
+        .lazy(() => unmarshalPrivateNetworkGateway_AzureCloudConnectionSchema)
+        .optional(),
+      aws_cloud_connection: z
+        .lazy(() => unmarshalPrivateNetworkGateway_AwsCloudConnectionSchema)
+        .optional(),
+      destinations: z
+        .array(z.lazy(() => unmarshalPrivateNetworkGateway_DestinationSchema))
+        .optional(),
+      private_dns_resolvers: z
+        .array(
+          z.lazy(() => unmarshalPrivateNetworkGateway_PrivateDnsResolverSchema)
+        )
+        .optional(),
+      traffic_mode: z.string().optional(),
+      create_time: z
+        .string()
+        .transform(s => Temporal.Instant.from(s))
+        .optional(),
+      update_time: z
+        .string()
+        .transform(s => Temporal.Instant.from(s))
+        .optional(),
+      state: z.string().optional(),
+      error_message: z.string().optional(),
+      bandwidth_tier_gigabits_per_second: z.number().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      displayName: d.display_name,
+      cloudConnection:
+        d.azure_cloud_connection !== undefined
+          ? {
+              $case: 'azureCloudConnection' as const,
+              azureCloudConnection: d.azure_cloud_connection,
+            }
+          : d.aws_cloud_connection !== undefined
+            ? {
+                $case: 'awsCloudConnection' as const,
+                awsCloudConnection: d.aws_cloud_connection,
+              }
+            : undefined,
+      destinations: d.destinations,
+      privateDnsResolvers: d.private_dns_resolvers,
+      trafficMode: d.traffic_mode,
+      createTime: d.create_time,
+      updateTime: d.update_time,
+      state: d.state,
+      errorMessage: d.error_message,
+      bandwidthTierGigabitsPerSecond: d.bandwidth_tier_gigabits_per_second,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalPrivateNetworkGateway_AwsCloudConnectionSchema: z.ZodType<PrivateNetworkGateway_AwsCloudConnection> =
+  z
+    .object({
+      gateway_subnets: z
+        .array(
+          z.lazy(
+            () =>
+              unmarshalPrivateNetworkGateway_AwsCloudConnection_AwsGatewaySubnetSchema
+          )
+        )
+        .optional(),
+      cross_account_role: z
+        .lazy(
+          () =>
+            unmarshalPrivateNetworkGateway_AwsCloudConnection_CrossAccountRoleSchema
+        )
+        .optional(),
+      security_group_ids: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      gatewaySubnets: d.gateway_subnets,
+      crossAccountRole: d.cross_account_role,
+      securityGroupIds: d.security_group_ids,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalPrivateNetworkGateway_AwsCloudConnection_AwsGatewaySubnetSchema: z.ZodType<PrivateNetworkGateway_AwsCloudConnection_AwsGatewaySubnet> =
+  z
+    .object({
+      subnet_id: z.string().optional(),
+    })
+    .transform(d => ({
+      subnetId: d.subnet_id,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalPrivateNetworkGateway_AwsCloudConnection_CrossAccountRoleSchema: z.ZodType<PrivateNetworkGateway_AwsCloudConnection_CrossAccountRole> =
+  z
+    .object({
+      role_arn: z.string().optional(),
+    })
+    .transform(d => ({
+      roleArn: d.role_arn,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalPrivateNetworkGateway_AzureCloudConnectionSchema: z.ZodType<PrivateNetworkGateway_AzureCloudConnection> =
+  z
+    .object({
+      gateway_subnet: z
+        .lazy(
+          () =>
+            unmarshalPrivateNetworkGateway_AzureCloudConnection_AzureGatewaySubnetSchema
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      gatewaySubnet: d.gateway_subnet,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalPrivateNetworkGateway_AzureCloudConnection_AzureGatewaySubnetSchema: z.ZodType<PrivateNetworkGateway_AzureCloudConnection_AzureGatewaySubnet> =
+  z
+    .object({
+      resource_id: z.string().optional(),
+    })
+    .transform(d => ({
+      resourceId: d.resource_id,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalPrivateNetworkGateway_DestinationSchema: z.ZodType<PrivateNetworkGateway_Destination> =
+  z
+    .object({
+      destination_type: z.string().optional(),
+      value: z.string().optional(),
+    })
+    .transform(d => ({
+      destinationType: d.destination_type,
+      value: d.value,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalPrivateNetworkGateway_PrivateDnsResolverSchema: z.ZodType<PrivateNetworkGateway_PrivateDnsResolver> =
+  z
+    .object({
+      resolver_type: z.string().optional(),
+      value: z.string().optional(),
+    })
+    .transform(d => ({
+      resolverType: d.resolver_type,
+      value: d.value,
+    }));
+
+export const unmarshalPrivateNetworkGatewayOperationMetadataSchema: z.ZodType<PrivateNetworkGatewayOperationMetadata> =
+  z
+    .object({
+      operation_type: z.string().optional(),
+    })
+    .transform(d => ({
+      operationType: d.operation_type,
     }));
 
 export const unmarshalReplaceAccountIpAccessListResponseSchema: z.ZodType<ReplaceAccountIpAccessListResponse> =
@@ -4398,6 +5422,32 @@ export const marshalIngressNetworkPolicy_WorkspaceUiDestinationSchema: z.ZodType
       all_destinations: d.allDestinations,
     }));
 
+export const marshalNetworkConnectivityConfigSchema: z.ZodType = z
+  .object({
+    networkConnectivityConfigId: z.string().optional(),
+    accountId: z.string().optional(),
+    name: z.string().optional(),
+    region: z.string().optional(),
+    egressConfig: z
+      .lazy(
+        () => marshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema
+      )
+      .optional(),
+    updatedTime: z.bigint().optional(),
+    creationTime: z.bigint().optional(),
+    billingWorkspaceId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    network_connectivity_config_id: d.networkConnectivityConfigId,
+    account_id: d.accountId,
+    name: d.name,
+    region: d.region,
+    egress_config: d.egressConfig,
+    updated_time: d.updatedTime,
+    creation_time: d.creationTime,
+    billing_workspace_id: d.billingWorkspaceId,
+  }));
+
 export const marshalNetworkConnectivityConfigAwsPrivateEndpointRuleSchema: z.ZodType =
   z
     .object({
@@ -4540,6 +5590,160 @@ export const marshalPrivateAccessSettingsSchema: z.ZodType = z
     allowed_vpc_endpoint_ids: d.allowedVpcEndpointIds,
   }));
 
+export const marshalPrivateNetworkGatewaySchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    displayName: z.string().optional(),
+    cloudConnection: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('azureCloudConnection'),
+          azureCloudConnection: z.lazy(
+            () => marshalPrivateNetworkGateway_AzureCloudConnectionSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('awsCloudConnection'),
+          awsCloudConnection: z.lazy(
+            () => marshalPrivateNetworkGateway_AwsCloudConnectionSchema
+          ),
+        }),
+      ])
+      .optional(),
+    destinations: z
+      .array(z.lazy(() => marshalPrivateNetworkGateway_DestinationSchema))
+      .optional(),
+    privateDnsResolvers: z
+      .array(
+        z.lazy(() => marshalPrivateNetworkGateway_PrivateDnsResolverSchema)
+      )
+      .optional(),
+    trafficMode: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    state: z.string().optional(),
+    errorMessage: z.string().optional(),
+    bandwidthTierGigabitsPerSecond: z.number().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    display_name: d.displayName,
+    ...(d.cloudConnection?.$case === 'azureCloudConnection' && {
+      azure_cloud_connection: d.cloudConnection.azureCloudConnection,
+    }),
+    ...(d.cloudConnection?.$case === 'awsCloudConnection' && {
+      aws_cloud_connection: d.cloudConnection.awsCloudConnection,
+    }),
+    destinations: d.destinations,
+    private_dns_resolvers: d.privateDnsResolvers,
+    traffic_mode: d.trafficMode,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    state: d.state,
+    error_message: d.errorMessage,
+    bandwidth_tier_gigabits_per_second: d.bandwidthTierGigabitsPerSecond,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalPrivateNetworkGateway_AwsCloudConnectionSchema: z.ZodType =
+  z
+    .object({
+      gatewaySubnets: z
+        .array(
+          z.lazy(
+            () =>
+              marshalPrivateNetworkGateway_AwsCloudConnection_AwsGatewaySubnetSchema
+          )
+        )
+        .optional(),
+      crossAccountRole: z
+        .lazy(
+          () =>
+            marshalPrivateNetworkGateway_AwsCloudConnection_CrossAccountRoleSchema
+        )
+        .optional(),
+      securityGroupIds: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      gateway_subnets: d.gatewaySubnets,
+      cross_account_role: d.crossAccountRole,
+      security_group_ids: d.securityGroupIds,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalPrivateNetworkGateway_AwsCloudConnection_AwsGatewaySubnetSchema: z.ZodType =
+  z
+    .object({
+      subnetId: z.string().optional(),
+    })
+    .transform(d => ({
+      subnet_id: d.subnetId,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalPrivateNetworkGateway_AwsCloudConnection_CrossAccountRoleSchema: z.ZodType =
+  z
+    .object({
+      roleArn: z.string().optional(),
+    })
+    .transform(d => ({
+      role_arn: d.roleArn,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalPrivateNetworkGateway_AzureCloudConnectionSchema: z.ZodType =
+  z
+    .object({
+      gatewaySubnet: z
+        .lazy(
+          () =>
+            marshalPrivateNetworkGateway_AzureCloudConnection_AzureGatewaySubnetSchema
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      gateway_subnet: d.gatewaySubnet,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalPrivateNetworkGateway_AzureCloudConnection_AzureGatewaySubnetSchema: z.ZodType =
+  z
+    .object({
+      resourceId: z.string().optional(),
+    })
+    .transform(d => ({
+      resource_id: d.resourceId,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalPrivateNetworkGateway_DestinationSchema: z.ZodType = z
+  .object({
+    destinationType: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    destination_type: d.destinationType,
+    value: d.value,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalPrivateNetworkGateway_PrivateDnsResolverSchema: z.ZodType =
+  z
+    .object({
+      resolverType: z.string().optional(),
+      value: z.string().optional(),
+    })
+    .transform(d => ({
+      resolver_type: d.resolverType,
+      value: d.value,
+    }));
+
 export const marshalReplaceAccountIpAccessListRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
@@ -4669,6 +5873,27 @@ export const marshalWorkspaceNetworkOptionSchema: z.ZodType = z
     workspace_id: d.workspaceId,
   }));
 
+const customerFacingNetworkConnectivityConfigEgressConfigFieldMaskSchema: FieldMaskSchema =
+  {
+    defaultRules: {
+      wire: 'default_rules',
+      children: () =>
+        networkConnectivityConfigEgressConfig_DefaultRuleFieldMaskSchema,
+    },
+    targetRules: {
+      wire: 'target_rules',
+      children: () =>
+        customerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleFieldMaskSchema,
+    },
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const customerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleFieldMaskSchema: FieldMaskSchema =
+  {
+    awsPrivateEndpointRules: {wire: 'aws_private_endpoint_rules'},
+    azurePrivateEndpointRules: {wire: 'azure_private_endpoint_rules'},
+  };
+
 const gcpEndpointFieldMaskSchema: FieldMaskSchema = {
   allVpcScServices: {wire: 'all_vpc_sc_services'},
   googleApiEndpoints: {
@@ -4682,6 +5907,123 @@ const gcpEndpointFieldMaskSchema: FieldMaskSchema = {
 const googleApiEndpointsFieldMaskSchema: FieldMaskSchema = {
   endpoints: {wire: 'endpoints'},
 };
+
+const networkConnectivityConfigFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  billingWorkspaceId: {wire: 'billing_workspace_id'},
+  creationTime: {wire: 'creation_time'},
+  egressConfig: {
+    wire: 'egress_config',
+    children: () =>
+      customerFacingNetworkConnectivityConfigEgressConfigFieldMaskSchema,
+  },
+  name: {wire: 'name'},
+  networkConnectivityConfigId: {wire: 'network_connectivity_config_id'},
+  region: {wire: 'region'},
+  updatedTime: {wire: 'updated_time'},
+};
+
+export function networkConnectivityConfigFieldMask(
+  ...paths: string[]
+): FieldMask<NetworkConnectivityConfig> {
+  return FieldMask.build<NetworkConnectivityConfig>(
+    paths,
+    networkConnectivityConfigFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const networkConnectivityConfigEgressConfig_DefaultRuleFieldMaskSchema: FieldMaskSchema =
+  {
+    awsStableIpRule: {
+      wire: 'aws_stable_ip_rule',
+      children: () =>
+        networkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleFieldMaskSchema,
+    },
+    azureServiceEndpointRule: {
+      wire: 'azure_service_endpoint_rule',
+      children: () =>
+        networkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleFieldMaskSchema,
+    },
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const networkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleFieldMaskSchema: FieldMaskSchema =
+  {
+    cidrBlocks: {wire: 'cidr_blocks'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const networkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleFieldMaskSchema: FieldMaskSchema =
+  {
+    subnets: {wire: 'subnets'},
+    targetRegion: {wire: 'target_region'},
+    targetServices: {wire: 'target_services'},
+  };
+
+const privateNetworkGatewayFieldMaskSchema: FieldMaskSchema = {
+  awsCloudConnection: {
+    wire: 'aws_cloud_connection',
+    children: () => privateNetworkGateway_AwsCloudConnectionFieldMaskSchema,
+  },
+  azureCloudConnection: {
+    wire: 'azure_cloud_connection',
+    children: () => privateNetworkGateway_AzureCloudConnectionFieldMaskSchema,
+  },
+  bandwidthTierGigabitsPerSecond: {wire: 'bandwidth_tier_gigabits_per_second'},
+  createTime: {wire: 'create_time'},
+  destinations: {wire: 'destinations'},
+  displayName: {wire: 'display_name'},
+  errorMessage: {wire: 'error_message'},
+  name: {wire: 'name'},
+  privateDnsResolvers: {wire: 'private_dns_resolvers'},
+  state: {wire: 'state'},
+  trafficMode: {wire: 'traffic_mode'},
+  updateTime: {wire: 'update_time'},
+};
+
+export function privateNetworkGatewayFieldMask(
+  ...paths: string[]
+): FieldMask<PrivateNetworkGateway> {
+  return FieldMask.build<PrivateNetworkGateway>(
+    paths,
+    privateNetworkGatewayFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const privateNetworkGateway_AwsCloudConnectionFieldMaskSchema: FieldMaskSchema =
+  {
+    crossAccountRole: {
+      wire: 'cross_account_role',
+      children: () =>
+        privateNetworkGateway_AwsCloudConnection_CrossAccountRoleFieldMaskSchema,
+    },
+    gatewaySubnets: {wire: 'gateway_subnets'},
+    securityGroupIds: {wire: 'security_group_ids'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const privateNetworkGateway_AwsCloudConnection_CrossAccountRoleFieldMaskSchema: FieldMaskSchema =
+  {
+    roleArn: {wire: 'role_arn'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const privateNetworkGateway_AzureCloudConnectionFieldMaskSchema: FieldMaskSchema =
+  {
+    gatewaySubnet: {
+      wire: 'gateway_subnet',
+      children: () =>
+        privateNetworkGateway_AzureCloudConnection_AzureGatewaySubnetFieldMaskSchema,
+    },
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const privateNetworkGateway_AzureCloudConnection_AzureGatewaySubnetFieldMaskSchema: FieldMaskSchema =
+  {
+    resourceId: {wire: 'resource_id'},
+  };
 
 const updatePrivateEndpointRuleFieldMaskSchema: FieldMaskSchema = {
   accountId: {wire: 'account_id'},

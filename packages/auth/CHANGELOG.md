@@ -1,5 +1,17 @@
 # Version changelog
 
+## Release v0.56.0 (2026-11-02)
+
+### Breaking Changes
+* Require Node.js 22.23.4, 24.22.1, 26.12.1 or a later release in the same line. Installing on any other Node.js release fails when the package manager enforces `engines` (Yarn 1, or npm and pnpm with `engine-strict`); otherwise it prints a warning. These releases fix a vulnerability in the Brotli decoder that Node.js bundles.
+
+### Bug Fixes
+* OAuth M2M token-endpoint discovery now adds `https://` to a host without a scheme, so `defaultCredentials()` and `newM2mCredentials()` work when `DATABRICKS_HOST` is set like `x.cloud.databricks.com`.
+* Fix Databricks CLI authentication rejecting small wrappers around the CLI (e.g. launcher scripts or version manager shims) as the legacy Python CLI. The CLI is no longer checked for its size, and the `LEGACY_CLI_DETECTED` error code is removed.
+
+### Internal Changes
+* Bump `core` to v0.52.0.
+
 ## Release v0.55.0 (2026-10-26)
 
 ### New Features and Improvements

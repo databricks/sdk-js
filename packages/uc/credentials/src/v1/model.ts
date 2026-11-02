@@ -1251,13 +1251,19 @@ export interface ValidateCredentialRequest {
          */
         credentialName: string;
       }
-    | {$case: 'awsIamRole'; awsIamRole: AwsIamRole}
+    | {
+        $case: 'awsIamRole';
+        /** Deprecated: create a credential and pass its credential_name instead. */
+        awsIamRole: AwsIamRole;
+      }
     | {
         $case: 'azureManagedIdentity';
+        /** Deprecated: create a credential and pass its credential_name instead. */
         azureManagedIdentity: AzureManagedIdentity;
       }
     | {
         $case: 'databricksGcpServiceAccount';
+        /** Deprecated: create a credential and pass its credential_name instead. */
         databricksGcpServiceAccount: DatabricksGcpServiceAccount;
       }
     | undefined;
@@ -1310,27 +1316,42 @@ export interface ValidateStorageCredentialRequest {
       }
     | {
         $case: 'awsIamRole';
-        /** The AWS IAM role configuration. */
+        /**
+         * Deprecated: create a storage credential and pass its storage_credential_name instead.
+         * The AWS IAM role configuration.
+         */
         awsIamRole: AwsIamRole;
       }
     | {
         $case: 'azureServicePrincipal';
-        /** The Azure service principal configuration. */
+        /**
+         * Deprecated: create a storage credential and pass its storage_credential_name instead.
+         * The Azure service principal configuration.
+         */
         azureServicePrincipal: AzureServicePrincipal;
       }
     | {
         $case: 'azureManagedIdentity';
-        /** The Azure managed identity configuration. */
+        /**
+         * Deprecated: create a storage credential and pass its storage_credential_name instead.
+         * The Azure managed identity configuration.
+         */
         azureManagedIdentity: AzureManagedIdentity;
       }
     | {
         $case: 'databricksGcpServiceAccount';
-        /** The <Databricks> created GCP service account configuration. */
+        /**
+         * Deprecated: create a storage credential and pass its storage_credential_name instead.
+         * The <Databricks> created GCP service account configuration.
+         */
         databricksGcpServiceAccount: DatabricksGcpServiceAccount;
       }
     | {
         $case: 'cloudflareApiToken';
-        /** The Cloudflare API token configuration. */
+        /**
+         * Deprecated: create a storage credential and pass its storage_credential_name instead.
+         * The Cloudflare API token configuration.
+         */
         cloudflareApiToken: CloudflareApiToken;
       }
     | undefined;

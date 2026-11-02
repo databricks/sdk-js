@@ -6,6 +6,7 @@ import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
+import type {LroOptions} from '@databricks/sdk-options/lro';
 import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
@@ -14,6 +15,8 @@ import {
   executeHttpCall,
   marshalRequest,
   parseResponse,
+  executeWait,
+  StillRunningError,
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
@@ -29,6 +32,7 @@ import type {
   CreateNetworkPolicyRequest,
   CreateNetworkRequest,
   CreatePrivateAccessSettingsRequest,
+  CreatePrivateNetworkGatewayRequest,
   CreateVpcEndpointRequest,
   DeleteAccountIpAccessListRequest,
   DeleteAccountIpAccessListResponse,
@@ -40,6 +44,7 @@ import type {
   DeleteNetworkPolicyRequest,
   DeleteNetworkRequest,
   DeletePrivateAccessSettingsRequest,
+  DeletePrivateNetworkGatewayRequest,
   DeleteVpcEndpointRequest,
   Endpoint,
   GetAccountIpAccessListRequest,
@@ -51,7 +56,9 @@ import type {
   GetNetworkConnectivityConfigRequest,
   GetNetworkPolicyRequest,
   GetNetworkRequest,
+  GetOperationRequest,
   GetPrivateAccessSettingsRequest,
+  GetPrivateNetworkGatewayRequest,
   GetVpcEndpointRequest,
   GetWorkspaceNetworkOptionRequest,
   ListAccountIpAccessListsRequest,
@@ -70,12 +77,17 @@ import type {
   ListNetworkResponse,
   ListPrivateAccessSettingsRequest,
   ListPrivateAccessSettingsResponse,
+  ListPrivateNetworkGatewaysRequest,
+  ListPrivateNetworkGatewaysResponse,
   ListVpcEndpointRequest,
   ListVpcEndpointResponse,
   NccPrivateEndpointRule,
   Network,
   NetworkConnectivityConfig,
+  Operation,
   PrivateAccessSettings,
+  PrivateNetworkGateway,
+  PrivateNetworkGatewayOperationMetadata,
   ReplaceAccountIpAccessListRequest,
   ReplaceAccountIpAccessListResponse,
   ReplaceIpAccessListRequest,
@@ -85,8 +97,10 @@ import type {
   UpdateIpAccessListRequest,
   UpdateIpAccessListResponse,
   UpdateNccPrivateEndpointRuleRequest,
+  UpdateNetworkConnectivityConfigRequest,
   UpdateNetworkPolicyRequest,
   UpdatePrivateAccessSettingsRequest,
+  UpdatePrivateNetworkGatewayRequest,
   UpdateWorkspaceNetworkOptionRequest,
   VpcEndpoint,
   WorkspaceNetworkOption,
@@ -101,7 +115,9 @@ import {
   marshalCreatePrivateEndpointRuleSchema,
   marshalCreateVpcEndpointRequestSchema,
   marshalEndpointSchema,
+  marshalNetworkConnectivityConfigSchema,
   marshalPrivateAccessSettingsSchema,
+  marshalPrivateNetworkGatewaySchema,
   marshalReplaceAccountIpAccessListRequestSchema,
   marshalReplaceIpAccessListRequestSchema,
   marshalUpdateAccountIpAccessListRequestSchema,
@@ -122,10 +138,14 @@ import {
   unmarshalListNccPrivateEndpointRulesResponseSchema,
   unmarshalListNetworkConnectivityConfigsResponseSchema,
   unmarshalListNetworkPoliciesResponseSchema,
+  unmarshalListPrivateNetworkGatewaysResponseSchema,
   unmarshalNccPrivateEndpointRuleSchema,
   unmarshalNetworkConnectivityConfigSchema,
   unmarshalNetworkSchema,
+  unmarshalOperationSchema,
   unmarshalPrivateAccessSettingsSchema,
+  unmarshalPrivateNetworkGatewayOperationMetadataSchema,
+  unmarshalPrivateNetworkGatewaySchema,
   unmarshalReplaceAccountIpAccessListResponseSchema,
   unmarshalReplaceIpAccessListResponseSchema,
   unmarshalUpdateAccountIpAccessListResponseSchema,
@@ -906,6 +926,48 @@ export class NetworkingClient {
     }
   }
 
+  /** Updates the name or billing workspace for a network connectivity configuration. */
+  async updateNetworkConnectivityConfig(
+    req: UpdateNetworkConnectivityConfigRequest,
+    options?: CallOptions
+  ): Promise<NetworkConnectivityConfig> {
+    const {host, accountId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(
+      req.networkConnectivityConfig,
+      marshalNetworkConnectivityConfigSchema
+    );
+    let resp: NetworkConnectivityConfig | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalNetworkConnectivityConfigSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
   /**
    * Create a private endpoint rule for the specified network connectivity config object.
    * Once the object is created, <Databricks> asynchronously provisions a new Azure private endpoint to your
@@ -1249,6 +1311,243 @@ export class NetworkingClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalAccountNetworkPolicySchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Creates a private network gateway. */
+  private async createPrivateNetworkGatewayBase(
+    req: CreatePrivateNetworkGatewayRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/networking/v1/${req.parent ?? ''}/private-network-gateways`;
+    const params = new URLSearchParams();
+    if (req.requestId !== undefined) {
+      params.append('request_id', req.requestId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(
+      req.privateNetworkGateway,
+      marshalPrivateNetworkGatewaySchema
+    );
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Creates a private network gateway. */
+  async createPrivateNetworkGateway(
+    req: CreatePrivateNetworkGatewayRequest,
+    options?: CallOptions
+  ): Promise<CreatePrivateNetworkGatewayOperation> {
+    const op = await this.createPrivateNetworkGatewayBase(req, options);
+    return new CreatePrivateNetworkGatewayOperation(op, (req, options) =>
+      this.getPrivateNetworkGatewayOperation(req, options)
+    );
+  }
+
+  /** Permanently deletes a private network gateway. */
+  async deletePrivateNetworkGateway(
+    req: DeletePrivateNetworkGatewayRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/networking/v1/${req.name ?? ''}`;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /** Gets a private network gateway. */
+  async getPrivateNetworkGateway(
+    req: GetPrivateNetworkGatewayRequest,
+    options?: CallOptions
+  ): Promise<PrivateNetworkGateway> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/networking/v1/${req.name ?? ''}`;
+    let resp: PrivateNetworkGateway | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalPrivateNetworkGatewaySchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Gets the status of a private network gateway create operation. */
+  private async getPrivateNetworkGatewayOperation(
+    req: GetOperationRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/networking/v1/${req.name ?? ''}`;
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Lists private network gateways under a network connectivity configuration. */
+  async listPrivateNetworkGateways(
+    req: ListPrivateNetworkGatewaysRequest,
+    options?: CallOptions
+  ): Promise<ListPrivateNetworkGatewaysResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/networking/v1/${req.parent ?? ''}/private-network-gateways`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListPrivateNetworkGatewaysResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListPrivateNetworkGatewaysResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listPrivateNetworkGatewaysIter(
+    req: ListPrivateNetworkGatewaysRequest,
+    options?: CallOptions
+  ): AsyncGenerator<PrivateNetworkGateway> {
+    const pageReq: ListPrivateNetworkGatewaysRequest = {...req};
+    for (;;) {
+      const resp = await this.listPrivateNetworkGateways(pageReq, options);
+      for (const item of resp.privateNetworkGateways ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Updates a private network gateway. */
+  async updatePrivateNetworkGateway(
+    req: UpdatePrivateNetworkGatewayRequest,
+    options?: CallOptions
+  ): Promise<PrivateNetworkGateway> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/networking/v1/${req.privateNetworkGateway?.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(
+      req.privateNetworkGateway,
+      marshalPrivateNetworkGatewaySchema
+    );
+    let resp: PrivateNetworkGateway | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalPrivateNetworkGatewaySchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1711,5 +2010,91 @@ export class NetworkingClient {
       throw new Error('operation completed without a result.');
     }
     return resp;
+  }
+}
+
+export class CreatePrivateNetworkGatewayOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<PrivateNetworkGatewayOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalPrivateNetworkGatewayOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<PrivateNetworkGateway> {
+    let result: PrivateNetworkGateway | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z
+        .lazy(() => unmarshalPrivateNetworkGatewaySchema)
+        .parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
   }
 }

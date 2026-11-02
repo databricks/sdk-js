@@ -119,12 +119,35 @@ describe('getHostMetadata', () => {
     expect(captured[0].url).toBe(HOST_METADATA_URL);
   });
 
-  it('trims trailing slashes from the host before requesting', async () => {
+  const hostCases: {name: string; host: string; wantUrl: string}[] = [
+    {
+      name: 'trims trailing slashes from the host before requesting',
+      host: `${HOST}///`,
+      wantUrl: HOST_METADATA_URL,
+    },
+    {
+      name: 'adds https:// to a host without a scheme',
+      host: 'workspace.example',
+      wantUrl: HOST_METADATA_URL,
+    },
+    {
+      name: 'keeps an http:// scheme',
+      host: 'http://workspace.example',
+      wantUrl: 'http://workspace.example/.well-known/databricks-config',
+    },
+    {
+      name: 'keeps an uppercase scheme',
+      host: 'HTTPS://workspace.example',
+      wantUrl: 'HTTPS://workspace.example/.well-known/databricks-config',
+    },
+  ];
+
+  it.each(hostCases)('$name', async ({host, wantUrl}) => {
     const {captured} = stubFetch(() =>
       jsonResponse(200, {oidc_endpoint: `${HOST}/oidc`})
     );
-    await getHostMetadata(`${HOST}///`);
-    expect(captured[0].url).toBe(HOST_METADATA_URL);
+    await getHostMetadata(host);
+    expect(captured[0].url).toBe(wantUrl);
   });
 
   const errorCases: {

@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-core",
-  "version": "0.51.2",
+  "version": "0.52.0",
   "description": "Databricks core library for JavaScript/TypeScript",
   "type": "module",
   "main": "./dist/index.js",
@@ -87,7 +87,7 @@
   "author": "Databricks",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "^22.23.4 || ^24.22.1 || >=26.12.1"
   },
   "dependencies": {
     "json-bigint": "^1.0.0",

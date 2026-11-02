@@ -1,5 +1,15 @@
 # Version changelog
 
+## Release v0.53.0 (2026-11-02)
+
+### Breaking Changes
+* Require Node.js 22.23.4, 24.22.1, 26.12.1 or a later release in the same line. Installing on any other Node.js release fails when the package manager enforces `engines` (Yarn 1, or npm and pnpm with `engine-strict`); otherwise it prints a warning. These releases fix a vulnerability in the Brotli decoder that Node.js bundles.
+
+### Internal Changes
+* Bump `auth` to v0.56.0.
+* Bump `core` to v0.52.0.
+* Bump `options` to v0.52.0.
+
 ## Release v0.52.6 (2026-10-27)
 
 ## Release v0.52.5 (2026-10-26)

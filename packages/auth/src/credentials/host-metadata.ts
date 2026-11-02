@@ -29,10 +29,12 @@ export interface HostMetadata {
  * getHostMetadata fetches the raw Databricks well-known configuration from
  * {host}/.well-known/databricks-config. The returned HostMetadata contains
  * raw values with no substitution (e.g., {account_id} placeholders are left
- * as-is). Callers are responsible for interpreting the result.
+ * as-is). Callers are responsible for interpreting the result. A host
+ * without an `http://` or `https://` scheme is treated as `https://`.
  */
 export async function getHostMetadata(host: string): Promise<HostMetadata> {
-  const url = `${trimTrailingSlash(host)}/.well-known/databricks-config`;
+  const base = trimTrailingSlash(withDefaultScheme(host));
+  const url = `${base}/.well-known/databricks-config`;
   let response: Response;
   try {
     response = await fetch(url);
@@ -141,6 +143,12 @@ const hostMetadataSchema = z.object({
 const oauthServerSchema = z.object({
   token_endpoint: z.string(),
 });
+
+// Hosts such as DATABRICKS_HOST may omit the scheme. Generated clients
+// default it to https:// too.
+function withDefaultScheme(host: string): string {
+  return /^https?:\/\//i.test(host) ? host : `https://${host}`;
+}
 
 function trimTrailingSlash(s: string): string {
   let end = s.length;

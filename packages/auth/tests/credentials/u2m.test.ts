@@ -36,7 +36,6 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 const MODERN_CLI_SIZE = 5 * 1024 * 1024;
-const LEGACY_CLI_SIZE = 100 * 1024;
 const DEFAULT_PROFILE = 'DEFAULT';
 const DEFAULT_RESOLVED_CLI_PATH = '/usr/local/bin/databricks';
 
@@ -96,6 +95,7 @@ describe('newU2mCredentials', () => {
     name: string;
     profile: string;
     cliPath?: string;
+    cliSize?: number;
     cliStub: CliStub;
     want: {
       authHeader: string;
@@ -141,6 +141,16 @@ describe('newU2mCredentials', () => {
       want: {
         authHeader: 'Bearer custom-token',
         cliPath: '/custom/path/to/databricks',
+      },
+    },
+    {
+      name: 'small CLI in PATH, such as a launcher script',
+      profile: DEFAULT_PROFILE,
+      cliSize: 117,
+      cliStub: okResponse({access_token: 'launcher-token'}),
+      want: {
+        authHeader: 'Bearer launcher-token',
+        cliPath: DEFAULT_RESOLVED_CLI_PATH,
       },
     },
   ];
@@ -189,23 +199,26 @@ describe('newU2mCredentials', () => {
     expect(execFileMock).toHaveBeenCalledTimes(2);
   });
 
-  it.each(successCases)('$name', async ({profile, cliPath, cliStub, want}) => {
-    statReturnsModernFile();
-    stubCliRun(cliStub);
+  it.each(successCases)(
+    '$name',
+    async ({profile, cliPath, cliSize, cliStub, want}) => {
+      statReturnsFile(cliSize ?? MODERN_CLI_SIZE);
+      stubCliRun(cliStub);
 
-    const creds = newU2mCredentials({
-      profile,
-      ...(cliPath !== undefined && {cliPath}),
-    });
-    expect(creds.name()).toBe('databricks-cli');
-    const headers = await creds.authHeaders();
+      const creds = newU2mCredentials({
+        profile,
+        ...(cliPath !== undefined && {cliPath}),
+      });
+      expect(creds.name()).toBe('databricks-cli');
+      const headers = await creds.authHeaders();
 
-    expect(headers).toEqual([{key: 'Authorization', value: want.authHeader}]);
-    expect(execFileMock).toHaveBeenCalledOnce();
-    const [calledCliPath, args] = execFileMock.mock.calls[0];
-    expect(calledCliPath).toBe(want.cliPath);
-    expect(args).toEqual(['auth', 'token', '--profile', profile]);
-  });
+      expect(headers).toEqual([{key: 'Authorization', value: want.authHeader}]);
+      expect(execFileMock).toHaveBeenCalledOnce();
+      const [calledCliPath, args] = execFileMock.mock.calls[0];
+      expect(calledCliPath).toBe(want.cliPath);
+      expect(args).toEqual(['auth', 'token', '--profile', profile]);
+    }
+  );
 
   type ErrorCase = {
     name: string;
@@ -261,16 +274,6 @@ describe('newU2mCredentials', () => {
       profile: DEFAULT_PROFILE,
       wantCode: 'CLI_NOT_FOUND',
       wantMessage: /databricks CLI not found/,
-    },
-    {
-      name: 'only legacy (undersized) binary available',
-      kind: 'u2m',
-      setup: (): void => {
-        statReturnsFile(LEGACY_CLI_SIZE);
-      },
-      profile: DEFAULT_PROFILE,
-      wantCode: 'LEGACY_CLI_DETECTED',
-      wantMessage: /legacy databricks CLI detected/,
     },
     {
       name: 'CLI invocation surfaces stderr',

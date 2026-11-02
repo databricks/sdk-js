@@ -47,7 +47,8 @@ export const ListModelProviderServicesRequest_View = {
   /**
    * Basic resource metadata and selected configuration fields.
    * Service-credential and inference-table details and rate-limit principal
-   * names are unset.
+   * names are unset. Custom provider base URLs may be omitted; use FULL or Get
+   * for the current endpoint.
    */
   BASIC: 'BASIC',
 } as const;
@@ -171,7 +172,12 @@ export type ProvisioningInfo_State =
 export const RateLimit_RateLimitKey = {
   /** Rate limit applies to a specific user (matched on `principal`). */
   RATE_LIMIT_KEY_USER: 'RATE_LIMIT_KEY_USER',
-  /** Rate limit applies to all members of a group (matched on `principal`). */
+  /**
+   * Rate limit applies to direct members of a group (matched on `principal`), and to callers
+   * assuming the group directly or assuming a group that is a direct member of it (via role
+   * switching). Membership is not transitive, and a user assuming a role outside the group is
+   * not bound by it.
+   */
   RATE_LIMIT_KEY_USER_GROUP: 'RATE_LIMIT_KEY_USER_GROUP',
   /** Rate limit applies to a specific service principal (matched on `principal`). */
   RATE_LIMIT_KEY_SERVICE_PRINCIPAL: 'RATE_LIMIT_KEY_SERVICE_PRINCIPAL',

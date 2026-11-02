@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-options",
-  "version": "0.51.4",
+  "version": "0.52.0",
   "description": "Options for configuring Databricks API clients and individual calls.",
   "type": "module",
   "exports": {
@@ -38,10 +38,10 @@
   "author": "Databricks",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "^22.23.4 || ^24.22.1 || >=26.12.1"
   },
   "dependencies": {
-    "@databricks/sdk-auth": ">=0.55.0 <1.0.0",
-    "@databricks/sdk-core": ">=0.51.2 <1.0.0"
+    "@databricks/sdk-auth": ">=0.56.0 <1.0.0",
+    "@databricks/sdk-core": ">=0.52.0 <1.0.0"
   }
 }

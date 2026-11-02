@@ -10,16 +10,16 @@ your training data, the rule wins.
 
 ## Repository Overview
 
-| Item               | Value                              |
-| ------------------ | ---------------------------------- |
-| Language           | TypeScript (strict mode)           |
-| Runtime            | Node.js >= 22, Browser             |
-| Package manager    | npm workspaces                     |
-| Build target       | ES2024, ESNext modules             |
-| Linter             | ESLint (strict-type-checked)       |
-| Formatter          | Prettier                           |
-| Test framework     | Vitest                             |
-| Module system      | ESM only                           |
+| Item            | Value                                            |
+| --------------- | ------------------------------------------------ |
+| Language        | TypeScript (strict mode)                         |
+| Runtime         | Node.js ^22.23.4, ^24.22.1 or >=26.12.1, Browser |
+| Package manager | npm workspaces                                   |
+| Build target    | ES2024, ESNext modules                           |
+| Linter          | ESLint (strict-type-checked)                     |
+| Formatter       | Prettier                                         |
+| Test framework  | Vitest                                           |
+| Module system   | ESM only                                         |
 
 ## Directory Layout
 

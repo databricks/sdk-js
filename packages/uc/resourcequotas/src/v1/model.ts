@@ -29,6 +29,8 @@ export const SecurableType = {
   MODEL_PROVIDER_SERVICE: 'MODEL_PROVIDER_SERVICE',
   AGENT_SERVICE: 'AGENT_SERVICE',
   SKILL: 'SKILL',
+  /** A Feature Store feature in Unity Catalog. Three-level namespace catalog.schema.feature. */
+  FEATURE: 'FEATURE',
 } as const;
 export type SecurableType =
   | (typeof SecurableType)[keyof typeof SecurableType]
