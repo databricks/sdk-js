@@ -326,6 +326,32 @@ describe('DefaultCredentials chain', () => {
     expect(grantedGroups).toStrictEqual(['group-a', 'group-a']);
   });
 
+  it('discovers the M2M token endpoint for a host without a scheme', async () => {
+    const fetchMock = stubM2mFetch(
+      () => new Response(JSON.stringify({access_token: 'token'}))
+    );
+    const creds = new DefaultCredentials(
+      [m2mStrategy],
+      loaderFor({
+        host: 'workspace.example',
+        clientId: 'client-id',
+        clientSecret: new Secret('client-secret'),
+      })
+    );
+
+    expect(await creds.authHeaders()).toStrictEqual([
+      {key: 'Authorization', value: 'Bearer token'},
+    ]);
+    const urls = fetchMock.mock.calls.map(([input]) =>
+      input instanceof Request ? input.url : input.toString()
+    );
+    expect(urls).toStrictEqual([
+      `${HOST}/.well-known/databricks-config`,
+      `${HOST}/oidc/.well-known/oauth-authorization-server`,
+      `${HOST}/oidc/v1/token`,
+    ]);
+  });
+
   it('shares one resolution and token grant between concurrent first calls', async () => {
     const fetchMock = stubM2mFetch(
       () =>

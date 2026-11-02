@@ -12,6 +12,7 @@ import {
   buildHttpRequest,
   executeCall,
   executeHttpCall,
+  sendAndCheckError,
   marshalRequest,
   parseResponse,
 } from './utils';
@@ -23,6 +24,8 @@ import type {
   DeletePathRequest,
   DeletePathResponse,
   DeleteSandboxRequest,
+  DownloadFileRequest,
+  DownloadFileResponse,
   ExecuteCommandSyncRequest,
   ExecuteCommandSyncResponse,
   GetMetadataRequest,
@@ -41,6 +44,8 @@ import type {
   StartSandboxRequest,
   StopSandboxRequest,
   UpdateSandboxRequest,
+  UploadFileRequest,
+  UploadFileResponse,
 } from './model';
 import {
   marshalCreateDirectoryRequestSchema,
@@ -59,6 +64,7 @@ import {
   unmarshalListSandboxesResponseSchema,
   unmarshalRenamePathResponseSchema,
   unmarshalSandboxSchema,
+  unmarshalUploadFileResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -544,6 +550,136 @@ export class SandboxClient {
       throw new Error('operation completed without a result.');
     }
     return resp;
+  }
+
+  /**
+   * Downloads a regular file from a sandbox as an application/octet-stream body.
+   * The sandbox starts automatically if it is stopped. Filesystem access uses
+   * the sandbox user's permissions and follows symbolic links.
+   *
+   * A full download returns 200 OK. A satisfiable single byte range returns
+   * 206 Partial Content. Multiple byte ranges are unsupported and return 400.
+   * Invalid ranges are ignored; an unsatisfiable range returns 416 with
+   * Content-Range describing the file length. Range is ignored for empty files.
+   *
+   * Conditional requests can return 304 Not Modified or 412 Precondition Failed.
+   * If-Range selects a partial response only when its strong entity tag matches;
+   * otherwise, the entire file is returned. HTTP-date validators in If-Range
+   * cause a full download. Reads are not snapshots: concurrent in-place writes
+   * can affect the returned bytes. HEAD is unsupported.
+   *
+   * Range and conditional options may be supplied as query parameters or HTTP
+   * headers. A parameter and one header may both be supplied when their values
+   * match exactly. Conflicting values or repeated parameters return 400.
+   */
+  async downloadFile(
+    req: DownloadFileRequest,
+    options?: CallOptions
+  ): Promise<DownloadFileResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/content`;
+    const params = new URLSearchParams();
+    if (req.path !== undefined) {
+      params.append('path', req.path);
+    }
+    if (req.range !== undefined) {
+      params.append('byte_range', req.range);
+    }
+    if (req.ifRange !== undefined) {
+      params.append('if_range', req.ifRange);
+    }
+    if (req.ifMatch !== undefined) {
+      params.append('if_match', req.ifMatch);
+    }
+    if (req.ifNoneMatch !== undefined) {
+      params.append('if_none_match', req.ifNoneMatch);
+    }
+    if (req.ifModifiedSince !== undefined) {
+      params.append('if_modified_since', req.ifModifiedSince);
+    }
+    if (req.ifUnmodifiedSince !== undefined) {
+      params.append('if_unmodified_since', req.ifUnmodifiedSince);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: DownloadFileResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({Accept: 'application/octet-stream'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpResp = await sendAndCheckError({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      const contentLengthHeader = httpResp.headers.get('Content-Length');
+      resp = {
+        contentLength:
+          contentLengthHeader !== null
+            ? BigInt(contentLengthHeader)
+            : undefined,
+        etag: httpResp.headers.get('etag') ?? undefined,
+        lastModified: httpResp.headers.get('Last-Modified') ?? undefined,
+        contentRange: httpResp.headers.get('Content-Range') ?? undefined,
+        acceptRanges: httpResp.headers.get('Accept-Ranges') ?? undefined,
+        contentType: httpResp.headers.get('Content-Type') ?? undefined,
+        contents: httpResp.body ?? undefined,
+      };
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Uploads an application/octet-stream body to a sandbox. The sandbox starts
+   * automatically if it is stopped. Filesystem access uses the sandbox user's
+   * permissions and follows symbolic links.
+   *
+   * Creates the file or replaces its entire contents, creating parent directories if
+   * missing. The completed upload becomes visible atomically. A failure before
+   * commit leaves an existing destination unchanged; a lost response after commit
+   * does not undo the upload. Completion does not guarantee crash durability.
+   *
+   * Returns 201 Created for a new file or 204 No Content for a replacement.
+   * Partial and conditional uploads are unsupported:
+   * Content-Range, If-Match, If-None-Match, and If-Unmodified-Since return 400.
+   */
+  async uploadFile(
+    req: UploadFileRequest,
+    options?: CallOptions
+  ): Promise<UploadFileResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/content`;
+    const params = new URLSearchParams();
+    if (req.path !== undefined) {
+      params.append('path', req.path);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const headers = new Headers({'Content-Type': 'application/octet-stream'});
+    if (workspaceId !== undefined) {
+      headers.set('X-Databricks-Workspace-Id', workspaceId);
+    }
+    headers.set('User-Agent', this.userAgent);
+    const httpReq = buildHttpRequest(
+      'PUT',
+      fullUrl,
+      headers,
+      options?.signal,
+      req.contents
+    );
+    const respBody = await executeHttpCall({
+      request: httpReq,
+      httpClient,
+      logger: this.logger,
+    });
+    return parseResponse(respBody, unmarshalUploadFileResponseSchema);
   }
 
   /**

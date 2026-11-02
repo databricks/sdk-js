@@ -1181,7 +1181,7 @@ export class FeaturesClient {
     );
   }
 
-  /** Update a materialized feature (pause/resume). */
+  /** Updates a materialized feature. */
   async updateMaterializedFeature(
     req: UpdateMaterializedFeatureRequest,
     options?: CallOptions

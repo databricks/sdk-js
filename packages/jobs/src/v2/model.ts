@@ -473,6 +473,7 @@ export const TriggerType = {
   CONTINUOUS: 'CONTINUOUS',
   TABLE: 'TABLE',
   CONTINUOUS_RESTART: 'CONTINUOUS_RESTART',
+  JOB_COMPLETION: 'JOB_COMPLETION',
 } as const;
 export type TriggerType =
   | (typeof TriggerType)[keyof typeof TriggerType]
@@ -665,6 +666,27 @@ export const ConditionTask_ConditionTaskOperator = {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type ConditionTask_ConditionTaskOperator =
   | (typeof ConditionTask_ConditionTaskOperator)[keyof typeof ConditionTask_ConditionTaskOperator]
+  | (string & {});
+
+/** The status that all upstream jobs must have before a job completion trigger fires. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const JobCompletionTriggerConfiguration_IfStatus = {
+  /**
+   * All upstream jobs completed successfully. A run is considered successful when its termination code is
+   * `SUCCESS` or `SUCCESS_WITH_FAILURES`.
+   */
+  SUCCESS: 'SUCCESS',
+  /**
+   * All upstream jobs completed unsuccessfully. A run is considered unsuccessful when its termination code is
+   * neither `SUCCESS` nor `SUCCESS_WITH_FAILURES`.
+   */
+  FAILED: 'FAILED',
+  /** All upstream jobs completed, regardless of their termination codes. */
+  DONE: 'DONE',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type JobCompletionTriggerConfiguration_IfStatus =
+  | (typeof JobCompletionTriggerConfiguration_IfStatus)[keyof typeof JobCompletionTriggerConfiguration_IfStatus]
   | (string & {});
 
 /**
@@ -2004,6 +2026,20 @@ export interface ClusterSpec_NewCluster {
     | undefined;
 }
 
+/** A single upstream completion that contributed to triggering the run, captured at trigger time */
+export interface CompletedJob {
+  /** The ID of the workspace containing the upstream job */
+  workspaceId?: string | undefined;
+  /** The ID of the upstream job */
+  jobId?: string | undefined;
+  /** The ID of the upstream run whose completion contributed to the trigger */
+  runId?: string | undefined;
+  /** The termination code of the upstream run */
+  terminationCode?: TerminationCode_Code | undefined;
+  /** The completion time of the upstream run */
+  completionTime?: Temporal.Instant | undefined;
+}
+
 export interface Compute {
   /** Hardware accelerator configuration for Serverless GPU workloads. */
   hardwareAccelerator?: HardwareAcceleratorType | undefined;
@@ -2167,10 +2203,9 @@ export interface CreateJobRequest {
   /**
    * A list of task execution environment specifications that can be referenced by tasks that use serverless compute or a compute resource that uses Environments mode.
    *
+   * For notebook tasks that use serverless compute or a compute resource that uses Environments mode, if the `environment_key` is not specified, the notebook environment will be used if present. If a jobs environment is specified, it will override the notebook environment.
    *
-   *
-   * For notebook tasks that use serverless compute or a compute resource that uses Environments mode, if the environment_key is not specified, the notebook environment will be used if present. If a jobs environment is specified, it will override the notebook environment.
-   * For other tasks that use serverless compute or a compute resource that uses Environments mode, the task environment is required to be specified using environment_key in the task settings.
+   * For other tasks that use serverless compute or a compute resource that uses Environments mode, the task environment is required to be specified using `environment_key` in the task settings.
    */
   environments?: JobEnvironment[] | undefined;
   /**
@@ -2566,35 +2601,37 @@ export interface Environment {
   client?: string | undefined;
   /**
    * List of pip dependencies, as supported by the version of pip in this environment.
-   * Each dependency is a valid pip requirements file line per https://pip.pypa.io/en/stable/reference/requirements-file-format/.
-   * Allowed dependencies include a requirement specifier, an archive URL, a local project path (such as WSFS or UC Volumes in <Databricks>), or a VCS project URL.
+   * Each dependency is a valid [pip requirements file line](https://pip.pypa.io/en/stable/reference/requirements-file-format/).
+   * Allowed dependencies include a requirement specifier, an archive URL, a local project path (such as WSFS or UC Volumes in Databricks), or a VCS project URL.
    */
   dependencies?: string[] | undefined;
   /**
    * The base environment this environment is built on top of. A base environment defines the environment version and a
    * list of dependencies for serverless compute. The value can be a file path to a custom `env.yaml` file
-   * (e.g., `/Workspace/path/to/env.yaml`). Support for a <Databricks>-provided base environment ID
+   * (e.g., `/Workspace/path/to/env.yaml`).
+   *
+   * Support for a Databricks-provided base environment ID
    * (e.g., `workspace-base-environments/databricks_ai_v4`) and workspace base environment ID
    * (e.g., `workspace-base-environments/dbe_b849b66e-b31a-4cb5-b161-1f2b10877fb7`) is in Beta.
+   *
    * Either `environment_version` or `base_environment` can be provided.
-   * For more information about <Databricks>-provided base environments, see the
+   *
+   * For more information about Databricks-provided base environments, see the
    * [list workspace base environments](:method:Environments/ListWorkspaceBaseEnvironments) API.
-   * For more information, see
    */
   baseEnvironment?: string | undefined;
   /**
-   * Either `environment_version` or `base_environment` needs to be provided. Environment version used by the environment.
+   * The environment version used by this environment. Either `environment_version` or `base_environment` must be provided.
    * Each version comes with a specific Python version and a set of Python packages.
    * The version is a string, consisting of an integer.
    */
   environmentVersion?: string | undefined;
-  /** List of java dependencies. Each dependency is a string representing a java library path. For example: `/Volumes/path/to/test.jar`. */
+  /** List of Java dependencies. Each dependency is a string representing a Java library path. For example: `/Volumes/path/to/test.jar`. */
   javaDependencies?: string[] | undefined;
   /**
    * Path to the `pyproject.toml` file that defines the project environment.
    * This field cannot be combined with `environment_version`, `base_environment`, dependency fields,
    * or any other environment-source fields. Set the environment version and dependencies in `pyproject.toml` instead.
-   * For more information, see the serverless dependencies documentation.
    */
   projectEnvironment?: string | undefined;
 }
@@ -3173,6 +3210,84 @@ export interface JobCluster {
    * serverless compute applies across all tasks bound to this cluster.
    */
   serverlessComputeId?: string | undefined;
+  /**
+   * Serverless compute settings for this cluster. At most one job cluster per job
+   * may set this field; the rate limit defined on the referenced policy applies
+   * across all tasks bound to this cluster.
+   */
+  serverlessCompute?: JobCluster_ServerlessCompute | undefined;
+}
+
+/** Serverless compute settings for a job cluster. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface JobCluster_ServerlessCompute {
+  /** The ID of the serverless compute policy to apply to this cluster. */
+  policyId?: string | undefined;
+}
+
+/** A trigger that starts a run after every upstream job completes with a configured status. */
+export interface JobCompletionTriggerConfiguration {
+  /**
+   * The upstream jobs to monitor. Each job must be in a workspace attached to the same Unity Catalog metastore as
+   * the downstream job. A maximum of 10 jobs can be monitored.
+   */
+  jobs?: JobCompletionTriggerConfiguration_MonitoredJob[] | undefined;
+  /** The status that all upstream jobs must have before this trigger fires. Defaults to SUCCESS. */
+  ifStatus?: JobCompletionTriggerConfiguration_IfStatus | undefined;
+}
+
+/** An upstream job to monitor. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface JobCompletionTriggerConfiguration_MonitoredJob {
+  /**
+   * The ID of the workspace containing the upstream job.
+   * This can differ from the caller's workspace and downstream services enforce
+   * correct entitlements and CAN_VIEW permissions for the user + job combination.
+   * SDR: https://databricks.atlassian.net/browse/SDR-5267
+   */
+  workspaceId?: string | undefined;
+  /** The ID of the upstream job. */
+  jobId?: string | undefined;
+}
+
+/** Contains the immutable set of upstream completions that triggered the run, in configured jobs order */
+export interface JobCompletionTriggerRunInfoDetails {
+  completedJobs?: CompletedJob[] | undefined;
+}
+
+/** Runtime state for a job completion trigger. */
+export interface JobCompletionTriggerState {
+  /** State for each configured upstream job, in the same order as `jobs`. */
+  monitoredJobStates?:
+    | JobCompletionTriggerState_MonitoredJobState[]
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface JobCompletionTriggerState_MonitoredJobState {
+  /** The ID of the workspace containing the upstream job. */
+  workspaceId?: string | undefined;
+  /** The ID of the upstream job. */
+  jobId?: string | undefined;
+  /** The completion time of the latest matching upstream run observed by the trigger. */
+  lastSeenCompletionTime?: Temporal.Instant | undefined;
+  /** The ID of the latest matching upstream run observed by the trigger. */
+  lastSeenRunId?: string | undefined;
+  /** Whether this job has contributed a matching completion toward the next trigger fire. */
+  hasSeenCompletion?: boolean | undefined;
+  /** The termination code of the latest matching upstream run observed by the trigger. */
+  lastSeenResult?: TerminationCode_Code | undefined;
+  /**
+   * Whether the upstream job was missing or deleted when last observed by this trigger.
+   * Omitted when deletion status is unknown. This observation may become stale while
+   * the trigger is paused or evaluation cannot access the upstream job.
+   */
+  isDeleted?: boolean | undefined;
+  /**
+   * The termination code of the latest upstream run if it does not satisfy `if_status`.
+   * Unset when the latest run matches or no run has been observed.
+   */
+  latestNonMatchingResult?: TerminationCode_Code | undefined;
 }
 
 export interface JobDeployment {
@@ -3395,10 +3510,9 @@ export interface JobSettings {
   /**
    * A list of task execution environment specifications that can be referenced by tasks that use serverless compute or a compute resource that uses Environments mode.
    *
+   * For notebook tasks that use serverless compute or a compute resource that uses Environments mode, if the `environment_key` is not specified, the notebook environment will be used if present. If a jobs environment is specified, it will override the notebook environment.
    *
-   *
-   * For notebook tasks that use serverless compute or a compute resource that uses Environments mode, if the environment_key is not specified, the notebook environment will be used if present. If a jobs environment is specified, it will override the notebook environment.
-   * For other tasks that use serverless compute or a compute resource that uses Environments mode, the task environment is required to be specified using environment_key in the task settings.
+   * For other tasks that use serverless compute or a compute resource that uses Environments mode, the task environment is required to be specified using `environment_key` in the task settings.
    */
   environments?: JobEnvironment[] | undefined;
   /**
@@ -3866,6 +3980,7 @@ export interface PerTriggerState {
     | {$case: 'fileArrival'; fileArrival: FileArrivalTriggerState}
     | {$case: 'tableUpdate'; tableUpdate: TableTriggerState}
     | {$case: 'model'; model: ModelTriggerState}
+    | {$case: 'jobCompletion'; jobCompletion: JobCompletionTriggerState}
     | undefined;
   /** State for SQL condition evaluation, can coexist with other trigger states. */
   sqlCondition?: SqlConditionState | undefined;
@@ -5168,6 +5283,8 @@ export interface RunTaskSettings {
 export interface RunTriggerInfo {
   /** SQL condition evaluation details for this run */
   sqlCondition?: SqlConditionRunInfoDetails | undefined;
+  /** Additional details for job runs triggered by a job completion trigger (trigger: "JOB_COMPLETION") */
+  jobCompletion?: JobCompletionTriggerRunInfoDetails | undefined;
   /** The run id of the Run Job task run */
   runId?: bigint | undefined;
 }
@@ -6024,6 +6141,8 @@ export interface TriggerConfiguration {
   tableUpdate?: TableTriggerConfiguration | undefined;
   /** Model trigger configuration. */
   model?: ModelTriggerConfiguration | undefined;
+  /** Job completion trigger configuration. */
+  jobCompletion?: JobCompletionTriggerConfiguration | undefined;
   /** Optional SQL condition that gates whether this trigger fires. */
   sqlCondition?: SqlConditionConfiguration | undefined;
 }
@@ -6074,6 +6193,11 @@ export interface TriggerSettings {
       }
     | {$case: 'tableUpdate'; tableUpdate: TableTriggerConfiguration}
     | {$case: 'model'; model: ModelTriggerConfiguration}
+    | {
+        $case: 'jobCompletion';
+        /** Job completion trigger settings. */
+        jobCompletion: JobCompletionTriggerConfiguration;
+      }
     | undefined;
   /**
    * SQL condition that must be satisfied for the trigger to fire. Can be used in combination with other trigger types and
@@ -6087,6 +6211,7 @@ export interface TriggerState {
   triggerType?:
     | {$case: 'table'; table: TableTriggerState}
     | {$case: 'fileArrival'; fileArrival: FileArrivalTriggerState}
+    | {$case: 'jobCompletion'; jobCompletion: JobCompletionTriggerState}
     | undefined;
   /** State for SQL condition evaluation, can coexist with other trigger states. */
   sqlCondition?: SqlConditionState | undefined;
@@ -6835,6 +6960,25 @@ export const unmarshalClusterSpec_NewClusterSchema: z.ZodType<ClusterSpec_NewClu
             ? {$case: 'autoscale' as const, autoscale: d.autoscale}
             : undefined,
     }));
+
+export const unmarshalCompletedJobSchema: z.ZodType<CompletedJob> = z
+  .object({
+    workspace_id: z.string().optional(),
+    job_id: z.string().optional(),
+    run_id: z.string().optional(),
+    termination_code: z.string().optional(),
+    completion_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+  })
+  .transform(d => ({
+    workspaceId: d.workspace_id,
+    jobId: d.job_id,
+    runId: d.run_id,
+    terminationCode: d.termination_code,
+    completionTime: d.completion_time,
+  }));
 
 export const unmarshalComputeSchema: z.ZodType<Compute> = z
   .object({
@@ -7677,12 +7821,108 @@ export const unmarshalJobClusterSchema: z.ZodType<JobCluster> = z
     job_cluster_key: z.string().optional(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
     serverless_compute_id: z.string().optional(),
+    serverless_compute: z
+      .lazy(() => unmarshalJobCluster_ServerlessComputeSchema)
+      .optional(),
   })
   .transform(d => ({
     jobClusterKey: d.job_cluster_key,
     newCluster: d.new_cluster,
     serverlessComputeId: d.serverless_compute_id,
+    serverlessCompute: d.serverless_compute,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalJobCluster_ServerlessComputeSchema: z.ZodType<JobCluster_ServerlessCompute> =
+  z
+    .object({
+      policy_id: z.string().optional(),
+    })
+    .transform(d => ({
+      policyId: d.policy_id,
+    }));
+
+export const unmarshalJobCompletionTriggerConfigurationSchema: z.ZodType<JobCompletionTriggerConfiguration> =
+  z
+    .object({
+      jobs: z
+        .array(
+          z.lazy(
+            () => unmarshalJobCompletionTriggerConfiguration_MonitoredJobSchema
+          )
+        )
+        .optional(),
+      if_status: z.string().optional(),
+    })
+    .transform(d => ({
+      jobs: d.jobs,
+      ifStatus: d.if_status,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalJobCompletionTriggerConfiguration_MonitoredJobSchema: z.ZodType<JobCompletionTriggerConfiguration_MonitoredJob> =
+  z
+    .object({
+      workspace_id: z.string().optional(),
+      job_id: z.string().optional(),
+    })
+    .transform(d => ({
+      workspaceId: d.workspace_id,
+      jobId: d.job_id,
+    }));
+
+export const unmarshalJobCompletionTriggerRunInfoDetailsSchema: z.ZodType<JobCompletionTriggerRunInfoDetails> =
+  z
+    .object({
+      completed_jobs: z
+        .array(z.lazy(() => unmarshalCompletedJobSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      completedJobs: d.completed_jobs,
+    }));
+
+export const unmarshalJobCompletionTriggerStateSchema: z.ZodType<JobCompletionTriggerState> =
+  z
+    .object({
+      monitored_job_states: z
+        .array(
+          z.lazy(
+            () => unmarshalJobCompletionTriggerState_MonitoredJobStateSchema
+          )
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      monitoredJobStates: d.monitored_job_states,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalJobCompletionTriggerState_MonitoredJobStateSchema: z.ZodType<JobCompletionTriggerState_MonitoredJobState> =
+  z
+    .object({
+      workspace_id: z.string().optional(),
+      job_id: z.string().optional(),
+      last_seen_completion_time: z
+        .string()
+        .transform(s => Temporal.Instant.from(s))
+        .optional(),
+      last_seen_run_id: z.string().optional(),
+      has_seen_completion: z.boolean().optional(),
+      last_seen_result: z.string().optional(),
+      is_deleted: z.boolean().optional(),
+      latest_non_matching_result: z.string().optional(),
+    })
+    .transform(d => ({
+      workspaceId: d.workspace_id,
+      jobId: d.job_id,
+      lastSeenCompletionTime: d.last_seen_completion_time,
+      lastSeenRunId: d.last_seen_run_id,
+      hasSeenCompletion: d.has_seen_completion,
+      lastSeenResult: d.last_seen_result,
+      isDeleted: d.is_deleted,
+      latestNonMatchingResult: d.latest_non_matching_result,
+    }));
 
 export const unmarshalJobDeploymentSchema: z.ZodType<JobDeployment> = z
   .object({
@@ -8142,6 +8382,9 @@ export const unmarshalPerTriggerStateSchema: z.ZodType<PerTriggerState> = z
       .optional(),
     table_update: z.lazy(() => unmarshalTableTriggerStateSchema).optional(),
     model: z.lazy(() => unmarshalModelTriggerStateSchema).optional(),
+    job_completion: z
+      .lazy(() => unmarshalJobCompletionTriggerStateSchema)
+      .optional(),
     sql_condition: z.lazy(() => unmarshalSqlConditionStateSchema).optional(),
     pause_status: z.string().optional(),
   })
@@ -8159,7 +8402,12 @@ export const unmarshalPerTriggerStateSchema: z.ZodType<PerTriggerState> = z
                 ? {$case: 'tableUpdate' as const, tableUpdate: d.table_update}
                 : d.model !== undefined
                   ? {$case: 'model' as const, model: d.model}
-                  : undefined,
+                  : d.job_completion !== undefined
+                    ? {
+                        $case: 'jobCompletion' as const,
+                        jobCompletion: d.job_completion,
+                      }
+                    : undefined,
     sqlCondition: d.sql_condition,
     pauseStatus: d.pause_status,
   }));
@@ -9127,6 +9375,9 @@ export const unmarshalRunTriggerInfoSchema: z.ZodType<RunTriggerInfo> = z
     sql_condition: z
       .lazy(() => unmarshalSqlConditionRunInfoDetailsSchema)
       .optional(),
+    job_completion: z
+      .lazy(() => unmarshalJobCompletionTriggerRunInfoDetailsSchema)
+      .optional(),
     run_id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -9134,6 +9385,7 @@ export const unmarshalRunTriggerInfoSchema: z.ZodType<RunTriggerInfo> = z
   })
   .transform(d => ({
     sqlCondition: d.sql_condition,
+    jobCompletion: d.job_completion,
     runId: d.run_id,
   }));
 
@@ -9917,6 +10169,9 @@ export const unmarshalTriggerConfigurationSchema: z.ZodType<TriggerConfiguration
         .lazy(() => unmarshalTableTriggerConfigurationSchema)
         .optional(),
       model: z.lazy(() => unmarshalModelTriggerConfigurationSchema).optional(),
+      job_completion: z
+        .lazy(() => unmarshalJobCompletionTriggerConfigurationSchema)
+        .optional(),
       sql_condition: z
         .lazy(() => unmarshalSqlConditionConfigurationSchema)
         .optional(),
@@ -9929,6 +10184,7 @@ export const unmarshalTriggerConfigurationSchema: z.ZodType<TriggerConfiguration
       fileArrival: d.file_arrival,
       tableUpdate: d.table_update,
       model: d.model,
+      jobCompletion: d.job_completion,
       sqlCondition: d.sql_condition,
     }));
 
@@ -9987,6 +10243,9 @@ export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
       .lazy(() => unmarshalTableTriggerConfigurationSchema)
       .optional(),
     model: z.lazy(() => unmarshalModelTriggerConfigurationSchema).optional(),
+    job_completion: z
+      .lazy(() => unmarshalJobCompletionTriggerConfigurationSchema)
+      .optional(),
     sql_condition: z
       .lazy(() => unmarshalSqlConditionConfigurationSchema)
       .optional(),
@@ -10002,7 +10261,12 @@ export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
             ? {$case: 'tableUpdate' as const, tableUpdate: d.table_update}
             : d.model !== undefined
               ? {$case: 'model' as const, model: d.model}
-              : undefined,
+              : d.job_completion !== undefined
+                ? {
+                    $case: 'jobCompletion' as const,
+                    jobCompletion: d.job_completion,
+                  }
+                : undefined,
     sqlCondition: d.sql_condition,
   }));
 
@@ -10011,6 +10275,9 @@ export const unmarshalTriggerStateSchema: z.ZodType<TriggerState> = z
     table: z.lazy(() => unmarshalTableTriggerStateSchema).optional(),
     file_arrival: z
       .lazy(() => unmarshalFileArrivalTriggerStateSchema)
+      .optional(),
+    job_completion: z
+      .lazy(() => unmarshalJobCompletionTriggerStateSchema)
       .optional(),
     sql_condition: z.lazy(() => unmarshalSqlConditionStateSchema).optional(),
     pause_status: z.string().optional(),
@@ -10021,7 +10288,9 @@ export const unmarshalTriggerStateSchema: z.ZodType<TriggerState> = z
         ? {$case: 'table' as const, table: d.table}
         : d.file_arrival !== undefined
           ? {$case: 'fileArrival' as const, fileArrival: d.file_arrival}
-          : undefined,
+          : d.job_completion !== undefined
+            ? {$case: 'jobCompletion' as const, jobCompletion: d.job_completion}
+            : undefined,
     sqlCondition: d.sql_condition,
     pauseStatus: d.pause_status,
   }));
@@ -11065,12 +11334,53 @@ export const marshalJobClusterSchema: z.ZodType = z
     jobClusterKey: z.string().optional(),
     newCluster: z.lazy(() => marshalClusterSpec_NewClusterSchema).optional(),
     serverlessComputeId: z.string().optional(),
+    serverlessCompute: z
+      .lazy(() => marshalJobCluster_ServerlessComputeSchema)
+      .optional(),
   })
   .transform(d => ({
     job_cluster_key: d.jobClusterKey,
     new_cluster: d.newCluster,
     serverless_compute_id: d.serverlessComputeId,
+    serverless_compute: d.serverlessCompute,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalJobCluster_ServerlessComputeSchema: z.ZodType = z
+  .object({
+    policyId: z.string().optional(),
+  })
+  .transform(d => ({
+    policy_id: d.policyId,
+  }));
+
+export const marshalJobCompletionTriggerConfigurationSchema: z.ZodType = z
+  .object({
+    jobs: z
+      .array(
+        z.lazy(
+          () => marshalJobCompletionTriggerConfiguration_MonitoredJobSchema
+        )
+      )
+      .optional(),
+    ifStatus: z.string().optional(),
+  })
+  .transform(d => ({
+    jobs: d.jobs,
+    if_status: d.ifStatus,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalJobCompletionTriggerConfiguration_MonitoredJobSchema: z.ZodType =
+  z
+    .object({
+      workspaceId: z.string().optional(),
+      jobId: z.string().optional(),
+    })
+    .transform(d => ({
+      workspace_id: d.workspaceId,
+      job_id: d.jobId,
+    }));
 
 export const marshalJobDeploymentSchema: z.ZodType = z
   .object({
@@ -12514,6 +12824,9 @@ export const marshalTriggerConfigurationSchema: z.ZodType = z
       .lazy(() => marshalTableTriggerConfigurationSchema)
       .optional(),
     model: z.lazy(() => marshalModelTriggerConfigurationSchema).optional(),
+    jobCompletion: z
+      .lazy(() => marshalJobCompletionTriggerConfigurationSchema)
+      .optional(),
     sqlCondition: z
       .lazy(() => marshalSqlConditionConfigurationSchema)
       .optional(),
@@ -12526,6 +12839,7 @@ export const marshalTriggerConfigurationSchema: z.ZodType = z
     file_arrival: d.fileArrival,
     table_update: d.tableUpdate,
     model: d.model,
+    job_completion: d.jobCompletion,
     sql_condition: d.sqlCondition,
   }));
 
@@ -12552,6 +12866,12 @@ export const marshalTriggerSettingsSchema: z.ZodType = z
           $case: z.literal('model'),
           model: z.lazy(() => marshalModelTriggerConfigurationSchema),
         }),
+        z.object({
+          $case: z.literal('jobCompletion'),
+          jobCompletion: z.lazy(
+            () => marshalJobCompletionTriggerConfigurationSchema
+          ),
+        }),
       ])
       .optional(),
     sqlCondition: z
@@ -12570,6 +12890,9 @@ export const marshalTriggerSettingsSchema: z.ZodType = z
       table_update: d.configuration.tableUpdate,
     }),
     ...(d.configuration?.$case === 'model' && {model: d.configuration.model}),
+    ...(d.configuration?.$case === 'jobCompletion' && {
+      job_completion: d.configuration.jobCompletion,
+    }),
     sql_condition: d.sqlCondition,
   }));
 

@@ -32,6 +32,8 @@ export type {
   ListWorkspacePermissionAssignmentsResponse,
   ListWorkspacePermissionsRequest,
   ListWorkspacePermissionsResponse,
+  MigratePermissionsRequest,
+  MigratePermissionsResponse,
   Permission,
   PermissionOutput,
   PermissionsDescription,

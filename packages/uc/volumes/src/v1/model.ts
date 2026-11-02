@@ -79,7 +79,7 @@ export interface EncryptionDetails {
 }
 
 export interface GetVolumeRequest {
-  /** The three-level (fully qualified) name of the volume */
+  /** The fully qualified name of the volume. */
   fullNameArg?: string | undefined;
   /** Whether to include volumes in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;

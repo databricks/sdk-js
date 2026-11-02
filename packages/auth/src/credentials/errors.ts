@@ -49,7 +49,6 @@ export class M2mCredentialsError extends Error {
 export type U2mCredentialsErrorCode =
   | 'PROFILE_REQUIRED'
   | 'CLI_NOT_FOUND'
-  | 'LEGACY_CLI_DETECTED'
   | 'TOKEN_FETCH_FAILED'
   | 'INVALID_RESPONSE';
 

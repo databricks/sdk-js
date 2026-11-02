@@ -855,9 +855,13 @@ export interface AvgFunction {
 }
 
 export interface BackfillFeaturesRequest {
-  /** Full names of the features to backfill. */
+  /**
+   * Full names of the features to backfill. All features must share the same interval between
+   * values and the same offset. The interval is the slide_duration of a sliding window or the
+   * window_duration of a tumbling window.
+   */
   featureFullNames?: string[] | undefined;
-  /** Output ranges to backfill. */
+  /** Time ranges of source data to backfill. Ranges must not overlap. */
   backfillRanges?: BackfillRange[] | undefined;
   /** Idempotency token for the request. */
   requestId?: string | undefined;
@@ -885,17 +889,27 @@ export interface BackfillFeaturesResponse {}
 export interface BackfillOperationMetadata {
   /** Full names of the features targeted by the backfill. */
   featureFullNames?: string[] | undefined;
-  /** Output ranges targeted by the backfill. */
+  /**
+   * The requested time ranges, each aligned outward to the boundaries at which the features emit
+   * values. Ranges that overlap after alignment are combined into one. The backfill stops at the
+   * most recent materialized values, so a range may extend past the values that it recomputed.
+   */
   backfillRanges?: BackfillRange[] | undefined;
   /** Current state of the backfill. */
   state?: BackfillOperationMetadata_State | undefined;
 }
 
-/** A time range for a backfill. */
+/**
+ * A time range of source data for a backfill. The range is aligned outward to the boundaries at
+ * which the feature emits values: every slide_duration for a sliding window or every
+ * window_duration for a tumbling window, shifted by offset. Feature values up to one
+ * window_duration after the aligned end may change. The backfill stops at the most recent
+ * materialized values and leaves later values to materialization.
+ */
 export interface BackfillRange {
   /** Start of the backfill range, inclusive. If unset, defaults to the earliest source timestamp of the feature. */
   startTime?: Temporal.Instant | undefined;
-  /** End of the backfill range, exclusive. If unset, defaults to the current time. */
+  /** End of the backfill range, exclusive. If unset, defaults to the most recent materialized values. */
   endTime?: Temporal.Instant | undefined;
 }
 
@@ -1679,7 +1693,10 @@ export interface MaterializationFailureNotification {
   finalAttemptOnly?: boolean | undefined;
 }
 
-/** Notifications for the jobs and pipelines that materialize a feature, one field per trigger. */
+/**
+ * Notifications for the jobs and pipelines that materialize the features in a set, one field per
+ * trigger.
+ */
 export interface MaterializationNotifications {
   /** Who to notify when a run succeeds. */
   onSuccess?: MaterializationSuccessNotification | undefined;
@@ -1796,10 +1813,7 @@ export interface MaterializedFeature {
     | undefined;
   /** The fully qualified Unity Catalog path to the table containing the materialized feature (Delta table or Lakebase table). Output only. */
   tableName?: string | undefined;
-  /**
-   * The schedule state of the materialization pipeline.
-   * Hidden from GraphQL: being deprecated, so not exposed to Catalog Explorer.
-   */
+  /** Deprecated: This legacy pipeline setting does not control batch job scheduling. */
   pipelineScheduleState?: MaterializedFeature_PipelineScheduleState | undefined;
   /**
    * The timestamp when the pipeline last ran and updated the materialized feature values.
@@ -1852,15 +1866,11 @@ export interface MaterializedFeature {
   pipelineId?: string | undefined;
   /** The ID of the job that materializes the feature. This is present for both batch and streaming features. */
   jobId?: bigint | undefined;
-  /**
-   * Notification configuration around the materialization job or pipeline lifecycle. They are
-   * applied to every job and pipeline that materializes this feature. Features which are
-   * materialized in the same pipeline will share the same notification.
-   */
+  /** Notification configuration for the jobs and pipelines that materialize this feature. */
   notifications?: MaterializationNotifications | undefined;
   /**
-   * The materialization set this materialized feature was created for, through DABs or
-   * direct-engine creation. Unset for a materialized feature that was not created as part of a set.
+   * The ID of the materialization set containing this materialized feature.
+   * Unset for a materialized feature that is not part of a set.
    */
   materializationSetId?: string | undefined;
 }
@@ -2646,10 +2656,7 @@ export interface UpdateMaterializationSetRequest {
 export interface UpdateMaterializedFeatureRequest {
   /** The materialized feature to update. */
   materializedFeature?: MaterializedFeature | undefined;
-  /**
-   * Provide the materialization feature fields which should be updated.
-   * Currently, only the pipeline_state field can be updated.
-   */
+  /** The fields to update. Only `pipeline_schedule_state` is supported. */
   updateMask?: FieldMask<MaterializedFeature> | undefined;
 }
 

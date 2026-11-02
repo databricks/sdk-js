@@ -32,6 +32,8 @@ import type {
   ListWorkspacePermissionAssignmentsResponse,
   ListWorkspacePermissionsRequest,
   ListWorkspacePermissionsResponse,
+  MigratePermissionsRequest,
+  MigratePermissionsResponse,
   PermissionsResponse,
   RuleSet,
   SetObjectPermissionsRequest,
@@ -43,6 +45,7 @@ import type {
 import {
   marshalActorSchema,
   marshalConsistencyTokenSchema,
+  marshalMigratePermissionsRequestSchema,
   marshalResourceInfoSchema,
   marshalSetObjectPermissionsRequestSchema,
   marshalUpdateObjectPermissionsRequestSchema,
@@ -54,6 +57,7 @@ import {
   unmarshalListPermissionLevelsResponseSchema,
   unmarshalListWorkspacePermissionAssignmentsResponseSchema,
   unmarshalListWorkspacePermissionsResponseSchema,
+  unmarshalMigratePermissionsResponseSchema,
   unmarshalPermissionsResponseSchema,
   unmarshalRuleSetSchema,
   unmarshalWorkspacePermissionAssignmentOutputSchema,
@@ -431,6 +435,36 @@ export class AccessManagementClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Migrate Permissions. */
+  async migratePermissions(
+    req: MigratePermissionsRequest,
+    options?: CallOptions
+  ): Promise<MigratePermissionsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/permissionmigration`;
+    const body = marshalRequest(req, marshalMigratePermissionsRequestSchema);
+    let resp: MigratePermissionsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalMigratePermissionsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

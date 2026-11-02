@@ -2420,7 +2420,15 @@ export class PostgresClient {
     );
   }
 
-  /** Update a role for a branch. */
+  /**
+   * Updates the mutable fields of a Postgres role for a branch.
+   *
+   * The fields `spec.identity_type`, `spec.auth_method`, and
+   * `spec.postgres_role` are fixed when the role is created. UpdateRole
+   * ignores values supplied for these fields in the request body and
+   * retains their existing values. Explicitly naming one of these fields
+   * in `update_mask` returns an INVALID_PARAMETER_VALUE error.
+   */
   private async updateRoleBase(
     req: UpdateRoleRequest,
     options?: CallOptions
@@ -2462,7 +2470,15 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Update a role for a branch. */
+  /**
+   * Updates the mutable fields of a Postgres role for a branch.
+   *
+   * The fields `spec.identity_type`, `spec.auth_method`, and
+   * `spec.postgres_role` are fixed when the role is created. UpdateRole
+   * ignores values supplied for these fields in the request body and
+   * retains their existing values. Explicitly naming one of these fields
+   * in `update_mask` returns an INVALID_PARAMETER_VALUE error.
+   */
   async updateRole(
     req: UpdateRoleRequest,
     options?: CallOptions

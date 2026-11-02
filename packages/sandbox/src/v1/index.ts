@@ -17,6 +17,8 @@ export type {
   DeletePathRequest,
   DeletePathResponse,
   DeleteSandboxRequest,
+  DownloadFileRequest,
+  DownloadFileResponse,
   EnvironmentSpec,
   ExecuteCommandSyncRequest,
   ExecuteCommandSyncResponse,
@@ -39,6 +41,8 @@ export type {
   StartSandboxRequest,
   StopSandboxRequest,
   UpdateSandboxRequest,
+  UploadFileRequest,
+  UploadFileResponse,
 } from './model';
 
 export {sandboxFieldMask} from './model';

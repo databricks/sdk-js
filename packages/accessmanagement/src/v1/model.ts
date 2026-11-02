@@ -251,6 +251,22 @@ export interface ListWorkspacePermissionsResponse {
   permissions?: PermissionOutput[] | undefined;
 }
 
+export interface MigratePermissionsRequest {
+  /** WorkspaceId of the associated workspace where the permission migration will occur. */
+  workspaceId?: bigint | undefined;
+  /** The name of the workspace group that permissions will be migrated from. */
+  fromWorkspaceGroupName?: string | undefined;
+  /** The name of the account group that permissions will be migrated to. */
+  toAccountGroupName?: string | undefined;
+  /** The maximum number of permissions that will be migrated. */
+  size?: number | undefined;
+}
+
+export interface MigratePermissionsResponse {
+  /** Number of permissions migrated. */
+  permissionsMigrated?: number | undefined;
+}
+
 export interface Permission {
   permissionLevel?: PermissionLevel | undefined;
   inherited?: boolean | undefined;
@@ -502,6 +518,15 @@ export const unmarshalListWorkspacePermissionsResponseSchema: z.ZodType<ListWork
       permissions: d.permissions,
     }));
 
+export const unmarshalMigratePermissionsResponseSchema: z.ZodType<MigratePermissionsResponse> =
+  z
+    .object({
+      permissions_migrated: z.number().optional(),
+    })
+    .transform(d => ({
+      permissionsMigrated: d.permissions_migrated,
+    }));
+
 export const unmarshalPermissionSchema: z.ZodType<Permission> = z
   .object({
     permission_level: z.string().optional(),
@@ -665,6 +690,20 @@ export const marshalGrantRuleSchema: z.ZodType = z
   .transform(d => ({
     principals: d.principals,
     role: d.role,
+  }));
+
+export const marshalMigratePermissionsRequestSchema: z.ZodType = z
+  .object({
+    workspaceId: z.bigint().optional(),
+    fromWorkspaceGroupName: z.string().optional(),
+    toAccountGroupName: z.string().optional(),
+    size: z.number().optional(),
+  })
+  .transform(d => ({
+    workspace_id: d.workspaceId,
+    from_workspace_group_name: d.fromWorkspaceGroupName,
+    to_account_group_name: d.toAccountGroupName,
+    size: d.size,
   }));
 
 export const marshalResourceInfoSchema: z.ZodType = z

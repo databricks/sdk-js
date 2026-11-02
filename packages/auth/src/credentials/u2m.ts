@@ -21,12 +21,6 @@ import {U2mCredentialsError} from './errors';
 
 const execFileAsync = promisify(execFile);
 
-/**
- * Distinguishes the modern Go-based Databricks CLI (>= 0.100.0) from the
- * legacy Python CLI by minimum file size.
- */
-const DATABRICKS_CLI_MIN_SIZE = 1024 * 1024;
-
 /** Options for the Databricks CLI auth strategy. */
 export interface U2mCredentialsOptions {
   /**
@@ -147,8 +141,7 @@ function cliErrorMessage(e: unknown): string {
 
 /**
  * Locates the `databricks` CLI binary, either at `cliPath` (if provided) or
- * by searching `PATH`. Validates that the binary is the modern Go CLI and
- * not the legacy Python one, via a minimum-size check.
+ * by searching `PATH`.
  */
 async function findDatabricksCli(cliPath?: string): Promise<string> {
   if (cliPath !== undefined) {
@@ -173,26 +166,17 @@ async function findInPath(name: string): Promise<string> {
     throw new U2mCredentialsError('CLI_NOT_FOUND', 'databricks CLI not found');
   }
   const delim = platform === 'win32' ? ';' : ':';
-  let legacyError: U2mCredentialsError | undefined;
   for (const dir of pathEnv.split(delim)) {
     if (dir === '') {
       continue;
     }
     try {
       return await validateCliPath(join(dir, name));
-    } catch (e) {
-      if (
-        e instanceof U2mCredentialsError &&
-        e.code === 'LEGACY_CLI_DETECTED'
-      ) {
-        legacyError = e;
-      }
+    } catch {
+      // Not in this directory; keep searching.
     }
   }
-  throw (
-    legacyError ??
-    new U2mCredentialsError('CLI_NOT_FOUND', 'databricks CLI not found')
-  );
+  throw new U2mCredentialsError('CLI_NOT_FOUND', 'databricks CLI not found');
 }
 
 async function validateCliPath(path: string): Promise<string> {
@@ -204,12 +188,6 @@ async function validateCliPath(path: string): Promise<string> {
   }
   if (info.isDirectory()) {
     throw new U2mCredentialsError('CLI_NOT_FOUND', 'databricks CLI not found');
-  }
-  if (info.size < DATABRICKS_CLI_MIN_SIZE) {
-    throw new U2mCredentialsError(
-      'LEGACY_CLI_DETECTED',
-      'legacy databricks CLI detected; upgrade to >= 0.100.0'
-    );
   }
   return path;
 }

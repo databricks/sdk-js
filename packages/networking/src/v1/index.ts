@@ -4,11 +4,12 @@
  * @module v1
  */
 
-export {NetworkingClient} from './client';
+export {NetworkingClient, CreatePrivateNetworkGatewayOperation} from './client';
 
 export {
   EgressResourceType,
   EndpointState,
+  ErrorCode,
   IpAccessListType,
   PrivateAccessLevel,
   VpcEndpointUseCase,
@@ -29,12 +30,18 @@ export {
   NccPrivateEndpointRule_PrivateLinkConnectionState,
   NetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState,
   NetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState,
+  PrivateNetworkGateway_Destination_DestinationType,
+  PrivateNetworkGateway_GatewayState,
+  PrivateNetworkGateway_PrivateDnsResolver_ResolverType,
+  PrivateNetworkGateway_TrafficMode,
+  PrivateNetworkGatewayOperationMetadata_OperationType,
 } from './model';
 
 export type {
   AccountIpAccessList,
   AccountIpAccessListType,
   AccountNetworkPolicy,
+  ApiError,
   AwsVpcEndpointInfo,
   AzurePrivateEndpointInfo,
   CreateAccountIpAccessListRequest,
@@ -49,6 +56,7 @@ export type {
   CreateNetworkRequest,
   CreatePrivateAccessSettingsRequest,
   CreatePrivateEndpointRule,
+  CreatePrivateNetworkGatewayRequest,
   CreateVpcEndpointRequest,
   CustomerFacingNetworkConnectivityConfigEgressConfig,
   CustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRule,
@@ -62,6 +70,7 @@ export type {
   DeleteNetworkPolicyRequest,
   DeleteNetworkRequest,
   DeletePrivateAccessSettingsRequest,
+  DeletePrivateNetworkGatewayRequest,
   DeleteVpcEndpointRequest,
   EgressNetworkPolicy,
   EgressNetworkPolicy_NetworkAccessPolicy,
@@ -84,7 +93,9 @@ export type {
   GetNetworkConnectivityConfigRequest,
   GetNetworkPolicyRequest,
   GetNetworkRequest,
+  GetOperationRequest,
   GetPrivateAccessSettingsRequest,
+  GetPrivateNetworkGatewayRequest,
   GetVpcEndpointRequest,
   GetWorkspaceNetworkOptionRequest,
   GoogleApiEndpoints,
@@ -128,6 +139,8 @@ export type {
   ListNetworkResponse,
   ListPrivateAccessSettingsRequest,
   ListPrivateAccessSettingsResponse,
+  ListPrivateNetworkGatewaysRequest,
+  ListPrivateNetworkGatewaysResponse,
   ListVpcEndpointRequest,
   ListVpcEndpointResponse,
   NccPrivateEndpointRule,
@@ -142,7 +155,17 @@ export type {
   NetworkHealth,
   NetworkVpcEndpoints,
   NetworkWarning,
+  Operation,
   PrivateAccessSettings,
+  PrivateNetworkGateway,
+  PrivateNetworkGateway_AwsCloudConnection,
+  PrivateNetworkGateway_AwsCloudConnection_AwsGatewaySubnet,
+  PrivateNetworkGateway_AwsCloudConnection_CrossAccountRole,
+  PrivateNetworkGateway_AzureCloudConnection,
+  PrivateNetworkGateway_AzureCloudConnection_AzureGatewaySubnet,
+  PrivateNetworkGateway_Destination,
+  PrivateNetworkGateway_PrivateDnsResolver,
+  PrivateNetworkGatewayOperationMetadata,
   ReplaceAccountIpAccessListRequest,
   ReplaceAccountIpAccessListResponse,
   ReplaceIpAccessListRequest,
@@ -152,12 +175,18 @@ export type {
   UpdateIpAccessListRequest,
   UpdateIpAccessListResponse,
   UpdateNccPrivateEndpointRuleRequest,
+  UpdateNetworkConnectivityConfigRequest,
   UpdateNetworkPolicyRequest,
   UpdatePrivateAccessSettingsRequest,
   UpdatePrivateEndpointRule,
+  UpdatePrivateNetworkGatewayRequest,
   UpdateWorkspaceNetworkOptionRequest,
   VpcEndpoint,
   WorkspaceNetworkOption,
 } from './model';
 
-export {updatePrivateEndpointRuleFieldMask} from './model';
+export {
+  networkConnectivityConfigFieldMask,
+  privateNetworkGatewayFieldMask,
+  updatePrivateEndpointRuleFieldMask,
+} from './model';
