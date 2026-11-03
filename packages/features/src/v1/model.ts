@@ -1403,6 +1403,14 @@ export interface IngestionDestination {
         /** The full three-part name (catalog, schema, name) of the Delta table to be created for ingestion. */
         deltaTableName: string;
       }
+    | {
+        $case: 'viewName';
+        /**
+         * The full three-part name (catalog, schema, name) of an existing view to use instead of
+         * creating a Delta table. The view is dropped when the Stream is deleted.
+         */
+        viewName: string;
+      }
     | undefined;
 }
 
@@ -1713,6 +1721,12 @@ export interface MaterializationSet {
    * Updating the set with a materialized feature removed from this set will cause it to be deleted.
    */
   materializedFeatures?: MaterializedFeature[] | undefined;
+  /**
+   * Notification configuration around the materialization job or pipeline lifecycle. They are
+   * applied to every job and pipeline that materializes a feature in this set. Features which are
+   * materialized in the same pipeline will share the same notification.
+   */
+  notifications?: MaterializationNotifications | undefined;
 }
 
 /**
@@ -3248,6 +3262,7 @@ export const unmarshalIngestionDestinationSchema: z.ZodType<IngestionDestination
   z
     .object({
       delta_table_name: z.string().optional(),
+      view_name: z.string().optional(),
     })
     .transform(d => ({
       ingestionDestination:
@@ -3256,7 +3271,9 @@ export const unmarshalIngestionDestinationSchema: z.ZodType<IngestionDestination
               $case: 'deltaTableName' as const,
               deltaTableName: d.delta_table_name,
             }
-          : undefined,
+          : d.view_name !== undefined
+            ? {$case: 'viewName' as const, viewName: d.view_name}
+            : undefined,
     }));
 
 export const unmarshalInputBindingSchema: z.ZodType<InputBinding> = z
@@ -3508,10 +3525,14 @@ export const unmarshalMaterializationSetSchema: z.ZodType<MaterializationSet> =
       materialized_features: z
         .array(z.lazy(() => unmarshalMaterializedFeatureSchema))
         .optional(),
+      notifications: z
+        .lazy(() => unmarshalMaterializationNotificationsSchema)
+        .optional(),
     })
     .transform(d => ({
       materializationSetId: d.materialization_set_id,
       materializedFeatures: d.materialized_features,
+      notifications: d.notifications,
     }));
 
 export const unmarshalMaterializationSetDeletionProgressSchema: z.ZodType<MaterializationSetDeletionProgress> =
@@ -4908,12 +4929,16 @@ export const marshalIngestionDestinationSchema: z.ZodType = z
           $case: z.literal('deltaTableName'),
           deltaTableName: z.string(),
         }),
+        z.object({$case: z.literal('viewName'), viewName: z.string()}),
       ])
       .optional(),
   })
   .transform(d => ({
     ...(d.ingestionDestination?.$case === 'deltaTableName' && {
       delta_table_name: d.ingestionDestination.deltaTableName,
+    }),
+    ...(d.ingestionDestination?.$case === 'viewName' && {
+      view_name: d.ingestionDestination.viewName,
     }),
   }));
 
@@ -5112,10 +5137,14 @@ export const marshalMaterializationSetSchema: z.ZodType = z
     materializedFeatures: z
       .array(z.lazy(() => marshalMaterializedFeatureSchema))
       .optional(),
+    notifications: z
+      .lazy(() => marshalMaterializationNotificationsSchema)
+      .optional(),
   })
   .transform(d => ({
     materialization_set_id: d.materializationSetId,
     materialized_features: d.materializedFeatures,
+    notifications: d.notifications,
   }));
 
 export const marshalMaterializationSuccessNotificationSchema: z.ZodType = z
@@ -6039,6 +6068,7 @@ const ingestionConfigFieldMaskSchema: FieldMaskSchema = {
 
 const ingestionDestinationFieldMaskSchema: FieldMaskSchema = {
   deltaTableName: {wire: 'delta_table_name'},
+  viewName: {wire: 'view_name'},
 };
 
 const jobContextFieldMaskSchema: FieldMaskSchema = {
@@ -6151,6 +6181,10 @@ const materializationNotificationsFieldMaskSchema: FieldMaskSchema = {
 const materializationSetFieldMaskSchema: FieldMaskSchema = {
   materializationSetId: {wire: 'materialization_set_id'},
   materializedFeatures: {wire: 'materialized_features'},
+  notifications: {
+    wire: 'notifications',
+    children: () => materializationNotificationsFieldMaskSchema,
+  },
 };
 
 export function materializationSetFieldMask(
