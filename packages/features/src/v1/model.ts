@@ -672,6 +672,14 @@ export const PurgeFeatureEntitiesMetadata_State = {
   FAILED: 'FAILED',
   /** The feature entity purge was cancelled. */
   CANCELLED: 'CANCELLED',
+  /** The purge was accepted, and deletion or nulling has not started. */
+  PENDING_PURGE: 'PENDING_PURGE',
+  /** The purge is deleting rows or nulling feature values, including online synchronization. */
+  RUNNING_PURGE: 'RUNNING_PURGE',
+  /** Deletion or nulling completed, and the purge is waiting for offline retention to expire. */
+  PENDING_CLEANUP: 'PENDING_CLEANUP',
+  /** The purge is removing eligible residual offline files and metadata. */
+  RUNNING_CLEANUP: 'RUNNING_CLEANUP',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type PurgeFeatureEntitiesMetadata_State =
@@ -982,6 +990,12 @@ export interface CreateFeatureRequest {
   feature?: Feature | undefined;
 }
 
+/** Request to create a Unity Catalog feature spec with the supplied configuration. */
+export interface CreateFeatureSpecRequest {
+  /** The feature spec to create. */
+  featureSpec?: FeatureSpec | undefined;
+}
+
 export interface CreateKafkaConfigRequest {
   kafkaConfig?: KafkaConfig | undefined;
 }
@@ -1088,9 +1102,29 @@ export interface DataSource {
   lateness?: SourceLateness | undefined;
 }
 
+/** A reference to a Feature. */
+export interface DeclarativeFeature {
+  /** Three-part Unity Catalog name (catalog.schema.feature) of the Feature. */
+  feature?: string | undefined;
+}
+
+/** A default value for a looked-up feature. */
+export interface DefaultValue {
+  /** Name of the feature: its output name if it is renamed, otherwise its name in the feature table. */
+  feature?: string | undefined;
+  /** Default value for the feature. */
+  defaultValue?: string | undefined;
+}
+
 export interface DeleteFeatureRequest {
   /** Name of the feature to delete. */
   fullName?: string | undefined;
+}
+
+/** Request to delete a feature spec by its three-part Unity Catalog name. */
+export interface DeleteFeatureSpecRequest {
+  /** Three-part name (catalog.schema.feature_spec) of the feature spec to delete. */
+  name?: string | undefined;
 }
 
 export interface DeleteKafkaConfigRequest {
@@ -1227,6 +1261,43 @@ export interface Feature {
   createdBy?: string | undefined;
 }
 
+/** A Python UDF that computes a feature. */
+export interface FeatureFunction {
+  /** Three-part name of the Python UDF. */
+  udf?: string | undefined;
+  /** Bindings of the UDF's parameters to features. */
+  inputBindings?: FeatureFunction_InputBinding[] | undefined;
+  /** Output name of the feature that the UDF computes. */
+  output?: string | undefined;
+}
+
+/** Binds one parameter of the UDF to a feature. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface FeatureFunction_InputBinding {
+  /** Name of the UDF parameter. */
+  parameter?: string | undefined;
+  /** Name of the feature bound to the parameter. */
+  boundFeature?: string | undefined;
+}
+
+/** Features to look up from a feature table. */
+export interface FeatureLookup {
+  /** Three-part name of the feature table. */
+  table?: string | undefined;
+  /** Keys to use when joining with the feature table. */
+  lookupKeys?: string[] | undefined;
+  /** Names of the features to look up, or empty to look up every feature in the table. */
+  featureNames?: string[] | undefined;
+  /** Output names for features, in place of their names in the feature table. */
+  renameOutputs?: RenameOutput[] | undefined;
+  /** Keys to use when performing point-in-time lookup. */
+  timestampLookupKeys?: string[] | undefined;
+  /** Lookback window to use when performing point-in-time lookup. */
+  lookbackWindow?: Temporal.Duration | undefined;
+  /** Default values for features. */
+  defaultValues?: DefaultValue[] | undefined;
+}
+
 /**
  * A reference to one registered upstream Feature. A message rather than a bare name so an
  * upstream can later be pinned more precisely (e.g. by version) without a breaking type change.
@@ -1236,10 +1307,56 @@ export interface FeatureReference {
   feature?: string | undefined;
 }
 
+/** A named set of features to serve, stored as a Unity Catalog function. */
+export interface FeatureSpec {
+  /** Three-part name (catalog.schema.feature_spec) of the feature spec. */
+  name?: string | undefined;
+  /**
+   * The Features (either a declarative one, or a lookup from a feature table, or a feature
+   * function) to serve. A declarative feature (`DeclarativeFeature`) cannot be combined with
+   * lookups (`FeatureLookup`) and functions (`FeatureFunction`) in one feature spec.
+   */
+  features?: Features[] | undefined;
+  /** Output names of columns to leave out of the feature spec. */
+  excludeColumns?: string[] | undefined;
+  /** How pip requirements for the serving container are specified. */
+  pipRequirementsSpec?:
+    | {
+        $case: 'extraPipRequirements';
+        /**
+         * Extra pip requirements to install in the serving container, in addition to the defaults and
+         * those resolved from the features.
+         */
+        extraPipRequirements: PipRequirements;
+      }
+    | undefined;
+}
+
 /** A data source composed from registered upstream Features. */
 export interface FeatureViewSource {
   /** The upstream Features this source reads. Must include at least one feature. */
   featureReferences?: FeatureReference[] | undefined;
+}
+
+/** One entry of a feature spec: a Feature, a feature table lookup, or a feature function. */
+export interface Features {
+  feature?:
+    | {
+        $case: 'featureLookup';
+        /** A feature table lookup. */
+        featureLookup: FeatureLookup;
+      }
+    | {
+        $case: 'featureFunction';
+        /** A feature function. */
+        featureFunction: FeatureFunction;
+      }
+    | {
+        $case: 'declarativeFeature';
+        /** A Feature, referenced by its three-part Unity Catalog name. */
+        declarativeFeature: DeclarativeFeature;
+      }
+    | undefined;
 }
 
 /**
@@ -1316,6 +1433,12 @@ export interface FunctionExtraParameter {
 export interface GetFeatureRequest {
   /** Name of the feature to get. */
   fullName?: string | undefined;
+}
+
+/** Request to get a feature spec by its three-part Unity Catalog name. */
+export interface GetFeatureSpecRequest {
+  /** Three-part name (catalog.schema.feature_spec) of the feature spec to get. */
+  name?: string | undefined;
 }
 
 export interface GetKafkaConfigRequest {
@@ -1741,10 +1864,7 @@ export interface MaterializationSetDeletionProgress {
   failedMaterializedFeatures?: MaterializedFeatureChangeFailure[] | undefined;
 }
 
-/**
- * Progress of a materialization set operation. Shared by create, update and delete, because
- * databricks.longrunning freezes a method's metadata type once it ships.
- */
+/** Progress of a materialization set operation. */
 export interface MaterializationSetOperationMetadata {
   /** Full names of the features the set materializes, one entry per feature. */
   featureFullNames?: string[] | undefined;
@@ -1754,20 +1874,16 @@ export interface MaterializationSetOperationMetadata {
   createTime?: Temporal.Instant | undefined;
   /** ID of the materialization set the operation targets. */
   materializationSetId?: string | undefined;
-  /**
-   * Records which members a set change applied to and which it did not. It is written once the
-   * operation settles, so a polled operation shows the outcome of a partly failed change. Unset for
-   * a creation, which has no partial outcome.
-   */
+  /** Progress and outcomes specific to the operation type. Unset for creation. */
   progress?:
     | {
         $case: 'deletionProgress';
-        /** Set by a DeleteMaterializationSet operation. */
+        /** Set by a `DeleteMaterializationSet` operation. */
         deletionProgress: MaterializationSetDeletionProgress;
       }
     | {
         $case: 'updateProgress';
-        /** Set by an UpdateMaterializationSet operation. */
+        /** Set by an `UpdateMaterializationSet` operation. */
         updateProgress: MaterializationSetUpdateProgress;
       }
     | undefined;
@@ -2031,6 +2147,12 @@ export interface Operation {
     | undefined;
 }
 
+/** Pip requirements to install in a serving container. */
+export interface PipRequirements {
+  /** Pip requirement strings (PEP 508) or UC Volume whl paths (/Volumes/...). */
+  requirements?: string[] | undefined;
+}
+
 /**
  * A Protocol Buffer schema paired with the name of the message within it that describes the
  * Kafka payload. A .proto file may declare multiple messages; message_name disambiguates.
@@ -2135,6 +2257,14 @@ export interface PurgeFeatureEntitiesResult {
   onlineState?: PurgeFeatureEntitiesResult_State | undefined;
   /** Error encountered while purging this feature, if any. */
   error?: ApiError | undefined;
+}
+
+/** An output name for a looked-up feature. */
+export interface RenameOutput {
+  /** Name of the feature in the feature table. */
+  feature?: string | undefined;
+  /** Output name for the feature. */
+  output?: string | undefined;
 }
 
 /** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
@@ -3030,6 +3160,25 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
     lateness: d.lateness,
   }));
 
+export const unmarshalDeclarativeFeatureSchema: z.ZodType<DeclarativeFeature> =
+  z
+    .object({
+      feature: z.string().optional(),
+    })
+    .transform(d => ({
+      feature: d.feature,
+    }));
+
+export const unmarshalDefaultValueSchema: z.ZodType<DefaultValue> = z
+  .object({
+    feature: z.string().optional(),
+    default_value: z.string().optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+    defaultValue: d.default_value,
+  }));
+
 export const unmarshalDeltaTableSourceSchema: z.ZodType<DeltaTableSource> = z
   .object({
     full_name: z.string().optional(),
@@ -3115,12 +3264,87 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
     createdBy: d.created_by,
   }));
 
+export const unmarshalFeatureFunctionSchema: z.ZodType<FeatureFunction> = z
+  .object({
+    udf: z.string().optional(),
+    input_bindings: z
+      .array(z.lazy(() => unmarshalFeatureFunction_InputBindingSchema))
+      .optional(),
+    output: z.string().optional(),
+  })
+  .transform(d => ({
+    udf: d.udf,
+    inputBindings: d.input_bindings,
+    output: d.output,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalFeatureFunction_InputBindingSchema: z.ZodType<FeatureFunction_InputBinding> =
+  z
+    .object({
+      parameter: z.string().optional(),
+      bound_feature: z.string().optional(),
+    })
+    .transform(d => ({
+      parameter: d.parameter,
+      boundFeature: d.bound_feature,
+    }));
+
+export const unmarshalFeatureLookupSchema: z.ZodType<FeatureLookup> = z
+  .object({
+    table: z.string().optional(),
+    lookup_keys: z.array(z.string()).optional(),
+    feature_names: z.array(z.string()).optional(),
+    rename_outputs: z
+      .array(z.lazy(() => unmarshalRenameOutputSchema))
+      .optional(),
+    timestamp_lookup_keys: z.array(z.string()).optional(),
+    lookback_window: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+    default_values: z
+      .array(z.lazy(() => unmarshalDefaultValueSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    table: d.table,
+    lookupKeys: d.lookup_keys,
+    featureNames: d.feature_names,
+    renameOutputs: d.rename_outputs,
+    timestampLookupKeys: d.timestamp_lookup_keys,
+    lookbackWindow: d.lookback_window,
+    defaultValues: d.default_values,
+  }));
+
 export const unmarshalFeatureReferenceSchema: z.ZodType<FeatureReference> = z
   .object({
     feature: z.string().optional(),
   })
   .transform(d => ({
     feature: d.feature,
+  }));
+
+export const unmarshalFeatureSpecSchema: z.ZodType<FeatureSpec> = z
+  .object({
+    name: z.string().optional(),
+    features: z.array(z.lazy(() => unmarshalFeaturesSchema)).optional(),
+    exclude_columns: z.array(z.string()).optional(),
+    extra_pip_requirements: z
+      .lazy(() => unmarshalPipRequirementsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    features: d.features,
+    excludeColumns: d.exclude_columns,
+    pipRequirementsSpec:
+      d.extra_pip_requirements !== undefined
+        ? {
+            $case: 'extraPipRequirements' as const,
+            extraPipRequirements: d.extra_pip_requirements,
+          }
+        : undefined,
   }));
 
 export const unmarshalFeatureViewSourceSchema: z.ZodType<FeatureViewSource> = z
@@ -3131,6 +3355,31 @@ export const unmarshalFeatureViewSourceSchema: z.ZodType<FeatureViewSource> = z
   })
   .transform(d => ({
     featureReferences: d.feature_references,
+  }));
+
+export const unmarshalFeaturesSchema: z.ZodType<Features> = z
+  .object({
+    feature_lookup: z.lazy(() => unmarshalFeatureLookupSchema).optional(),
+    feature_function: z.lazy(() => unmarshalFeatureFunctionSchema).optional(),
+    declarative_feature: z
+      .lazy(() => unmarshalDeclarativeFeatureSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    feature:
+      d.feature_lookup !== undefined
+        ? {$case: 'featureLookup' as const, featureLookup: d.feature_lookup}
+        : d.feature_function !== undefined
+          ? {
+              $case: 'featureFunction' as const,
+              featureFunction: d.feature_function,
+            }
+          : d.declarative_feature !== undefined
+            ? {
+                $case: 'declarativeFeature' as const,
+                declarativeFeature: d.declarative_feature,
+              }
+            : undefined,
   }));
 
 export const unmarshalFieldDefinitionSchema: z.ZodType<FieldDefinition> = z
@@ -3790,6 +4039,14 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
           : undefined,
   }));
 
+export const unmarshalPipRequirementsSchema: z.ZodType<PipRequirements> = z
+  .object({
+    requirements: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    requirements: d.requirements,
+  }));
+
 export const unmarshalProtoSchemaSpecSchema: z.ZodType<ProtoSchemaSpec> = z
   .object({
     schema_text: z.string().optional(),
@@ -3860,6 +4117,16 @@ export const unmarshalPurgeFeatureEntitiesResultSchema: z.ZodType<PurgeFeatureEn
       onlineState: d.online_state,
       error: d.error,
     }));
+
+export const unmarshalRenameOutputSchema: z.ZodType<RenameOutput> = z
+  .object({
+    feature: z.string().optional(),
+    output: z.string().optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+    output: d.output,
+  }));
 
 export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
   .object({
@@ -4701,6 +4968,24 @@ export const marshalDataSourceSchema: z.ZodType = z
     lateness: d.lateness,
   }));
 
+export const marshalDeclarativeFeatureSchema: z.ZodType = z
+  .object({
+    feature: z.string().optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+  }));
+
+export const marshalDefaultValueSchema: z.ZodType = z
+  .object({
+    feature: z.string().optional(),
+    defaultValue: z.string().optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+    default_value: d.defaultValue,
+  }));
+
 export const marshalDeltaTableSourceSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
@@ -4786,12 +5071,83 @@ export const marshalFeatureSchema: z.ZodType = z
     created_by: d.createdBy,
   }));
 
+export const marshalFeatureFunctionSchema: z.ZodType = z
+  .object({
+    udf: z.string().optional(),
+    inputBindings: z
+      .array(z.lazy(() => marshalFeatureFunction_InputBindingSchema))
+      .optional(),
+    output: z.string().optional(),
+  })
+  .transform(d => ({
+    udf: d.udf,
+    input_bindings: d.inputBindings,
+    output: d.output,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalFeatureFunction_InputBindingSchema: z.ZodType = z
+  .object({
+    parameter: z.string().optional(),
+    boundFeature: z.string().optional(),
+  })
+  .transform(d => ({
+    parameter: d.parameter,
+    bound_feature: d.boundFeature,
+  }));
+
+export const marshalFeatureLookupSchema: z.ZodType = z
+  .object({
+    table: z.string().optional(),
+    lookupKeys: z.array(z.string()).optional(),
+    featureNames: z.array(z.string()).optional(),
+    renameOutputs: z.array(z.lazy(() => marshalRenameOutputSchema)).optional(),
+    timestampLookupKeys: z.array(z.string()).optional(),
+    lookbackWindow: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    defaultValues: z.array(z.lazy(() => marshalDefaultValueSchema)).optional(),
+  })
+  .transform(d => ({
+    table: d.table,
+    lookup_keys: d.lookupKeys,
+    feature_names: d.featureNames,
+    rename_outputs: d.renameOutputs,
+    timestamp_lookup_keys: d.timestampLookupKeys,
+    lookback_window: d.lookbackWindow,
+    default_values: d.defaultValues,
+  }));
+
 export const marshalFeatureReferenceSchema: z.ZodType = z
   .object({
     feature: z.string().optional(),
   })
   .transform(d => ({
     feature: d.feature,
+  }));
+
+export const marshalFeatureSpecSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    features: z.array(z.lazy(() => marshalFeaturesSchema)).optional(),
+    excludeColumns: z.array(z.string()).optional(),
+    pipRequirementsSpec: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('extraPipRequirements'),
+          extraPipRequirements: z.lazy(() => marshalPipRequirementsSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    features: d.features,
+    exclude_columns: d.excludeColumns,
+    ...(d.pipRequirementsSpec?.$case === 'extraPipRequirements' && {
+      extra_pip_requirements: d.pipRequirementsSpec.extraPipRequirements,
+    }),
   }));
 
 export const marshalFeatureViewSourceSchema: z.ZodType = z
@@ -4802,6 +5158,37 @@ export const marshalFeatureViewSourceSchema: z.ZodType = z
   })
   .transform(d => ({
     feature_references: d.featureReferences,
+  }));
+
+export const marshalFeaturesSchema: z.ZodType = z
+  .object({
+    feature: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('featureLookup'),
+          featureLookup: z.lazy(() => marshalFeatureLookupSchema),
+        }),
+        z.object({
+          $case: z.literal('featureFunction'),
+          featureFunction: z.lazy(() => marshalFeatureFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('declarativeFeature'),
+          declarativeFeature: z.lazy(() => marshalDeclarativeFeatureSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.feature?.$case === 'featureLookup' && {
+      feature_lookup: d.feature.featureLookup,
+    }),
+    ...(d.feature?.$case === 'featureFunction' && {
+      feature_function: d.feature.featureFunction,
+    }),
+    ...(d.feature?.$case === 'declarativeFeature' && {
+      declarative_feature: d.feature.declarativeFeature,
+    }),
   }));
 
 export const marshalFieldDefinitionSchema: z.ZodType = z
@@ -5303,6 +5690,14 @@ export const marshalOnlineStoreConfigSchema: z.ZodType = z
     online_store_name: d.onlineStoreName,
   }));
 
+export const marshalPipRequirementsSchema: z.ZodType = z
+  .object({
+    requirements: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    requirements: d.requirements,
+  }));
+
 export const marshalProtoSchemaSpecSchema: z.ZodType = z
   .object({
     schemaText: z.string().optional(),
@@ -5338,6 +5733,16 @@ export const marshalPurgeFeatureEntitiesRequestSchema: z.ZodType = z
     tags: d.tags,
     budget_policy_id: d.budgetPolicyId,
     delete_rows: d.deleteRows,
+  }));
+
+export const marshalRenameOutputSchema: z.ZodType = z
+  .object({
+    feature: z.string().optional(),
+    output: z.string().optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+    output: d.output,
   }));
 
 export const marshalRequestSourceSchema: z.ZodType = z
