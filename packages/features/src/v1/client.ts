@@ -28,17 +28,21 @@ import type {
   BatchCreateMaterializedFeaturesResponse,
   CancelOperationRequest,
   CreateFeatureRequest,
+  CreateFeatureSpecRequest,
   CreateKafkaConfigRequest,
   CreateMaterializationSetRequest,
   CreateMaterializedFeatureRequest,
   CreateStreamRequest,
   DeleteFeatureRequest,
+  DeleteFeatureSpecRequest,
   DeleteKafkaConfigRequest,
   DeleteMaterializationSetRequest,
   DeleteMaterializedFeatureRequest,
   DeleteStreamRequest,
   Feature,
+  FeatureSpec,
   GetFeatureRequest,
+  GetFeatureSpecRequest,
   GetKafkaConfigRequest,
   GetMaterializationSetRequest,
   GetMaterializedFeatureRequest,
@@ -72,6 +76,7 @@ import {
   marshalBatchCreateMaterializedFeaturesRequestSchema,
   marshalCancelOperationRequestSchema,
   marshalFeatureSchema,
+  marshalFeatureSpecSchema,
   marshalKafkaConfigSchema,
   marshalMaterializationSetSchema,
   marshalMaterializedFeatureSchema,
@@ -81,6 +86,7 @@ import {
   unmarshalBackfillOperationMetadataSchema,
   unmarshalBatchCreateMaterializedFeaturesResponseSchema,
   unmarshalFeatureSchema,
+  unmarshalFeatureSpecSchema,
   unmarshalKafkaConfigSchema,
   unmarshalListFeaturesResponseSchema,
   unmarshalListKafkaConfigsResponseSchema,
@@ -253,6 +259,36 @@ export class FeaturesClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalFeatureSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Create a feature spec. */
+  async createFeatureSpec(
+    req: CreateFeatureSpecRequest,
+    options?: CallOptions
+  ): Promise<FeatureSpec> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/feature-engineering/feature-specs`;
+    const body = marshalRequest(req.featureSpec, marshalFeatureSpecSchema);
+    let resp: FeatureSpec | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalFeatureSpecSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -437,6 +473,29 @@ export class FeaturesClient {
     await executeCall(call, options);
   }
 
+  /** Delete a feature spec. */
+  async deleteFeatureSpec(
+    req: DeleteFeatureSpecRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/feature-engineering/feature-specs/${req.name ?? ''}`;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
   /**
    * Delete a Kafka config.
    * During PrPr, Kafka configs can be read and used when creating features under the entire metastore.
@@ -586,6 +645,35 @@ export class FeaturesClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalFeatureSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Get a feature spec. */
+  async getFeatureSpec(
+    req: GetFeatureSpecRequest,
+    options?: CallOptions
+  ): Promise<FeatureSpec> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/feature-engineering/feature-specs/${req.name ?? ''}`;
+    let resp: FeatureSpec | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalFeatureSpecSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

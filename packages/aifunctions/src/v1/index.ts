@@ -6,6 +6,8 @@
 
 export {AiFunctionsClient} from './client';
 
+export {BatchStatus} from './model';
+
 export type {
   AiClassifyOptions,
   AiClassifyRequest,
@@ -27,4 +29,12 @@ export type {
   AiParseDocumentRequest,
   AiParseDocumentResponse,
   AiParseDocumentResponseMetadata,
+  Batch,
+  BatchRequestCounts,
+  CancelBatchRequest,
+  CancelBatchResponse,
+  CreateBatchRequest,
+  GetBatchRequest,
+  ListBatchesRequest,
+  ListBatchesResponse,
 } from './model';

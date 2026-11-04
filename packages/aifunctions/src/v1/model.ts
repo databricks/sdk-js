@@ -1,6 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import type {JsonValue} from '@databricks/sdk-core/wkt';
+import {Temporal} from '@js-temporal/polyfill';
+import type {JsonValue, JsonObject} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
@@ -13,6 +14,35 @@ const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
     z.array(jsonValueSchema),
   ])
 );
+const jsonObjectSchema: z.ZodType<JsonObject> = z.record(
+  z.string(),
+  jsonValueSchema
+);
+
+/** The status of a batch. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const BatchStatus = {
+  BATCH_STATUS_UNSPECIFIED: 'BATCH_STATUS_UNSPECIFIED',
+  /** Accepted, not started yet. */
+  PENDING: 'PENDING',
+  /** Requests are being processed. */
+  IN_PROGRESS: 'IN_PROGRESS',
+  /** Every request is processed and the output file is being written. */
+  FINALIZING: 'FINALIZING',
+  /** The output is written and available. */
+  COMPLETED: 'COMPLETED',
+  /** The completion window elapsed. The output holds the requests that finished in time. */
+  EXPIRED: 'EXPIRED',
+  /** Cancellation was accepted and requests in flight are draining. */
+  CANCELLING: 'CANCELLING',
+  /** Cancellation finished. No output file is written. */
+  CANCELLED: 'CANCELLED',
+  /** The batch failed. */
+  FAILED: 'FAILED',
+} as const;
+export type BatchStatus =
+  | (typeof BatchStatus)[keyof typeof BatchStatus]
+  | (string & {});
 
 /** ai_classify */
 export interface AiClassifyOptions {
@@ -324,6 +354,77 @@ export interface AiParseDocumentResponseMetadata {
   fileMetadata?: AiParseDocumentFileMetadata | undefined;
 }
 
+/** An asynchronous run of one AI function over a file of requests. */
+export interface Batch {
+  /** ID of the batch, in the form `batch_<id>`. The service assigns it. */
+  name?: string | undefined;
+  /** The AI function to run for every request, for example `ai_extract`. */
+  endpoint?: string | undefined;
+  /** Path of the JSONL input file on a Unity Catalog volume. Each line is one request. */
+  inputRef?: string | undefined;
+  /** Function options applied to every request in the batch, for example the extraction schema. */
+  params?: JsonObject | undefined;
+  /**
+   * Path on a Unity Catalog volume to write the JSONL output to. When it is omitted, the output
+   * stays on Databricks-managed storage and a finished batch returns a short-lived download URL
+   * in this field instead.
+   */
+  outputRef?: string | undefined;
+  /** Output only. Status of the batch. */
+  status?: BatchStatus | undefined;
+  /** Output only. Time the batch was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** Output only. Request counts. Returned when one batch is read, not when batches are listed. */
+  requestCounts?: BatchRequestCounts | undefined;
+  /**
+   * Output only. Percentage of the requests that finished, from 0 to 100. Returned when one batch
+   * is read, not when batches are listed.
+   */
+  percentComplete?: number | undefined;
+}
+
+/** Counts of the requests in a batch. */
+export interface BatchRequestCounts {
+  /** Output only. Number of requests in the input file. */
+  total?: bigint | undefined;
+  /** Output only. Number of requests that finished successfully. */
+  succeeded?: bigint | undefined;
+  /** Output only. Number of requests that failed and will not be retried. */
+  failed?: bigint | undefined;
+}
+
+export interface CancelBatchRequest {
+  /** ID of the batch, in the form `batch_<id>`. */
+  name?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CancelBatchResponse {}
+
+export interface CreateBatchRequest {
+  /** The batch to create. */
+  batch?: Batch | undefined;
+}
+
+export interface GetBatchRequest {
+  /** ID of the batch, in the form `batch_<id>`. */
+  name?: string | undefined;
+}
+
+export interface ListBatchesRequest {
+  /** Maximum number of batches to return in one page. */
+  pageSize?: number | undefined;
+  /** Page token from an earlier response. Omit it to read the first page. */
+  pageToken?: string | undefined;
+}
+
+export interface ListBatchesResponse {
+  /** The batches in this page. */
+  batches?: Batch[] | undefined;
+  /** Token that reads the next page. It is empty on the last page. */
+  nextPageToken?: string | undefined;
+}
+
 export const unmarshalAiClassifyResponseSchema: z.ZodType<AiClassifyResponse> =
   z
     .object({
@@ -496,6 +597,69 @@ export const unmarshalAiParseDocumentResponseMetadataSchema: z.ZodType<AiParseDo
       fileMetadata: d.file_metadata,
     }));
 
+export const unmarshalBatchSchema: z.ZodType<Batch> = z
+  .object({
+    name: z.string().optional(),
+    endpoint: z.string().optional(),
+    input_ref: z.string().optional(),
+    params: jsonObjectSchema.optional(),
+    output_ref: z.string().optional(),
+    status: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    request_counts: z.lazy(() => unmarshalBatchRequestCountsSchema).optional(),
+    percent_complete: z.number().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    endpoint: d.endpoint,
+    inputRef: d.input_ref,
+    params: d.params,
+    outputRef: d.output_ref,
+    status: d.status,
+    createTime: d.create_time,
+    requestCounts: d.request_counts,
+    percentComplete: d.percent_complete,
+  }));
+
+export const unmarshalBatchRequestCountsSchema: z.ZodType<BatchRequestCounts> =
+  z
+    .object({
+      total: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
+      succeeded: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
+      failed: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
+    })
+    .transform(d => ({
+      total: d.total,
+      succeeded: d.succeeded,
+      failed: d.failed,
+    }));
+
+export const unmarshalCancelBatchResponseSchema: z.ZodType<CancelBatchResponse> =
+  z.object({});
+
+export const unmarshalListBatchesResponseSchema: z.ZodType<ListBatchesResponse> =
+  z
+    .object({
+      batches: z.array(z.lazy(() => unmarshalBatchSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      batches: d.batches,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const marshalAiClassifyOptionsSchema: z.ZodType = z
   .object({
     instructions: z.string().optional(),
@@ -594,4 +758,51 @@ export const marshalAiParseDocumentRequestSchema: z.ZodType = z
   .transform(d => ({
     content: d.content,
     options: d.options,
+  }));
+
+export const marshalBatchSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    endpoint: z.string().optional(),
+    inputRef: z.string().optional(),
+    params: jsonObjectSchema.optional(),
+    outputRef: z.string().optional(),
+    status: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    requestCounts: z.lazy(() => marshalBatchRequestCountsSchema).optional(),
+    percentComplete: z.number().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    endpoint: d.endpoint,
+    input_ref: d.inputRef,
+    params: d.params,
+    output_ref: d.outputRef,
+    status: d.status,
+    create_time: d.createTime,
+    request_counts: d.requestCounts,
+    percent_complete: d.percentComplete,
+  }));
+
+export const marshalBatchRequestCountsSchema: z.ZodType = z
+  .object({
+    total: z.bigint().optional(),
+    succeeded: z.bigint().optional(),
+    failed: z.bigint().optional(),
+  })
+  .transform(d => ({
+    total: d.total,
+    succeeded: d.succeeded,
+    failed: d.failed,
+  }));
+
+export const marshalCancelBatchRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));

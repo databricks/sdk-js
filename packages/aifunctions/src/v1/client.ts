@@ -25,16 +25,28 @@ import type {
   AiExtractResponse,
   AiParseDocumentRequest,
   AiParseDocumentResponse,
+  Batch,
+  CancelBatchRequest,
+  CancelBatchResponse,
+  CreateBatchRequest,
+  GetBatchRequest,
+  ListBatchesRequest,
+  ListBatchesResponse,
 } from './model';
 import {
   marshalAiClassifyRequestSchema,
   marshalAiDecideRequestSchema,
   marshalAiExtractRequestSchema,
   marshalAiParseDocumentRequestSchema,
+  marshalBatchSchema,
+  marshalCancelBatchRequestSchema,
   unmarshalAiClassifyResponseSchema,
   unmarshalAiDecideResponseSchema,
   unmarshalAiExtractResponseSchema,
   unmarshalAiParseDocumentResponseSchema,
+  unmarshalBatchSchema,
+  unmarshalCancelBatchResponseSchema,
+  unmarshalListBatchesResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -68,6 +80,147 @@ export class AiFunctionsClient {
   private resolveConfig(): Promise<ResolvedClientConfig> {
     this.config ??= resolveClientConfig(this.options);
     return this.config;
+  }
+
+  /** Cancel a batch. Cancellation is asynchronous: requests in flight drain first, so read the batch to observe the `CANCELLING` and `CANCELLED` statuses. */
+  async cancelBatch(
+    req: CancelBatchRequest,
+    options?: CallOptions
+  ): Promise<CancelBatchResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/ai-functions/batches/${req.name ?? ''}/cancel`;
+    const body = marshalRequest(req, marshalCancelBatchRequestSchema);
+    let resp: CancelBatchResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCancelBatchResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Run an AI function over every request in a file on a Unity Catalog volume. The batch runs asynchronously; read it to follow its progress. */
+  async createBatch(
+    req: CreateBatchRequest,
+    options?: CallOptions
+  ): Promise<Batch> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/ai-functions/batches`;
+    const body = marshalRequest(req.batch, marshalBatchSchema);
+    let resp: Batch | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalBatchSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Read one batch, with its status and progress. */
+  async getBatch(req: GetBatchRequest, options?: CallOptions): Promise<Batch> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/ai-functions/batches/${req.name ?? ''}`;
+    let resp: Batch | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalBatchSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** List the batches the caller created in this workspace. */
+  async listBatches(
+    req: ListBatchesRequest,
+    options?: CallOptions
+  ): Promise<ListBatchesResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/ai-functions/batches`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListBatchesResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListBatchesResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listBatchesIter(
+    req: ListBatchesRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Batch> {
+    const pageReq: ListBatchesRequest = {...req};
+    for (;;) {
+      const resp = await this.listBatches(pageReq, options);
+      for (const item of resp.batches ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
   }
 
   /** Classifies content according to a set of provided labels. For REST API requests, the default rate limit is 1,200 requests per minute per workspace. Contact your <Databricks> account team to request a higher limit. */

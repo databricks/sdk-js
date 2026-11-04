@@ -557,8 +557,6 @@ export const AiRuntimeTask_PriorityClass = {
   BEST_EFFORT: 'BEST_EFFORT',
   /** Medium priority; not preemptable. */
   NORMAL: 'NORMAL',
-  /** Highest priority; not preemptable. */
-  CRITICAL: 'CRITICAL',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type AiRuntimeTask_PriorityClass =
