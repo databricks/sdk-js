@@ -6,16 +6,22 @@
 
 export {OAuthClient} from './client';
 
+export {ExchangeTokenType} from './model';
+
 export type {
   CreateCustomOAuthAppIntegrationRequest,
   CreatePublishedOAuthAppIntegrationRequest,
   CreatePublishedOAuthAppIntegrationResponse,
+  CredentialPartitionId,
   CustomOAuthAppIntegration,
   CustomOAuthAppIntegrationSecret,
   DeleteCustomOAuthAppIntegrationRequest,
   DeleteCustomOAuthAppIntegrationResponse,
   DeletePublishedOAuthAppIntegrationRequest,
   DeletePublishedOAuthAppIntegrationResponse,
+  ExchangeToken,
+  ExchangeTokenExchangeRequest,
+  ExchangeTokenExchangeRequest_Response,
   GetCustomOAuthAppIntegrationRequest,
   GetPublishedOAuthAppIntegrationRequest,
   ListCustomOAuthAppIntegrationsRequest,

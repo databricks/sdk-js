@@ -46,6 +46,7 @@ export type {
   ListMetastoresResponse,
   MetastoreAssignment,
   MetastoreInfo,
+  UndropMetastoreByIdRequest,
   UpdateAccountsMetastore,
   UpdateMetastoreAssignmentRequest,
   UpdateMetastoreAssignmentResponse,

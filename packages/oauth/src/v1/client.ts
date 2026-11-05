@@ -26,6 +26,8 @@ import type {
   DeleteCustomOAuthAppIntegrationResponse,
   DeletePublishedOAuthAppIntegrationRequest,
   DeletePublishedOAuthAppIntegrationResponse,
+  ExchangeTokenExchangeRequest,
+  ExchangeTokenExchangeRequest_Response,
   GetCustomOAuthAppIntegrationRequest,
   GetPublishedOAuthAppIntegrationRequest,
   ListCustomOAuthAppIntegrationsRequest,
@@ -44,6 +46,7 @@ import type {
 import {
   marshalCreateCustomOAuthAppIntegrationRequestSchema,
   marshalCreatePublishedOAuthAppIntegrationRequestSchema,
+  marshalExchangeTokenExchangeRequestSchema,
   marshalUpdateCustomOAuthAppIntegrationRequestSchema,
   marshalUpdatePublishedOAuthAppIntegrationRequestSchema,
   unmarshalCreatePublishedOAuthAppIntegrationResponseSchema,
@@ -51,6 +54,7 @@ import {
   unmarshalCustomOAuthAppIntegrationSecretSchema,
   unmarshalDeleteCustomOAuthAppIntegrationResponseSchema,
   unmarshalDeletePublishedOAuthAppIntegrationResponseSchema,
+  unmarshalExchangeTokenExchangeRequest_ResponseSchema,
   unmarshalListCustomOAuthAppIntegrationsResponseSchema,
   unmarshalListPublishedOAuthAppIntegrationsResponseSchema,
   unmarshalListPublishedOAuthAppsResponseSchema,
@@ -90,6 +94,53 @@ export class OAuthClient {
   private resolveConfig(): Promise<ResolvedClientConfig> {
     this.config ??= resolveClientConfig(this.options);
     return this.config;
+  }
+
+  /**
+   * Exchange tokens with an Identity Provider to get a new access token. It allows
+   * specifying scopes to determine token permissions.
+   *
+   * POST /exchange-tokens/token is the documented public form, expressed via
+   * `google.api.http` below. GET /exchange-tokens/$exchange is a legacy alias
+   * used by the Spark driver's OAuth refresh path (DBHttpClient#get sends a body
+   * via HttpGetWithEntity) and stays on the legacy `option (rpc).endpoints`
+   * annotation: its path contains a literal `$`, which `google.api.http`'s
+   * LITERAL grammar does not allow, and `HttpPathParser` does not percent-decode
+   * template segments (so encoding as `%24exchange` would not match the literal
+   * `$exchange` path the Spark driver sends). Per-endpoint
+   * `visibility: PUBLIC_UNDOCUMENTED` preserves the DECO-7732 intent of
+   * suppressing the GET alias from the public API spec.
+   */
+  async exchange(
+    req: ExchangeTokenExchangeRequest,
+    options?: CallOptions
+  ): Promise<ExchangeTokenExchangeRequest_Response> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/credentials-manager/exchange-tokens/token`;
+    const body = marshalRequest(req, marshalExchangeTokenExchangeRequestSchema);
+    let resp: ExchangeTokenExchangeRequest_Response | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalExchangeTokenExchangeRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
   }
 
   /**

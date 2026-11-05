@@ -407,6 +407,12 @@ export interface MetastoreInfo {
   externalAccessEnabled?: boolean | undefined;
 }
 
+/** Request to restore a soft-deleted metastore by ID. */
+export interface UndropMetastoreByIdRequest {
+  /** Required. Id of the metastore to undrop. */
+  id?: string | undefined;
+}
+
 export interface UpdateAccountsMetastore {
   /** The user-specified name of the metastore. */
   name?: string | undefined;
@@ -907,6 +913,14 @@ export const marshalMetastoreAssignmentSchema: z.ZodType = z
     workspace_id: d.workspaceId,
     metastore_id: d.metastoreId,
     default_catalog_name: d.defaultCatalogName,
+  }));
+
+export const marshalUndropMetastoreByIdRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
   }));
 
 export const marshalUpdateAccountsMetastoreSchema: z.ZodType = z
