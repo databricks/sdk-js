@@ -2,6 +2,27 @@
 
 import {z} from 'zod';
 
+/** The type of token request. As of now, only `AZURE_ACTIVE_DIRECTORY_TOKEN` is supported. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ExchangeTokenType = {
+  /** Azure Active Directory token */
+  AZURE_ACTIVE_DIRECTORY_TOKEN: 'AZURE_ACTIVE_DIRECTORY_TOKEN',
+  /** Exchange for an Azure Active Directory token for Arclight Single-tenant */
+  ARCLIGHT_AZURE_EXCHANGE_TOKEN: 'ARCLIGHT_AZURE_EXCHANGE_TOKEN',
+  /** Exchange for an Azure Active Directory token and user delegation key for Arclight Single tenant */
+  ARCLIGHT_AZURE_EXCHANGE_TOKEN_WITH_USER_DELEGATION_KEY:
+    'ARCLIGHT_AZURE_EXCHANGE_TOKEN_WITH_USER_DELEGATION_KEY',
+  /** Deprecated: Use ARCLIGHT_AZURE_EXCHANGE_TOKEN */
+  ARCLIGHT_MULTI_TENANT_AZURE_EXCHANGE_TOKEN:
+    'ARCLIGHT_MULTI_TENANT_AZURE_EXCHANGE_TOKEN',
+  /** Deprecated: Use ARCLIGHT_AZURE_EXCHANGE_TOKEN_WITH_USER_DELEGATION_KEY */
+  ARCLIGHT_MULTI_TENANT_AZURE_EXCHANGE_TOKEN_WITH_USER_DELEGATION_KEY:
+    'ARCLIGHT_MULTI_TENANT_AZURE_EXCHANGE_TOKEN_WITH_USER_DELEGATION_KEY',
+} as const;
+export type ExchangeTokenType =
+  | (typeof ExchangeTokenType)[keyof typeof ExchangeTokenType]
+  | (string & {});
+
 export interface CreateCustomOAuthAppIntegrationRequest {
   accountId?: string | undefined;
   /** List of OAuth redirect urls */
@@ -39,6 +60,12 @@ export interface CreatePublishedOAuthAppIntegrationRequest {
 export interface CreatePublishedOAuthAppIntegrationResponse {
   /** Unique integration id for the published OAuth app */
   integrationId?: string | undefined;
+}
+
+/** Partition by workspace or account */
+export interface CredentialPartitionId {
+  /** The ID of the workspace. */
+  workspaceId?: bigint | undefined;
 }
 
 export interface CustomOAuthAppIntegration {
@@ -93,6 +120,36 @@ export interface DeletePublishedOAuthAppIntegrationRequest {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeletePublishedOAuthAppIntegrationResponse {}
+
+/** The exchange token is the result of the token exchange with the IdP */
+export interface ExchangeToken {
+  /** The type of this exchange token */
+  tokenType?: ExchangeTokenType | undefined;
+  /** The requested token. */
+  credential?: string | undefined;
+  /** The scopes of access granted in the token. */
+  scopes?: string[] | undefined;
+  /** The end-of-life timestamp of the token. The value is in milliseconds since the Unix epoch. */
+  credentialEolTime?: bigint | undefined;
+  /** User ID of the user that owns this token. */
+  ownerId?: bigint | undefined;
+}
+
+/** Exchange a token with the IdP */
+export interface ExchangeTokenExchangeRequest {
+  /** The partition of Credentials store */
+  partitionId: CredentialPartitionId;
+  /** A list of token types being requested */
+  tokenType?: ExchangeTokenType[] | undefined;
+  /** Array of scopes for the token request. */
+  scopes?: string[] | undefined;
+}
+
+/** Exhanged tokens were successfully returned. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ExchangeTokenExchangeRequest_Response {
+  values?: ExchangeToken[] | undefined;
+}
 
 export interface GetCustomOAuthAppIntegrationRequest {
   /** The account ID. */
@@ -297,6 +354,38 @@ export const unmarshalDeleteCustomOAuthAppIntegrationResponseSchema: z.ZodType<D
 export const unmarshalDeletePublishedOAuthAppIntegrationResponseSchema: z.ZodType<DeletePublishedOAuthAppIntegrationResponse> =
   z.object({});
 
+export const unmarshalExchangeTokenSchema: z.ZodType<ExchangeToken> = z
+  .object({
+    tokenType: z.string().optional(),
+    credential: z.string().optional(),
+    scopes: z.array(z.string()).optional(),
+    credentialEolTime: z
+      .union([z.number(), z.bigint(), z.string()])
+      .transform(v => BigInt(v))
+      .optional(),
+    ownerId: z
+      .union([z.number(), z.bigint(), z.string()])
+      .transform(v => BigInt(v))
+      .optional(),
+  })
+  .transform(d => ({
+    tokenType: d.tokenType,
+    credential: d.credential,
+    scopes: d.scopes,
+    credentialEolTime: d.credentialEolTime,
+    ownerId: d.ownerId,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalExchangeTokenExchangeRequest_ResponseSchema: z.ZodType<ExchangeTokenExchangeRequest_Response> =
+  z
+    .object({
+      values: z.array(z.lazy(() => unmarshalExchangeTokenSchema)).optional(),
+    })
+    .transform(d => ({
+      values: d.values,
+    }));
+
 export const unmarshalListCustomOAuthAppIntegrationsResponseSchema: z.ZodType<ListCustomOAuthAppIntegrationsResponse> =
   z
     .object({
@@ -432,6 +521,26 @@ export const marshalCreatePublishedOAuthAppIntegrationRequestSchema: z.ZodType =
       app_id: d.appId,
       token_access_policy: d.tokenAccessPolicy,
     }));
+
+export const marshalCredentialPartitionIdSchema: z.ZodType = z
+  .object({
+    workspaceId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    workspaceId: d.workspaceId,
+  }));
+
+export const marshalExchangeTokenExchangeRequestSchema: z.ZodType = z
+  .object({
+    partitionId: z.lazy(() => marshalCredentialPartitionIdSchema),
+    tokenType: z.array(z.string()).optional(),
+    scopes: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    partitionId: d.partitionId,
+    tokenType: d.tokenType,
+    scopes: d.scopes,
+  }));
 
 export const marshalTokenAccessPolicySchema: z.ZodType = z
   .object({

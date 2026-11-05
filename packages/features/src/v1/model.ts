@@ -1027,7 +1027,7 @@ export interface CreateStreamRequest {
   stream?: Stream | undefined;
 }
 
-/** A cron-based schedule trigger for the materialization pipeline. */
+/** A cron-based schedule trigger for batch materialization. */
 export interface CronSchedule {
   /**
    * The cron expression defining the schedule (e.g., "0 0 * * *" for daily at midnight). The
@@ -1841,7 +1841,8 @@ export interface MaterializationSet {
   materializationSetId?: string | undefined;
   /**
    * The materialized features in this set. Order is not significant.
-   * Updating the set with a materialized feature removed from this set will cause it to be deleted.
+   * An `UpdateMaterializationSet` request with `materialized_features` or `*`
+   * in its update mask deletes omitted materialized features.
    */
   materializedFeatures?: MaterializedFeature[] | undefined;
   /**
@@ -1889,16 +1890,13 @@ export interface MaterializationSetOperationMetadata {
     | undefined;
 }
 
-/**
- * What a partly failed UpdateMaterializationSet got through, attached to the error so a caller can
- * tell which materialized feature members already changed and which ones did not and why it failed.
- */
+/** Progress and outcomes of an `UpdateMaterializationSet` operation. */
 export interface MaterializationSetUpdateProgress {
-  /** Materialized feature members whose mutable state was updated. */
+  /** IDs of materialized features whose mutable state was updated. */
   updatedMaterializedFeatureIds?: string[] | undefined;
-  /** Materialized feature members that were deleted from the materialization set. */
+  /** IDs of materialized features that were deleted. */
   deletedMaterializedFeatureIds?: string[] | undefined;
-  /** Materialized feature members that could not be updated, one entry each. */
+  /** Materialized features that could not be updated or deleted, one entry each. */
   failedMaterializedFeatures?: MaterializedFeatureChangeFailure[] | undefined;
 }
 
@@ -1957,12 +1955,12 @@ export interface MaterializedFeature {
   trigger?:
     | {
         $case: 'cronScheduleTrigger';
-        /** A cron-based schedule trigger for the materialization pipeline. */
+        /** A cron-based schedule trigger for batch materialization. */
         cronScheduleTrigger: CronSchedule;
       }
     | {
         $case: 'tableTrigger';
-        /** A trigger that fires when the upstream source table changes. */
+        /** A trigger that starts batch materialization when the upstream source table changes. */
         tableTrigger: TableTrigger;
       }
     | {
@@ -2691,8 +2689,8 @@ export interface SumFunction {
 }
 
 /**
- * A trigger that fires when the feature's source table changes: a DeltaTableSource's table, or an
- * SdpSource's input_tables.
+ * A trigger that starts batch materialization when the feature's source table changes:
+ * a DeltaTableSource's table, or an SdpSource's input_tables.
  */
 export interface TableTrigger {
   /**
@@ -2784,9 +2782,29 @@ export interface UpdateKafkaConfigRequest {
 }
 
 export interface UpdateMaterializationSetRequest {
-  /** The desired state of the updated materialization set. materialization_set_id selects the set. */
+  /**
+   * The desired state of the materialization set. `materialization_set_id`
+   * identifies the set.
+   *
+   * A request that changes pause settings must request the same `paused`
+   * value for all retained members with a cron schedule or table trigger.
+   */
   materializationSet?: MaterializationSet | undefined;
-  /** The fields to update. Only 'materialized_features' or '*' is supported. */
+  /**
+   * The fields to update, relative to the materialization set.
+   * Supported values are `materialized_features` and `*`.
+   *
+   * The `materialized_features` mask updates retained members and deletes
+   * omitted materialized features. The `*` mask selects all fields of the
+   * set and follows the same membership rules. Adding members is not
+   * supported.
+   *
+   * To change pause settings without changing membership, include every
+   * member of the set. An omitted `paused` is reset to `false`.
+   *
+   * Fields outside the mask are unchanged. Trigger types and settings
+   * other than `paused` must remain unchanged.
+   */
   updateMask?: FieldMask<MaterializationSet> | undefined;
   /**
    * Idempotency token for the request. A second request carrying a token that has already been

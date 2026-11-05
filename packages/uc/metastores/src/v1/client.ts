@@ -52,6 +52,7 @@ import type {
   ListMetastoresResponse,
   MetastoreAssignment,
   MetastoreInfo,
+  UndropMetastoreByIdRequest,
   UpdateMetastoreAssignmentRequest,
   UpdateMetastoreAssignmentResponse,
   UpdateMetastoreRequest,
@@ -63,6 +64,7 @@ import {
   marshalAccountsUpdateMetastoreRequestSchema,
   marshalCreateMetastoreAssignmentRequestSchema,
   marshalCreateMetastoreRequestSchema,
+  marshalUndropMetastoreByIdRequestSchema,
   marshalUpdateMetastoreAssignmentRequestSchema,
   marshalUpdateMetastoreRequestSchema,
   unmarshalAccountsCreateMetastoreAssignmentResponseSchema,
@@ -737,6 +739,40 @@ export class MetastoresClient {
       }
       pageReq.pageToken = resp.nextPageToken;
     }
+  }
+
+  /**
+   * Restores a soft-deleted metastore identified by its ID. The caller must be an account admin.
+   * A metastore may be eligible for restoration for up to five days after deletion. Restoration
+   * may become unavailable earlier once permanent deletion begins. Returns the restored metastore.
+   */
+  async undropMetastoreById(
+    req: UndropMetastoreByIdRequest,
+    options?: CallOptions
+  ): Promise<MetastoreInfo> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/metastores:undropById`;
+    const body = marshalRequest(req, marshalUndropMetastoreByIdRequestSchema);
+    let resp: MetastoreInfo | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalMetastoreInfoSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
   }
 
   /**
