@@ -527,7 +527,11 @@ export interface ManagedMemoryEntry {
   content?: string | undefined;
   /** Human-readable description of the memory entry. */
   description?: string | undefined;
-  /** Which writer created this entry. Caller sets this on Create; immutable after creation. */
+  /**
+   * Which writer created this entry. Caller sets this on Create; immutable after creation.
+   * While the workspace's default-source-type rollout flag is on, omitted or UNSPECIFIED is stored
+   * as AGENT. While it is off, omitted is stored unset and UNSPECIFIED as UNSPECIFIED.
+   */
   sourceType?: ManagedMemoryEntrySourceType | undefined;
   /** Time when the entry was created. */
   createTime?: Temporal.Instant | undefined;
@@ -850,7 +854,10 @@ export const unmarshalExtractMemoriesResponseSchema: z.ZodType<ExtractMemoriesRe
 export const unmarshalForkSessionResponseSchema: z.ZodType<ForkSessionResponse> =
   z
     .object({
-      session: z.lazy(() => unmarshalSessionSchema).optional(),
+      session: z
+        .lazy(() => unmarshalSessionSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       session: d.session,
@@ -987,7 +994,8 @@ export const unmarshalManagedMemoryEntrySearchResultSchema: z.ZodType<ManagedMem
     .object({
       managed_memory_entry: z
         .lazy(() => unmarshalManagedMemoryEntrySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       score: z.number().optional(),
     })
     .transform(d => ({
@@ -1004,7 +1012,10 @@ export const unmarshalManagedMemoryStoreSchema: z.ZodType<ManagedMemoryStore> =
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
-      storage_backend: z.lazy(() => unmarshalStorageBackendSchema).optional(),
+      storage_backend: z
+        .lazy(() => unmarshalStorageBackendSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       owner_user_id: z.string().optional(),
       creator_user_id: z.string().optional(),
       description: z.string().optional(),
@@ -1032,7 +1043,10 @@ export const unmarshalManagedMemoryStoreSchema: z.ZodType<ManagedMemoryStore> =
 export const unmarshalMemoryStorePermissionSchema: z.ZodType<MemoryStorePermission> =
   z
     .object({
-      principal: z.lazy(() => unmarshalStorePrincipalSchema).optional(),
+      principal: z
+        .lazy(() => unmarshalStorePrincipalSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       permission: z.string().optional(),
     })
     .transform(d => ({
@@ -1043,7 +1057,10 @@ export const unmarshalMemoryStorePermissionSchema: z.ZodType<MemoryStorePermissi
 export const unmarshalPopSessionItemResponseSchema: z.ZodType<PopSessionItemResponse> =
   z
     .object({
-      item: z.lazy(() => unmarshalSessionItemSchema).optional(),
+      item: z
+        .lazy(() => unmarshalSessionItemSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       item: d.item,
@@ -1147,7 +1164,10 @@ export const unmarshalSessionStoreSchema: z.ZodType<SessionStore> = z
 export const unmarshalSessionStorePermissionSchema: z.ZodType<SessionStorePermission> =
   z
     .object({
-      principal: z.lazy(() => unmarshalStorePrincipalSchema).optional(),
+      principal: z
+        .lazy(() => unmarshalStorePrincipalSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       permission: z.string().optional(),
     })
     .transform(d => ({

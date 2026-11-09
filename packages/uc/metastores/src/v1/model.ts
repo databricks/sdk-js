@@ -521,7 +521,10 @@ export const unmarshalAccountsCreateMetastoreAssignmentResponseSchema: z.ZodType
 export const unmarshalAccountsCreateMetastoreResponseSchema: z.ZodType<AccountsCreateMetastoreResponse> =
   z
     .object({
-      metastore_info: z.lazy(() => unmarshalMetastoreInfoSchema).optional(),
+      metastore_info: z
+        .lazy(() => unmarshalMetastoreInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       metastoreInfo: d.metastore_info,
@@ -538,7 +541,8 @@ export const unmarshalAccountsGetMetastoreAssignmentResponseSchema: z.ZodType<Ac
     .object({
       metastore_assignment: z
         .lazy(() => unmarshalMetastoreAssignmentSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       metastoreAssignment: d.metastore_assignment,
@@ -547,7 +551,10 @@ export const unmarshalAccountsGetMetastoreAssignmentResponseSchema: z.ZodType<Ac
 export const unmarshalAccountsGetMetastoreResponseSchema: z.ZodType<AccountsGetMetastoreResponse> =
   z
     .object({
-      metastore_info: z.lazy(() => unmarshalMetastoreInfoSchema).optional(),
+      metastore_info: z
+        .lazy(() => unmarshalMetastoreInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       metastoreInfo: d.metastore_info,
@@ -585,7 +592,10 @@ export const unmarshalAccountsUpdateMetastoreAssignmentResponseSchema: z.ZodType
 export const unmarshalAccountsUpdateMetastoreResponseSchema: z.ZodType<AccountsUpdateMetastoreResponse> =
   z
     .object({
-      metastore_info: z.lazy(() => unmarshalMetastoreInfoSchema).optional(),
+      metastore_info: z
+        .lazy(() => unmarshalMetastoreInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       metastoreInfo: d.metastore_info,

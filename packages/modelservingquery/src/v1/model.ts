@@ -245,7 +245,10 @@ export const unmarshalQueryEndpointResponseSchema: z.ZodType<QueryEndpointRespon
         )
         .optional(),
       model: z.string().optional(),
-      usage: z.lazy(() => unmarshalExternalModelUsageElementSchema).optional(),
+      usage: z
+        .lazy(() => unmarshalExternalModelUsageElementSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       id: z.string().optional(),
       created: z
         .union([z.number(), z.bigint(), z.string()])
@@ -273,7 +276,10 @@ export const unmarshalV1ResponseChoiceElementSchema: z.ZodType<V1ResponseChoiceE
   z
     .object({
       text: z.string().optional(),
-      message: z.lazy(() => unmarshalChatMessageSchema).optional(),
+      message: z
+        .lazy(() => unmarshalChatMessageSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       index: z.number().optional(),
       finishReason: z.string().optional(),
       logprobs: z.number().optional(),

@@ -13,6 +13,8 @@ export {
   ScalingChangeState,
   UpsertDeleteDataStatus,
   VectorIndexType,
+  EndpointScalingInfo_ScalingDelayReason,
+  EndpointScalingInfo_ScalingPhase,
   EndpointStatus_State,
 } from './model';
 

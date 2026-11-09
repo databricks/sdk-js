@@ -239,7 +239,10 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
 
 export const unmarshalLibraryFullStatusSchema: z.ZodType<LibraryFullStatus> = z
   .object({
-    library: z.lazy(() => unmarshalLibrarySchema).optional(),
+    library: z
+      .lazy(() => unmarshalLibrarySchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     status: z.string().optional(),
     messages: z.array(z.string()).optional(),
     is_library_for_all_clusters: z.boolean().optional(),

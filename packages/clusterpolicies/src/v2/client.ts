@@ -17,6 +17,7 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
+  ComputePolicy,
   CreatePolicyRequest,
   CreatePolicyResponse,
   DeletePolicyRequest,
@@ -24,9 +25,14 @@ import type {
   EditPolicyRequest,
   EditPolicyResponse,
   GetPolicyRequest,
+  ListComputePoliciesRequest,
+  ListComputePoliciesResponse,
   ListPoliciesRequest,
   ListPoliciesResponse,
+  ListServerlessComputesRequest,
+  ListServerlessComputesResponse,
   Policy,
+  ServerlessCompute,
 } from './model';
 import {
   marshalCreatePolicyRequestSchema,
@@ -35,7 +41,9 @@ import {
   unmarshalCreatePolicyResponseSchema,
   unmarshalDeletePolicyResponseSchema,
   unmarshalEditPolicyResponseSchema,
+  unmarshalListComputePoliciesResponseSchema,
   unmarshalListPoliciesResponseSchema,
+  unmarshalListServerlessComputesResponseSchema,
   unmarshalPolicySchema,
 } from './model';
 
@@ -233,5 +241,127 @@ export class ClusterPoliciesClient {
       throw new Error('operation completed without a result.');
     }
     return resp;
+  }
+
+  /**
+   * Lists compute policies in the workspace. Results are returned in an unspecified order; callers
+   * should sort client-side if a specific order is needed.
+   */
+  async listComputePolicies(
+    req: ListComputePoliciesRequest,
+    options?: CallOptions
+  ): Promise<ListComputePoliciesResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/policies/compute`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListComputePoliciesResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListComputePoliciesResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listComputePoliciesIter(
+    req: ListComputePoliciesRequest,
+    options?: CallOptions
+  ): AsyncGenerator<ComputePolicy> {
+    const pageReq: ListComputePoliciesRequest = {...req};
+    for (;;) {
+      const resp = await this.listComputePolicies(pageReq, options);
+      for (const item of resp.computePolicies ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /**
+   * Lists Interactive serverless computes that the caller can use or manage.
+   * Results are returned in an unspecified order.
+   */
+  async listServerlessComputes(
+    req: ListServerlessComputesRequest,
+    options?: CallOptions
+  ): Promise<ListServerlessComputesResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/serverless-compute`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListServerlessComputesResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListServerlessComputesResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listServerlessComputesIter(
+    req: ListServerlessComputesRequest,
+    options?: CallOptions
+  ): AsyncGenerator<ServerlessCompute> {
+    const pageReq: ListServerlessComputesRequest = {...req};
+    for (;;) {
+      const resp = await this.listServerlessComputes(pageReq, options);
+      for (const item of resp.serverlessComputes ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
   }
 }

@@ -106,8 +106,9 @@ export class KnowledgeClient {
   }
 
   /**
-   * Create a knowledge page. For REST, send Page fields directly as the JSON
-   * request body. Retrying a draft create can create another page.
+   * Create a knowledge page. Optional `request_id` makes retries idempotent while
+   * the page exists; without it, retries can create duplicate drafts.
+   * For REST, send Page fields as the JSON body and `request_id` as a query parameter.
    * When page permissions are enforced, creating a published page or assigning
    * another owner requires Page Manager or Domain Admin permissions on the domain,
    * including inherited grants. Creating your own draft requires neither grant.

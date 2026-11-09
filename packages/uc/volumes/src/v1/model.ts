@@ -274,7 +274,8 @@ export const unmarshalVolumeInfoSchema: z.ZodType<VolumeInfo> = z
     access_point: z.string().optional(),
     encryption_details: z
       .lazy(() => unmarshalEncryptionDetailsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     browse_only: z.boolean().optional(),
   })
   .transform(d => ({

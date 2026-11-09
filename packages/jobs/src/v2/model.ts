@@ -386,8 +386,8 @@ export type Source = (typeof Source)[keyof typeof Source] | (string & {});
  * * `QUERY_RETURNS_ROWS`: Fires whenever the result set has at least one row. Zero rows means
  * the condition is not met. This is the original SQL condition behavior.
  * * `RESULT_VALUE_CHANGES`: Fires whenever the query's single result value differs from the
- * previous evaluation. The first evaluation always fires. Queries must return exactly one
- * cell (one row, one column).
+ * previous evaluation. The first evaluation stores the result as a baseline and does not
+ * fire. Queries must return exactly one cell (one row, one column).
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SqlConditionTriggerMode = {
@@ -4352,8 +4352,15 @@ export interface ResolvedValues {
 }
 
 /** Resolved values for an AI Function task's Delta table input. */
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface ResolvedValues_AiFunctionTaskResolvedValues {}
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ResolvedValues_AiFunctionTaskResolvedValues {
+  /**
+   * The Delta table source with any upstream-task references (such as
+   * `{{tasks.<task_key>.values.output_table_name}}`) in the table name replaced by concrete
+   * values before the run.
+   */
+  deltaTable?: DeltaTableSource | undefined;
+}
 
 /**
  * Resolved values for an AiRuntimeTask after dynamic-value substitution, so
@@ -5411,31 +5418,36 @@ export interface SqlConditionConfiguration {
 /** SQL condition evaluation details captured at the time the run was triggered */
 export interface SqlConditionRunInfoDetails {
   /**
-   * The SQL statement ID of the condition evaluation, set when the condition is
-   * evaluated by running a single SQL statement (the RESULT_VALUE_CHANGES trigger
-   * mode). The UI uses it to link to the query execution details.
+   * The SQL statement ID of the condition evaluation. Set for both the QUERY_RETURNS_ROWS
+   * and RESULT_VALUE_CHANGES trigger modes.
    */
   conditionEvaluationSqlStatementId?: string | undefined;
-  /** Whether the last condition evaluation was satisfied (query returned truthy result). */
+  /**
+   * Whether the last condition evaluation was satisfied. For QUERY_RETURNS_ROWS, the query
+   * returned at least one row. For RESULT_VALUE_CHANGES, the result value changed.
+   */
   conditionEvaluationSatisfied?: boolean | undefined;
   /**
-   * The ID of the SQL session, used by the UI to track session context.
-   * Set for the QUERY_RETURNS_ROWS trigger mode.
+   * The ID of the SQL session of the condition evaluation. Not set by current evaluations.
+   * Use condition_evaluation_sql_statement_id instead.
    */
   conditionEvaluationSqlSessionId?: string | undefined;
 }
 
 export interface SqlConditionState {
   /**
-   * The SEA statement ID of the SQL statement executed for the latest condition evaluation.
-   * Populated for RESULT_VALUE_CHANGES, which executes the query through the SQL execution API.
+   * The ID of the SQL statement executed for the latest condition evaluation.
+   * Populated for both QUERY_RETURNS_ROWS and RESULT_VALUE_CHANGES.
    */
   latestConditionEvaluationSqlStatementId?: string | undefined;
-  /** Whether the last condition evaluation was satisfied (query returned truthy result). */
+  /**
+   * Whether the last condition evaluation was satisfied. For QUERY_RETURNS_ROWS, the query
+   * returned at least one row. For RESULT_VALUE_CHANGES, the result value changed.
+   */
   latestConditionEvaluationSatisfied?: boolean | undefined;
   /**
-   * The ID of the SQL session, used by UI to track session context.
-   * Populated for QUERY_RETURNS_ROWS, which executes the query through Redash.
+   * The ID of the SQL session of the latest condition evaluation. Not set by current
+   * evaluations. Use latest_condition_evaluation_sql_statement_id instead.
    */
   latestConditionEvaluationSqlSessionId?: string | undefined;
 }
@@ -6403,7 +6415,10 @@ export const unmarshalAiFunctionTaskSchema: z.ZodType<AiFunctionTask> = z
   .object({
     delta_table: z.lazy(() => unmarshalDeltaTableSourceSchema).optional(),
     volume: z.lazy(() => unmarshalVolumeSourceSchema).optional(),
-    output: z.lazy(() => unmarshalQualifiedNameSchema).optional(),
+    output: z
+      .lazy(() => unmarshalQualifiedNameSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     ai_parse_document: z
       .lazy(() => unmarshalAiParseDocumentFunctionSchema)
       .optional(),
@@ -6450,7 +6465,10 @@ export const unmarshalAiFunctionTaskOutputSchema: z.ZodType<AiFunctionTaskOutput
         .string()
         .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
         .optional(),
-      output_table: z.lazy(() => unmarshalQualifiedNameSchema).optional(),
+      output_table: z
+        .lazy(() => unmarshalQualifiedNameSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       totalRowCount: d.total_row_count,
@@ -6595,7 +6613,8 @@ export const unmarshalAzureAttributesSchema: z.ZodType<AzureAttributes> = z
   .object({
     log_analytics_info: z
       .lazy(() => unmarshalLogAnalyticsInfoSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     first_on_demand: z.number().optional(),
     availability: z.string().optional(),
     spot_bid_max_price: z.number().optional(),
@@ -6617,12 +6636,18 @@ export const unmarshalBaseJobSchema: z.ZodType<BaseJob> = z
       .optional(),
     creator_user_name: z.string().optional(),
     run_as_user_name: z.string().optional(),
-    settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
+    settings: z
+      .lazy(() => unmarshalJobSettingsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     created_time: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
-    trigger_state: z.lazy(() => unmarshalTriggerStateSchema).optional(),
+    trigger_state: z
+      .lazy(() => unmarshalTriggerStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     has_more: z.boolean().optional(),
     effective_budget_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
@@ -6662,18 +6687,34 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
-    state: z.lazy(() => unmarshalRunStateSchema).optional(),
-    schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
-    cluster_spec: z.lazy(() => unmarshalClusterSpecSchema).optional(),
-    cluster_instance: z.lazy(() => unmarshalClusterInstanceSchema).optional(),
+    state: z
+      .lazy(() => unmarshalRunStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    schedule: z
+      .lazy(() => unmarshalCronScheduleSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    cluster_spec: z
+      .lazy(() => unmarshalClusterSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    cluster_instance: z
+      .lazy(() => unmarshalClusterInstanceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     job_parameters: z
       .array(z.lazy(() => unmarshalRun_JobLevelParametersSchema))
       .optional(),
     overriding_parameters: z
       .lazy(() => unmarshalRunParametersSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     trigger: z.string().optional(),
-    trigger_info: z.lazy(() => unmarshalRunTriggerInfoSchema).optional(),
+    trigger_info: z
+      .lazy(() => unmarshalRunTriggerInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     run_name: z.string().optional(),
     run_page_url: z.string().optional(),
     run_type: z.string().optional(),
@@ -6681,9 +6722,15 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
     description: z.string().optional(),
     attempt_number: z.number().optional(),
     job_clusters: z.array(z.lazy(() => unmarshalJobClusterSchema)).optional(),
-    git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
+    git_source: z
+      .lazy(() => unmarshalGitSourceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     repair_history: z.array(z.lazy(() => unmarshalRepairSchema)).optional(),
-    status: z.lazy(() => unmarshalRunStatusSchema).optional(),
+    status: z
+      .lazy(() => unmarshalRunStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     job_run_id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -6805,13 +6852,16 @@ export const unmarshalCleanRoomsNotebookTask_CleanRoomsNotebookTaskOutputSchema:
     .object({
       clean_room_job_run_state: z
         .lazy(() => unmarshalCleanRoomTaskRunStateSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       notebook_output: z
         .lazy(() => unmarshalNotebookTask_NotebookOutputSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       output_schema_info: z
         .lazy(() => unmarshalOutputSchemaInfoSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       cleanRoomJobRunState: d.clean_room_job_run_state,
@@ -6879,33 +6929,53 @@ export const unmarshalClusterSpec_NewClusterSchema: z.ZodType<ClusterSpec_NewClu
       cluster_name: z.string().optional(),
       spark_version: z.string().optional(),
       spark_conf: z.record(z.string(), z.string()).optional(),
-      aws_attributes: z.lazy(() => unmarshalAwsAttributesSchema).optional(),
-      azure_attributes: z.lazy(() => unmarshalAzureAttributesSchema).optional(),
-      gcp_attributes: z.lazy(() => unmarshalGcpAttributesSchema).optional(),
+      aws_attributes: z
+        .lazy(() => unmarshalAwsAttributesSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      azure_attributes: z
+        .lazy(() => unmarshalAzureAttributesSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      gcp_attributes: z
+        .lazy(() => unmarshalGcpAttributesSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       node_type_id: z.string().optional(),
       driver_node_type_id: z.string().optional(),
       worker_node_type_flexibility: z
         .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       driver_node_type_flexibility: z
         .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       ssh_public_keys: z.array(z.string()).optional(),
       custom_tags: z.record(z.string(), z.string()).optional(),
-      cluster_log_conf: z.lazy(() => unmarshalClusterLogConfSchema).optional(),
+      cluster_log_conf: z
+        .lazy(() => unmarshalClusterLogConfSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       spark_env_vars: z.record(z.string(), z.string()).optional(),
       autotermination_minutes: z.number().optional(),
       enable_elastic_disk: z.boolean().optional(),
       init_scripts: z
         .array(z.lazy(() => unmarshalInitScriptInfoSchema))
         .optional(),
-      docker_image: z.lazy(() => unmarshalDockerImageSchema).optional(),
+      docker_image: z
+        .lazy(() => unmarshalDockerImageSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       instance_pool_id: z.string().optional(),
       single_user_name: z.string().optional(),
       policy_id: z.string().optional(),
       enable_local_disk_encryption: z.boolean().optional(),
       driver_instance_pool_id: z.string().optional(),
-      workload_type: z.lazy(() => unmarshalWorkloadTypeSchema).optional(),
+      workload_type: z
+        .lazy(() => unmarshalWorkloadTypeSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       data_security_mode: z.string().optional(),
       runtime_engine: z.string().optional(),
       kind: z.string().optional(),
@@ -7031,7 +7101,8 @@ export const unmarshalContinuousSettingsSchema: z.ZodType<ContinuousSettings> =
       task_retry_mode: z.string().optional(),
       maintenance_window: z
         .lazy(() => unmarshalMaintenanceWindowSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       pauseStatus: d.pause_status,
@@ -7045,7 +7116,8 @@ export const unmarshalContinuousTriggerConfigurationSchema: z.ZodType<Continuous
       task_retry_mode: z.string().optional(),
       maintenance_window: z
         .lazy(() => unmarshalMaintenanceWindowSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       taskRetryMode: d.task_retry_mode,
@@ -7086,7 +7158,8 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     pause_status: z.string().optional(),
     sql_condition: z
       .lazy(() => unmarshalSqlConditionConfigurationSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     quartzCronExpression: d.quartz_cron_expression,
@@ -7121,7 +7194,10 @@ export const unmarshalDashboardPageSnapshotSchema: z.ZodType<DashboardPageSnapsh
 
 export const unmarshalDashboardTaskSchema: z.ZodType<DashboardTask> = z
   .object({
-    subscription: z.lazy(() => unmarshalSubscriptionSchema).optional(),
+    subscription: z
+      .lazy(() => unmarshalSubscriptionSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     warehouse_id: z.string().optional(),
     dashboard_id: z.string().optional(),
     filters: z.record(z.string(), z.string()).optional(),
@@ -7297,7 +7373,10 @@ export const unmarshalDeltaTableSourceSchema: z.ZodType<DeltaTableSource> = z
 export const unmarshalDeploymentSpecSchema: z.ZodType<DeploymentSpec> = z
   .object({
     command_path: z.string().optional(),
-    compute: z.lazy(() => unmarshalComputeSpecSchema).optional(),
+    compute: z
+      .lazy(() => unmarshalComputeSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     name: z.string().optional(),
   })
   .transform(d => ({
@@ -7341,7 +7420,10 @@ export const unmarshalEnforcePolicyComplianceResponseSchema: z.ZodType<EnforcePo
           )
         )
         .optional(),
-      settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
+      settings: z
+        .lazy(() => unmarshalJobSettingsSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       hasChanges: d.has_changes,
@@ -7415,7 +7497,10 @@ export const unmarshalForEachTaskSchema: z.ZodType<ForEachTask> = z
   .object({
     inputs: z.string().optional(),
     concurrency: z.number().optional(),
-    task: z.lazy(() => unmarshalTaskSettingsSchema).optional(),
+    task: z
+      .lazy(() => unmarshalTaskSettingsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     inputs: d.inputs,
@@ -7456,7 +7541,10 @@ export const unmarshalGcsStorageInfoSchema: z.ZodType<GcsStorageInfo> = z
 export const unmarshalGenAiComputeTaskSchema: z.ZodType<GenAiComputeTask> = z
   .object({
     dl_runtime_image: z.string().optional(),
-    compute: z.lazy(() => unmarshalComputeConfigSchema).optional(),
+    compute: z
+      .lazy(() => unmarshalComputeConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     command: z.string().optional(),
     source: z.string().optional(),
     training_script_path: z.string().optional(),
@@ -7484,12 +7572,18 @@ export const unmarshalGetJobResponseSchema: z.ZodType<GetJobResponse> = z
       .optional(),
     creator_user_name: z.string().optional(),
     run_as_user_name: z.string().optional(),
-    settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
+    settings: z
+      .lazy(() => unmarshalJobSettingsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     created_time: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
-    trigger_state: z.lazy(() => unmarshalTriggerStateSchema).optional(),
+    trigger_state: z
+      .lazy(() => unmarshalTriggerStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     has_more: z.boolean().optional(),
     effective_budget_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
@@ -7525,7 +7619,10 @@ export const unmarshalGetPolicyComplianceForJobResponseSchema: z.ZodType<GetPoli
 export const unmarshalGetRunOutputResponseSchema: z.ZodType<GetRunOutputResponse> =
   z
     .object({
-      metadata: z.lazy(() => unmarshalRunSchema).optional(),
+      metadata: z
+        .lazy(() => unmarshalRunSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       error: z.string().optional(),
       info: z.string().optional(),
       notebook_output: z
@@ -7643,18 +7740,34 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
-    state: z.lazy(() => unmarshalRunStateSchema).optional(),
-    schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
-    cluster_spec: z.lazy(() => unmarshalClusterSpecSchema).optional(),
-    cluster_instance: z.lazy(() => unmarshalClusterInstanceSchema).optional(),
+    state: z
+      .lazy(() => unmarshalRunStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    schedule: z
+      .lazy(() => unmarshalCronScheduleSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    cluster_spec: z
+      .lazy(() => unmarshalClusterSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    cluster_instance: z
+      .lazy(() => unmarshalClusterInstanceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     job_parameters: z
       .array(z.lazy(() => unmarshalRun_JobLevelParametersSchema))
       .optional(),
     overriding_parameters: z
       .lazy(() => unmarshalRunParametersSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     trigger: z.string().optional(),
-    trigger_info: z.lazy(() => unmarshalRunTriggerInfoSchema).optional(),
+    trigger_info: z
+      .lazy(() => unmarshalRunTriggerInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     run_name: z.string().optional(),
     run_page_url: z.string().optional(),
     run_type: z.string().optional(),
@@ -7662,9 +7775,15 @@ export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
     description: z.string().optional(),
     attempt_number: z.number().optional(),
     job_clusters: z.array(z.lazy(() => unmarshalJobClusterSchema)).optional(),
-    git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
+    git_source: z
+      .lazy(() => unmarshalGitSourceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     repair_history: z.array(z.lazy(() => unmarshalRepairSchema)).optional(),
-    status: z.lazy(() => unmarshalRunStatusSchema).optional(),
+    status: z
+      .lazy(() => unmarshalRunStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     job_run_id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -7765,9 +7884,18 @@ export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
     git_branch: z.string().optional(),
     git_tag: z.string().optional(),
     git_commit: z.string().optional(),
-    git_snapshot: z.lazy(() => unmarshalGitMetadataSnapshotSchema).optional(),
-    job_source: z.lazy(() => unmarshalJobSourceSchema).optional(),
-    sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
+    git_snapshot: z
+      .lazy(() => unmarshalGitMetadataSnapshotSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    job_source: z
+      .lazy(() => unmarshalJobSourceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    sparse_checkout: z
+      .lazy(() => unmarshalSparseCheckoutSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     gitUrl: d.git_url,
@@ -7817,11 +7945,15 @@ export const unmarshalInitScriptInfoSchema: z.ZodType<InitScriptInfo> = z
 export const unmarshalJobClusterSchema: z.ZodType<JobCluster> = z
   .object({
     job_cluster_key: z.string().optional(),
-    new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
+    new_cluster: z
+      .lazy(() => unmarshalClusterSpec_NewClusterSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     serverless_compute_id: z.string().optional(),
     serverless_compute: z
       .lazy(() => unmarshalJobCluster_ServerlessComputeSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     jobClusterKey: d.job_cluster_key,
@@ -7963,7 +8095,10 @@ export const unmarshalJobEmailNotificationsSchema: z.ZodType<JobEmailNotificatio
 export const unmarshalJobEnvironmentSchema: z.ZodType<JobEnvironment> = z
   .object({
     environment_key: z.string().optional(),
-    spec: z.lazy(() => unmarshalEnvironmentSchema).optional(),
+    spec: z
+      .lazy(() => unmarshalEnvironmentSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     environmentKey: d.environment_key,
@@ -7974,7 +8109,10 @@ export const unmarshalJobEnvironmentVariablesSchema: z.ZodType<JobEnvironmentVar
   z
     .object({
       environment_variables_key: z.string().optional(),
-      spec: z.lazy(() => unmarshalJobEnvironmentVariablesSpecSchema).optional(),
+      spec: z
+        .lazy(() => unmarshalJobEnvironmentVariablesSpecSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       environmentVariablesKey: d.environment_variables_key,
@@ -8028,31 +8166,58 @@ export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
     description: z.string().optional(),
     email_notifications: z
       .lazy(() => unmarshalJobEmailNotificationsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     webhook_notifications: z
       .lazy(() => unmarshalWebhookNotificationsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     notification_settings: z
       .lazy(() => unmarshalNotificationSettingsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     timeout_seconds: z.number().optional(),
-    health: z.lazy(() => unmarshalJobsHealthRulesSchema).optional(),
-    schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
-    trigger: z.lazy(() => unmarshalTriggerSettingsSchema).optional(),
-    continuous: z.lazy(() => unmarshalContinuousSettingsSchema).optional(),
+    health: z
+      .lazy(() => unmarshalJobsHealthRulesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    schedule: z
+      .lazy(() => unmarshalCronScheduleSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    trigger: z
+      .lazy(() => unmarshalTriggerSettingsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    continuous: z
+      .lazy(() => unmarshalContinuousSettingsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     max_concurrent_runs: z.number().optional(),
     tasks: z.array(z.lazy(() => unmarshalTaskSettingsSchema)).optional(),
     job_clusters: z.array(z.lazy(() => unmarshalJobClusterSchema)).optional(),
-    git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
+    git_source: z
+      .lazy(() => unmarshalGitSourceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     tags: z.record(z.string(), z.string()).optional(),
     format: z.string().optional(),
-    queue: z.lazy(() => unmarshalQueueSettingsSchema).optional(),
+    queue: z
+      .lazy(() => unmarshalQueueSettingsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     parameters: z
       .array(z.lazy(() => unmarshalJobLevelParameterSchema))
       .optional(),
-    run_as: z.lazy(() => unmarshalJobRunAsSchema).optional(),
+    run_as: z
+      .lazy(() => unmarshalJobRunAsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     edit_mode: z.string().optional(),
-    deployment: z.lazy(() => unmarshalJobDeploymentSchema).optional(),
+    deployment: z
+      .lazy(() => unmarshalJobDeploymentSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     environments: z
       .array(z.lazy(() => unmarshalJobEnvironmentSchema))
       .optional(),
@@ -8383,7 +8548,10 @@ export const unmarshalPerTriggerStateSchema: z.ZodType<PerTriggerState> = z
     job_completion: z
       .lazy(() => unmarshalJobCompletionTriggerStateSchema)
       .optional(),
-    sql_condition: z.lazy(() => unmarshalSqlConditionStateSchema).optional(),
+    sql_condition: z
+      .lazy(() => unmarshalSqlConditionStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     pause_status: z.string().optional(),
   })
   .transform(d => ({
@@ -8504,7 +8672,10 @@ export const unmarshalPowerBiTaskSchema: z.ZodType<PowerBiTask> = z
   .object({
     tables: z.array(z.lazy(() => unmarshalPowerBiTableSchema)).optional(),
     warehouse_id: z.string().optional(),
-    power_bi_model: z.lazy(() => unmarshalPowerBiModelSchema).optional(),
+    power_bi_model: z
+      .lazy(() => unmarshalPowerBiModelSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     connection_resource_name: z.string().optional(),
     refresh_after_update: z.boolean().optional(),
   })
@@ -8616,7 +8787,10 @@ export const unmarshalRepairSchema: z.ZodType<Repair> = z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
-    state: z.lazy(() => unmarshalRunStateSchema).optional(),
+    state: z
+      .lazy(() => unmarshalRunStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -8626,7 +8800,10 @@ export const unmarshalRepairSchema: z.ZodType<Repair> = z
         z.union([z.number(), z.bigint(), z.string()]).transform(v => BigInt(v))
       )
       .optional(),
-    status: z.lazy(() => unmarshalRunStatusSchema).optional(),
+    status: z
+      .lazy(() => unmarshalRunStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     effective_performance_target: z.string().optional(),
   })
   .transform(d => ({
@@ -8756,7 +8933,16 @@ export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalResolvedValues_AiFunctionTaskResolvedValuesSchema: z.ZodType<ResolvedValues_AiFunctionTaskResolvedValues> =
-  z.object({});
+  z
+    .object({
+      delta_table: z
+        .lazy(() => unmarshalDeltaTableSourceSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      deltaTable: d.delta_table,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalResolvedValues_AiRuntimeTaskResolvedValuesSchema: z.ZodType<ResolvedValues_AiRuntimeTaskResolvedValues> =
@@ -8885,18 +9071,34 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
-    state: z.lazy(() => unmarshalRunStateSchema).optional(),
-    schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
-    cluster_spec: z.lazy(() => unmarshalClusterSpecSchema).optional(),
-    cluster_instance: z.lazy(() => unmarshalClusterInstanceSchema).optional(),
+    state: z
+      .lazy(() => unmarshalRunStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    schedule: z
+      .lazy(() => unmarshalCronScheduleSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    cluster_spec: z
+      .lazy(() => unmarshalClusterSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    cluster_instance: z
+      .lazy(() => unmarshalClusterInstanceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     job_parameters: z
       .array(z.lazy(() => unmarshalRun_JobLevelParametersSchema))
       .optional(),
     overriding_parameters: z
       .lazy(() => unmarshalRunParametersSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     trigger: z.string().optional(),
-    trigger_info: z.lazy(() => unmarshalRunTriggerInfoSchema).optional(),
+    trigger_info: z
+      .lazy(() => unmarshalRunTriggerInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     run_name: z.string().optional(),
     run_page_url: z.string().optional(),
     run_type: z.string().optional(),
@@ -8904,9 +9106,15 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
     description: z.string().optional(),
     attempt_number: z.number().optional(),
     job_clusters: z.array(z.lazy(() => unmarshalJobClusterSchema)).optional(),
-    git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
+    git_source: z
+      .lazy(() => unmarshalGitSourceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     repair_history: z.array(z.lazy(() => unmarshalRepairSchema)).optional(),
-    status: z.lazy(() => unmarshalRunStatusSchema).optional(),
+    status: z
+      .lazy(() => unmarshalRunStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     job_run_id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -9011,7 +9219,10 @@ export const unmarshalRunJobTaskSchema: z.ZodType<RunJobTask> = z
       .transform(v => BigInt(v))
       .optional(),
     job_parameters: z.record(z.string(), z.string()).optional(),
-    pipeline_params: z.lazy(() => unmarshalPipelineParametersSchema).optional(),
+    pipeline_params: z
+      .lazy(() => unmarshalPipelineParametersSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     jar_params: z.array(z.string()).optional(),
     notebook_params: z.record(z.string(), z.string()).optional(),
     python_params: z.array(z.string()).optional(),
@@ -9064,7 +9275,10 @@ export const unmarshalRunNowResponseSchema: z.ZodType<RunNowResponse> = z
 
 export const unmarshalRunParametersSchema: z.ZodType<RunParameters> = z
   .object({
-    pipeline_params: z.lazy(() => unmarshalPipelineParametersSchema).optional(),
+    pipeline_params: z
+      .lazy(() => unmarshalPipelineParametersSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     jar_params: z.array(z.string()).optional(),
     notebook_params: z.record(z.string(), z.string()).optional(),
     python_params: z.array(z.string()).optional(),
@@ -9105,8 +9319,12 @@ export const unmarshalRunStatusSchema: z.ZodType<RunStatus> = z
     state: z.string().optional(),
     termination_details: z
       .lazy(() => unmarshalTerminationDetailsSchema)
-      .optional(),
-    queue_details: z.lazy(() => unmarshalQueueDetailsSchema).optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
+    queue_details: z
+      .lazy(() => unmarshalQueueDetailsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     state: d.state,
@@ -9120,13 +9338,28 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
-    state: z.lazy(() => unmarshalRunStateSchema).optional(),
+    state: z
+      .lazy(() => unmarshalRunStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     run_page_url: z.string().optional(),
-    cluster_instance: z.lazy(() => unmarshalClusterInstanceSchema).optional(),
+    cluster_instance: z
+      .lazy(() => unmarshalClusterInstanceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     attempt_number: z.number().optional(),
-    git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
-    resolved_values: z.lazy(() => unmarshalResolvedValuesSchema).optional(),
-    status: z.lazy(() => unmarshalRunStatusSchema).optional(),
+    git_source: z
+      .lazy(() => unmarshalGitSourceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    resolved_values: z
+      .lazy(() => unmarshalResolvedValuesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalRunStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     effective_performance_target: z.string().optional(),
     task_key: z.string().optional(),
     description: z.string().optional(),
@@ -9135,17 +9368,26 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     timeout_seconds: z.number().optional(),
     email_notifications: z
       .lazy(() => unmarshalJobEmailNotificationsSchema)
-      .optional(),
-    health: z.lazy(() => unmarshalJobsHealthRulesSchema).optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
+    health: z
+      .lazy(() => unmarshalJobsHealthRulesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     notification_settings: z
       .lazy(() => unmarshalNotificationSettingsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     webhook_notifications: z
       .lazy(() => unmarshalWebhookNotificationsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     environment_key: z.string().optional(),
     disabled: z.boolean().optional(),
-    compute: z.lazy(() => unmarshalComputeSchema).optional(),
+    compute: z
+      .lazy(() => unmarshalComputeSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     environment_variables_key: z.string().optional(),
     notebook_task: z.lazy(() => unmarshalNotebookTaskSchema).optional(),
     spark_jar_task: z.lazy(() => unmarshalSparkJarTaskSchema).optional(),
@@ -9372,10 +9614,12 @@ export const unmarshalRunTriggerInfoSchema: z.ZodType<RunTriggerInfo> = z
   .object({
     sql_condition: z
       .lazy(() => unmarshalSqlConditionRunInfoDetailsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     job_completion: z
       .lazy(() => unmarshalJobCompletionTriggerRunInfoDetailsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     run_id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -9610,7 +9854,10 @@ export const unmarshalSqlTask_SqlDashboardWidgetOutputSchema: z.ZodType<SqlTask_
       widget_title: z.string().optional(),
       output_link: z.string().optional(),
       status: z.string().optional(),
-      error: z.lazy(() => unmarshalSqlTask_SqlOutputErrorSchema).optional(),
+      error: z
+        .lazy(() => unmarshalSqlTask_SqlOutputErrorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       start_time: z
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
@@ -9640,7 +9887,8 @@ export const unmarshalSqlTask_SqlFileOutputSchema: z.ZodType<SqlTask_SqlFileOutp
         .optional(),
       query_result: z
         .lazy(() => unmarshalSqlStatementQueryResultSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       warehouse_id: z.string().optional(),
     })
     .transform(d => ({
@@ -9804,7 +10052,10 @@ export const unmarshalSubscriptionSchema: z.ZodType<Subscription> = z
       .optional(),
     paused: z.boolean().optional(),
     custom_subject: z.string().optional(),
-    attachment: z.lazy(() => unmarshalSubscription_AttachmentSchema).optional(),
+    attachment: z
+      .lazy(() => unmarshalSubscription_AttachmentSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     subscribers: d.subscribers,
@@ -9819,10 +10070,12 @@ export const unmarshalSubscription_AttachmentSchema: z.ZodType<Subscription_Atta
     .object({
       data_attachment: z
         .lazy(() => unmarshalSubscription_Attachment_DataAttachmentSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       page_attachment: z
         .lazy(() => unmarshalSubscription_Attachment_PageAttachmentSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       dataAttachment: d.data_attachment,
@@ -9942,20 +10195,29 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
     depends_on: z.array(z.lazy(() => unmarshalTaskDependencySchema)).optional(),
     run_if: z.string().optional(),
     timeout_seconds: z.number().optional(),
-    health: z.lazy(() => unmarshalJobsHealthRulesSchema).optional(),
+    health: z
+      .lazy(() => unmarshalJobsHealthRulesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     email_notifications: z
       .lazy(() => unmarshalJobEmailNotificationsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     notification_settings: z
       .lazy(() => unmarshalNotificationSettingsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     webhook_notifications: z
       .lazy(() => unmarshalWebhookNotificationsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     description: z.string().optional(),
     environment_key: z.string().optional(),
     disabled: z.boolean().optional(),
-    compute: z.lazy(() => unmarshalComputeSchema).optional(),
+    compute: z
+      .lazy(() => unmarshalComputeSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     environment_variables_key: z.string().optional(),
     notebook_task: z.lazy(() => unmarshalNotebookTaskSchema).optional(),
     spark_jar_task: z.lazy(() => unmarshalSparkJarTaskSchema).optional(),
@@ -10153,26 +10415,36 @@ export const unmarshalTriggerConfigurationSchema: z.ZodType<TriggerConfiguration
       pause_status: z.string().optional(),
       periodic: z
         .lazy(() => unmarshalPeriodicTriggerConfigurationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       schedule: z
         .lazy(() => unmarshalCronTriggerConfigurationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       continuous: z
         .lazy(() => unmarshalContinuousTriggerConfigurationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       file_arrival: z
         .lazy(() => unmarshalFileArrivalTriggerConfigurationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       table_update: z
         .lazy(() => unmarshalTableTriggerConfigurationSchema)
-        .optional(),
-      model: z.lazy(() => unmarshalModelTriggerConfigurationSchema).optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
+      model: z
+        .lazy(() => unmarshalModelTriggerConfigurationSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       job_completion: z
         .lazy(() => unmarshalJobCompletionTriggerConfigurationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       sql_condition: z
         .lazy(() => unmarshalSqlConditionConfigurationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       pauseStatus: d.pause_status,
@@ -10188,8 +10460,14 @@ export const unmarshalTriggerConfigurationSchema: z.ZodType<TriggerConfiguration
 
 export const unmarshalTriggerDetailsSchema: z.ZodType<TriggerDetails> = z
   .object({
-    state: z.lazy(() => unmarshalPerTriggerStateSchema).optional(),
-    history: z.lazy(() => unmarshalTriggerHistorySchema).optional(),
+    state: z
+      .lazy(() => unmarshalPerTriggerStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    history: z
+      .lazy(() => unmarshalTriggerHistorySchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     state: d.state,
@@ -10216,11 +10494,18 @@ export const unmarshalTriggerEvaluationSchema: z.ZodType<TriggerEvaluation> = z
 
 export const unmarshalTriggerHistorySchema: z.ZodType<TriggerHistory> = z
   .object({
-    last_triggered: z.lazy(() => unmarshalTriggerEvaluationSchema).optional(),
+    last_triggered: z
+      .lazy(() => unmarshalTriggerEvaluationSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     last_not_triggered: z
       .lazy(() => unmarshalTriggerEvaluationSchema)
-      .optional(),
-    last_failed: z.lazy(() => unmarshalTriggerEvaluationSchema).optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
+    last_failed: z
+      .lazy(() => unmarshalTriggerEvaluationSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     lastTriggered: d.last_triggered,
@@ -10246,7 +10531,8 @@ export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
       .optional(),
     sql_condition: z
       .lazy(() => unmarshalSqlConditionConfigurationSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     pauseStatus: d.pause_status,
@@ -10277,7 +10563,10 @@ export const unmarshalTriggerStateSchema: z.ZodType<TriggerState> = z
     job_completion: z
       .lazy(() => unmarshalJobCompletionTriggerStateSchema)
       .optional(),
-    sql_condition: z.lazy(() => unmarshalSqlConditionStateSchema).optional(),
+    sql_condition: z
+      .lazy(() => unmarshalSqlConditionStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     pause_status: z.string().optional(),
   })
   .transform(d => ({
@@ -10373,7 +10662,10 @@ export const unmarshalWidgetErrorDetailSchema: z.ZodType<WidgetErrorDetail> = z
 
 export const unmarshalWorkloadTypeSchema: z.ZodType<WorkloadType> = z
   .object({
-    clients: z.lazy(() => unmarshalWorkloadType_ClientsTypesSchema).optional(),
+    clients: z
+      .lazy(() => unmarshalWorkloadType_ClientsTypesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     clients: d.clients,

@@ -131,7 +131,10 @@ export const unmarshalCustomLlmSchema: z.ZodType<CustomLlm> = z
 
 export const unmarshalDatasetSchema: z.ZodType<Dataset> = z
   .object({
-    table: z.lazy(() => unmarshalTableSchema).optional(),
+    table: z
+      .lazy(() => unmarshalTableSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     table: d.table,

@@ -423,8 +423,8 @@ export interface Datasource {
   effectiveSchemaName?: string | undefined;
   /**
    * Name of the datasource in Unity Catalog, unique within its schema. Required on create and
-   * cannot be changed afterward. Reads return the value as supplied; the datasource's current
-   * Unity Catalog name, which reflects renames, is reported in `effective_datasource_name`.
+   * can be updated within the same catalog and schema. Get synchronizes this field with the
+   * current Unity Catalog name, also reported in `effective_datasource_name`.
    */
   datasourceName?: string | undefined;
   /**
@@ -509,8 +509,8 @@ export interface Datasource {
   /**
    * ID of the SQL warehouse that runs the checks Lakewatch performs to validate a create or update
    * request, such as source and destination access checks. Required and non-blank on every create
-   * and update request; there is no default warehouse. The requester must be able to use the
-   * warehouse. Used only for those checks: it is not stored, is not returned on reads, and does
+   * and update request except a rename-only PATCH; there is no default warehouse. The requester
+   * must be able to use the warehouse. It is not stored, is not returned on reads, and does
    * not affect the compute that runs the ingestion job.
    */
   warehouseId?: string | undefined;
@@ -931,9 +931,9 @@ export interface Rule {
    */
   effectiveSchemaName?: string | undefined;
   /**
-   * Name of the rule within its Unity Catalog schema. Required. Cannot be changed after
-   * creation. Reads return the value as supplied; the current UC name is reported in
-   * `effective_rule_name`.
+   * Name of the rule within its Unity Catalog schema. Required on create; can be updated
+   * within the same catalog and schema. Get synchronizes this field with the current Unity Catalog
+   * name, also reported in `effective_rule_name`.
    */
   ruleName?: string | undefined;
   /**
@@ -1502,16 +1502,21 @@ export const unmarshalAlertConfigSchema: z.ZodType<AlertConfig> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    updated_by: z.lazy(() => unmarshalPrincipalSchema).optional(),
+    updated_by: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     etag: z.string().optional(),
     default_security_alert_collation_window: z.string().optional(),
     default_system_alert_collation_window: z.string().optional(),
     security_alert_export_config: z
       .lazy(() => unmarshalExportConfigSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     system_alert_export_config: z
       .lazy(() => unmarshalExportConfigSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     effective_default_security_alert_collation_window: z.string().optional(),
     effective_default_system_alert_collation_window: z.string().optional(),
   })
@@ -1540,10 +1545,19 @@ export const unmarshalAutoLoaderSchema: z.ZodType<AutoLoader> = z
     service_credentials: z.string().optional(),
     aws_secret_scope: z.string().optional(),
     override_partition_columns: z.array(z.string()).optional(),
-    raw_table: z.lazy(() => unmarshalTableNameSchema).optional(),
-    envelope: z.lazy(() => unmarshalEnvelopeSchema).optional(),
+    raw_table: z
+      .lazy(() => unmarshalTableNameSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    envelope: z
+      .lazy(() => unmarshalEnvelopeSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     queue_url: z.string().optional(),
-    effective_raw_table: z.lazy(() => unmarshalTableNameSchema).optional(),
+    effective_raw_table: z
+      .lazy(() => unmarshalTableNameSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     include_existing_files: z.boolean().optional(),
     effective_include_existing_files: z.boolean().optional(),
   })
@@ -1592,7 +1606,10 @@ export const unmarshalCommonConfigSchema: z.ZodType<CommonConfig> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    updated_by: z.lazy(() => unmarshalPrincipalSchema).optional(),
+    updated_by: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     etag: z.string().optional(),
     custom_presets_path: z.string().optional(),
     custom_content_pack_path: z.string().optional(),
@@ -1643,11 +1660,20 @@ export const unmarshalDatasourceSchema: z.ZodType<Datasource> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    created_by: z.lazy(() => unmarshalPrincipalSchema).optional(),
-    updated_by: z.lazy(() => unmarshalPrincipalSchema).optional(),
+    created_by: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    updated_by: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     etag: z.string().optional(),
     annotations: z.record(z.string(), z.string()).optional(),
-    owner: z.lazy(() => unmarshalPrincipalSchema).optional(),
+    owner: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     run_as_principal: z.string().optional(),
     effective_run_as_principal: z.string().optional(),
     autoloader: z.lazy(() => unmarshalAutoLoaderSchema).optional(),
@@ -1656,9 +1682,15 @@ export const unmarshalDatasourceSchema: z.ZodType<Datasource> = z
       .optional(),
     existing_table: z.lazy(() => unmarshalExistingTableSchema).optional(),
     parsers: z.array(z.lazy(() => unmarshalParserRefSchema)).optional(),
-    schedule: z.lazy(() => unmarshalScheduleSchema).optional(),
+    schedule: z
+      .lazy(() => unmarshalScheduleSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     compute_mode: z.string().optional(),
-    status: z.lazy(() => unmarshalDatasourceStatusSchema).optional(),
+    status: z
+      .lazy(() => unmarshalDatasourceStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     warehouse_id: z.string().optional(),
     compute_workspace_id: z.string().optional(),
   })
@@ -1712,7 +1744,10 @@ export const unmarshalDatasourceConfigSchema: z.ZodType<DatasourceConfig> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    updated_by: z.lazy(() => unmarshalPrincipalSchema).optional(),
+    updated_by: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     etag: z.string().optional(),
     default_compute_mode: z.string().optional(),
     default_folder: z.string().optional(),
@@ -1731,8 +1766,14 @@ export const unmarshalDatasourceConfigSchema: z.ZodType<DatasourceConfig> = z
 
 export const unmarshalDatasourceStatusSchema: z.ZodType<DatasourceStatus> = z
   .object({
-    ingestion_job: z.lazy(() => unmarshalResourceStatusSchema).optional(),
-    ingestion_pipeline: z.lazy(() => unmarshalResourceStatusSchema).optional(),
+    ingestion_job: z
+      .lazy(() => unmarshalResourceStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    ingestion_pipeline: z
+      .lazy(() => unmarshalResourceStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     ingestionJob: d.ingestion_job,
@@ -1854,8 +1895,14 @@ export const unmarshalParserRefSchema: z.ZodType<ParserRef> = z
   .object({
     id: z.string().optional(),
     version: z.string().optional(),
-    target_table: z.lazy(() => unmarshalTableNameSchema).optional(),
-    effective_target_table: z.lazy(() => unmarshalTableNameSchema).optional(),
+    target_table: z
+      .lazy(() => unmarshalTableNameSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    effective_target_table: z
+      .lazy(() => unmarshalTableNameSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     id: d.id,
@@ -1937,11 +1984,20 @@ export const unmarshalRuleSchema: z.ZodType<Rule> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    created_by: z.lazy(() => unmarshalPrincipalSchema).optional(),
-    updated_by: z.lazy(() => unmarshalPrincipalSchema).optional(),
+    created_by: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    updated_by: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     etag: z.string().optional(),
     annotations: z.record(z.string(), z.string()).optional(),
-    owner: z.lazy(() => unmarshalPrincipalSchema).optional(),
+    owner: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     run_as_principal: z.string().optional(),
     effective_run_as_principal: z.string().optional(),
     category: z.string().optional(),
@@ -1951,22 +2007,35 @@ export const unmarshalRuleSchema: z.ZodType<Rule> = z
     mitre: z.array(z.lazy(() => unmarshalRuleMitreMappingSchema)).optional(),
     deduplication: z.string().optional(),
     deduplication_time_window: z.string().optional(),
-    schedule: z.lazy(() => unmarshalRuleScheduleSchema).optional(),
+    schedule: z
+      .lazy(() => unmarshalRuleScheduleSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     batch: z.lazy(() => unmarshalRuleInputBatchSchema).optional(),
-    output: z.lazy(() => unmarshalRuleOutputSchema).optional(),
-    status: z.lazy(() => unmarshalResourceStatusSchema).optional(),
+    output: z
+      .lazy(() => unmarshalRuleOutputSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalResourceStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     suppress_until_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
     original_content_pack: z
       .lazy(() => unmarshalContentPackReferenceSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     compute_workspace_id: z.string().optional(),
     content_resource_id: z.string().optional(),
     references: z.array(z.string()).optional(),
     runbook: z.string().optional(),
-    timerange: z.lazy(() => unmarshalRuleTimeRangeSchema).optional(),
+    timerange: z
+      .lazy(() => unmarshalRuleTimeRangeSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     name: d.name,
@@ -2022,9 +2091,15 @@ export const unmarshalRuleConfigSchema: z.ZodType<RuleConfig> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    updated_by: z.lazy(() => unmarshalPrincipalSchema).optional(),
+    updated_by: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     etag: z.string().optional(),
-    default_schedule: z.lazy(() => unmarshalRuleScheduleSchema).optional(),
+    default_schedule: z
+      .lazy(() => unmarshalRuleScheduleSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     detection_categories: z.array(z.string()).optional(),
     default_signal_collation_window: z.string().optional(),
     default_folder: z.string().optional(),

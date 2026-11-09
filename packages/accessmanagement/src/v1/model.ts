@@ -448,7 +448,8 @@ export const unmarshalCheckPolicyResponseSchema: z.ZodType<CheckPolicyResponse> 
       is_permitted: z.boolean().optional(),
       consistency_token: z
         .lazy(() => unmarshalConsistencyTokenSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       isPermitted: d.is_permitted,
@@ -625,7 +626,10 @@ export const unmarshalRuleSetSchema: z.ZodType<RuleSet> = z
 export const unmarshalWorkspacePermissionAssignmentOutputSchema: z.ZodType<WorkspacePermissionAssignmentOutput> =
   z
     .object({
-      principal: z.lazy(() => unmarshalPrincipalOutputSchema).optional(),
+      principal: z
+        .lazy(() => unmarshalPrincipalOutputSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       permissions: z.array(z.string()).optional(),
       error: z.string().optional(),
     })

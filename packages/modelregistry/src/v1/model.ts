@@ -1186,7 +1186,10 @@ export const unmarshalActivitySchema: z.ZodType<Activity> = z
 export const unmarshalApproveTransitionResponseSchema: z.ZodType<ApproveTransitionResponse> =
   z
     .object({
-      activity: z.lazy(() => unmarshalActivitySchema).optional(),
+      activity: z
+        .lazy(() => unmarshalActivitySchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       activity: d.activity,
@@ -1227,7 +1230,10 @@ export const unmarshalCommentObjectSchema: z.ZodType<CommentObject> = z
 export const unmarshalCreateCommentResponseSchema: z.ZodType<CreateCommentResponse> =
   z
     .object({
-      comment: z.lazy(() => unmarshalCommentObjectSchema).optional(),
+      comment: z
+        .lazy(() => unmarshalCommentObjectSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       comment: d.comment,
@@ -1236,7 +1242,10 @@ export const unmarshalCreateCommentResponseSchema: z.ZodType<CreateCommentRespon
 export const unmarshalCreateModelVersionResponseSchema: z.ZodType<CreateModelVersionResponse> =
   z
     .object({
-      model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
+      model_version: z
+        .lazy(() => unmarshalModelVersionSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       modelVersion: d.model_version,
@@ -1245,7 +1254,10 @@ export const unmarshalCreateModelVersionResponseSchema: z.ZodType<CreateModelVer
 export const unmarshalCreateRegisteredModelResponseSchema: z.ZodType<CreateRegisteredModelResponse> =
   z
     .object({
-      registered_model: z.lazy(() => unmarshalRegisteredModelSchema).optional(),
+      registered_model: z
+        .lazy(() => unmarshalRegisteredModelSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       registeredModel: d.registered_model,
@@ -1254,7 +1266,10 @@ export const unmarshalCreateRegisteredModelResponseSchema: z.ZodType<CreateRegis
 export const unmarshalCreateRegistryWebhookResponseSchema: z.ZodType<CreateRegistryWebhookResponse> =
   z
     .object({
-      webhook: z.lazy(() => unmarshalRegistryWebhookSchema).optional(),
+      webhook: z
+        .lazy(() => unmarshalRegistryWebhookSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       webhook: d.webhook,
@@ -1263,7 +1278,10 @@ export const unmarshalCreateRegistryWebhookResponseSchema: z.ZodType<CreateRegis
 export const unmarshalCreateTransitionResponseSchema: z.ZodType<CreateTransitionResponse> =
   z
     .object({
-      request: z.lazy(() => unmarshalTransitionRequestSchema).optional(),
+      request: z
+        .lazy(() => unmarshalTransitionRequestSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       request: d.request,
@@ -1290,7 +1308,10 @@ export const unmarshalDeleteRegistryWebhookResponseSchema: z.ZodType<DeleteRegis
 export const unmarshalDeleteTransitionResponseSchema: z.ZodType<DeleteTransitionResponse> =
   z
     .object({
-      activity: z.lazy(() => unmarshalActivitySchema).optional(),
+      activity: z
+        .lazy(() => unmarshalActivitySchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       activity: d.activity,
@@ -1327,7 +1348,10 @@ export const unmarshalGetModelVersionDownloadUriResponseSchema: z.ZodType<GetMod
 export const unmarshalGetModelVersionResponseSchema: z.ZodType<GetModelVersionResponse> =
   z
     .object({
-      model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
+      model_version: z
+        .lazy(() => unmarshalModelVersionSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       modelVersion: d.model_version,
@@ -1338,7 +1362,8 @@ export const unmarshalGetRegisteredModelDatabricksResponseSchema: z.ZodType<GetR
     .object({
       registered_model_databricks: z
         .lazy(() => unmarshalRegisteredModelDatabricksSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       registeredModelDatabricks: d.registered_model_databricks,
@@ -1480,7 +1505,10 @@ export const unmarshalModelVersionDatabricksSchema: z.ZodType<ModelVersionDatabr
       tags: z.array(z.lazy(() => unmarshalModelVersionTagSchema)).optional(),
       run_link: z.string().optional(),
       email_subscription_status: z.string().optional(),
-      feature_list: z.lazy(() => unmarshalFeatureListSchema).optional(),
+      feature_list: z
+        .lazy(() => unmarshalFeatureListSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       name: d.name,
@@ -1598,8 +1626,14 @@ export const unmarshalRegistryWebhookSchema: z.ZodType<RegistryWebhook> = z
       .optional(),
     description: z.string().optional(),
     status: z.string().optional(),
-    http_url_spec: z.lazy(() => unmarshalHttpUrlSpecSchema).optional(),
-    job_spec: z.lazy(() => unmarshalJobSpecSchema).optional(),
+    http_url_spec: z
+      .lazy(() => unmarshalHttpUrlSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    job_spec: z
+      .lazy(() => unmarshalJobSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     model_name: z.string().optional(),
   })
   .transform(d => ({
@@ -1617,7 +1651,10 @@ export const unmarshalRegistryWebhookSchema: z.ZodType<RegistryWebhook> = z
 export const unmarshalRejectTransitionResponseSchema: z.ZodType<RejectTransitionResponse> =
   z
     .object({
-      activity: z.lazy(() => unmarshalActivitySchema).optional(),
+      activity: z
+        .lazy(() => unmarshalActivitySchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       activity: d.activity,
@@ -1626,7 +1663,10 @@ export const unmarshalRejectTransitionResponseSchema: z.ZodType<RejectTransition
 export const unmarshalRenameRegisteredModelResponseSchema: z.ZodType<RenameRegisteredModelResponse> =
   z
     .object({
-      registered_model: z.lazy(() => unmarshalRegisteredModelSchema).optional(),
+      registered_model: z
+        .lazy(() => unmarshalRegisteredModelSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       registeredModel: d.registered_model,
@@ -1680,7 +1720,8 @@ export const unmarshalTransitionModelVersionStageDatabricksResponseSchema: z.Zod
     .object({
       model_version_databricks: z
         .lazy(() => unmarshalModelVersionDatabricksSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       modelVersionDatabricks: d.model_version_databricks,
@@ -1721,7 +1762,10 @@ export const unmarshalTransitionRequestSchema: z.ZodType<TransitionRequest> = z
 export const unmarshalUpdateCommentResponseSchema: z.ZodType<UpdateCommentResponse> =
   z
     .object({
-      comment: z.lazy(() => unmarshalCommentObjectSchema).optional(),
+      comment: z
+        .lazy(() => unmarshalCommentObjectSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       comment: d.comment,
@@ -1730,7 +1774,10 @@ export const unmarshalUpdateCommentResponseSchema: z.ZodType<UpdateCommentRespon
 export const unmarshalUpdateModelVersionResponseSchema: z.ZodType<UpdateModelVersionResponse> =
   z
     .object({
-      model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
+      model_version: z
+        .lazy(() => unmarshalModelVersionSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       modelVersion: d.model_version,
@@ -1739,7 +1786,10 @@ export const unmarshalUpdateModelVersionResponseSchema: z.ZodType<UpdateModelVer
 export const unmarshalUpdateRegisteredModelResponseSchema: z.ZodType<UpdateRegisteredModelResponse> =
   z
     .object({
-      registered_model: z.lazy(() => unmarshalRegisteredModelSchema).optional(),
+      registered_model: z
+        .lazy(() => unmarshalRegisteredModelSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       registeredModel: d.registered_model,
@@ -1748,7 +1798,10 @@ export const unmarshalUpdateRegisteredModelResponseSchema: z.ZodType<UpdateRegis
 export const unmarshalUpdateRegistryWebhookResponseSchema: z.ZodType<UpdateRegistryWebhookResponse> =
   z
     .object({
-      webhook: z.lazy(() => unmarshalRegistryWebhookSchema).optional(),
+      webhook: z
+        .lazy(() => unmarshalRegistryWebhookSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       webhook: d.webhook,

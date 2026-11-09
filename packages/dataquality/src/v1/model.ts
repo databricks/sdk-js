@@ -579,7 +579,8 @@ export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionCo
       excluded_table_full_names: z.array(z.string()).optional(),
       notification_settings: z
         .lazy(() => unmarshalNotificationSettingsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       excludedTableFullNames: d.excluded_table_full_names,
@@ -589,7 +590,10 @@ export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionCo
 export const unmarshalCancelRefreshResponseSchema: z.ZodType<CancelRefreshResponse> =
   z
     .object({
-      refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
+      refresh: z
+        .lazy(() => unmarshalRefreshSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       refresh: d.refresh,
@@ -620,10 +624,14 @@ export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> 
         .array(z.lazy(() => unmarshalDataProfilingCustomMetricSchema))
         .optional(),
       baseline_table_name: z.string().optional(),
-      schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
+      schedule: z
+        .lazy(() => unmarshalCronScheduleSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       notification_settings: z
         .lazy(() => unmarshalNotificationSettingsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       skip_builtin_dashboard: z.boolean().optional(),
       warehouse_id: z.string().optional(),
       monitored_table_name: z.string().optional(),
@@ -730,10 +738,12 @@ export const unmarshalMonitorSchema: z.ZodType<Monitor> = z
     object_id: z.string().optional(),
     anomaly_detection_config: z
       .lazy(() => unmarshalAnomalyDetectionConfigSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     data_profiling_config: z
       .lazy(() => unmarshalDataProfilingConfigSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     objectType: d.object_type,
@@ -766,10 +776,12 @@ export const unmarshalNotificationSettingsSchema: z.ZodType<NotificationSettings
     .object({
       on_failure: z
         .lazy(() => unmarshalNotificationDestinationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       on_unhealthy_table: z
         .lazy(() => unmarshalNotificationDestinationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       onFailure: d.on_failure,

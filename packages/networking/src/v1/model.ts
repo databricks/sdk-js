@@ -2947,11 +2947,18 @@ export const unmarshalAccountNetworkPolicySchema: z.ZodType<AccountNetworkPolicy
     .object({
       network_policy_id: z.string().optional(),
       account_id: z.string().optional(),
-      egress: z.lazy(() => unmarshalEgressNetworkPolicySchema).optional(),
-      ingress: z.lazy(() => unmarshalIngressNetworkPolicySchema).optional(),
+      egress: z
+        .lazy(() => unmarshalEgressNetworkPolicySchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      ingress: z
+        .lazy(() => unmarshalIngressNetworkPolicySchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       ingress_dry_run: z
         .lazy(() => unmarshalIngressNetworkPolicySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       networkPolicyId: d.network_policy_id,
@@ -3008,7 +3015,8 @@ export const unmarshalCreateAccountIpAccessListResponseSchema: z.ZodType<CreateA
     .object({
       ip_access_list: z
         .lazy(() => unmarshalAccountIpAccessListSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       ipAccessList: d.ip_access_list,
@@ -3017,7 +3025,10 @@ export const unmarshalCreateAccountIpAccessListResponseSchema: z.ZodType<CreateA
 export const unmarshalCreateIpAccessListResponseSchema: z.ZodType<CreateIpAccessListResponse> =
   z
     .object({
-      ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
+      ip_access_list: z
+        .lazy(() => unmarshalIpAccessListSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       ipAccessList: d.ip_access_list,
@@ -3030,13 +3041,15 @@ export const unmarshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema:
         .lazy(
           () => unmarshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       target_rules: z
         .lazy(
           () =>
             unmarshalCustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       defaultRules: d.default_rules,
@@ -3079,7 +3092,8 @@ export const unmarshalEgressNetworkPolicySchema: z.ZodType<EgressNetworkPolicy> 
     .object({
       network_access: z
         .lazy(() => unmarshalEgressNetworkPolicy_NetworkAccessPolicySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       networkAccess: d.network_access,
@@ -3111,7 +3125,8 @@ export const unmarshalEgressNetworkPolicy_NetworkAccessPolicySchema: z.ZodType<E
           () =>
             unmarshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       blocked_internet_destinations: z
         .array(
           z.lazy(
@@ -3334,7 +3349,8 @@ export const unmarshalGetAccountIpAccessListResponseSchema: z.ZodType<GetAccount
     .object({
       ip_access_list: z
         .lazy(() => unmarshalAccountIpAccessListSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       ipAccessList: d.ip_access_list,
@@ -3343,7 +3359,10 @@ export const unmarshalGetAccountIpAccessListResponseSchema: z.ZodType<GetAccount
 export const unmarshalGetIpAccessListResponseSchema: z.ZodType<GetIpAccessListResponse> =
   z
     .object({
-      ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
+      ip_access_list: z
+        .lazy(() => unmarshalIpAccessListSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       ipAccessList: d.ip_access_list,
@@ -3363,13 +3382,16 @@ export const unmarshalIngressNetworkPolicySchema: z.ZodType<IngressNetworkPolicy
     .object({
       public_access: z
         .lazy(() => unmarshalIngressNetworkPolicy_PublicAccessSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       private_access: z
         .lazy(() => unmarshalIngressNetworkPolicy_PrivateAccessSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       cross_workspace_access: z
         .lazy(() => unmarshalIngressNetworkPolicy_CrossWorkspaceAccessSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       publicAccess: d.public_access,
@@ -3486,13 +3508,16 @@ export const unmarshalIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema: z.Zo
         .lazy(
           () => unmarshalIngressNetworkPolicy_CrossWorkspaceRequestOriginSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       destination: z
         .lazy(() => unmarshalIngressNetworkPolicy_RequestDestinationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       authentication: z
         .lazy(() => unmarshalIngressNetworkPolicy_AuthenticationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       label: z.string().optional(),
     })
     .transform(d => ({
@@ -3584,13 +3609,16 @@ export const unmarshalIngressNetworkPolicy_PrivateIngressRuleSchema: z.ZodType<I
     .object({
       origin: z
         .lazy(() => unmarshalIngressNetworkPolicy_PrivateRequestOriginSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       destination: z
         .lazy(() => unmarshalIngressNetworkPolicy_RequestDestinationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       authentication: z
         .lazy(() => unmarshalIngressNetworkPolicy_AuthenticationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       label: z.string().optional(),
     })
     .transform(d => ({
@@ -3661,13 +3689,16 @@ export const unmarshalIngressNetworkPolicy_PublicIngressRuleSchema: z.ZodType<In
     .object({
       origin: z
         .lazy(() => unmarshalIngressNetworkPolicy_PublicRequestOriginSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       destination: z
         .lazy(() => unmarshalIngressNetworkPolicy_RequestDestinationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       authentication: z
         .lazy(() => unmarshalIngressNetworkPolicy_AuthenticationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       label: z.string().optional(),
     })
     .transform(d => ({
@@ -3713,30 +3744,37 @@ export const unmarshalIngressNetworkPolicy_RequestDestinationSchema: z.ZodType<I
       all_destinations: z.boolean().optional(),
       workspace_ui: z
         .lazy(() => unmarshalIngressNetworkPolicy_WorkspaceUiDestinationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       workspace_api: z
         .lazy(() => unmarshalIngressNetworkPolicy_WorkspaceApiDestinationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       apps_runtime: z
         .lazy(() => unmarshalIngressNetworkPolicy_AppsRuntimeDestinationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       lakebase_runtime: z
         .lazy(
           () => unmarshalIngressNetworkPolicy_LakebaseRuntimeDestinationSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       account_ui: z
         .lazy(() => unmarshalIngressNetworkPolicy_AccountUiDestinationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       account_api: z
         .lazy(() => unmarshalIngressNetworkPolicy_AccountApiDestinationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       account_databricks_one: z
         .lazy(
           () =>
             unmarshalIngressNetworkPolicy_AccountDatabricksOneDestinationSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       allDestinations: d.all_destinations,
@@ -3990,7 +4028,10 @@ export const unmarshalNetworkSchema: z.ZodType<Network> = z
     warning_messages: z
       .array(z.lazy(() => unmarshalNetworkWarningSchema))
       .optional(),
-    vpc_endpoints: z.lazy(() => unmarshalNetworkVpcEndpointsSchema).optional(),
+    vpc_endpoints: z
+      .lazy(() => unmarshalNetworkVpcEndpointsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     gcp_network_info: z.lazy(() => unmarshalGcpNetworkInfoSchema).optional(),
   })
   .transform(d => ({
@@ -4024,7 +4065,8 @@ export const unmarshalNetworkConnectivityConfigSchema: z.ZodType<NetworkConnecti
           () =>
             unmarshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       updated_time: z
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
@@ -4142,13 +4184,15 @@ export const unmarshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema: z
           () =>
             unmarshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       aws_stable_ip_rule: z
         .lazy(
           () =>
             unmarshalNetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       azureServiceEndpointRule: d.azure_service_endpoint_rule,
@@ -4325,7 +4369,8 @@ export const unmarshalPrivateNetworkGateway_AwsCloudConnectionSchema: z.ZodType<
           () =>
             unmarshalPrivateNetworkGateway_AwsCloudConnection_CrossAccountRoleSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       security_group_ids: z.array(z.string()).optional(),
     })
     .transform(d => ({
@@ -4363,7 +4408,8 @@ export const unmarshalPrivateNetworkGateway_AzureCloudConnectionSchema: z.ZodTyp
           () =>
             unmarshalPrivateNetworkGateway_AzureCloudConnection_AzureGatewaySubnetSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       gatewaySubnet: d.gateway_subnet,
@@ -4417,7 +4463,8 @@ export const unmarshalReplaceAccountIpAccessListResponseSchema: z.ZodType<Replac
     .object({
       ip_access_list: z
         .lazy(() => unmarshalAccountIpAccessListSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       ipAccessList: d.ip_access_list,
@@ -4426,7 +4473,10 @@ export const unmarshalReplaceAccountIpAccessListResponseSchema: z.ZodType<Replac
 export const unmarshalReplaceIpAccessListResponseSchema: z.ZodType<ReplaceIpAccessListResponse> =
   z
     .object({
-      ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
+      ip_access_list: z
+        .lazy(() => unmarshalIpAccessListSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       ipAccessList: d.ip_access_list,
@@ -4437,7 +4487,8 @@ export const unmarshalUpdateAccountIpAccessListResponseSchema: z.ZodType<UpdateA
     .object({
       ip_access_list: z
         .lazy(() => unmarshalAccountIpAccessListSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       ipAccessList: d.ip_access_list,
@@ -4446,7 +4497,10 @@ export const unmarshalUpdateAccountIpAccessListResponseSchema: z.ZodType<UpdateA
 export const unmarshalUpdateIpAccessListResponseSchema: z.ZodType<UpdateIpAccessListResponse> =
   z
     .object({
-      ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
+      ip_access_list: z
+        .lazy(() => unmarshalIpAccessListSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       ipAccessList: d.ip_access_list,

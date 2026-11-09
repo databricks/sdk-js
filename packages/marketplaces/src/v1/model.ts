@@ -1004,7 +1004,8 @@ export const unmarshalAddExchangeForListingResponseSchema: z.ZodType<AddExchange
     .object({
       exchange_for_listing: z
         .lazy(() => unmarshalExchangeListingSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       exchangeForListing: d.exchange_for_listing,
@@ -1064,7 +1065,10 @@ export const unmarshalCreateFileResponseSchema: z.ZodType<CreateFileResponse> =
   z
     .object({
       upload_url: z.string().optional(),
-      file_info: z.lazy(() => unmarshalFileInfoSchema).optional(),
+      file_info: z
+        .lazy(() => unmarshalFileInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       uploadUrl: d.upload_url,
@@ -1074,7 +1078,10 @@ export const unmarshalCreateFileResponseSchema: z.ZodType<CreateFileResponse> =
 export const unmarshalCreateInstallationResponseSchema: z.ZodType<CreateInstallationResponse> =
   z
     .object({
-      installation: z.lazy(() => unmarshalInstallationDetailSchema).optional(),
+      installation: z
+        .lazy(() => unmarshalInstallationDetailSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       installation: d.installation,
@@ -1236,7 +1243,10 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
   .object({
     id: z.string().optional(),
     marketplace_file_type: z.string().optional(),
-    file_parent: z.lazy(() => unmarshalFileParentSchema).optional(),
+    file_parent: z
+      .lazy(() => unmarshalFileParentSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     mime_type: z.string().optional(),
     download_link: z.string().optional(),
     created_at: z
@@ -1290,7 +1300,10 @@ export const unmarshalGetAllPersonalizationRequestsForConsumerResponseSchema: z.
 export const unmarshalGetExchangeResponseSchema: z.ZodType<GetExchangeResponse> =
   z
     .object({
-      exchange: z.lazy(() => unmarshalExchangeSchema).optional(),
+      exchange: z
+        .lazy(() => unmarshalExchangeSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       exchange: d.exchange,
@@ -1298,7 +1311,10 @@ export const unmarshalGetExchangeResponseSchema: z.ZodType<GetExchangeResponse> 
 
 export const unmarshalGetFileResponseSchema: z.ZodType<GetFileResponse> = z
   .object({
-    file_info: z.lazy(() => unmarshalFileInfoSchema).optional(),
+    file_info: z
+      .lazy(() => unmarshalFileInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     fileInfo: d.file_info,
@@ -1332,7 +1348,10 @@ export const unmarshalGetListingContentMetadataResponseSchema: z.ZodType<GetList
 export const unmarshalGetListingResponseSchema: z.ZodType<GetListingResponse> =
   z
     .object({
-      listing: z.lazy(() => unmarshalListingSchema).optional(),
+      listing: z
+        .lazy(() => unmarshalListingSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       listing: d.listing,
@@ -1376,7 +1395,10 @@ export const unmarshalGetPersonalizationRequestsForProviderResponseSchema: z.Zod
 export const unmarshalGetProviderResponseSchema: z.ZodType<GetProviderResponse> =
   z
     .object({
-      provider: z.lazy(() => unmarshalProviderInfoSchema).optional(),
+      provider: z
+        .lazy(() => unmarshalProviderInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       provider: d.provider,
@@ -1385,7 +1407,10 @@ export const unmarshalGetProviderResponseSchema: z.ZodType<GetProviderResponse> 
 export const unmarshalGetPublishedListingForConsumerResponseSchema: z.ZodType<GetPublishedListingForConsumerResponse> =
   z
     .object({
-      listing: z.lazy(() => unmarshalListingSchema).optional(),
+      listing: z
+        .lazy(() => unmarshalListingSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       listing: d.listing,
@@ -1405,7 +1430,10 @@ export const unmarshalGetPublishedListingsForConsumerResponseSchema: z.ZodType<G
 export const unmarshalGetPublishedProviderForConsumerResponseSchema: z.ZodType<GetPublishedProviderForConsumerResponse> =
   z
     .object({
-      provider: z.lazy(() => unmarshalProviderInfoSchema).optional(),
+      provider: z
+        .lazy(() => unmarshalProviderInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       provider: d.provider,
@@ -1429,7 +1457,10 @@ export const unmarshalInstallationDetailSchema: z.ZodType<InstallationDetail> =
       repo_path: z.string().optional(),
       recipient_type: z.string().optional(),
       tokens: z.array(z.lazy(() => unmarshalTokenInfoSchema)).optional(),
-      token_detail: z.lazy(() => unmarshalTokenDetailSchema).optional(),
+      token_detail: z
+        .lazy(() => unmarshalTokenDetailSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       id: d.id,
@@ -1585,8 +1616,14 @@ export const unmarshalListPublishedProvidersForConsumerResponseSchema: z.ZodType
 export const unmarshalListingSchema: z.ZodType<Listing> = z
   .object({
     id: z.string().optional(),
-    summary: z.lazy(() => unmarshalListingSummarySchema).optional(),
-    detail: z.lazy(() => unmarshalListingDetailSchema).optional(),
+    summary: z
+      .lazy(() => unmarshalListingSummarySchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    detail: z
+      .lazy(() => unmarshalListingDetailSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     id: d.id,
@@ -1608,10 +1645,14 @@ export const unmarshalListingDetailSchema: z.ZodType<ListingDetail> = z
     geographical_coverage: z.string().optional(),
     cost: z.string().optional(),
     pricing_model: z.string().optional(),
-    update_frequency: z.lazy(() => unmarshalDataRefreshInfoSchema).optional(),
+    update_frequency: z
+      .lazy(() => unmarshalDataRefreshInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     collection_granularity: z
       .lazy(() => unmarshalDataRefreshInfoSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     collection_date_start: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -1653,8 +1694,14 @@ export const unmarshalListingFulfillmentSchema: z.ZodType<ListingFulfillment> =
     .object({
       listing_id: z.string().optional(),
       fulfillment_type: z.string().optional(),
-      share_info: z.lazy(() => unmarshalShareInfoSchema).optional(),
-      repo_info: z.lazy(() => unmarshalRepoInfoSchema).optional(),
+      share_info: z
+        .lazy(() => unmarshalShareInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      repo_info: z
+        .lazy(() => unmarshalRepoInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       recipient_type: z.string().optional(),
     })
     .transform(d => ({
@@ -1678,9 +1725,18 @@ export const unmarshalListingSummarySchema: z.ZodType<ListingSummary> = z
     name: z.string().optional(),
     subtitle: z.string().optional(),
     status: z.string().optional(),
-    share: z.lazy(() => unmarshalShareInfoSchema).optional(),
-    provider_region: z.lazy(() => unmarshalRegionInfoSchema).optional(),
-    setting: z.lazy(() => unmarshalListingSettingSchema).optional(),
+    share: z
+      .lazy(() => unmarshalShareInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    provider_region: z
+      .lazy(() => unmarshalRegionInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    setting: z
+      .lazy(() => unmarshalListingSettingSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     created_at: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -1708,7 +1764,10 @@ export const unmarshalListingSummarySchema: z.ZodType<ListingSummary> = z
       .optional(),
     provider_id: z.string().optional(),
     exchange_ids: z.array(z.string()).optional(),
-    git_repo: z.lazy(() => unmarshalRepoInfoSchema).optional(),
+    git_repo: z
+      .lazy(() => unmarshalRepoInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     name: d.name,
@@ -1746,13 +1805,22 @@ export const unmarshalPersonalizationRequestSchema: z.ZodType<PersonalizationReq
   z
     .object({
       id: z.string().optional(),
-      consumer_region: z.lazy(() => unmarshalRegionInfoSchema).optional(),
-      contact_info: z.lazy(() => unmarshalContactInfoSchema).optional(),
+      consumer_region: z
+        .lazy(() => unmarshalRegionInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      contact_info: z
+        .lazy(() => unmarshalContactInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       comment: z.string().optional(),
       intended_use: z.string().optional(),
       status: z.string().optional(),
       status_message: z.string().optional(),
-      share: z.lazy(() => unmarshalShareInfoSchema).optional(),
+      share: z
+        .lazy(() => unmarshalShareInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       created_at: z
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
@@ -1919,7 +1987,10 @@ export const unmarshalTokenInfoSchema: z.ZodType<TokenInfo> = z
 export const unmarshalUpdateExchangeFilterResponseSchema: z.ZodType<UpdateExchangeFilterResponse> =
   z
     .object({
-      filter: z.lazy(() => unmarshalExchangeFilterSchema).optional(),
+      filter: z
+        .lazy(() => unmarshalExchangeFilterSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       filter: d.filter,
@@ -1928,7 +1999,10 @@ export const unmarshalUpdateExchangeFilterResponseSchema: z.ZodType<UpdateExchan
 export const unmarshalUpdateExchangeResponseSchema: z.ZodType<UpdateExchangeResponse> =
   z
     .object({
-      exchange: z.lazy(() => unmarshalExchangeSchema).optional(),
+      exchange: z
+        .lazy(() => unmarshalExchangeSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       exchange: d.exchange,
@@ -1937,7 +2011,10 @@ export const unmarshalUpdateExchangeResponseSchema: z.ZodType<UpdateExchangeResp
 export const unmarshalUpdateInstallationResponseSchema: z.ZodType<UpdateInstallationResponse> =
   z
     .object({
-      installation: z.lazy(() => unmarshalInstallationDetailSchema).optional(),
+      installation: z
+        .lazy(() => unmarshalInstallationDetailSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       installation: d.installation,
@@ -1946,7 +2023,10 @@ export const unmarshalUpdateInstallationResponseSchema: z.ZodType<UpdateInstalla
 export const unmarshalUpdateListingResponseSchema: z.ZodType<UpdateListingResponse> =
   z
     .object({
-      listing: z.lazy(() => unmarshalListingSchema).optional(),
+      listing: z
+        .lazy(() => unmarshalListingSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       listing: d.listing,
@@ -1955,7 +2035,10 @@ export const unmarshalUpdateListingResponseSchema: z.ZodType<UpdateListingRespon
 export const unmarshalUpdatePersonalizationRequestStatusResponseSchema: z.ZodType<UpdatePersonalizationRequestStatusResponse> =
   z
     .object({
-      request: z.lazy(() => unmarshalPersonalizationRequestSchema).optional(),
+      request: z
+        .lazy(() => unmarshalPersonalizationRequestSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       request: d.request,
@@ -1980,7 +2063,10 @@ export const unmarshalUpdateProviderAnalyticsDashboardResponseSchema: z.ZodType<
 export const unmarshalUpdateProviderResponseSchema: z.ZodType<UpdateProviderResponse> =
   z
     .object({
-      provider: z.lazy(() => unmarshalProviderInfoSchema).optional(),
+      provider: z
+        .lazy(() => unmarshalProviderInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       provider: d.provider,

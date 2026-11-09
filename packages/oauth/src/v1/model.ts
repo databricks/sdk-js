@@ -311,7 +311,8 @@ export const unmarshalCustomOAuthAppIntegrationSchema: z.ZodType<CustomOAuthAppI
       confidential: z.boolean().optional(),
       token_access_policy: z
         .lazy(() => unmarshalTokenAccessPolicySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       scopes: z.array(z.string()).optional(),
       created_by: z
         .union([z.number(), z.bigint(), z.string()])
@@ -451,7 +452,8 @@ export const unmarshalPublishedOAuthAppIntegrationSchema: z.ZodType<PublishedOAu
       name: z.string().optional(),
       token_access_policy: z
         .lazy(() => unmarshalTokenAccessPolicySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       created_by: z
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))

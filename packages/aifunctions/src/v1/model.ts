@@ -431,7 +431,8 @@ export const unmarshalAiClassifyResponseSchema: z.ZodType<AiClassifyResponse> =
       response: jsonValueSchema.optional(),
       metadata: z
         .lazy(() => unmarshalAiClassifyResponseMetadataSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       response: d.response,
@@ -450,7 +451,10 @@ export const unmarshalAiClassifyResponseMetadataSchema: z.ZodType<AiClassifyResp
 export const unmarshalAiDecideResponseSchema: z.ZodType<AiDecideResponse> = z
   .object({
     response: jsonValueSchema.optional(),
-    metadata: z.lazy(() => unmarshalAiDecideResponseMetadataSchema).optional(),
+    metadata: z
+      .lazy(() => unmarshalAiDecideResponseMetadataSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     response: d.response,
@@ -509,7 +513,10 @@ export const unmarshalAiExtractCitationSchema: z.ZodType<AiExtractCitation> = z
 export const unmarshalAiExtractResponseSchema: z.ZodType<AiExtractResponse> = z
   .object({
     response: jsonValueSchema.optional(),
-    metadata: z.lazy(() => unmarshalAiExtractResponseMetadataSchema).optional(),
+    metadata: z
+      .lazy(() => unmarshalAiExtractResponseMetadataSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     response: d.response,
@@ -574,7 +581,8 @@ export const unmarshalAiParseDocumentResponseSchema: z.ZodType<AiParseDocumentRe
         .optional(),
       metadata: z
         .lazy(() => unmarshalAiParseDocumentResponseMetadataSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       document: d.document,
@@ -589,7 +597,8 @@ export const unmarshalAiParseDocumentResponseMetadataSchema: z.ZodType<AiParseDo
       version: z.string().optional(),
       file_metadata: z
         .lazy(() => unmarshalAiParseDocumentFileMetadataSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       id: d.id,
@@ -609,7 +618,10 @@ export const unmarshalBatchSchema: z.ZodType<Batch> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    request_counts: z.lazy(() => unmarshalBatchRequestCountsSchema).optional(),
+    request_counts: z
+      .lazy(() => unmarshalBatchRequestCountsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     percent_complete: z.number().optional(),
   })
   .transform(d => ({

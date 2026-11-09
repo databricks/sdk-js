@@ -5,6 +5,51 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+/** The verdict of a single assessment check. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AssessmentCheckVerdict = {
+  /** The check verdict is unknown or unset. */
+  ASSESSMENT_CHECK_VERDICT_UNSPECIFIED: 'ASSESSMENT_CHECK_VERDICT_UNSPECIFIED',
+  /** The check passed. */
+  ASSESSMENT_CHECK_VERDICT_PASS: 'ASSESSMENT_CHECK_VERDICT_PASS',
+  /** The check produced a non-blocking warning. */
+  ASSESSMENT_CHECK_VERDICT_WARNING: 'ASSESSMENT_CHECK_VERDICT_WARNING',
+  /** The check found a condition that requires user action before the migration can start. */
+  ASSESSMENT_CHECK_VERDICT_ACTION_REQUIRED:
+    'ASSESSMENT_CHECK_VERDICT_ACTION_REQUIRED',
+  /** The check found a configuration that the migration does not support. */
+  ASSESSMENT_CHECK_VERDICT_UNSUPPORTED: 'ASSESSMENT_CHECK_VERDICT_UNSUPPORTED',
+  /** The check could not run because of an internal error. */
+  ASSESSMENT_CHECK_VERDICT_ERROR: 'ASSESSMENT_CHECK_VERDICT_ERROR',
+} as const;
+export type AssessmentCheckVerdict =
+  | (typeof AssessmentCheckVerdict)[keyof typeof AssessmentCheckVerdict]
+  | (string & {});
+
+/** The aggregate state of an assessment run. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AssessmentState = {
+  /** The assessment state is unknown or unset. */
+  ASSESSMENT_STATE_UNSPECIFIED: 'ASSESSMENT_STATE_UNSPECIFIED',
+  /** The assessment is running. */
+  ASSESSMENT_STATE_ASSESSING: 'ASSESSMENT_STATE_ASSESSING',
+  /** The assessment completed with no blocking findings. */
+  ASSESSMENT_STATE_READY: 'ASSESSMENT_STATE_READY',
+  /** The assessment completed with non-blocking warnings awaiting acknowledgement. */
+  ASSESSMENT_STATE_AWAITING_ACK: 'ASSESSMENT_STATE_AWAITING_ACK',
+  /** The assessment could not be completed because of an internal error. */
+  ASSESSMENT_STATE_FAILED: 'ASSESSMENT_STATE_FAILED',
+  /** The assessment is no longer valid and must be re-run. */
+  ASSESSMENT_STATE_EXPIRED: 'ASSESSMENT_STATE_EXPIRED',
+  /** The assessment completed with findings that require user remediation. */
+  ASSESSMENT_STATE_NEEDS_ACTION: 'ASSESSMENT_STATE_NEEDS_ACTION',
+  /** The assessment completed with findings that the migration does not support. */
+  ASSESSMENT_STATE_BLOCKED: 'ASSESSMENT_STATE_BLOCKED',
+} as const;
+export type AssessmentState =
+  | (typeof AssessmentState)[keyof typeof AssessmentState]
+  | (string & {});
+
 /** The replication state of a single replicated table (CdfStatus). */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const CdfState = {
@@ -576,6 +621,50 @@ export type ErrorCode =
   | (typeof ErrorCode)[keyof typeof ErrorCode]
   | (string & {});
 
+/** The lifecycle state of a migration. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const MigrationState = {
+  /** The migration state is unknown or unset. */
+  MIGRATION_STATE_UNSPECIFIED: 'MIGRATION_STATE_UNSPECIFIED',
+  /** The migration is being configured and has not been assessed yet. */
+  MIGRATION_STATE_DRAFT: 'MIGRATION_STATE_DRAFT',
+  /** An assessment of the migration's source configuration is running. */
+  MIGRATION_STATE_ASSESSING: 'MIGRATION_STATE_ASSESSING',
+  /**
+   * The assessment found issues (blocking findings, or warnings awaiting acknowledgement) that need
+   * user action before the migration can continue.
+   */
+  MIGRATION_STATE_ASSESSMENT_NEEDS_ACTION:
+    'MIGRATION_STATE_ASSESSMENT_NEEDS_ACTION',
+  /** The migration has passed assessment and is ready to start. */
+  MIGRATION_STATE_READY_TO_START: 'MIGRATION_STATE_READY_TO_START',
+  /** The migration is creating the target databases and schema, without copying table data. */
+  MIGRATION_STATE_SCHEMA_LOAD: 'MIGRATION_STATE_SCHEMA_LOAD',
+  /** The migration is copying the initial table data. */
+  MIGRATION_STATE_INITIAL_DATA_LOAD: 'MIGRATION_STATE_INITIAL_DATA_LOAD',
+  /** The migration has successfully finished all execution stages. */
+  MIGRATION_STATE_COMPLETED: 'MIGRATION_STATE_COMPLETED',
+  /** The migration stopped because an execution step failed. */
+  MIGRATION_STATE_FAILED: 'MIGRATION_STATE_FAILED',
+} as const;
+export type MigrationState =
+  | (typeof MigrationState)[keyof typeof MigrationState]
+  | (string & {});
+
+/** The intended data transfer mode of a migration. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const MigrationType = {
+  /** The migration type is unknown or unset. */
+  MIGRATION_TYPE_UNSPECIFIED: 'MIGRATION_TYPE_UNSPECIFIED',
+  /** Intended for a single copy of the source data, without ongoing replication. */
+  MIGRATION_TYPE_ONE_TIME_COPY: 'MIGRATION_TYPE_ONE_TIME_COPY',
+  /** Intended for an initial copy followed by ongoing replication of source changes. */
+  MIGRATION_TYPE_ONLINE: 'MIGRATION_TYPE_ONLINE',
+} as const;
+export type MigrationType =
+  | (typeof MigrationType)[keyof typeof MigrationType]
+  | (string & {});
+
 /**
  * Controls how the Data API exposes the OpenAPI documentation endpoint.
  * Only IGNORE_PRIVILEGES and DISABLED are supported today; "follow-privileges"
@@ -862,12 +951,87 @@ export type SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy =
   | (typeof SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy)[keyof typeof SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy]
   | (string & {});
 
+/** Request to acknowledge assessment warnings. */
+export interface AcknowledgeAssessmentWarningsRequest {
+  /** Required. The assessment resource name, in the format `migrations/{migration}/assessments/{assessment}`. */
+  name?: string | undefined;
+}
+
+/** Response produced after assessment warnings are acknowledged. */
+export interface AcknowledgeAssessmentWarningsResponse {
+  /** The assessment after its warnings are acknowledged. */
+  assessment?: Assessment | undefined;
+}
+
 /** Databricks Error that is returned by all Databricks APIs. */
 export interface ApiError {
   errorCode?: ErrorCode | undefined;
   message?: string | undefined;
   stackTrace?: string | undefined;
   details?: Record<string, unknown>[] | undefined;
+}
+
+/** Request to assess a migration. */
+export interface AssessMigrationRequest {
+  /** Required. The migration resource name, in the format `migrations/{migration}`. */
+  name?: string | undefined;
+}
+
+/** Response produced after an assessment run is created. */
+export interface AssessMigrationResponse {
+  /** The assessment run created for the migration. */
+  assessment?: Assessment | undefined;
+}
+
+/** A server-managed assessment of a migration's source configuration. Completed check results are immutable. */
+export interface Assessment {
+  /** The assessment resource name, in the format `migrations/{migration}/assessments/{assessment}`. */
+  name?: string | undefined;
+  /** Output-only. The aggregate assessment state. */
+  state?: AssessmentState | undefined;
+  /** Output-only. Results of the checks performed by this assessment. */
+  checks?: AssessmentCheck[] | undefined;
+  /** Output-only. The time when the assessment started. */
+  createTime?: Temporal.Instant | undefined;
+  /** Output-only. The time when the assessment completed. */
+  completeTime?: Temporal.Instant | undefined;
+  /** Output-only. The time when the assessment expires. */
+  expireTime?: Temporal.Instant | undefined;
+}
+
+/** The result of one assessment check. */
+export interface AssessmentCheck {
+  /** Output-only. Stable identifier of the check. */
+  checkId?: string | undefined;
+  /** Output-only. The check verdict. */
+  verdict?: AssessmentCheckVerdict | undefined;
+  /** Output-only. Whether this result blocks migration from starting. */
+  blocksMigration?: boolean | undefined;
+  /** Output-only. Explanation of the result. */
+  reason?: string | undefined;
+  /**
+   * Output-only. The source database the check evaluated. Unset for checks that assess the whole
+   * source server rather than a single database.
+   */
+  database?: string | undefined;
+  /** Output-only. Measurements observed by this check. Absent when unavailable. */
+  details?: AssessmentCheckDetails | undefined;
+}
+
+/** Measurements observed when an assessment check ran. Unset for older assessments. */
+export interface AssessmentCheckDetails {
+  kind?:
+    | {
+        $case: 'databaseSize';
+        /** Output-only. Physical size of the source database observed by this check. */
+        databaseSize: DatabaseSizeDetails;
+      }
+    | {
+        $case: 'longTransaction';
+        /** Output-only. Age of the oldest source transaction observed by this check. */
+        longTransaction: LongTransactionDetails;
+      }
+    | undefined;
 }
 
 export interface Branch {
@@ -1251,6 +1415,17 @@ export interface CreateEndpointRequest {
   replaceExisting?: boolean | undefined;
 }
 
+export interface CreateMigrationRequest {
+  /**
+   * Required. The ID to use for the migration. It becomes the final component of the resource name
+   * (`migrations/{migration_id}`). It must be 1-63 characters long, start with a lowercase letter,
+   * and contain only lowercase letters, numbers, and hyphens.
+   */
+  migrationId?: string | undefined;
+  /** Required. The migration to create. */
+  migration?: Migration | undefined;
+}
+
 export interface CreateProjectRequest {
   /**
    * The ID to use for the Project. This becomes the final component of the project's resource name.
@@ -1290,7 +1465,9 @@ export interface CreateRoleRequest {
    * Attributes omitted from the request retain their current values.
    * Set an attribute explicitly to false to disable it.
    * `identity_type`, `auth_method`, and `postgres_role` retain their
-   * existing values; supplied values for these fields are ignored.
+   * existing values. Omit these fields or supply their current values.
+   * A differing supplied value returns INVALID_PARAMETER_VALUE and rejects
+   * the entire request, including changes to mutable fields.
    * `membership_roles` is overwritten, not merged. Leaving
    * `membership_roles` empty clears all of the role's existing memberships,
    * including `DATABRICKS_SUPERUSER`. Always send the complete desired list
@@ -1499,8 +1676,30 @@ export interface DatabaseCredential {
   expireTime?: Temporal.Instant | undefined;
 }
 
+/** A mapping between one source and target database. */
+export interface DatabaseMapping {
+  /** Required. The exact PostgreSQL database name on the source server. */
+  sourceDatabase?: string | undefined;
+  /**
+   * The PostgreSQL database name to create on the target branch. When omitted, the source database
+   * name is preserved.
+   */
+  targetDatabase?: string | undefined;
+  /**
+   * Output-only. The resolved target PostgreSQL database name. Equal to `target_database` when
+   * provided; otherwise equal to `source_database`.
+   */
+  effectiveTargetDatabase?: string | undefined;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DatabaseOperationMetadata {}
+
+/** Physical database size, including indexes and bloat; not a dump archive size estimate. */
+export interface DatabaseSizeDetails {
+  /** Size reported by pg_database_size, in bytes. Zero is a measured empty size. */
+  sizeBytes?: bigint | undefined;
+}
 
 export interface DeleteBranchRequest {
   /**
@@ -1555,6 +1754,12 @@ export interface DeleteEndpointRequest {
    * The full resource path of the endpoint to delete.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
+  name?: string | undefined;
+}
+
+/** Request to soft-delete a migration. */
+export interface DeleteMigrationRequest {
+  /** Required. The migration resource name, in the format `migrations/{migration}`. */
   name?: string | undefined;
 }
 
@@ -1822,6 +2027,12 @@ export interface GenerateDatabaseCredentialRequest {
     | undefined;
 }
 
+/** Request to get a migration assessment run. */
+export interface GetAssessmentRequest {
+  /** Required. The assessment resource name, in the format `migrations/{migration}/assessments/{assessment}`. */
+  name?: string | undefined;
+}
+
 export interface GetBranchRequest {
   /**
    * The full resource path of the branch to retrieve.
@@ -1876,6 +2087,12 @@ export interface GetEndpointRequest {
    * The full resource path of the endpoint to retrieve.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
+  name?: string | undefined;
+}
+
+/** Request to get a migration. */
+export interface GetMigrationRequest {
+  /** Required. The migration resource name, in the format `migrations/{migration}`. */
   name?: string | undefined;
 }
 
@@ -1961,6 +2178,27 @@ export interface InitialEndpointSpec {
         noSuspension: boolean;
       }
     | undefined;
+}
+
+/** Request to list a migration's assessment runs. */
+export interface ListAssessmentsRequest {
+  /** Required. The parent migration resource name, in the format `migrations/{migration}`. */
+  parent?: string | undefined;
+  /**
+   * The maximum number of assessments to return. The server default is 100; values above 1000 are
+   * capped to 1000.
+   */
+  pageSize?: number | undefined;
+  /** A page token from a previous call. */
+  pageToken?: string | undefined;
+}
+
+/** Response to list assessments. */
+export interface ListAssessmentsResponse {
+  /** Assessment runs ordered from newest to oldest. */
+  assessments?: Assessment[] | undefined;
+  /** A token for retrieving the next page. Empty when there are no more results. */
+  nextPageToken?: string | undefined;
 }
 
 export interface ListBranchesRequest {
@@ -2084,6 +2322,30 @@ export interface ListEndpointsResponse {
   nextPageToken?: string | undefined;
 }
 
+/** Request to list migrations. */
+export interface ListMigrationsRequest {
+  /**
+   * The maximum number of migrations to return. The server default is 100; values above 1000 are
+   * capped to 1000.
+   */
+  pageSize?: number | undefined;
+  /** A page token from a previous call. */
+  pageToken?: string | undefined;
+  /**
+   * Whether to include soft-deleted migrations in the response. Hard-deleted and already-purged
+   * migrations are never returned.
+   */
+  showDeleted?: boolean | undefined;
+}
+
+/** Response to list migrations. */
+export interface ListMigrationsResponse {
+  /** Migrations visible to the caller. */
+  migrations?: Migration[] | undefined;
+  /** A token for retrieving the next page. Empty when there are no more results. */
+  nextPageToken?: string | undefined;
+}
+
 export interface ListProjectsRequest {
   /** Page token from a previous response. If not provided, returns the first page. */
   pageToken?: string | undefined;
@@ -2141,6 +2403,60 @@ export interface ListSnapshotsResponse {
   /** Token to retrieve the next page; empty if there are no more pages. */
   nextPageToken?: string | undefined;
 }
+
+/** Oldest active source transaction at assessment time. */
+export interface LongTransactionDetails {
+  /** Age of the oldest active transaction when assessed. Zero when none is active. */
+  oldestTransactionAge?: Temporal.Duration | undefined;
+}
+
+/** A managed migration of PostgreSQL databases into a Lakebase branch. */
+export interface Migration {
+  /** The migration resource name, in the format `migrations/{migration}`. */
+  name?: string | undefined;
+  /**
+   * Required. The name of the Unity Catalog connection (a UC securable name, such as
+   * `my_postgres_connection`) used to connect to the source PostgreSQL server.
+   */
+  sourceConnection?: string | undefined;
+  /** Required. Mappings from source databases to target databases. */
+  databaseMappings?: DatabaseMapping[] | undefined;
+  /**
+   * The Lakebase branch receiving the migrated databases, in the format
+   * `projects/{project_id}/branches/{branch_id}`. May be omitted during assessment, but must be
+   * set before the migration starts, and may be changed until then.
+   */
+  targetBranch?: string | undefined;
+  /** Output-only. The authoritative migration lifecycle state. */
+  state?: MigrationState | undefined;
+  /** Output-only. The time when the migration was created. */
+  createTime?: Temporal.Instant | undefined;
+  /** Output-only. The time when the migration was last updated. */
+  updateTime?: Temporal.Instant | undefined;
+  /** Output-only. The time when the migration was soft-deleted. Empty if the migration is active. */
+  deleteTime?: Temporal.Instant | undefined;
+  /**
+   * Output-only. The time when the soft-deleted migration is scheduled for permanent deletion.
+   * Empty if the migration is active or permanent deletion is not scheduled.
+   */
+  purgeTime?: Temporal.Instant | undefined;
+  /** Output-only. The current error preventing migration progress, if any. */
+  error?: MigrationError | undefined;
+  /** Required. Immutable. The intended migration mode, selected when the migration is created. */
+  migrationType?: MigrationType | undefined;
+}
+
+/** An error that prevents migration progress. */
+export interface MigrationError {
+  /** A stable machine-readable error code. */
+  code?: string | undefined;
+  /** A concise explanation of the failure. */
+  message?: string | undefined;
+}
+
+/** Metadata for a long-running operation that applies an action to a migration. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface MigrationOperationMetadata {}
 
 /** Take a snapshot once per month, on the configured day at the configured hour. */
 export interface MonthlySchedule {
@@ -2440,10 +2756,14 @@ export interface Role_RoleSpec {
    * * user email for USER
    * * group name for GROUP
    *
-   * This field is set when the role is created and cannot be changed by
-   * UpdateRole. If provided in an UpdateRole request body, its value is
-   * ignored and the existing value is retained. Do not include this field
-   * as an explicit path in update_mask.
+   * This field is set when the role is created and cannot be changed.
+   * When replacing an existing role with replace_existing=true, omit this
+   * field or supply its current value. A differing value returns
+   * INVALID_PARAMETER_VALUE and rejects the entire request, including changes
+   * to mutable fields.
+   * With `*` or masks containing only mutable fields, supplied values are ignored.
+   * Including this field as an explicit path in update_mask returns
+   * INVALID_PARAMETER_VALUE.
    */
   identityType?: Role_IdentityType | undefined;
   /** The desired API-exposed Postgres role attribute to associate with the role. Optional. */
@@ -2470,10 +2790,14 @@ export interface Role_RoleSpec {
    * NOTE: for the <Databricks> identity type GROUP, LAKEBASE_OAUTH_V1
    * is the default auth method (group can login as well).
    *
-   * This field is set when the role is created and cannot be changed by
-   * UpdateRole. If provided in an UpdateRole request body, its value is
-   * ignored and the existing value is retained. Do not include this field
-   * as an explicit path in update_mask.
+   * This field is set when the role is created and cannot be changed.
+   * When replacing an existing role with replace_existing=true, omit this
+   * field or supply its current value. A differing value returns
+   * INVALID_PARAMETER_VALUE and rejects the entire request, including changes
+   * to mutable fields.
+   * With `*` or masks containing only mutable fields, supplied values are ignored.
+   * Including this field as an explicit path in update_mask returns
+   * INVALID_PARAMETER_VALUE.
    */
   authMethod?: Role_AuthMethod | undefined;
   /**
@@ -2491,10 +2815,14 @@ export interface Role_RoleSpec {
    * 2. app ID for IdentityType.SERVICE_PRINCIPAL
    * 2. group name for IdentityType.GROUP
    *
-   * This field is set when the role is created and cannot be changed by
-   * UpdateRole. If provided in an UpdateRole request body, its value is
-   * ignored and the existing value is retained. Do not include this field
-   * as an explicit path in update_mask.
+   * This field is set when the role is created and cannot be changed.
+   * When replacing an existing role with replace_existing=true, omit this
+   * field or supply its current value. A differing value returns
+   * INVALID_PARAMETER_VALUE and rejects the entire request, including changes
+   * to mutable fields.
+   * With `*` or masks containing only mutable fields, supplied values are ignored.
+   * Including this field as an explicit path in update_mask returns
+   * INVALID_PARAMETER_VALUE.
    */
   postgresRole?: string | undefined;
 }
@@ -2687,6 +3015,18 @@ export interface SnapshotStatus {
    * the snapshot is not billed on incremental usage.
    */
   diffSizeBytes?: bigint | undefined;
+}
+
+/** Request to start a migration. */
+export interface StartMigrationRequest {
+  /** Required. The migration resource name, in the format `migrations/{migration}`. */
+  name?: string | undefined;
+}
+
+/** Response produced after migration preparation has started. */
+export interface StartMigrationResponse {
+  /** The migration after the start action is applied. */
+  migration?: Migration | undefined;
 }
 
 export interface SyncedTable {
@@ -2888,6 +3228,18 @@ export interface UndeleteBranchRequest {
   name?: string | undefined;
 }
 
+/** Request to restore a soft-deleted migration before it is permanently purged. */
+export interface UndeleteMigrationRequest {
+  /** Required. The migration resource name, in the format `migrations/{migration}`. */
+  name?: string | undefined;
+}
+
+/** Response produced after a soft-deleted migration is restored. */
+export interface UndeleteMigrationResponse {
+  /** The restored migration. */
+  migration?: Migration | undefined;
+}
+
 /** Request to restore a soft-deleted project within its retention period. */
 export interface UndeleteProjectRequest {
   /**
@@ -2944,6 +3296,14 @@ export interface UpdateEndpointRequest {
   updateMask?: FieldMask<Endpoint> | undefined;
 }
 
+/** Request to update migration configuration. */
+export interface UpdateMigrationRequest {
+  /** Required. The migration containing the user-owned fields to update. */
+  migration?: Migration | undefined;
+  /** Required. The fields to update. */
+  updateMask?: FieldMask<Migration> | undefined;
+}
+
 export interface UpdateProjectRequest {
   /**
    * The Project to update.
@@ -2970,16 +3330,13 @@ export interface UpdateRoleRequest {
    * `spec.attributes.createrole`, and `spec.attributes.bypassrls`.
    *
    * `spec.identity_type`, `spec.auth_method`, and `spec.postgres_role`
-   * cannot be changed. Values supplied for these fields in the request
-   * body are ignored. Including one of these fields as an explicit path
-   * in update_mask returns an INVALID_PARAMETER_VALUE error.
-   * When `spec` is the only path in the mask, only the supplied mutable
-   * attributes are updated.
-   * `*` by itself, or `spec` combined with other supported paths, selects all
-   * supported mutable fields. For these masks, all three attributes
-   * (`createdb`, `createrole`, and `bypassrls`) must be supplied; omitting any
-   * returns an INVALID_PARAMETER_VALUE error.
-   * Each of these mask forms replaces `membership_roles`.
+   * cannot be changed. Including an immutable field as an explicit path in
+   * update_mask returns INVALID_PARAMETER_VALUE. With `*` or masks containing
+   * only mutable fields, supplied values for these immutable fields are ignored.
+   * `*` by itself selects all supported mutable fields. For this mask,
+   * all three attributes (`createdb`, `createrole`, and `bypassrls`) must be
+   * supplied; omitting any returns an INVALID_PARAMETER_VALUE error.
+   * The `*` mask replaces `membership_roles`.
    * Omitting it or supplying an empty list clears all memberships, including
    * `DATABRICKS_SUPERUSER`.
    */
@@ -3011,6 +3368,18 @@ export interface WeeklySchedule {
   hour?: number | undefined;
 }
 
+export const unmarshalAcknowledgeAssessmentWarningsResponseSchema: z.ZodType<AcknowledgeAssessmentWarningsResponse> =
+  z
+    .object({
+      assessment: z
+        .lazy(() => unmarshalAssessmentSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      assessment: d.assessment,
+    }));
+
 export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
   .object({
     error_code: z.string().optional(),
@@ -3025,6 +3394,88 @@ export const unmarshalApiErrorSchema: z.ZodType<ApiError> = z
     details: d.details,
   }));
 
+export const unmarshalAssessMigrationResponseSchema: z.ZodType<AssessMigrationResponse> =
+  z
+    .object({
+      assessment: z
+        .lazy(() => unmarshalAssessmentSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      assessment: d.assessment,
+    }));
+
+export const unmarshalAssessmentSchema: z.ZodType<Assessment> = z
+  .object({
+    name: z.string().optional(),
+    state: z.string().optional(),
+    checks: z.array(z.lazy(() => unmarshalAssessmentCheckSchema)).optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    complete_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    expire_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    state: d.state,
+    checks: d.checks,
+    createTime: d.create_time,
+    completeTime: d.complete_time,
+    expireTime: d.expire_time,
+  }));
+
+export const unmarshalAssessmentCheckSchema: z.ZodType<AssessmentCheck> = z
+  .object({
+    check_id: z.string().optional(),
+    verdict: z.string().optional(),
+    blocks_migration: z.boolean().optional(),
+    reason: z.string().optional(),
+    database: z.string().optional(),
+    details: z
+      .lazy(() => unmarshalAssessmentCheckDetailsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+  })
+  .transform(d => ({
+    checkId: d.check_id,
+    verdict: d.verdict,
+    blocksMigration: d.blocks_migration,
+    reason: d.reason,
+    database: d.database,
+    details: d.details,
+  }));
+
+export const unmarshalAssessmentCheckDetailsSchema: z.ZodType<AssessmentCheckDetails> =
+  z
+    .object({
+      database_size: z
+        .lazy(() => unmarshalDatabaseSizeDetailsSchema)
+        .optional(),
+      long_transaction: z
+        .lazy(() => unmarshalLongTransactionDetailsSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      kind:
+        d.database_size !== undefined
+          ? {$case: 'databaseSize' as const, databaseSize: d.database_size}
+          : d.long_transaction !== undefined
+            ? {
+                $case: 'longTransaction' as const,
+                longTransaction: d.long_transaction,
+              }
+            : undefined,
+    }));
+
 export const unmarshalBranchSchema: z.ZodType<Branch> = z
   .object({
     name: z.string().optional(),
@@ -3038,8 +3489,14 @@ export const unmarshalBranchSchema: z.ZodType<Branch> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalBranchSpecSchema).optional(),
-    status: z.lazy(() => unmarshalBranchStatusSchema).optional(),
+    spec: z
+      .lazy(() => unmarshalBranchSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalBranchStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     branch_id: z.string().optional(),
   })
   .transform(d => ({
@@ -3148,8 +3605,14 @@ export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
-    spec: z.lazy(() => unmarshalCatalog_CatalogSpecSchema).optional(),
-    status: z.lazy(() => unmarshalCatalog_CatalogStatusSchema).optional(),
+    spec: z
+      .lazy(() => unmarshalCatalog_CatalogSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalCatalog_CatalogStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     create_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -3273,8 +3736,14 @@ export const unmarshalDataApiSchema: z.ZodType<DataApi> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalDataApi_DataApiSpecSchema).optional(),
-    status: z.lazy(() => unmarshalDataApi_DataApiStatusSchema).optional(),
+    spec: z
+      .lazy(() => unmarshalDataApi_DataApiSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalDataApi_DataApiStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     name: d.name,
@@ -3362,8 +3831,14 @@ export const unmarshalDatabaseSchema: z.ZodType<Database> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalDatabase_DatabaseSpecSchema).optional(),
-    status: z.lazy(() => unmarshalDatabase_DatabaseStatusSchema).optional(),
+    spec: z
+      .lazy(() => unmarshalDatabase_DatabaseSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalDatabase_DatabaseStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     database_id: z.string().optional(),
   })
   .transform(d => ({
@@ -3416,8 +3891,32 @@ export const unmarshalDatabaseCredentialSchema: z.ZodType<DatabaseCredential> =
       expireTime: d.expire_time,
     }));
 
+export const unmarshalDatabaseMappingSchema: z.ZodType<DatabaseMapping> = z
+  .object({
+    source_database: z.string().optional(),
+    target_database: z.string().optional(),
+    effective_target_database: z.string().optional(),
+  })
+  .transform(d => ({
+    sourceDatabase: d.source_database,
+    targetDatabase: d.target_database,
+    effectiveTargetDatabase: d.effective_target_database,
+  }));
+
 export const unmarshalDatabaseOperationMetadataSchema: z.ZodType<DatabaseOperationMetadata> =
   z.object({});
+
+export const unmarshalDatabaseSizeDetailsSchema: z.ZodType<DatabaseSizeDetails> =
+  z
+    .object({
+      size_bytes: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
+    })
+    .transform(d => ({
+      sizeBytes: d.size_bytes,
+    }));
 
 export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
   z
@@ -3449,8 +3948,14 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalEndpointSpecSchema).optional(),
-    status: z.lazy(() => unmarshalEndpointStatusSchema).optional(),
+    spec: z
+      .lazy(() => unmarshalEndpointSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalEndpointStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     endpoint_id: z.string().optional(),
   })
   .transform(d => ({
@@ -3525,8 +4030,14 @@ export const unmarshalEndpointSpecSchema: z.ZodType<EndpointSpec> = z
       .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
       .optional(),
     no_suspension: z.boolean().optional(),
-    settings: z.lazy(() => unmarshalEndpointSettingsSchema).optional(),
-    group: z.lazy(() => unmarshalEndpointGroupSpecSchema).optional(),
+    settings: z
+      .lazy(() => unmarshalEndpointSettingsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    group: z
+      .lazy(() => unmarshalEndpointGroupSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     endpointType: d.endpoint_type,
@@ -3549,7 +4060,10 @@ export const unmarshalEndpointSpecSchema: z.ZodType<EndpointSpec> = z
 export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
   .object({
     endpoint_type: z.string().optional(),
-    hosts: z.lazy(() => unmarshalEndpointHostsSchema).optional(),
+    hosts: z
+      .lazy(() => unmarshalEndpointHostsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     last_active_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -3563,8 +4077,14 @@ export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
       .string()
       .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
       .optional(),
-    settings: z.lazy(() => unmarshalEndpointSettingsSchema).optional(),
-    group: z.lazy(() => unmarshalEndpointGroupStatusSchema).optional(),
+    settings: z
+      .lazy(() => unmarshalEndpointSettingsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    group: z
+      .lazy(() => unmarshalEndpointGroupStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     endpoint_id: z.string().optional(),
   })
   .transform(d => ({
@@ -3593,7 +4113,10 @@ export const unmarshalInitialBranchSpecSchema: z.ZodType<InitialBranchSpec> = z
 export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> =
   z
     .object({
-      group: z.lazy(() => unmarshalEndpointGroupSpecSchema).optional(),
+      group: z
+        .lazy(() => unmarshalEndpointGroupSpecSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       autoscaling_limit_min_cu: z.number().optional(),
       autoscaling_limit_max_cu: z.number().optional(),
       suspend_timeout_duration: z
@@ -3615,6 +4138,17 @@ export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> 
           : d.no_suspension !== undefined
             ? {$case: 'noSuspension' as const, noSuspension: d.no_suspension}
             : undefined,
+    }));
+
+export const unmarshalListAssessmentsResponseSchema: z.ZodType<ListAssessmentsResponse> =
+  z
+    .object({
+      assessments: z.array(z.lazy(() => unmarshalAssessmentSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      assessments: d.assessments,
+      nextPageToken: d.next_page_token,
     }));
 
 export const unmarshalListBranchesResponseSchema: z.ZodType<ListBranchesResponse> =
@@ -3672,6 +4206,17 @@ export const unmarshalListEndpointsResponseSchema: z.ZodType<ListEndpointsRespon
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalListMigrationsResponseSchema: z.ZodType<ListMigrationsResponse> =
+  z
+    .object({
+      migrations: z.array(z.lazy(() => unmarshalMigrationSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      migrations: d.migrations,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalListProjectsResponseSchema: z.ZodType<ListProjectsResponse> =
   z
     .object({
@@ -3703,6 +4248,76 @@ export const unmarshalListSnapshotsResponseSchema: z.ZodType<ListSnapshotsRespon
       snapshots: d.snapshots,
       nextPageToken: d.next_page_token,
     }));
+
+export const unmarshalLongTransactionDetailsSchema: z.ZodType<LongTransactionDetails> =
+  z
+    .object({
+      oldest_transaction_age: z
+        .string()
+        .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+        .optional(),
+    })
+    .transform(d => ({
+      oldestTransactionAge: d.oldest_transaction_age,
+    }));
+
+export const unmarshalMigrationSchema: z.ZodType<Migration> = z
+  .object({
+    name: z.string().optional(),
+    source_connection: z.string().optional(),
+    database_mappings: z
+      .array(z.lazy(() => unmarshalDatabaseMappingSchema))
+      .optional(),
+    target_branch: z.string().optional(),
+    state: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    delete_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    purge_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    error: z
+      .lazy(() => unmarshalMigrationErrorSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    migration_type: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    sourceConnection: d.source_connection,
+    databaseMappings: d.database_mappings,
+    targetBranch: d.target_branch,
+    state: d.state,
+    createTime: d.create_time,
+    updateTime: d.update_time,
+    deleteTime: d.delete_time,
+    purgeTime: d.purge_time,
+    error: d.error,
+    migrationType: d.migration_type,
+  }));
+
+export const unmarshalMigrationErrorSchema: z.ZodType<MigrationError> = z
+  .object({
+    code: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    code: d.code,
+    message: d.message,
+  }));
+
+export const unmarshalMigrationOperationMetadataSchema: z.ZodType<MigrationOperationMetadata> =
+  z.object({});
 
 export const unmarshalMonthlyScheduleSchema: z.ZodType<MonthlySchedule> = z
   .object({
@@ -3760,11 +4375,18 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalProjectSpecSchema).optional(),
-    status: z.lazy(() => unmarshalProjectStatusSchema).optional(),
+    spec: z
+      .lazy(() => unmarshalProjectSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalProjectStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     initial_endpoint_spec: z
       .lazy(() => unmarshalInitialEndpointSpecSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     delete_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -3775,7 +4397,8 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
       .optional(),
     initial_branch_spec: z
       .lazy(() => unmarshalInitialBranchSpecSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     project_id: z.string().optional(),
   })
   .transform(d => ({
@@ -3842,7 +4465,8 @@ export const unmarshalProjectSpecSchema: z.ZodType<ProjectSpec> = z
       .optional(),
     default_endpoint_settings: z
       .lazy(() => unmarshalProjectDefaultEndpointSettingsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     budget_policy_id: z.string().optional(),
     custom_tags: z
       .array(z.lazy(() => unmarshalProjectCustomTagSchema))
@@ -3871,7 +4495,8 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
       .optional(),
     default_endpoint_settings: z
       .lazy(() => unmarshalProjectDefaultEndpointSettingsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     branch_logical_size_limit_bytes: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -3930,8 +4555,14 @@ export const unmarshalRoleSchema: z.ZodType<Role> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalRole_RoleSpecSchema).optional(),
-    status: z.lazy(() => unmarshalRole_RoleStatusSchema).optional(),
+    spec: z
+      .lazy(() => unmarshalRole_RoleSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalRole_RoleStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     role_id: z.string().optional(),
   })
   .transform(d => ({
@@ -3962,7 +4593,10 @@ export const unmarshalRole_RoleSpecSchema: z.ZodType<Role_RoleSpec> = z
   .object({
     membership_roles: z.array(z.string()).optional(),
     identity_type: z.string().optional(),
-    attributes: z.lazy(() => unmarshalRole_AttributesSchema).optional(),
+    attributes: z
+      .lazy(() => unmarshalRole_AttributesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     auth_method: z.string().optional(),
     postgres_role: z.string().optional(),
   })
@@ -3979,7 +4613,10 @@ export const unmarshalRole_RoleStatusSchema: z.ZodType<Role_RoleStatus> = z
   .object({
     membership_roles: z.array(z.string()).optional(),
     identity_type: z.string().optional(),
-    attributes: z.lazy(() => unmarshalRole_AttributesSchema).optional(),
+    attributes: z
+      .lazy(() => unmarshalRole_AttributesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     auth_method: z.string().optional(),
     postgres_role: z.string().optional(),
     role_id: z.string().optional(),
@@ -4032,8 +4669,14 @@ export const unmarshalSnapshotSchema: z.ZodType<Snapshot> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    spec: z.lazy(() => unmarshalSnapshotSpecSchema).optional(),
-    status: z.lazy(() => unmarshalSnapshotStatusSchema).optional(),
+    spec: z
+      .lazy(() => unmarshalSnapshotSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalSnapshotStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     snapshot_id: z.string().optional(),
   })
   .transform(d => ({
@@ -4132,14 +4775,30 @@ export const unmarshalSnapshotStatusSchema: z.ZodType<SnapshotStatus> = z
     diffSizeBytes: d.diff_size_bytes,
   }));
 
+export const unmarshalStartMigrationResponseSchema: z.ZodType<StartMigrationResponse> =
+  z
+    .object({
+      migration: z
+        .lazy(() => unmarshalMigrationSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      migration: d.migration,
+    }));
+
 export const unmarshalSyncedTableSchema: z.ZodType<SyncedTable> = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
-    spec: z.lazy(() => unmarshalSyncedTable_SyncedTableSpecSchema).optional(),
+    spec: z
+      .lazy(() => unmarshalSyncedTable_SyncedTableSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     status: z
       .lazy(() => unmarshalSyncedTable_SyncedTableStatusSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     create_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -4169,7 +4828,8 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
       create_database_objects_if_missing: z.boolean().optional(),
       new_pipeline_spec: z
         .lazy(() => unmarshalNewPipelineSpecSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       accelerated_sync: z.boolean().optional(),
       type_overrides: z
         .array(
@@ -4233,10 +4893,14 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema: z.ZodType<SyncedTable
     .object({
       message: z.string().optional(),
       detailed_state: z.string().optional(),
-      last_sync: z.lazy(() => unmarshalSyncedTablePositionSchema).optional(),
+      last_sync: z
+        .lazy(() => unmarshalSyncedTablePositionSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       ongoing_sync_progress: z
         .lazy(() => unmarshalSyncedTablePipelineProgressSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       provisioning_phase: z.string().optional(),
       last_processed_commit_version: z
         .union([z.number(), z.bigint(), z.string()])
@@ -4319,6 +4983,18 @@ export const unmarshalSyncedTablePositionSchema: z.ZodType<SyncedTablePosition> 
           : undefined,
     }));
 
+export const unmarshalUndeleteMigrationResponseSchema: z.ZodType<UndeleteMigrationResponse> =
+  z
+    .object({
+      migration: z
+        .lazy(() => unmarshalMigrationSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      migration: d.migration,
+    }));
+
 export const unmarshalWeeklyScheduleSchema: z.ZodType<WeeklySchedule> = z
   .object({
     day_of_week: z.string().optional(),
@@ -4327,6 +5003,22 @@ export const unmarshalWeeklyScheduleSchema: z.ZodType<WeeklySchedule> = z
   .transform(d => ({
     dayOfWeek: d.day_of_week,
     hour: d.hour,
+  }));
+
+export const marshalAcknowledgeAssessmentWarningsRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalAssessMigrationRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalBranchSchema: z.ZodType = z
@@ -4664,6 +5356,18 @@ export const marshalDatabase_DatabaseStatusSchema: z.ZodType = z
     database_id: d.databaseId,
   }));
 
+export const marshalDatabaseMappingSchema: z.ZodType = z
+  .object({
+    sourceDatabase: z.string().optional(),
+    targetDatabase: z.string().optional(),
+    effectiveTargetDatabase: z.string().optional(),
+  })
+  .transform(d => ({
+    source_database: d.sourceDatabase,
+    target_database: d.targetDatabase,
+    effective_target_database: d.effectiveTargetDatabase,
+  }));
+
 export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
   .object({
     deltaCommitVersion: z.bigint().optional(),
@@ -4891,6 +5595,58 @@ export const marshalInitialEndpointSpecSchema: z.ZodType = z
     ...(d.suspension?.$case === 'noSuspension' && {
       no_suspension: d.suspension.noSuspension,
     }),
+  }));
+
+export const marshalMigrationSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    sourceConnection: z.string().optional(),
+    databaseMappings: z
+      .array(z.lazy(() => marshalDatabaseMappingSchema))
+      .optional(),
+    targetBranch: z.string().optional(),
+    state: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    deleteTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    purgeTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    error: z.lazy(() => marshalMigrationErrorSchema).optional(),
+    migrationType: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    source_connection: d.sourceConnection,
+    database_mappings: d.databaseMappings,
+    target_branch: d.targetBranch,
+    state: d.state,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    delete_time: d.deleteTime,
+    purge_time: d.purgeTime,
+    error: d.error,
+    migration_type: d.migrationType,
+  }));
+
+export const marshalMigrationErrorSchema: z.ZodType = z
+  .object({
+    code: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    code: d.code,
+    message: d.message,
   }));
 
 export const marshalMonthlyScheduleSchema: z.ZodType = z
@@ -5320,6 +6076,14 @@ export const marshalSnapshotStatusSchema: z.ZodType = z
     diff_size_bytes: d.diffSizeBytes,
   }));
 
+export const marshalStartMigrationRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalSyncedTableSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -5483,6 +6247,14 @@ export const marshalSyncedTablePositionSchema: z.ZodType = z
   }));
 
 export const marshalUndeleteBranchRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalUndeleteMigrationRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -5699,6 +6471,29 @@ const initialEndpointSpecFieldMaskSchema: FieldMaskSchema = {
   group: {wire: 'group', children: () => endpointGroupSpecFieldMaskSchema},
   noSuspension: {wire: 'no_suspension'},
   suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
+};
+
+const migrationFieldMaskSchema: FieldMaskSchema = {
+  createTime: {wire: 'create_time'},
+  databaseMappings: {wire: 'database_mappings'},
+  deleteTime: {wire: 'delete_time'},
+  error: {wire: 'error', children: () => migrationErrorFieldMaskSchema},
+  migrationType: {wire: 'migration_type'},
+  name: {wire: 'name'},
+  purgeTime: {wire: 'purge_time'},
+  sourceConnection: {wire: 'source_connection'},
+  state: {wire: 'state'},
+  targetBranch: {wire: 'target_branch'},
+  updateTime: {wire: 'update_time'},
+};
+
+export function migrationFieldMask(...paths: string[]): FieldMask<Migration> {
+  return FieldMask.build<Migration>(paths, migrationFieldMaskSchema);
+}
+
+const migrationErrorFieldMaskSchema: FieldMaskSchema = {
+  code: {wire: 'code'},
+  message: {wire: 'message'},
 };
 
 const projectFieldMaskSchema: FieldMaskSchema = {

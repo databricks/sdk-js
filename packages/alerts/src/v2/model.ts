@@ -323,13 +323,25 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
     query_text: z.string().optional(),
     warehouse_id: z.string().optional(),
     run_as_user_name: z.string().optional(),
-    evaluation: z.lazy(() => unmarshalAlertEvaluationSchema).optional(),
-    schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
+    evaluation: z
+      .lazy(() => unmarshalAlertEvaluationSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    schedule: z
+      .lazy(() => unmarshalCronScheduleSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     lifecycle_state: z.string().optional(),
     custom_summary: z.string().optional(),
     custom_description: z.string().optional(),
-    run_as: z.lazy(() => unmarshalAlertRunAsSchema).optional(),
-    effective_run_as: z.lazy(() => unmarshalAlertRunAsSchema).optional(),
+    run_as: z
+      .lazy(() => unmarshalAlertRunAsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    effective_run_as: z
+      .lazy(() => unmarshalAlertRunAsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     parameters: z
       .array(z.lazy(() => unmarshalAlertStatementParameterSchema))
       .optional(),
@@ -358,10 +370,19 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
 
 export const unmarshalAlertEvaluationSchema: z.ZodType<AlertEvaluation> = z
   .object({
-    source: z.lazy(() => unmarshalAlertOperandColumnSchema).optional(),
+    source: z
+      .lazy(() => unmarshalAlertOperandColumnSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     comparison_operator: z.string().optional(),
-    threshold: z.lazy(() => unmarshalAlertOperandSchema).optional(),
-    notification: z.lazy(() => unmarshalAlertNotificationSchema).optional(),
+    threshold: z
+      .lazy(() => unmarshalAlertOperandSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    notification: z
+      .lazy(() => unmarshalAlertNotificationSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     state: z.string().optional(),
     last_evaluated_at: z
       .string()

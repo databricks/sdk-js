@@ -73,7 +73,10 @@ export const unmarshalStorageConfigurationSchema: z.ZodType<StorageConfiguration
     .object({
       storage_configuration_id: z.string().optional(),
       account_id: z.string().optional(),
-      root_bucket_info: z.lazy(() => unmarshalRootBucketInfoSchema).optional(),
+      root_bucket_info: z
+        .lazy(() => unmarshalRootBucketInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       storage_configuration_name: z.string().optional(),
       creation_time: z
         .union([z.number(), z.bigint(), z.string()])

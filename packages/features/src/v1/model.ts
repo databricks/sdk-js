@@ -620,6 +620,27 @@ export type CronSchedule_Mode =
   | (typeof CronSchedule_Mode)[keyof typeof CronSchedule_Mode]
   | (string & {});
 
+/** Lifecycle state of a requested materialization run. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const MaterializationRunProgress_State = {
+  /** The state is unspecified. */
+  STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  /** The run is awaiting submission or execution, including time spent in a queue. */
+  PENDING: 'PENDING',
+  /** The run is materializing features or waiting for online synchronization. */
+  RUNNING: 'RUNNING',
+  /** Materialization and any required online synchronization succeeded. */
+  SUCCEEDED: 'SUCCEEDED',
+  /** Submission, queueing, execution, or online synchronization failed. */
+  FAILED: 'FAILED',
+  /** The run was cancelled. */
+  CANCELLED: 'CANCELLED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type MaterializationRunProgress_State =
+  | (typeof MaterializationRunProgress_State)[keyof typeof MaterializationRunProgress_State]
+  | (string & {});
+
 /** Lifecycle state of a materialization set operation. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const MaterializationSetOperationMetadata_State = {
@@ -1044,6 +1065,16 @@ export interface CronSchedule {
    * to UTC.
    */
   timezoneId?: string | undefined;
+  /**
+   * Whether automatic materialization is paused. Defaults to `false`.
+   * Supported only for materializations in a materialization set.
+   * Use the `UpdateMaterializationSet` API to pause or resume the set.
+   *
+   * Pausing does not cancel running or queued runs. Runs can still be
+   * triggered through the `TriggerMaterializationSet` API. Resuming does
+   * not submit a run. Creating a paused materialization skips its initial run.
+   */
+  paused?: boolean | undefined;
 }
 
 /**
@@ -1217,6 +1248,14 @@ export interface EntityColumn {
    */
   name?: string | undefined;
 }
+
+/**
+ * A trigger that disables automatic materialization, including the initial run
+ * at creation. Runs are instead triggered through the `TriggerMaterializationSet`
+ * API. Supported only for batch materializations in a materialization set.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ExternalTrigger {}
 
 export interface Feature {
   /** The full three-part name (catalog, schema, name) of the feature. */
@@ -1835,6 +1874,16 @@ export interface MaterializationNotifications {
   onFailure?: MaterializationFailureNotification | undefined;
 }
 
+/** Progress of a requested run, which may materialize multiple members of the set. */
+export interface MaterializationRunProgress {
+  /** IDs of the materialized features assigned to this run when the operation was created. */
+  materializedFeatureIds?: string[] | undefined;
+  /** Current state of the requested run. */
+  state?: MaterializationRunProgress_State | undefined;
+  /** The failure, including a failure to submit the run. Present when `state` is `FAILED`. */
+  error?: ApiError | undefined;
+}
+
 /** A group of materialized features created and managed as a single unit. */
 export interface MaterializationSet {
   /** Server-assigned unique identifier for the materialization set. */
@@ -1887,7 +1936,24 @@ export interface MaterializationSetOperationMetadata {
         /** Set by an `UpdateMaterializationSet` operation. */
         updateProgress: MaterializationSetUpdateProgress;
       }
+    | {
+        $case: 'triggerProgress';
+        /** Set by a `TriggerMaterializationSet` operation. */
+        triggerProgress: MaterializationSetTriggerProgress;
+      }
     | undefined;
+}
+
+/**
+ * Progress and outcomes of the runs requested by `TriggerMaterializationSet`.
+ * Entries remain available after the operation finishes.
+ *
+ * Once all requested runs have finished, the operation fails if any run failed. Otherwise,
+ * it is cancelled if any run was cancelled, and succeeds if all runs succeeded.
+ */
+export interface MaterializationSetTriggerProgress {
+  /** One entry per requested run, including runs that fail or are cancelled before submission. */
+  runs?: MaterializationRunProgress[] | undefined;
 }
 
 /** Progress and outcomes of an `UpdateMaterializationSet` operation. */
@@ -1971,6 +2037,15 @@ export interface MaterializedFeature {
          * for ETL and analytics workloads.
          */
         streamingMode: StreamingMode;
+      }
+    | {
+        $case: 'externalTrigger';
+        /**
+         * A trigger that disables automatic materialization, including the initial run
+         * at creation. Runs are instead triggered through the `TriggerMaterializationSet`
+         * API. Supported only for batch materializations in a materialization set.
+         */
+        externalTrigger: ExternalTrigger;
       }
     | undefined;
   /** Name of the latest backfill operation on this materialized feature. Format: operations/{operation_id}. */
@@ -2413,7 +2488,7 @@ export interface SdpSource {
    * The full three-part names of the tables the pipeline reads from. Required to materialize this
    * feature with a TableTrigger, which starts a run when these tables update. Each table must exist
    * when the feature is created. Feature Store doesn't confirm that the pipeline reads from these
-   * tables. At most 100 tables.
+   * tables. At most 25 tables.
    */
   inputTables?: string[] | undefined;
   /**
@@ -2710,6 +2785,16 @@ export interface TableTrigger {
    * triggers a run.
    */
   condition?: TableTrigger_TableTriggerCondition | undefined;
+  /**
+   * Whether automatic materialization is paused. Defaults to `false`.
+   * Supported only for materializations in a materialization set.
+   * Use the `UpdateMaterializationSet` API to pause or resume the set.
+   *
+   * Pausing does not cancel running or queued runs. Runs can still be
+   * triggered through the `TriggerMaterializationSet` API. Resuming does
+   * not submit a run. Creating a paused materialization skips its initial run.
+   */
+  paused?: boolean | undefined;
 }
 
 export interface TimeWindow {
@@ -2749,6 +2834,22 @@ export interface TimeseriesColumn {
    */
   name?: string | undefined;
 }
+
+/** Request to trigger materialization for a materialization set. */
+export interface TriggerMaterializationSetRequest {
+  /** The ID of the materialization set to trigger. */
+  materializationSetId?: string | undefined;
+  /**
+   * Idempotency token in UUID format. Reusing it returns the original operation without starting
+   * additional runs, even if the request differs or the operation has finished.
+   * If omitted, each request triggers independently.
+   */
+  requestId?: string | undefined;
+}
+
+/** Result of a successful `TriggerMaterializationSet` operation. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface TriggerMaterializationSetResponse {}
 
 export interface TumblingWindow {
   /** The duration of each tumbling window (non-overlapping, fixed-duration windows). */
@@ -2870,7 +2971,10 @@ export const unmarshalAggregationFunctionSchema: z.ZodType<AggregationFunction> 
       last_distinct: z
         .lazy(() => unmarshalLastDistinctFunctionSchema)
         .optional(),
-      time_window: z.lazy(() => unmarshalTimeWindowSchema).optional(),
+      time_window: z
+        .lazy(() => unmarshalTimeWindowSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       operation:
@@ -3121,11 +3225,13 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     cron_expression: z.string().optional(),
     mode: z.string().optional(),
     timezone_id: z.string().optional(),
+    paused: z.boolean().optional(),
   })
   .transform(d => ({
     cronExpression: d.cron_expression,
     mode: d.mode,
     timezoneId: d.timezone_id,
+    paused: d.paused,
   }));
 
 export const unmarshalCustomUdfSchema: z.ZodType<CustomUdf> = z
@@ -3152,7 +3258,10 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
       .lazy(() => unmarshalFeatureViewSourceSchema)
       .optional(),
     sdp_source: z.lazy(() => unmarshalSdpSourceSchema).optional(),
-    lateness: z.lazy(() => unmarshalSourceLatenessSchema).optional(),
+    lateness: z
+      .lazy(() => unmarshalSourceLatenessSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     dataSource:
@@ -3218,7 +3327,10 @@ export const unmarshalDeltaTableSourceSchema: z.ZodType<DeltaTableSource> = z
 export const unmarshalDirectMtlsConfigSchema: z.ZodType<DirectMtlsConfig> = z
   .object({
     bootstrap_servers: z.string().optional(),
-    mtls_config: z.lazy(() => unmarshalMtlsConfigSchema).optional(),
+    mtls_config: z
+      .lazy(() => unmarshalMtlsConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     bootstrapServers: d.bootstrap_servers,
@@ -3227,8 +3339,14 @@ export const unmarshalDirectMtlsConfigSchema: z.ZodType<DirectMtlsConfig> = z
 
 export const unmarshalDirectSchemasSchema: z.ZodType<DirectSchemas> = z
   .object({
-    payload_schema: z.lazy(() => unmarshalSchemaConfigSchema).optional(),
-    key_schema: z.lazy(() => unmarshalSchemaConfigSchema).optional(),
+    payload_schema: z
+      .lazy(() => unmarshalSchemaConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    key_schema: z
+      .lazy(() => unmarshalSchemaConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     payloadSchema: d.payload_schema,
@@ -3243,18 +3361,36 @@ export const unmarshalEntityColumnSchema: z.ZodType<EntityColumn> = z
     name: d.name,
   }));
 
+export const unmarshalExternalTriggerSchema: z.ZodType<ExternalTrigger> =
+  z.object({});
+
 export const unmarshalFeatureSchema: z.ZodType<Feature> = z
   .object({
     full_name: z.string().optional(),
-    source: z.lazy(() => unmarshalDataSourceSchema).optional(),
+    source: z
+      .lazy(() => unmarshalDataSourceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     inputs: z.array(z.string()).optional(),
-    function: z.lazy(() => unmarshalFunctionSchema).optional(),
-    time_window: z.lazy(() => unmarshalTimeWindowSchema).optional(),
+    function: z
+      .lazy(() => unmarshalFunctionSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    time_window: z
+      .lazy(() => unmarshalTimeWindowSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     description: z.string().optional(),
     filter_condition: z.string().optional(),
-    lineage_context: z.lazy(() => unmarshalLineageContextSchema).optional(),
+    lineage_context: z
+      .lazy(() => unmarshalLineageContextSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     entities: z.array(z.lazy(() => unmarshalEntityColumnSchema)).optional(),
-    timeseries_column: z.lazy(() => unmarshalTimeseriesColumnSchema).optional(),
+    timeseries_column: z
+      .lazy(() => unmarshalTimeseriesColumnSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     catalog_name: z.string().optional(),
     schema_name: z.string().optional(),
     name: z.string().optional(),
@@ -3499,8 +3635,12 @@ export const unmarshalIngestionConfigSchema: z.ZodType<IngestionConfig> = z
   .object({
     ingestion_destination: z
       .lazy(() => unmarshalIngestionDestinationSchema)
-      .optional(),
-    backfill_source: z.lazy(() => unmarshalBackfillSourceSchema).optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
+    backfill_source: z
+      .lazy(() => unmarshalBackfillSourceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     deduplication_columns: z.array(z.string()).optional(),
     ingestion_pipeline_id: z.string().optional(),
     ingestion_job_id: z
@@ -3573,13 +3713,31 @@ export const unmarshalKafkaConfigSchema: z.ZodType<KafkaConfig> = z
   .object({
     name: z.string().optional(),
     bootstrap_servers: z.string().optional(),
-    subscription_mode: z.lazy(() => unmarshalSubscriptionModeSchema).optional(),
-    auth_config: z.lazy(() => unmarshalAuthConfigSchema).optional(),
-    key_schema: z.lazy(() => unmarshalSchemaConfigSchema).optional(),
-    value_schema: z.lazy(() => unmarshalSchemaConfigSchema).optional(),
+    subscription_mode: z
+      .lazy(() => unmarshalSubscriptionModeSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    auth_config: z
+      .lazy(() => unmarshalAuthConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    key_schema: z
+      .lazy(() => unmarshalSchemaConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    value_schema: z
+      .lazy(() => unmarshalSchemaConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     extra_options: z.record(z.string(), z.string()).optional(),
-    backfill_source: z.lazy(() => unmarshalBackfillSourceSchema).optional(),
-    ingestion_config: z.lazy(() => unmarshalIngestionConfigSchema).optional(),
+    backfill_source: z
+      .lazy(() => unmarshalBackfillSourceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    ingestion_config: z
+      .lazy(() => unmarshalIngestionConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     name: d.name,
@@ -3601,7 +3759,8 @@ export const unmarshalKafkaSourceSchema: z.ZodType<KafkaSource> = z
       .optional(),
     timeseries_column_identifier: z
       .lazy(() => unmarshalColumnIdentifierSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     filter_condition: z.string().optional(),
   })
   .transform(d => ({
@@ -3615,7 +3774,8 @@ export const unmarshalKafkaStreamConfigSchema: z.ZodType<KafkaStreamConfig> = z
   .object({
     subscription_mode: z
       .lazy(() => unmarshalKafkaSubscriptionModeSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     extra_options: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -3702,7 +3862,10 @@ export const unmarshalLineageContextSchema: z.ZodType<LineageContext> = z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
-    job_context: z.lazy(() => unmarshalJobContextSchema).optional(),
+    job_context: z
+      .lazy(() => unmarshalJobContextSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     notebookId: d.notebook_id,
@@ -3775,14 +3938,32 @@ export const unmarshalMaterializationNotificationsSchema: z.ZodType<Materializat
     .object({
       on_success: z
         .lazy(() => unmarshalMaterializationSuccessNotificationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       on_failure: z
         .lazy(() => unmarshalMaterializationFailureNotificationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       onSuccess: d.on_success,
       onFailure: d.on_failure,
+    }));
+
+export const unmarshalMaterializationRunProgressSchema: z.ZodType<MaterializationRunProgress> =
+  z
+    .object({
+      materialized_feature_ids: z.array(z.string()).optional(),
+      state: z.string().optional(),
+      error: z
+        .lazy(() => unmarshalApiErrorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      materializedFeatureIds: d.materialized_feature_ids,
+      state: d.state,
+      error: d.error,
     }));
 
 export const unmarshalMaterializationSetSchema: z.ZodType<MaterializationSet> =
@@ -3794,7 +3975,8 @@ export const unmarshalMaterializationSetSchema: z.ZodType<MaterializationSet> =
         .optional(),
       notifications: z
         .lazy(() => unmarshalMaterializationNotificationsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       materializationSetId: d.materialization_set_id,
@@ -3831,6 +4013,9 @@ export const unmarshalMaterializationSetOperationMetadataSchema: z.ZodType<Mater
       update_progress: z
         .lazy(() => unmarshalMaterializationSetUpdateProgressSchema)
         .optional(),
+      trigger_progress: z
+        .lazy(() => unmarshalMaterializationSetTriggerProgressSchema)
+        .optional(),
     })
     .transform(d => ({
       featureFullNames: d.feature_full_names,
@@ -3848,7 +4033,23 @@ export const unmarshalMaterializationSetOperationMetadataSchema: z.ZodType<Mater
                 $case: 'updateProgress' as const,
                 updateProgress: d.update_progress,
               }
-            : undefined,
+            : d.trigger_progress !== undefined
+              ? {
+                  $case: 'triggerProgress' as const,
+                  triggerProgress: d.trigger_progress,
+                }
+              : undefined,
+    }));
+
+export const unmarshalMaterializationSetTriggerProgressSchema: z.ZodType<MaterializationSetTriggerProgress> =
+  z
+    .object({
+      runs: z
+        .array(z.lazy(() => unmarshalMaterializationRunProgressSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      runs: d.runs,
     }));
 
 export const unmarshalMaterializationSetUpdateProgressSchema: z.ZodType<MaterializationSetUpdateProgress> =
@@ -3901,6 +4102,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
         .optional(),
       table_trigger: z.lazy(() => unmarshalTableTriggerSchema).optional(),
       streaming_mode: z.lazy(() => unmarshalStreamingModeSchema).optional(),
+      external_trigger: z.lazy(() => unmarshalExternalTriggerSchema).optional(),
       latest_backfill_operation: z.string().optional(),
       tags: z.record(z.string(), z.string()).optional(),
       budget_policy_id: z.string().optional(),
@@ -3911,7 +4113,8 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
         .optional(),
       notifications: z
         .lazy(() => unmarshalMaterializationNotificationsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       materialization_set_id: z.string().optional(),
     })
     .transform(d => ({
@@ -3947,7 +4150,12 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
                   $case: 'streamingMode' as const,
                   streamingMode: d.streaming_mode,
                 }
-              : undefined,
+              : d.external_trigger !== undefined
+                ? {
+                    $case: 'externalTrigger' as const,
+                    externalTrigger: d.external_trigger,
+                  }
+                : undefined,
       latestBackfillOperation: d.latest_backfill_operation,
       tags: d.tags,
       budgetPolicyId: d.budget_policy_id,
@@ -3991,14 +4199,17 @@ export const unmarshalMtlsConfigSchema: z.ZodType<MtlsConfig> = z
     keystore_location: z.string().optional(),
     keystore_password_ref: z
       .lazy(() => unmarshalSecretScopeReferenceSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     key_password_ref: z
       .lazy(() => unmarshalSecretScopeReferenceSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     truststore_location: z.string().optional(),
     truststore_password_ref: z
       .lazy(() => unmarshalSecretScopeReferenceSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     disable_hostname_verification: z.boolean().optional(),
   })
   .transform(d => ({
@@ -4107,12 +4318,16 @@ export const unmarshalPurgeFeatureEntitiesResponseSchema: z.ZodType<PurgeFeature
     .object({
       metadata: z
         .lazy(() => unmarshalPurgeFeatureEntitiesMetadataSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       results: z
         .array(z.lazy(() => unmarshalPurgeFeatureEntitiesResultSchema))
         .optional(),
       state: z.string().optional(),
-      error: z.lazy(() => unmarshalApiErrorSchema).optional(),
+      error: z
+        .lazy(() => unmarshalApiErrorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       metadata: d.metadata,
@@ -4127,7 +4342,10 @@ export const unmarshalPurgeFeatureEntitiesResultSchema: z.ZodType<PurgeFeatureEn
       feature: z.string().optional(),
       offline_state: z.string().optional(),
       online_state: z.string().optional(),
-      error: z.lazy(() => unmarshalApiErrorSchema).optional(),
+      error: z
+        .lazy(() => unmarshalApiErrorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       feature: d.feature,
@@ -4246,11 +4464,16 @@ export const unmarshalSchemaRegistryConfigSchema: z.ZodType<SchemaRegistryConfig
       uc_connection: z.string().optional(),
       api_secret_ref: z
         .lazy(() => unmarshalSecretScopeReferenceSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       payload_schema_locator: z
         .lazy(() => unmarshalSchemaLocatorSchema)
-        .optional(),
-      key_schema_locator: z.lazy(() => unmarshalSchemaLocatorSchema).optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
+      key_schema_locator: z
+        .lazy(() => unmarshalSchemaLocatorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       ucConnection: d.uc_connection,
@@ -4348,12 +4571,22 @@ export const unmarshalStreamSchema: z.ZodType<Stream> = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
-    source_config: z.lazy(() => unmarshalStreamSourceConfigSchema).optional(),
+    source_config: z
+      .lazy(() => unmarshalStreamSourceConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     connection_config: z
       .lazy(() => unmarshalStreamConnectionConfigSchema)
-      .optional(),
-    schema_config: z.lazy(() => unmarshalStreamSchemaConfigSchema).optional(),
-    ingestion_config: z.lazy(() => unmarshalIngestionConfigSchema).optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
+    schema_config: z
+      .lazy(() => unmarshalStreamSchemaConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    ingestion_config: z
+      .lazy(() => unmarshalIngestionConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     record_type_filter: z.string().optional(),
     excluded_columns: z.array(z.string()).optional(),
     create_time: z
@@ -4533,11 +4766,13 @@ export const unmarshalTableTriggerSchema: z.ZodType<TableTrigger> = z
       .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
       .optional(),
     condition: z.string().optional(),
+    paused: z.boolean().optional(),
   })
   .transform(d => ({
     minTimeBetweenTriggers: d.min_time_between_triggers,
     waitAfterLastChange: d.wait_after_last_change,
     condition: d.condition,
+    paused: d.paused,
   }));
 
 export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
@@ -4575,6 +4810,9 @@ export const unmarshalTimeseriesColumnSchema: z.ZodType<TimeseriesColumn> = z
   .transform(d => ({
     name: d.name,
   }));
+
+export const unmarshalTriggerMaterializationSetResponseSchema: z.ZodType<TriggerMaterializationSetResponse> =
+  z.object({});
 
 export const unmarshalTumblingWindowSchema: z.ZodType<TumblingWindow> = z
   .object({
@@ -4915,11 +5153,13 @@ export const marshalCronScheduleSchema: z.ZodType = z
     cronExpression: z.string().optional(),
     mode: z.string().optional(),
     timezoneId: z.string().optional(),
+    paused: z.boolean().optional(),
   })
   .transform(d => ({
     cron_expression: d.cronExpression,
     mode: d.mode,
     timezone_id: d.timezoneId,
+    paused: d.paused,
   }));
 
 export const marshalCustomUdfSchema: z.ZodType = z
@@ -5049,6 +5289,8 @@ export const marshalEntityColumnSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
   }));
+
+export const marshalExternalTriggerSchema: z.ZodType = z.object({});
 
 export const marshalFeatureSchema: z.ZodType = z
   .object({
@@ -5600,6 +5842,10 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
           $case: z.literal('streamingMode'),
           streamingMode: z.lazy(() => marshalStreamingModeSchema),
         }),
+        z.object({
+          $case: z.literal('externalTrigger'),
+          externalTrigger: z.lazy(() => marshalExternalTriggerSchema),
+        }),
       ])
       .optional(),
     latestBackfillOperation: z.string().optional(),
@@ -5634,6 +5880,9 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     }),
     ...(d.trigger?.$case === 'streamingMode' && {
       streaming_mode: d.trigger.streamingMode,
+    }),
+    ...(d.trigger?.$case === 'externalTrigger' && {
+      external_trigger: d.trigger.externalTrigger,
     }),
     latest_backfill_operation: d.latestBackfillOperation,
     tags: d.tags,
@@ -6163,11 +6412,13 @@ export const marshalTableTriggerSchema: z.ZodType = z
       .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
       .optional(),
     condition: z.string().optional(),
+    paused: z.boolean().optional(),
   })
   .transform(d => ({
     min_time_between_triggers: d.minTimeBetweenTriggers,
     wait_after_last_change: d.waitAfterLastChange,
     condition: d.condition,
+    paused: d.paused,
   }));
 
 export const marshalTimeWindowSchema: z.ZodType = z
@@ -6222,6 +6473,16 @@ export const marshalTimeseriesColumnSchema: z.ZodType = z
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalTriggerMaterializationSetRequestSchema: z.ZodType = z
+  .object({
+    materializationSetId: z.string().optional(),
+    requestId: z.string().optional(),
+  })
+  .transform(d => ({
+    materialization_set_id: d.materializationSetId,
+    request_id: d.requestId,
   }));
 
 export const marshalTumblingWindowSchema: z.ZodType = z
@@ -6353,6 +6614,7 @@ const countFunctionFieldMaskSchema: FieldMaskSchema = {
 const cronScheduleFieldMaskSchema: FieldMaskSchema = {
   cronExpression: {wire: 'cron_expression'},
   mode: {wire: 'mode'},
+  paused: {wire: 'paused'},
   timezoneId: {wire: 'timezone_id'},
 };
 
@@ -6407,6 +6669,8 @@ const directSchemasFieldMaskSchema: FieldMaskSchema = {
     children: () => schemaConfigFieldMaskSchema,
   },
 };
+
+const externalTriggerFieldMaskSchema: FieldMaskSchema = {};
 
 const featureFieldMaskSchema: FieldMaskSchema = {
   catalogName: {wire: 'catalog_name'},
@@ -6630,6 +6894,10 @@ const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
   cronScheduleTrigger: {
     wire: 'cron_schedule_trigger',
     children: () => cronScheduleFieldMaskSchema,
+  },
+  externalTrigger: {
+    wire: 'external_trigger',
+    children: () => externalTriggerFieldMaskSchema,
   },
   featureName: {wire: 'feature_name'},
   isOnline: {wire: 'is_online'},
@@ -6900,6 +7168,7 @@ const sumFunctionFieldMaskSchema: FieldMaskSchema = {
 const tableTriggerFieldMaskSchema: FieldMaskSchema = {
   condition: {wire: 'condition'},
   minTimeBetweenTriggers: {wire: 'min_time_between_triggers'},
+  paused: {wire: 'paused'},
   waitAfterLastChange: {wire: 'wait_after_last_change'},
 };
 

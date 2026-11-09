@@ -662,7 +662,10 @@ export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
 export const unmarshalResultManifestSchema: z.ZodType<ResultManifest> = z
   .object({
     format: z.string().optional(),
-    schema: z.lazy(() => unmarshalSchemaSchema).optional(),
+    schema: z
+      .lazy(() => unmarshalSchemaSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     total_chunk_count: z.number().optional(),
     chunks: z.array(z.lazy(() => unmarshalChunkInfoSchema)).optional(),
     total_row_count: z
@@ -708,9 +711,18 @@ export const unmarshalServiceErrorSchema: z.ZodType<ServiceError> = z
 export const unmarshalStatementResponseSchema: z.ZodType<StatementResponse> = z
   .object({
     statement_id: z.string().optional(),
-    status: z.lazy(() => unmarshalStatementStatusSchema).optional(),
-    manifest: z.lazy(() => unmarshalResultManifestSchema).optional(),
-    result: z.lazy(() => unmarshalResultDataSchema).optional(),
+    status: z
+      .lazy(() => unmarshalStatementStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    manifest: z
+      .lazy(() => unmarshalResultManifestSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    result: z
+      .lazy(() => unmarshalResultDataSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     statementId: d.statement_id,
@@ -722,7 +734,10 @@ export const unmarshalStatementResponseSchema: z.ZodType<StatementResponse> = z
 export const unmarshalStatementStatusSchema: z.ZodType<StatementStatus> = z
   .object({
     state: z.string().optional(),
-    error: z.lazy(() => unmarshalServiceErrorSchema).optional(),
+    error: z
+      .lazy(() => unmarshalServiceErrorSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     sql_state: z.string().optional(),
   })
   .transform(d => ({

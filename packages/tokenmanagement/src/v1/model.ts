@@ -184,7 +184,10 @@ export const unmarshalCreateOnBehalfOfTokenResponseSchema: z.ZodType<CreateOnBeh
   z
     .object({
       token_value: z.string().optional(),
-      token_info: z.lazy(() => unmarshalAdminTokenInfoSchema).optional(),
+      token_info: z
+        .lazy(() => unmarshalAdminTokenInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       tokenValue: d.token_value,
@@ -193,7 +196,10 @@ export const unmarshalCreateOnBehalfOfTokenResponseSchema: z.ZodType<CreateOnBeh
 
 export const unmarshalGetTokenResponseSchema: z.ZodType<GetTokenResponse> = z
   .object({
-    token_info: z.lazy(() => unmarshalAdminTokenInfoSchema).optional(),
+    token_info: z
+      .lazy(() => unmarshalAdminTokenInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     tokenInfo: d.token_info,

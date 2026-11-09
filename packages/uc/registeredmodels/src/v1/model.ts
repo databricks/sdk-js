@@ -509,7 +509,8 @@ export const unmarshalModelVersionInfoSchema: z.ZodType<ModelVersionInfo> = z
       .optional(),
     model_version_dependencies: z
       .lazy(() => unmarshalDependencyListSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     status: z.string().optional(),
     version: z
       .union([z.number(), z.bigint(), z.string()])

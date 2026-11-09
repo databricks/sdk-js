@@ -324,7 +324,10 @@ export const unmarshalListNotificationDestinationsResultSchema: z.ZodType<ListNo
       id: z.string().optional(),
       display_name: z.string().optional(),
       destination_type: z.string().optional(),
-      config: z.lazy(() => unmarshalConfigSchema).optional(),
+      config: z
+        .lazy(() => unmarshalConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       id: d.id,
@@ -366,7 +369,10 @@ export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDesti
       id: z.string().optional(),
       display_name: z.string().optional(),
       destination_type: z.string().optional(),
-      config: z.lazy(() => unmarshalConfigSchema).optional(),
+      config: z
+        .lazy(() => unmarshalConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       id: d.id,

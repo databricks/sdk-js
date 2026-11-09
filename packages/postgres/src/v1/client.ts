@@ -21,6 +21,11 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
+  AcknowledgeAssessmentWarningsRequest,
+  AcknowledgeAssessmentWarningsResponse,
+  AssessMigrationRequest,
+  AssessMigrationResponse,
+  Assessment,
   Branch,
   BranchOperationMetadata,
   Catalog,
@@ -34,6 +39,7 @@ import type {
   CreateDataApiRequest,
   CreateDatabaseRequest,
   CreateEndpointRequest,
+  CreateMigrationRequest,
   CreateProjectRequest,
   CreateRoleRequest,
   CreateSnapshotRequest,
@@ -49,6 +55,7 @@ import type {
   DeleteDataApiRequest,
   DeleteDatabaseRequest,
   DeleteEndpointRequest,
+  DeleteMigrationRequest,
   DeleteProjectRequest,
   DeleteRoleRequest,
   DeleteSnapshotRequest,
@@ -56,6 +63,7 @@ import type {
   Endpoint,
   EndpointOperationMetadata,
   GenerateDatabaseCredentialRequest,
+  GetAssessmentRequest,
   GetBranchRequest,
   GetCatalogRequest,
   GetCdfConfigRequest,
@@ -63,12 +71,15 @@ import type {
   GetDataApiRequest,
   GetDatabaseRequest,
   GetEndpointRequest,
+  GetMigrationRequest,
   GetOperationRequest,
   GetProjectRequest,
   GetRoleRequest,
   GetSnapshotRequest,
   GetSnapshotScheduleRequest,
   GetSyncedTableRequest,
+  ListAssessmentsRequest,
+  ListAssessmentsResponse,
   ListBranchesRequest,
   ListBranchesResponse,
   ListCdfConfigsRequest,
@@ -79,12 +90,16 @@ import type {
   ListDatabasesResponse,
   ListEndpointsRequest,
   ListEndpointsResponse,
+  ListMigrationsRequest,
+  ListMigrationsResponse,
   ListProjectsRequest,
   ListProjectsResponse,
   ListRolesRequest,
   ListRolesResponse,
   ListSnapshotsRequest,
   ListSnapshotsResponse,
+  Migration,
+  MigrationOperationMetadata,
   Operation,
   Project,
   ProjectOperationMetadata,
@@ -96,19 +111,26 @@ import type {
   SnapshotOperationMetadata,
   SnapshotSchedule,
   SnapshotScheduleOperationMetadata,
+  StartMigrationRequest,
+  StartMigrationResponse,
   SyncedTable,
   SyncedTableOperationMetadata,
   UndeleteBranchRequest,
+  UndeleteMigrationRequest,
+  UndeleteMigrationResponse,
   UndeleteProjectRequest,
   UpdateBranchRequest,
   UpdateDataApiRequest,
   UpdateDatabaseRequest,
   UpdateEndpointRequest,
+  UpdateMigrationRequest,
   UpdateProjectRequest,
   UpdateRoleRequest,
   UpdateSnapshotScheduleRequest,
 } from './model';
 import {
+  marshalAcknowledgeAssessmentWarningsRequestSchema,
+  marshalAssessMigrationRequestSchema,
   marshalBranchSchema,
   marshalCatalogSchema,
   marshalCdfConfigSchema,
@@ -116,14 +138,20 @@ import {
   marshalDatabaseSchema,
   marshalEndpointSchema,
   marshalGenerateDatabaseCredentialRequestSchema,
+  marshalMigrationSchema,
   marshalProjectSchema,
   marshalRevealRolePasswordRequestSchema,
   marshalRoleSchema,
   marshalSnapshotScheduleSchema,
   marshalSnapshotSchema,
+  marshalStartMigrationRequestSchema,
   marshalSyncedTableSchema,
   marshalUndeleteBranchRequestSchema,
+  marshalUndeleteMigrationRequestSchema,
   marshalUndeleteProjectRequestSchema,
+  unmarshalAcknowledgeAssessmentWarningsResponseSchema,
+  unmarshalAssessMigrationResponseSchema,
+  unmarshalAssessmentSchema,
   unmarshalBranchOperationMetadataSchema,
   unmarshalBranchSchema,
   unmarshalCatalogOperationMetadataSchema,
@@ -138,14 +166,18 @@ import {
   unmarshalDatabaseSchema,
   unmarshalEndpointOperationMetadataSchema,
   unmarshalEndpointSchema,
+  unmarshalListAssessmentsResponseSchema,
   unmarshalListBranchesResponseSchema,
   unmarshalListCdfConfigsResponseSchema,
   unmarshalListCdfStatusesResponseSchema,
   unmarshalListDatabasesResponseSchema,
   unmarshalListEndpointsResponseSchema,
+  unmarshalListMigrationsResponseSchema,
   unmarshalListProjectsResponseSchema,
   unmarshalListRolesResponseSchema,
   unmarshalListSnapshotsResponseSchema,
+  unmarshalMigrationOperationMetadataSchema,
+  unmarshalMigrationSchema,
   unmarshalOperationSchema,
   unmarshalProjectOperationMetadataSchema,
   unmarshalProjectSchema,
@@ -156,8 +188,10 @@ import {
   unmarshalSnapshotScheduleOperationMetadataSchema,
   unmarshalSnapshotScheduleSchema,
   unmarshalSnapshotSchema,
+  unmarshalStartMigrationResponseSchema,
   unmarshalSyncedTableOperationMetadataSchema,
   unmarshalSyncedTableSchema,
+  unmarshalUndeleteMigrationResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -191,6 +225,91 @@ export class PostgresClient {
   private resolveConfig(): Promise<ResolvedClientConfig> {
     this.config ??= resolveClientConfig(this.options);
     return this.config;
+  }
+
+  /** Acknowledges non-blocking warnings on a specific assessment. */
+  private async acknowledgeAssessmentWarningsBase(
+    req: AcknowledgeAssessmentWarningsRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/acknowledgeWarnings`;
+    const body = marshalRequest(
+      req,
+      marshalAcknowledgeAssessmentWarningsRequestSchema
+    );
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Acknowledges non-blocking warnings on a specific assessment. */
+  async acknowledgeAssessmentWarnings(
+    req: AcknowledgeAssessmentWarningsRequest,
+    options?: CallOptions
+  ): Promise<AcknowledgeAssessmentWarningsOperation> {
+    const op = await this.acknowledgeAssessmentWarningsBase(req, options);
+    return new AcknowledgeAssessmentWarningsOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
+  /** Creates an immutable assessment run for the migration's current source configuration. */
+  private async assessMigrationBase(
+    req: AssessMigrationRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/assess`;
+    const body = marshalRequest(req, marshalAssessMigrationRequestSchema);
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Creates an immutable assessment run for the migration's current source configuration. */
+  async assessMigration(
+    req: AssessMigrationRequest,
+    options?: CallOptions
+  ): Promise<AssessMigrationOperation> {
+    const op = await this.assessMigrationBase(req, options);
+    return new AssessMigrationOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
   }
 
   /** Creates a new database branch in the project. */
@@ -522,6 +641,59 @@ export class PostgresClient {
   ): Promise<CreateEndpointOperation> {
     const op = await this.createEndpointBase(req, options);
     return new CreateEndpointOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
+  /** Creates a migration. */
+  private async createMigrationBase(
+    req: CreateMigrationRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/migrations`;
+    const params = new URLSearchParams();
+    if (req.migrationId !== undefined) {
+      params.append('migration_id', req.migrationId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.migration, marshalMigrationSchema);
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Creates a migration. */
+  async createMigration(
+    req: CreateMigrationRequest,
+    options?: CallOptions
+  ): Promise<CreateMigrationOperation> {
+    const op = await this.createMigrationBase(req, options);
+    return new CreateMigrationOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
@@ -1001,6 +1173,46 @@ export class PostgresClient {
     );
   }
 
+  /** Soft-deletes a migration. */
+  private async deleteMigrationBase(
+    req: DeleteMigrationRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Soft-deletes a migration. */
+  async deleteMigration(
+    req: DeleteMigrationRequest,
+    options?: CallOptions
+  ): Promise<DeleteMigrationOperation> {
+    const op = await this.deleteMigrationBase(req, options);
+    return new DeleteMigrationOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
   /** Deletes the specified database project. */
   private async deleteProjectBase(
     req: DeleteProjectRequest,
@@ -1198,6 +1410,35 @@ export class PostgresClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDatabaseCredentialSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Gets a migration assessment run. */
+  async getAssessment(
+    req: GetAssessmentRequest,
+    options?: CallOptions
+  ): Promise<Assessment> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    let resp: Assessment | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalAssessmentSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1415,6 +1656,35 @@ export class PostgresClient {
     return resp;
   }
 
+  /** Gets a migration. */
+  async getMigration(
+    req: GetMigrationRequest,
+    options?: CallOptions
+  ): Promise<Migration> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    let resp: Migration | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalMigrationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
   /** Retrieves the status of a long-running operation. */
   private async getOperation(
     req: GetOperationRequest,
@@ -1587,6 +1857,61 @@ export class PostgresClient {
       throw new Error('operation completed without a result.');
     }
     return resp;
+  }
+
+  /** Lists assessment runs for a migration. */
+  async listAssessments(
+    req: ListAssessmentsRequest,
+    options?: CallOptions
+  ): Promise<ListAssessmentsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/assessments`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListAssessmentsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListAssessmentsResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listAssessmentsIter(
+    req: ListAssessmentsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Assessment> {
+    const pageReq: ListAssessmentsRequest = {...req};
+    for (;;) {
+      const resp = await this.listAssessments(pageReq, options);
+      for (const item of resp.assessments ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
   }
 
   /** Returns a paginated list of database branches in the project. */
@@ -1875,6 +2200,64 @@ export class PostgresClient {
     }
   }
 
+  /** Lists migrations in the workspace. */
+  async listMigrations(
+    req: ListMigrationsRequest,
+    options?: CallOptions
+  ): Promise<ListMigrationsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/migrations`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.showDeleted !== undefined) {
+      params.append('show_deleted', String(req.showDeleted));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListMigrationsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListMigrationsResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listMigrationsIter(
+    req: ListMigrationsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Migration> {
+    const pageReq: ListMigrationsRequest = {...req};
+    for (;;) {
+      const resp = await this.listMigrations(pageReq, options);
+      for (const item of resp.migrations ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
   /** Returns a paginated list of database projects in the workspace that the user has permission to access. */
   async listProjects(
     req: ListProjectsRequest,
@@ -2073,6 +2456,55 @@ export class PostgresClient {
     return resp;
   }
 
+  /**
+   * Starts the assessed migration named in the request, moving it from READY_TO_START into
+   * execution. Its first phase, SCHEMA_LOAD, creates the target databases, roles, and schema on the
+   * migration's target Lakebase branch without copying any table data, ahead of INITIAL_DATA_LOAD.
+   */
+  private async startMigrationBase(
+    req: StartMigrationRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/start`;
+    const body = marshalRequest(req, marshalStartMigrationRequestSchema);
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Starts the assessed migration named in the request, moving it from READY_TO_START into
+   * execution. Its first phase, SCHEMA_LOAD, creates the target databases, roles, and schema on the
+   * migration's target Lakebase branch without copying any table data, ahead of INITIAL_DATA_LOAD.
+   */
+  async startMigration(
+    req: StartMigrationRequest,
+    options?: CallOptions
+  ): Promise<StartMigrationOperation> {
+    const op = await this.startMigrationBase(req, options);
+    return new StartMigrationOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
   /** Undeletes the specified database branch. */
   private async undeleteBranchBase(
     req: UndeleteBranchRequest,
@@ -2110,6 +2542,47 @@ export class PostgresClient {
   ): Promise<UndeleteBranchOperation> {
     const op = await this.undeleteBranchBase(req, options);
     return new UndeleteBranchOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
+  /** Restores a soft-deleted migration before it is permanently purged. */
+  private async undeleteMigrationBase(
+    req: UndeleteMigrationRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
+    const body = marshalRequest(req, marshalUndeleteMigrationRequestSchema);
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Restores a soft-deleted migration before it is permanently purged. */
+  async undeleteMigration(
+    req: UndeleteMigrationRequest,
+    options?: CallOptions
+  ): Promise<UndeleteMigrationOperation> {
+    const op = await this.undeleteMigrationBase(req, options);
+    return new UndeleteMigrationOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
   }
@@ -2367,6 +2840,59 @@ export class PostgresClient {
     );
   }
 
+  /** Updates user-owned migration configuration. */
+  private async updateMigrationBase(
+    req: UpdateMigrationRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/postgres/${req.migration?.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.migration, marshalMigrationSchema);
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Updates user-owned migration configuration. */
+  async updateMigration(
+    req: UpdateMigrationRequest,
+    options?: CallOptions
+  ): Promise<UpdateMigrationOperation> {
+    const op = await this.updateMigrationBase(req, options);
+    return new UpdateMigrationOperation(op, (req, options) =>
+      this.getOperation(req, options)
+    );
+  }
+
   /** Updates the specified database project. */
   private async updateProjectBase(
     req: UpdateProjectRequest,
@@ -2549,6 +3075,180 @@ export class PostgresClient {
     return new UpdateSnapshotScheduleOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
+  }
+}
+
+export class AcknowledgeAssessmentWarningsOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<MigrationOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalMigrationOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    options?: LroOptions
+  ): Promise<AcknowledgeAssessmentWarningsResponse> {
+    let result: AcknowledgeAssessmentWarningsResponse | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z
+        .lazy(() => unmarshalAcknowledgeAssessmentWarningsResponseSchema)
+        .parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class AssessMigrationOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<MigrationOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalMigrationOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<AssessMigrationResponse> {
+    let result: AssessMigrationResponse | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z
+        .lazy(() => unmarshalAssessMigrationResponseSchema)
+        .parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
   }
 }
 
@@ -3039,6 +3739,90 @@ export class CreateEndpointOperation {
       }
 
       result = z.lazy(() => unmarshalEndpointSchema).parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class CreateMigrationOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<MigrationOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalMigrationOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<Migration> {
+    let result: Migration | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalMigrationSchema).parse(op.result.response);
     };
 
     await executeWait(call, options);
@@ -3826,6 +4610,90 @@ export class DeleteEndpointOperation {
   }
 }
 
+export class DeleteMigrationOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<MigrationOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalMigrationOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<Migration> {
+    let result: Migration | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalMigrationSchema).parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
 export class DeleteProjectOperation {
   constructor(
     private operation: Operation,
@@ -4114,6 +4982,92 @@ export class DeleteSyncedTableOperation {
   }
 }
 
+export class StartMigrationOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<MigrationOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalMigrationOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<StartMigrationResponse> {
+    let result: StartMigrationResponse | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z
+        .lazy(() => unmarshalStartMigrationResponseSchema)
+        .parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
 export class UndeleteBranchOperation {
   constructor(
     private operation: Operation,
@@ -4176,6 +5130,92 @@ export class UndeleteBranchOperation {
     };
 
     await executeWait(call, options);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class UndeleteMigrationOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<MigrationOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalMigrationOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<UndeleteMigrationResponse> {
+    let result: UndeleteMigrationResponse | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z
+        .lazy(() => unmarshalUndeleteMigrationResponseSchema)
+        .parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
   }
 
   /** Checks whether the operation has completed */
@@ -4577,6 +5617,90 @@ export class UpdateEndpointOperation {
       }
 
       result = z.lazy(() => unmarshalEndpointSchema).parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class UpdateMigrationOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<MigrationOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalMigrationOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<Migration> {
+    let result: Migration | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalMigrationSchema).parse(op.result.response);
     };
 
     await executeWait(call, options);

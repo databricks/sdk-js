@@ -223,11 +223,15 @@ export const unmarshalAccessRequestDestinationsSchema: z.ZodType<AccessRequestDe
       destinations: z
         .array(z.lazy(() => unmarshalNotificationDestinationSchema))
         .optional(),
-      securable: z.lazy(() => unmarshalSecurableSchema).optional(),
+      securable: z
+        .lazy(() => unmarshalSecurableSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       are_any_destinations_hidden: z.boolean().optional(),
       destination_source_securable: z
         .lazy(() => unmarshalSecurableSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       securable_type: z.string().optional(),
       full_name: z.string().optional(),
     })
@@ -254,7 +258,10 @@ export const unmarshalBatchCreateAccessRequestsResponseSchema: z.ZodType<BatchCr
 export const unmarshalCreateAccessRequestResponseSchema: z.ZodType<CreateAccessRequestResponse> =
   z
     .object({
-      behalf_of: z.lazy(() => unmarshalPrincipalSchema).optional(),
+      behalf_of: z
+        .lazy(() => unmarshalPrincipalSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       request_destinations: z
         .array(z.lazy(() => unmarshalAccessRequestDestinationsSchema))
         .optional(),

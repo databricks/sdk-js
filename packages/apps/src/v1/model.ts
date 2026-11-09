@@ -1598,10 +1598,19 @@ export const unmarshalAppSchema: z.ZodType<App> = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
-    compute_status: z.lazy(() => unmarshalComputeStatusSchema).optional(),
-    app_status: z.lazy(() => unmarshalApplicationStatusSchema).optional(),
+    compute_status: z
+      .lazy(() => unmarshalComputeStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    app_status: z
+      .lazy(() => unmarshalApplicationStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     url: z.string().optional(),
-    active_deployment: z.lazy(() => unmarshalAppDeploymentSchema).optional(),
+    active_deployment: z
+      .lazy(() => unmarshalAppDeploymentSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     create_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -1612,7 +1621,10 @@ export const unmarshalAppSchema: z.ZodType<App> = z
       .transform(s => Temporal.Instant.from(s))
       .optional(),
     updater: z.string().optional(),
-    pending_deployment: z.lazy(() => unmarshalAppDeploymentSchema).optional(),
+    pending_deployment: z
+      .lazy(() => unmarshalAppDeploymentSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     resources: z.array(z.lazy(() => unmarshalAppResourceSchema)).optional(),
     service_principal_id: z
       .union([z.number(), z.bigint(), z.string()])
@@ -1620,7 +1632,10 @@ export const unmarshalAppSchema: z.ZodType<App> = z
       .optional(),
     service_principal_name: z.string().optional(),
     default_source_code_path: z.string().optional(),
-    default_git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
+    default_git_source: z
+      .lazy(() => unmarshalGitSourceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     budget_policy_id: z.string().optional(),
     effective_budget_policy_id: z.string().optional(),
     service_principal_client_id: z.string().optional(),
@@ -1634,7 +1649,10 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     effective_usage_policy_id: z.string().optional(),
     compute_min_instances: z.number().optional(),
     compute_max_instances: z.number().optional(),
-    git_repository: z.lazy(() => unmarshalGitRepositorySchema).optional(),
+    git_repository: z
+      .lazy(() => unmarshalGitRepositorySchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     telemetry_export_destinations: z
       .array(z.lazy(() => unmarshalTelemetryExportDestinationSchema))
       .optional(),
@@ -1691,12 +1709,19 @@ export const unmarshalAppDeploymentSchema: z.ZodType<AppDeployment> = z
   .object({
     deployment_id: z.string().optional(),
     source_code_path: z.string().optional(),
-    git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
+    git_source: z
+      .lazy(() => unmarshalGitSourceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     mode: z.string().optional(),
     deployment_artifacts: z
       .lazy(() => unmarshalAppDeploymentArtifactsSchema)
-      .optional(),
-    status: z.lazy(() => unmarshalAppDeploymentStatusSchema).optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalAppDeploymentStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     create_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
@@ -1708,7 +1733,10 @@ export const unmarshalAppDeploymentSchema: z.ZodType<AppDeployment> = z
       .optional(),
     command: z.array(z.string()).optional(),
     env_vars: z.array(z.lazy(() => unmarshalEnvVarSchema)).optional(),
-    health_check: z.lazy(() => unmarshalAppHealthCheckSchema).optional(),
+    health_check: z
+      .lazy(() => unmarshalAppHealthCheckSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     deploymentId: d.deployment_id,
@@ -2075,7 +2103,10 @@ export const unmarshalAppThumbnailSchema: z.ZodType<AppThumbnail> = z
 
 export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
   .object({
-    status: z.lazy(() => unmarshalAppUpdate_UpdateStatusSchema).optional(),
+    status: z
+      .lazy(() => unmarshalAppUpdate_UpdateStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     description: z.string().optional(),
     budget_policy_id: z.string().optional(),
     resources: z.array(z.lazy(() => unmarshalAppResourceSchema)).optional(),
@@ -2084,7 +2115,10 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     usage_policy_id: z.string().optional(),
     compute_min_instances: z.number().optional(),
     compute_max_instances: z.number().optional(),
-    git_repository: z.lazy(() => unmarshalGitRepositorySchema).optional(),
+    git_repository: z
+      .lazy(() => unmarshalGitRepositorySchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     telemetry_export_destinations: z
       .array(z.lazy(() => unmarshalTelemetryExportDestinationSchema))
       .optional(),
@@ -2147,7 +2181,10 @@ export const unmarshalCustomTemplateSchema: z.ZodType<CustomTemplate> = z
     description: z.string().optional(),
     git_repo: z.string().optional(),
     path: z.string().optional(),
-    manifest: z.lazy(() => unmarshalAppManifestSchema).optional(),
+    manifest: z
+      .lazy(() => unmarshalAppManifestSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     git_provider: z.string().optional(),
     creator: z.string().optional(),
   })
@@ -2196,7 +2233,10 @@ export const unmarshalGitRepositorySchema: z.ZodType<GitRepository> = z
 
 export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
   .object({
-    git_repository: z.lazy(() => unmarshalGitRepositorySchema).optional(),
+    git_repository: z
+      .lazy(() => unmarshalGitRepositorySchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     branch: z.string().optional(),
     tag: z.string().optional(),
     commit: z.string().optional(),
@@ -2288,7 +2328,10 @@ export const unmarshalSpaceSchema: z.ZodType<Space> = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
-    status: z.lazy(() => unmarshalSpaceStatusSchema).optional(),
+    status: z
+      .lazy(() => unmarshalSpaceStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     id: z.string().optional(),
     create_time: z
       .string()
@@ -2345,7 +2388,10 @@ export const unmarshalSpaceStatusSchema: z.ZodType<SpaceStatus> = z
 
 export const unmarshalSpaceUpdateSchema: z.ZodType<SpaceUpdate> = z
   .object({
-    status: z.lazy(() => unmarshalSpaceUpdateStatusSchema).optional(),
+    status: z
+      .lazy(() => unmarshalSpaceUpdateStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     description: z.string().optional(),
     resources: z.array(z.lazy(() => unmarshalAppResourceSchema)).optional(),
     user_api_scopes: z.array(z.string()).optional(),

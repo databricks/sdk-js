@@ -1317,7 +1317,8 @@ export const unmarshalCleanRoomSchema: z.ZodType<CleanRoom> = z
     name: z.string().optional(),
     remote_detailed_info: z
       .lazy(() => unmarshalCleanRoomRemoteDetailSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     owner: z.string().optional(),
     comment: z.string().optional(),
     created_at: z
@@ -1332,7 +1333,8 @@ export const unmarshalCleanRoomSchema: z.ZodType<CleanRoom> = z
     local_collaborator_alias: z.string().optional(),
     output_catalog: z
       .lazy(() => unmarshalCleanRoomOutputCatalogSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     access_restricted: z.string().optional(),
     enable_shared_output: z.boolean().optional(),
   })
@@ -1663,10 +1665,12 @@ export const unmarshalCleanRoomNotebookTaskRunSchema: z.ZodType<CleanRoomNoteboo
         .optional(),
       notebook_job_run_state: z
         .lazy(() => unmarshalCleanRoomTaskRunStateSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       collaborator_job_run_info: z
         .lazy(() => unmarshalCollaboratorJobRunInfoSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       output_schema_name: z.string().optional(),
       output_schema_expiration_time: z
         .union([z.number(), z.bigint(), z.string()])
@@ -1717,13 +1721,18 @@ export const unmarshalCleanRoomRemoteDetailSchema: z.ZodType<CleanRoomRemoteDeta
       collaborators: z
         .array(z.lazy(() => unmarshalCleanRoomCollaboratorSchema))
         .optional(),
-      creator: z.lazy(() => unmarshalCleanRoomCollaboratorSchema).optional(),
+      creator: z
+        .lazy(() => unmarshalCleanRoomCollaboratorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       egress_network_policy: z
         .lazy(() => unmarshalEgressNetworkPolicySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       compliance_security_profile: z
         .lazy(() => unmarshalComplianceSecurityProfileSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       enable_shared_output: z.boolean().optional(),
       package_provider_collaborator_alias: z.string().optional(),
     })
@@ -1753,19 +1762,24 @@ export const unmarshalCleanRoomTaskRunSchema: z.ZodType<CleanRoomTaskRun> = z
       .optional(),
     task_run_state: z
       .lazy(() => unmarshalCleanRoomTaskRunStateSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     collaborator_job_run_info: z
       .lazy(() => unmarshalCollaboratorJobRunInfoSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     output_info: z
       .lazy(() => unmarshalCleanRoomTaskRun_OutputInfoSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     analysis_details: z
       .lazy(() => unmarshalCleanRoomTaskRun_CleanRoomTaskAnalysisDetailsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     shared_output_info: z
       .lazy(() => unmarshalCleanRoomTaskRun_OutputInfoSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     name: d.name,
@@ -1862,7 +1876,10 @@ export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
     comment: z.string().optional(),
     nullable: z.boolean().optional(),
     partition_index: z.number().optional(),
-    mask: z.lazy(() => unmarshalColumnMaskSchema).optional(),
+    mask: z
+      .lazy(() => unmarshalColumnMaskSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     name: d.name,
@@ -1938,7 +1955,8 @@ export const unmarshalCreateCleanRoomOutputCatalogResponseSchema: z.ZodType<Crea
     .object({
       output_catalog: z
         .lazy(() => unmarshalCleanRoomOutputCatalogSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       outputCatalog: d.output_catalog,
@@ -1952,7 +1970,8 @@ export const unmarshalEgressNetworkPolicySchema: z.ZodType<EgressNetworkPolicy> 
     .object({
       internet_access: z
         .lazy(() => unmarshalEgressNetworkPolicy_InternetAccessPolicySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       internetAccess: d.internet_access,
@@ -1984,7 +2003,8 @@ export const unmarshalEgressNetworkPolicy_InternetAccessPolicySchema: z.ZodType<
           () =>
             unmarshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       restrictionMode: d.restriction_mode,

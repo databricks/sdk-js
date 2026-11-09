@@ -1650,9 +1650,7 @@ export interface ModelServiceConfig_DestinationConfig {
 export interface ModelServiceConfig_ExternalModelConfig {
   /**
    * Resource name of the governed ModelProviderService that owns provider
-   * auth and provider-specific configuration. The referenced
-   * ModelProviderService also carries the provider type, so this message
-   * does not surface it directly.
+   * auth and provider-specific configuration.
    * Format: `model-provider-services/{catalog}.{schema}.{model_provider_service}`.
    * Each `{...}` component is capped at 255 characters individually.
    */
@@ -2032,7 +2030,10 @@ export const unmarshalMcpServiceSchema: z.ZodType<McpService> = z
       .optional(),
     updated_by: z.string().optional(),
     comment: z.string().optional(),
-    config: z.lazy(() => unmarshalMcpServiceConfigSchema).optional(),
+    config: z
+      .lazy(() => unmarshalMcpServiceConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     etag: z
       .string()
       .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
@@ -2091,7 +2092,8 @@ export const unmarshalMcpServiceUserMappedCredentialSchema: z.ZodType<McpService
       options: z.record(z.string(), z.string()).optional(),
       provisioning_info: z
         .lazy(() => unmarshalProvisioningInfoSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       options: d.options,
@@ -2121,7 +2123,8 @@ export const unmarshalModelProviderServiceSchema: z.ZodType<ModelProviderService
         .optional(),
       config: z
         .lazy(() => unmarshalModelProviderServiceConfigSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       name: d.name,
@@ -2200,12 +2203,14 @@ export const unmarshalModelProviderServiceConfigSchema: z.ZodType<ModelProviderS
       rate_limits: z.array(z.lazy(() => unmarshalRateLimitSchema)).optional(),
       inference_table: z
         .lazy(() => unmarshalInferenceTableConfigSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       pricing: z
         .lazy(
           () => unmarshalModelProviderServiceConfig_ProviderPricingConfigSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       providerType: d.provider_type,
@@ -2344,7 +2349,8 @@ export const unmarshalModelProviderServiceConfig_AwsAccessKeySchema: z.ZodType<M
       access_key_id: z.string().optional(),
       secret_access_key: z
         .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       accessKeyId: d.access_key_id,
@@ -2411,7 +2417,8 @@ export const unmarshalModelProviderServiceConfig_CustomProviderApiKeyHeaderAuthS
       api_key_name: z.string().optional(),
       api_key_value: z
         .lazy(() => unmarshalModelProviderServiceConfig_ProviderSecretSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       apiKeyName: d.api_key_name,
@@ -2696,7 +2703,10 @@ export const unmarshalModelServiceSchema: z.ZodType<ModelService> = z
       .optional(),
     updated_by: z.string().optional(),
     comment: z.string().optional(),
-    config: z.lazy(() => unmarshalModelServiceConfigSchema).optional(),
+    config: z
+      .lazy(() => unmarshalModelServiceConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     etag: z
       .string()
       .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
@@ -2722,11 +2732,13 @@ export const unmarshalModelServiceConfigSchema: z.ZodType<ModelServiceConfig> =
     .object({
       routing: z
         .lazy(() => unmarshalModelServiceConfig_RoutingConfigSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       rate_limits: z.array(z.lazy(() => unmarshalRateLimitSchema)).optional(),
       inference_table: z
         .lazy(() => unmarshalInferenceTableConfigSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       routing: d.routing,
@@ -2785,7 +2797,8 @@ export const unmarshalModelServiceConfig_ExternalModelConfigSchema: z.ZodType<Mo
       model_provider_service: z.string().optional(),
       target: z
         .lazy(() => unmarshalModelProviderServiceConfig_ModelTargetConfigSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       modelProviderService: d.model_provider_service,
@@ -2839,7 +2852,8 @@ export const unmarshalModelServiceConfig_RoutingConfigSchema: z.ZodType<ModelSer
         .optional(),
       fallback: z
         .lazy(() => unmarshalModelServiceConfig_FallbackConfigSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       destinations: d.destinations,

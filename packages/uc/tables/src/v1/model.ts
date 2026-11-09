@@ -921,7 +921,10 @@ export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
     comment: z.string().optional(),
     nullable: z.boolean().optional(),
     partition_index: z.number().optional(),
-    mask: z.lazy(() => unmarshalColumnMaskSchema).optional(),
+    mask: z
+      .lazy(() => unmarshalColumnMaskSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     name: d.name,
@@ -1263,7 +1266,10 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
     data_source_format: z.string().optional(),
     storage_location: z.string().optional(),
     view_definition: z.string().optional(),
-    view_dependencies: z.lazy(() => unmarshalDependencyListSchema).optional(),
+    view_dependencies: z
+      .lazy(() => unmarshalDependencyListSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     sql_path: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
@@ -1271,7 +1277,10 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
     table_constraints: z
       .array(z.lazy(() => unmarshalTableConstraintSchema))
       .optional(),
-    row_filter: z.lazy(() => unmarshalRowFilterSchema).optional(),
+    row_filter: z
+      .lazy(() => unmarshalRowFilterSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     pipeline_id: z.string().optional(),
     enable_predictive_optimization: z.string().optional(),
     metastore_id: z.string().optional(),
@@ -1290,22 +1299,26 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
     table_id: z.string().optional(),
     delta_runtime_properties_kvpairs: z
       .lazy(() => unmarshalDeltaRuntimePropertiesKvPairsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     deleted_at: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
     effective_predictive_optimization_flag: z
       .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     access_point: z.string().optional(),
     browse_only: z.boolean().optional(),
     encryption_details: z
       .lazy(() => unmarshalEncryptionDetailsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     securable_kind_manifest: z
       .lazy(() => unmarshalSecurableKindManifestSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     columns: z.array(z.lazy(() => unmarshalColumnInfoSchema)).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
@@ -1352,7 +1365,8 @@ export const unmarshalTableSummarySchema: z.ZodType<TableSummary> = z
     table_type: z.string().optional(),
     securable_kind_manifest: z
       .lazy(() => unmarshalSecurableKindManifestSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     fullName: d.full_name,
