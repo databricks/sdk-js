@@ -14,6 +14,8 @@ export {
   PipelineType,
   ScalingChangeState,
   ThroughputChangeRequestState,
+  EndpointScalingInfo_DelayReason,
+  EndpointScalingInfo_Phase,
   EndpointStatus_State,
   RerankerConfig_ModelType,
 } from './model';

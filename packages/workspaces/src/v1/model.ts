@@ -457,14 +457,22 @@ export const unmarshalWorkspaceSchema: z.ZodType<Workspace> = z
     storage_customer_managed_key_id: z.string().optional(),
     location: z.string().optional(),
     cloud: z.string().optional(),
-    network: z.lazy(() => unmarshalWorkspaceNetworkSchema).optional(),
+    network: z
+      .lazy(() => unmarshalWorkspaceNetworkSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     azure_workspace_info: z
       .lazy(() => unmarshalAzureWorkspaceInfoSchema)
-      .optional(),
-    gke_config: z.lazy(() => unmarshalGkeConfigSchema).optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
+    gke_config: z
+      .lazy(() => unmarshalGkeConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     cloud_resource_container: z
       .lazy(() => unmarshalCloudResourceContainerSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     custom_tags: z.record(z.string(), z.string()).optional(),
     network_connectivity_config_id: z.string().optional(),
     storage_mode: z.string().optional(),
@@ -517,7 +525,8 @@ export const unmarshalWorkspaceNetworkSchema: z.ZodType<WorkspaceNetwork> = z
     network_id: z.string().optional(),
     gcp_common_network_config: z
       .lazy(() => unmarshalGcpCommonNetworkConfigSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     network:

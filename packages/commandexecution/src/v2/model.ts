@@ -175,7 +175,10 @@ export const unmarshalGetCommandStatusResponseSchema: z.ZodType<GetCommandStatus
     .object({
       id: z.string().optional(),
       status: z.string().optional(),
-      results: z.lazy(() => unmarshalResultsSchema).optional(),
+      results: z
+        .lazy(() => unmarshalResultsSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       id: d.id,

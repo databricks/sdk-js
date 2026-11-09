@@ -487,7 +487,10 @@ export const unmarshalGenieAgentSchema: z.ZodType<GenieAgent> = z
     name: z.string().optional(),
     display_name: z.string().optional(),
     description: z.string().optional(),
-    definition: z.lazy(() => unmarshalGenieAgentDefinitionSchema).optional(),
+    definition: z
+      .lazy(() => unmarshalGenieAgentDefinitionSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     warehouse_id: z.string().optional(),
     parent_path: z.string().optional(),
     etag: z.string().optional(),
@@ -604,14 +607,22 @@ export const unmarshalGenieAgentDataSourcesSchema: z.ZodType<GenieAgentDataSourc
 export const unmarshalGenieAgentDefinitionSchema: z.ZodType<GenieAgentDefinition> =
   z
     .object({
-      config: z.lazy(() => unmarshalGenieAgentConfigSchema).optional(),
+      config: z
+        .lazy(() => unmarshalGenieAgentConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       data_sources: z
         .lazy(() => unmarshalGenieAgentDataSourcesSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       instructions: z
         .lazy(() => unmarshalGenieAgentInstructionsSchema)
-        .optional(),
-      benchmarks: z.lazy(() => unmarshalGenieAgentBenchmarksSchema).optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
+      benchmarks: z
+        .lazy(() => unmarshalGenieAgentBenchmarksSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       config: d.config,
@@ -656,7 +667,8 @@ export const unmarshalGenieAgentInstructionsSchema: z.ZodType<GenieAgentInstruct
         .optional(),
       sql_snippets: z
         .lazy(() => unmarshalGenieAgentSqlSnippetsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       textInstructions: d.text_instructions,
@@ -681,8 +693,14 @@ export const unmarshalGenieAgentJoinSpecSchema: z.ZodType<GenieAgentJoinSpec> =
   z
     .object({
       id: z.string().optional(),
-      left: z.lazy(() => unmarshalGenieAgentJoinSourceSchema).optional(),
-      right: z.lazy(() => unmarshalGenieAgentJoinSourceSchema).optional(),
+      left: z
+        .lazy(() => unmarshalGenieAgentJoinSourceSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      right: z
+        .lazy(() => unmarshalGenieAgentJoinSourceSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       sql: z.string().optional(),
       relationship_type: z.string().optional(),
       comment: z.string().optional(),
@@ -792,7 +810,8 @@ export const unmarshalGenieAgentSqlParameterSchema: z.ZodType<GenieAgentSqlParam
       description: z.string().optional(),
       default_value: z
         .lazy(() => unmarshalGenieAgentSqlParameterDefaultValueSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       name: d.name,
@@ -818,7 +837,8 @@ export const unmarshalGenieAgentSqlParameterDefaultValueSchema: z.ZodType<GenieA
       values: z.array(z.string()).optional(),
       value_range: z
         .lazy(() => unmarshalGenieAgentSqlParameterDefaultRangeSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       values: d.values,

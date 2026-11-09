@@ -686,7 +686,10 @@ export const unmarshalPublishedDashboardSchema: z.ZodType<PublishedDashboard> =
 export const unmarshalRevertDashboardResponseSchema: z.ZodType<RevertDashboardResponse> =
   z
     .object({
-      dashboard: z.lazy(() => unmarshalDashboardSchema).optional(),
+      dashboard: z
+        .lazy(() => unmarshalDashboardSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       dashboard: d.dashboard,
@@ -696,7 +699,10 @@ export const unmarshalScheduleSchema: z.ZodType<Schedule> = z
   .object({
     schedule_id: z.string().optional(),
     dashboard_id: z.string().optional(),
-    cron_schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
+    cron_schedule: z
+      .lazy(() => unmarshalCronScheduleSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     pause_status: z.string().optional(),
     display_name: z.string().optional(),
     etag: z.string().optional(),
@@ -727,7 +733,10 @@ export const unmarshalSubscriptionSchema: z.ZodType<Subscription> = z
     subscription_id: z.string().optional(),
     schedule_id: z.string().optional(),
     dashboard_id: z.string().optional(),
-    subscriber: z.lazy(() => unmarshalSubscription_SubscriberSchema).optional(),
+    subscriber: z
+      .lazy(() => unmarshalSubscription_SubscriberSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     created_by_user_id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -761,10 +770,12 @@ export const unmarshalSubscription_SubscriberSchema: z.ZodType<Subscription_Subs
     .object({
       user_subscriber: z
         .lazy(() => unmarshalSubscription_Subscriber_UserSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       destination_subscriber: z
         .lazy(() => unmarshalSubscription_Subscriber_DestinationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       userSubscriber: d.user_subscriber,

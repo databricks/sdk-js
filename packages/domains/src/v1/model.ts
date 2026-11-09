@@ -195,7 +195,10 @@ export const unmarshalDomainSchema: z.ZodType<Domain> = z
     tag_key: z.string().optional(),
     draft: z.boolean().optional(),
     effective_draft: z.boolean().optional(),
-    icon: z.lazy(() => unmarshalDomainIconSchema).optional(),
+    icon: z
+      .lazy(() => unmarshalDomainIconSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     subtitle: z.string().optional(),
     description: z.string().optional(),
     create_time: z

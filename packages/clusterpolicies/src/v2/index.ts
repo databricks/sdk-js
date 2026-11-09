@@ -6,9 +6,12 @@
 
 export {ClusterPoliciesClient} from './client';
 
-export {ListOrder, PolicySortColumn} from './model';
+export {ListOrder, PolicySortColumn, TshirtSize} from './model';
 
 export type {
+  AllowedComputeProducts,
+  AutomatedConstraints,
+  ComputePolicy,
   CreatePolicyRequest,
   CreatePolicyResponse,
   DeletePolicyRequest,
@@ -16,11 +19,18 @@ export type {
   EditPolicyRequest,
   EditPolicyResponse,
   GetPolicyRequest,
+  LakebaseConstraints,
   Library,
+  ListComputePoliciesRequest,
+  ListComputePoliciesResponse,
   ListPoliciesRequest,
   ListPoliciesResponse,
+  ListServerlessComputesRequest,
+  ListServerlessComputesResponse,
   MavenLibrary,
   Policy,
   PythonPyPiLibrary,
   RCranLibrary,
+  RateLimitConfig,
+  ServerlessCompute,
 } from './model';

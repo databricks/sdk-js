@@ -1215,15 +1215,23 @@ export const unmarshalAiGatewayConfigSchema: z.ZodType<AiGatewayConfig> = z
   .object({
     usage_tracking_config: z
       .lazy(() => unmarshalUsageTrackingConfigSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     inference_table_config: z
       .lazy(() => unmarshalInferenceTableConfigSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     rate_limits: z
       .array(z.lazy(() => unmarshalAiGatewayRateLimitSchema))
       .optional(),
-    guardrails: z.lazy(() => unmarshalAiGuardrailsSchema).optional(),
-    fallback_config: z.lazy(() => unmarshalFallbackConfigSchema).optional(),
+    guardrails: z
+      .lazy(() => unmarshalAiGuardrailsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    fallback_config: z
+      .lazy(() => unmarshalFallbackConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     usageTrackingConfig: d.usage_tracking_config,
@@ -1260,7 +1268,10 @@ export const unmarshalAiGuardrailParametersSchema: z.ZodType<AiGuardrailParamete
   z
     .object({
       safety: z.boolean().optional(),
-      pii: z.lazy(() => unmarshalPiiSettingsSchema).optional(),
+      pii: z
+        .lazy(() => unmarshalPiiSettingsSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       valid_topics: z.array(z.string()).optional(),
       invalid_keywords: z.array(z.string()).optional(),
     })
@@ -1273,8 +1284,14 @@ export const unmarshalAiGuardrailParametersSchema: z.ZodType<AiGuardrailParamete
 
 export const unmarshalAiGuardrailsSchema: z.ZodType<AiGuardrails> = z
   .object({
-    input: z.lazy(() => unmarshalAiGuardrailParametersSchema).optional(),
-    output: z.lazy(() => unmarshalAiGuardrailParametersSchema).optional(),
+    input: z
+      .lazy(() => unmarshalAiGuardrailParametersSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    output: z
+      .lazy(() => unmarshalAiGuardrailParametersSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     input: d.input,
@@ -1331,7 +1348,10 @@ export const unmarshalAutoCaptureConfigSchema: z.ZodType<AutoCaptureConfig> = z
     catalog_name: z.string().optional(),
     schema_name: z.string().optional(),
     table_name_prefix: z.string().optional(),
-    state: z.lazy(() => unmarshalAutoCaptureStateSchema).optional(),
+    state: z
+      .lazy(() => unmarshalAutoCaptureStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     enabled: z.boolean().optional(),
   })
   .transform(d => ({
@@ -1344,7 +1364,10 @@ export const unmarshalAutoCaptureConfigSchema: z.ZodType<AutoCaptureConfig> = z
 
 export const unmarshalAutoCaptureStateSchema: z.ZodType<AutoCaptureState> = z
   .object({
-    payload_table: z.lazy(() => unmarshalPayloadTableSchema).optional(),
+    payload_table: z
+      .lazy(() => unmarshalPayloadTableSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     payloadTable: d.payload_table,
@@ -1378,8 +1401,12 @@ export const unmarshalCustomProviderConfigSchema: z.ZodType<CustomProviderConfig
       custom_provider_url: z.string().optional(),
       bearer_token_auth: z
         .lazy(() => unmarshalBearerTokenAuthSchema)
-        .optional(),
-      api_key_auth: z.lazy(() => unmarshalApiKeyAuthSchema).optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
+      api_key_auth: z
+        .lazy(() => unmarshalApiKeyAuthSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       customProviderUrl: d.custom_provider_url,
@@ -1437,10 +1464,14 @@ export const unmarshalEndpointCoreConfigOutputSchema: z.ZodType<EndpointCoreConf
       served_models: z
         .array(z.lazy(() => unmarshalServedModelSchema))
         .optional(),
-      traffic_config: z.lazy(() => unmarshalTrafficConfigSchema).optional(),
+      traffic_config: z
+        .lazy(() => unmarshalTrafficConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       auto_capture_config: z
         .lazy(() => unmarshalAutoCaptureConfigSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       configVersion: d.config_version,
@@ -1613,16 +1644,28 @@ export const unmarshalInferenceEndpointSchema: z.ZodType<InferenceEndpoint> = z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
-    state: z.lazy(() => unmarshalInferenceEndpointStateSchema).optional(),
-    config: z.lazy(() => unmarshalEndpointCoreConfigSummarySchema).optional(),
+    state: z
+      .lazy(() => unmarshalInferenceEndpointStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    config: z
+      .lazy(() => unmarshalEndpointCoreConfigSummarySchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     tags: z.array(z.lazy(() => unmarshalEndpointTagSchema)).optional(),
     id: z.string().optional(),
     task: z.string().optional(),
-    ai_gateway: z.lazy(() => unmarshalAiGatewayConfigSchema).optional(),
+    ai_gateway: z
+      .lazy(() => unmarshalAiGatewayConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     budget_policy_id: z.string().optional(),
     description: z.string().optional(),
     usage_policy_id: z.string().optional(),
-    telemetry_config: z.lazy(() => unmarshalTelemetryConfigSchema).optional(),
+    telemetry_config: z
+      .lazy(() => unmarshalTelemetryConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     name: d.name,
@@ -1654,9 +1697,18 @@ export const unmarshalInferenceEndpointDetailedSchema: z.ZodType<InferenceEndpoi
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
-      state: z.lazy(() => unmarshalInferenceEndpointStateSchema).optional(),
-      config: z.lazy(() => unmarshalEndpointCoreConfigOutputSchema).optional(),
-      pending_config: z.lazy(() => unmarshalPendingConfigSchema).optional(),
+      state: z
+        .lazy(() => unmarshalInferenceEndpointStateSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      config: z
+        .lazy(() => unmarshalEndpointCoreConfigOutputSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      pending_config: z
+        .lazy(() => unmarshalPendingConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       id: z.string().optional(),
       permission_level: z.string().optional(),
       tags: z.array(z.lazy(() => unmarshalEndpointTagSchema)).optional(),
@@ -1665,14 +1717,22 @@ export const unmarshalInferenceEndpointDetailedSchema: z.ZodType<InferenceEndpoi
       endpoint_url: z.string().optional(),
       data_plane_info: z
         .lazy(() => unmarshalModelDataPlaneInfoSchema)
-        .optional(),
-      ai_gateway: z.lazy(() => unmarshalAiGatewayConfigSchema).optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
+      ai_gateway: z
+        .lazy(() => unmarshalAiGatewayConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       budget_policy_id: z.string().optional(),
       email_notifications: z
         .lazy(() => unmarshalEmailNotificationsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       description: z.string().optional(),
-      telemetry_config: z.lazy(() => unmarshalTelemetryConfigSchema).optional(),
+      telemetry_config: z
+        .lazy(() => unmarshalTelemetryConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       name: d.name,
@@ -1736,7 +1796,10 @@ export const unmarshalListInferenceEndpointsResponseSchema: z.ZodType<ListInfere
 export const unmarshalModelDataPlaneInfoSchema: z.ZodType<ModelDataPlaneInfo> =
   z
     .object({
-      query_info: z.lazy(() => unmarshalDataPlaneInfoSchema).optional(),
+      query_info: z
+        .lazy(() => unmarshalDataPlaneInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       queryInfo: d.query_info,
@@ -1808,7 +1871,10 @@ export const unmarshalPendingConfigSchema: z.ZodType<PendingConfig> = z
       .array(z.lazy(() => unmarshalServedModelSchema))
       .optional(),
     served_models: z.array(z.lazy(() => unmarshalServedModelSchema)).optional(),
-    traffic_config: z.lazy(() => unmarshalTrafficConfigSchema).optional(),
+    traffic_config: z
+      .lazy(() => unmarshalTrafficConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     config_version: z.number().optional(),
     start_time: z
       .union([z.number(), z.bigint(), z.string()])
@@ -1816,7 +1882,8 @@ export const unmarshalPendingConfigSchema: z.ZodType<PendingConfig> = z
       .optional(),
     auto_capture_config: z
       .lazy(() => unmarshalAutoCaptureConfigSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     servedEntities: d.served_entities,
@@ -1840,15 +1907,23 @@ export const unmarshalPutInferenceEndpointAiGatewayResponseSchema: z.ZodType<Put
     .object({
       usage_tracking_config: z
         .lazy(() => unmarshalUsageTrackingConfigSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       inference_table_config: z
         .lazy(() => unmarshalInferenceTableConfigSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       rate_limits: z
         .array(z.lazy(() => unmarshalAiGatewayRateLimitSchema))
         .optional(),
-      guardrails: z.lazy(() => unmarshalAiGuardrailsSchema).optional(),
-      fallback_config: z.lazy(() => unmarshalFallbackConfigSchema).optional(),
+      guardrails: z
+        .lazy(() => unmarshalAiGuardrailsSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      fallback_config: z
+        .lazy(() => unmarshalFallbackConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       usageTrackingConfig: d.usage_tracking_config,
@@ -1897,7 +1972,10 @@ export const unmarshalRouteSchema: z.ZodType<Route> = z
 export const unmarshalServedModelSchema: z.ZodType<ServedModel> = z
   .object({
     name: z.string().optional(),
-    external_model: z.lazy(() => unmarshalExternalModelSchema).optional(),
+    external_model: z
+      .lazy(() => unmarshalExternalModelSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     entity_name: z.string().optional(),
     entity_version: z.string().optional(),
     min_provisioned_throughput: z.number().optional(),
@@ -1915,8 +1993,14 @@ export const unmarshalServedModelSchema: z.ZodType<ServedModel> = z
     model_version: z.string().optional(),
     environment_vars: z.record(z.string(), z.string()).optional(),
     instance_profile_arn: z.string().optional(),
-    foundation_model: z.lazy(() => unmarshalFoundationModelSchema).optional(),
-    state: z.lazy(() => unmarshalServedModelStateSchema).optional(),
+    foundation_model: z
+      .lazy(() => unmarshalFoundationModelSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    state: z
+      .lazy(() => unmarshalServedModelStateSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     creator: z.string().optional(),
     creation_timestamp: z
       .union([z.number(), z.bigint(), z.string()])
@@ -1953,8 +2037,14 @@ export const unmarshalServedModelLiteSchema: z.ZodType<ServedModelLite> = z
     entity_name: z.string().optional(),
     model_version: z.string().optional(),
     entity_version: z.string().optional(),
-    external_model: z.lazy(() => unmarshalExternalModelSchema).optional(),
-    foundation_model: z.lazy(() => unmarshalFoundationModelSchema).optional(),
+    external_model: z
+      .lazy(() => unmarshalExternalModelSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    foundation_model: z
+      .lazy(() => unmarshalFoundationModelSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     name: d.name,
@@ -1982,7 +2072,8 @@ export const unmarshalTelemetryConfigSchema: z.ZodType<TelemetryConfig> = z
     table_names: z.lazy(() => unmarshalUnityCatalogTableNamesSchema).optional(),
     inference_table_config: z
       .lazy(() => unmarshalTelemetryInferenceTableConfigSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     enabled_telemetry_features: z.array(z.string()).optional(),
   })
   .transform(d => ({
@@ -2039,7 +2130,8 @@ export const unmarshalUpdateInferenceEndpointNotificationsResponseSchema: z.ZodT
       name: z.string().optional(),
       email_notifications: z
         .lazy(() => unmarshalEmailNotificationsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       name: d.name,

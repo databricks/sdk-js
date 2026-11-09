@@ -1677,7 +1677,10 @@ export const unmarshalEndpointHealthSchema: z.ZodType<EndpointHealth> = z
   .object({
     status: z.string().optional(),
     message: z.string().optional(),
-    failure_reason: z.lazy(() => unmarshalTerminationReasonSchema).optional(),
+    failure_reason: z
+      .lazy(() => unmarshalTerminationReasonSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     summary: z.string().optional(),
     details: z.string().optional(),
   })
@@ -1699,10 +1702,16 @@ export const unmarshalEndpointInfoSchema: z.ZodType<EndpointInfo> = z
     auto_stop_mins: z.number().optional(),
     creator_name: z.string().optional(),
     instance_profile_arn: z.string().optional(),
-    tags: z.lazy(() => unmarshalEndpointTagsSchema).optional(),
+    tags: z
+      .lazy(() => unmarshalEndpointTagsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     spot_instance_policy: z.string().optional(),
     enable_photon: z.boolean().optional(),
-    channel: z.lazy(() => unmarshalChannelSchema).optional(),
+    channel: z
+      .lazy(() => unmarshalChannelSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     enable_serverless_compute: z.boolean().optional(),
     warehouse_type: z.string().optional(),
     statement_timeout: z.number().optional(),
@@ -1716,8 +1725,14 @@ export const unmarshalEndpointInfoSchema: z.ZodType<EndpointInfo> = z
       .optional(),
     state: z.string().optional(),
     jdbc_url: z.string().optional(),
-    odbc_params: z.lazy(() => unmarshalOdbcParamsSchema).optional(),
-    health: z.lazy(() => unmarshalEndpointHealthSchema).optional(),
+    odbc_params: z
+      .lazy(() => unmarshalOdbcParamsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    health: z
+      .lazy(() => unmarshalEndpointHealthSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     id: d.id,
@@ -1777,10 +1792,16 @@ export const unmarshalGetWarehouseResponseSchema: z.ZodType<GetWarehouseResponse
       auto_stop_mins: z.number().optional(),
       creator_name: z.string().optional(),
       instance_profile_arn: z.string().optional(),
-      tags: z.lazy(() => unmarshalEndpointTagsSchema).optional(),
+      tags: z
+        .lazy(() => unmarshalEndpointTagsSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       spot_instance_policy: z.string().optional(),
       enable_photon: z.boolean().optional(),
-      channel: z.lazy(() => unmarshalChannelSchema).optional(),
+      channel: z
+        .lazy(() => unmarshalChannelSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       enable_serverless_compute: z.boolean().optional(),
       warehouse_type: z.string().optional(),
       statement_timeout: z.number().optional(),
@@ -1794,8 +1815,14 @@ export const unmarshalGetWarehouseResponseSchema: z.ZodType<GetWarehouseResponse
         .optional(),
       state: z.string().optional(),
       jdbc_url: z.string().optional(),
-      odbc_params: z.lazy(() => unmarshalOdbcParamsSchema).optional(),
-      health: z.lazy(() => unmarshalEndpointHealthSchema).optional(),
+      odbc_params: z
+        .lazy(() => unmarshalOdbcParamsSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      health: z
+        .lazy(() => unmarshalEndpointHealthSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       id: d.id,
@@ -1832,17 +1859,23 @@ export const unmarshalGetWorkspaceWarehouseConfigResponseSchema: z.ZodType<GetWo
         .array(z.lazy(() => unmarshalEndpointConfPairSchema))
         .optional(),
       instance_profile_arn: z.string().optional(),
-      channel: z.lazy(() => unmarshalChannelSchema).optional(),
+      channel: z
+        .lazy(() => unmarshalChannelSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       enable_serverless_compute: z.boolean().optional(),
       global_param: z
         .lazy(() => unmarshalRepeatedEndpointConfPairsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       config_param: z
         .lazy(() => unmarshalRepeatedEndpointConfPairsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       sql_configuration_parameters: z
         .lazy(() => unmarshalRepeatedEndpointConfPairsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       google_service_account: z.string().optional(),
       enabled_warehouse_types: z
         .array(z.lazy(() => unmarshalWarehouseTypePairSchema))

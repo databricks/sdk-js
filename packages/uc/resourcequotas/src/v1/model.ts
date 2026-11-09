@@ -84,7 +84,10 @@ export interface QuotaInfo {
 
 export const unmarshalGetQuotaResponseSchema: z.ZodType<GetQuotaResponse> = z
   .object({
-    quota_info: z.lazy(() => unmarshalQuotaInfoSchema).optional(),
+    quota_info: z
+      .lazy(() => unmarshalQuotaInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     quotaInfo: d.quota_info,

@@ -225,7 +225,10 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
       .optional(),
     custom_body: z.string().optional(),
     custom_subject: z.string().optional(),
-    condition: z.lazy(() => unmarshalAlertConditionSchema).optional(),
+    condition: z
+      .lazy(() => unmarshalAlertConditionSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     owner_user_name: z.string().optional(),
     parent_path: z.string().optional(),
     create_time: z
@@ -259,8 +262,14 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
 export const unmarshalAlertConditionSchema: z.ZodType<AlertCondition> = z
   .object({
     op: z.string().optional(),
-    operand: z.lazy(() => unmarshalAlertOperandSchema).optional(),
-    threshold: z.lazy(() => unmarshalAlertOperandSchema).optional(),
+    operand: z
+      .lazy(() => unmarshalAlertOperandSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    threshold: z
+      .lazy(() => unmarshalAlertOperandSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     empty_result_state: z.string().optional(),
   })
   .transform(d => ({
@@ -340,7 +349,10 @@ export const unmarshalListAlertsResponseAlertSchema: z.ZodType<ListAlertsRespons
         .optional(),
       custom_body: z.string().optional(),
       custom_subject: z.string().optional(),
-      condition: z.lazy(() => unmarshalAlertConditionSchema).optional(),
+      condition: z
+        .lazy(() => unmarshalAlertConditionSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       owner_user_name: z.string().optional(),
       create_time: z
         .string()

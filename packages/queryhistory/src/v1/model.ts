@@ -402,7 +402,8 @@ export const unmarshalExternalQuerySourceSchema: z.ZodType<ExternalQuerySource> 
       sql_query_id: z.string().optional(),
       job_info: z
         .lazy(() => unmarshalExternalQuerySource_JobInfoSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       genie_space_id: z.string().optional(),
     })
     .transform(d => ({
@@ -472,7 +473,10 @@ export const unmarshalQueryInfoSchema: z.ZodType<QueryInfo> = z
       .optional(),
     error_message: z.string().optional(),
     lookup_key: z.string().optional(),
-    metrics: z.lazy(() => unmarshalQueryMetricsSchema).optional(),
+    metrics: z
+      .lazy(() => unmarshalQueryMetricsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     executed_as_user_id: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -480,7 +484,10 @@ export const unmarshalQueryInfoSchema: z.ZodType<QueryInfo> = z
     executed_as_user_name: z.string().optional(),
     session_id: z.string().optional(),
     is_final: z.boolean().optional(),
-    channel_used: z.lazy(() => unmarshalChannelInfoSchema).optional(),
+    channel_used: z
+      .lazy(() => unmarshalChannelInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     plans_state: z.string().optional(),
     statement_type: z.string().optional(),
     warehouse_id: z.string().optional(),
@@ -489,7 +496,10 @@ export const unmarshalQueryInfoSchema: z.ZodType<QueryInfo> = z
       .transform(v => BigInt(v))
       .optional(),
     client_application: z.string().optional(),
-    query_source: z.lazy(() => unmarshalExternalQuerySourceSchema).optional(),
+    query_source: z
+      .lazy(() => unmarshalExternalQuerySourceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     cache_query_id: z.string().optional(),
     query_tags: z.array(z.lazy(() => unmarshalQueryTagSchema)).optional(),
   })
@@ -612,7 +622,8 @@ export const unmarshalQueryMetricsSchema: z.ZodType<QueryMetrics> = z
       .optional(),
     task_time_over_time_range: z
       .lazy(() => unmarshalTaskTimeOverRangeSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     work_to_be_done: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))

@@ -252,17 +252,26 @@ export const unmarshalColumnRelationshipSchema: z.ZodType<ColumnRelationship> =
 export const unmarshalExternalLineageInfoSchema: z.ZodType<ExternalLineageInfo> =
   z
     .object({
-      table_info: z.lazy(() => unmarshalLineageTableInfoSchema).optional(),
-      file_info: z.lazy(() => unmarshalLineageFileInfoSchema).optional(),
+      table_info: z
+        .lazy(() => unmarshalLineageTableInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      file_info: z
+        .lazy(() => unmarshalLineageFileInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       model_info: z
         .lazy(() => unmarshalLineageModelVersionInfoSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       external_metadata_info: z
         .lazy(() => unmarshalLineageExternalMetadataInfoSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       external_lineage_info: z
         .lazy(() => unmarshalExternalLineageRelationshipSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       tableInfo: d.table_info,
@@ -278,10 +287,12 @@ export const unmarshalExternalLineageRelationshipSchema: z.ZodType<ExternalLinea
       id: z.string().optional(),
       source: z
         .lazy(() => unmarshalExternalLineageRelationshipObjectSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       target: z
         .lazy(() => unmarshalExternalLineageRelationshipObjectSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       columns: z
         .array(z.lazy(() => unmarshalColumnRelationshipSchema))
         .optional(),

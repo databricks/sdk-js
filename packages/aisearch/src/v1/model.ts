@@ -151,6 +151,40 @@ export type ThroughputChangeRequestState =
   | (typeof ThroughputChangeRequestState)[keyof typeof ThroughputChangeRequestState]
   | (string & {});
 
+/** Reason an in-progress scaling change is delayed. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EndpointScalingInfo_DelayReason = {
+  /** The delay reason is not specified. */
+  DELAY_REASON_UNSPECIFIED: 'DELAY_REASON_UNSPECIFIED',
+  /** The additional capacity required for the change is not currently available. */
+  CAPACITY_UNAVAILABLE: 'CAPACITY_UNAVAILABLE',
+  /** The endpoint cannot be scaled down safely right now, so it remains at its current size. */
+  SCALE_DOWN_BLOCKED: 'SCALE_DOWN_BLOCKED',
+  /** The change is taking longer than expected. */
+  TAKING_LONGER_THAN_EXPECTED: 'TAKING_LONGER_THAN_EXPECTED',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type EndpointScalingInfo_DelayReason =
+  | (typeof EndpointScalingInfo_DelayReason)[keyof typeof EndpointScalingInfo_DelayReason]
+  | (string & {});
+
+/** Phase of an in-progress scaling change. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const EndpointScalingInfo_Phase = {
+  /** The phase is not specified. */
+  PHASE_UNSPECIFIED: 'PHASE_UNSPECIFIED',
+  /** Capacity is being added to or removed from the endpoint. */
+  ADJUSTING_CAPACITY: 'ADJUSTING_CAPACITY',
+  /** The new capacity is in place and index replicas are being initialized on it. */
+  INITIALIZING_INDEX: 'INITIALIZING_INDEX',
+  /** The completion time is being estimated, for example just after the change is requested or updated. */
+  ESTIMATING: 'ESTIMATING',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type EndpointScalingInfo_Phase =
+  | (typeof EndpointScalingInfo_Phase)[keyof typeof EndpointScalingInfo_Phase]
+  | (string & {});
+
 /** Lifecycle state of an AI Search endpoint, used by both Standard and Storage Optimized SKUs. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const EndpointStatus_State = {
@@ -420,6 +454,33 @@ export interface EndpointScalingInfo {
    * guarantee this QPS will be achieved.
    */
   requestedTargetQps?: bigint | undefined;
+  /**
+   * Estimated time at which the in-progress scaling change will complete. The estimate may
+   * change as the scaling change progresses. Unset when no scaling change is in progress,
+   * when no estimate is available, or when the change is delayed (see `delayed_reason`).
+   */
+  estimatedCompletionTime?: Temporal.Instant | undefined;
+  /**
+   * Current phase of the in-progress scaling change. Unset when no scaling change is in
+   * progress or the phase is not available.
+   */
+  phase?: EndpointScalingInfo_Phase | undefined;
+  /**
+   * Percentage of index initialization completed, from 0 to 100. Set only during the
+   * `INITIALIZING_INDEX` phase; unset in other phases or when progress is not available.
+   */
+  indexInitializationPercentage?: number | undefined;
+  /**
+   * Reason the in-progress scaling change is delayed. When set, `estimated_completion_time` is
+   * unset. Unset when the change is not delayed or no scaling change is in progress.
+   */
+  delayedReason?: EndpointScalingInfo_DelayReason | undefined;
+  /**
+   * Earliest time a new Target QPS change is accepted. Set only while a scaling change is in
+   * progress, the change lock is on, and the endpoint has a recorded last throughput change; may
+   * be in the past once the lock has expired.
+   */
+  targetQpsChangeAllowedAfterTime?: Temporal.Instant | undefined;
 }
 
 /**
@@ -906,15 +967,22 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
     endpoint_type: z.string().optional(),
     last_updated_user: z.string().optional(),
     id: z.string().optional(),
-    endpoint_status: z.lazy(() => unmarshalEndpointStatusSchema).optional(),
+    endpoint_status: z
+      .lazy(() => unmarshalEndpointStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     index_count: z.number().optional(),
     budget_policy_id: z.string().optional(),
     effective_budget_policy_id: z.string().optional(),
     custom_tags: z.array(z.lazy(() => unmarshalCustomTagSchema)).optional(),
     throughput_info: z
       .lazy(() => unmarshalEndpointThroughputInfoSchema)
-      .optional(),
-    scaling_info: z.lazy(() => unmarshalEndpointScalingInfoSchema).optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
+    scaling_info: z
+      .lazy(() => unmarshalEndpointScalingInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     usage_policy_id: z.string().optional(),
     replica_count: z.number().optional(),
     target_qps: z.number().optional(),
@@ -947,10 +1015,26 @@ export const unmarshalEndpointScalingInfoSchema: z.ZodType<EndpointScalingInfo> 
         .union([z.number(), z.bigint(), z.string()])
         .transform(v => BigInt(v))
         .optional(),
+      estimated_completion_time: z
+        .string()
+        .transform(s => Temporal.Instant.from(s))
+        .optional(),
+      phase: z.string().optional(),
+      index_initialization_percentage: z.number().optional(),
+      delayed_reason: z.string().optional(),
+      target_qps_change_allowed_after_time: z
+        .string()
+        .transform(s => Temporal.Instant.from(s))
+        .optional(),
     })
     .transform(d => ({
       state: d.state,
       requestedTargetQps: d.requested_target_qps,
+      estimatedCompletionTime: d.estimated_completion_time,
+      phase: d.phase,
+      indexInitializationPercentage: d.index_initialization_percentage,
+      delayedReason: d.delayed_reason,
+      targetQpsChangeAllowedAfterTime: d.target_qps_change_allowed_after_time,
     }));
 
 export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
@@ -1011,7 +1095,10 @@ export const unmarshalIndexSchema: z.ZodType<Index> = z
     delta_sync_index_spec: z
       .lazy(() => unmarshalDeltaSyncIndexSpecSchema)
       .optional(),
-    status: z.lazy(() => unmarshalIndexStatusSchema).optional(),
+    status: z
+      .lazy(() => unmarshalIndexStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     creator: z.string().optional(),
     index_subtype: z.string().optional(),
   })
@@ -1079,9 +1166,18 @@ export const unmarshalListIndexesResponseSchema: z.ZodType<ListIndexesResponse> 
 export const unmarshalQueryIndexResponseSchema: z.ZodType<QueryIndexResponse> =
   z
     .object({
-      manifest: z.lazy(() => unmarshalResultManifestSchema).optional(),
-      result: z.lazy(() => unmarshalResultDataSchema).optional(),
-      facet_result: z.lazy(() => unmarshalFacetResultDataSchema).optional(),
+      manifest: z
+        .lazy(() => unmarshalResultManifestSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      result: z
+        .lazy(() => unmarshalResultDataSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      facet_result: z
+        .lazy(() => unmarshalFacetResultDataSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       manifest: d.manifest,
@@ -1093,7 +1189,10 @@ export const unmarshalRemoveDataResponseSchema: z.ZodType<RemoveDataResponse> =
   z
     .object({
       status: z.string().optional(),
-      result: z.lazy(() => unmarshalDataModificationResultSchema).optional(),
+      result: z
+        .lazy(() => unmarshalDataModificationResultSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       status: d.status,
@@ -1141,7 +1240,10 @@ export const unmarshalUpsertDataResponseSchema: z.ZodType<UpsertDataResponse> =
   z
     .object({
       status: z.string().optional(),
-      result: z.lazy(() => unmarshalDataModificationResultSchema).optional(),
+      result: z
+        .lazy(() => unmarshalDataModificationResultSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       status: d.status,
@@ -1272,10 +1374,26 @@ export const marshalEndpointScalingInfoSchema: z.ZodType = z
   .object({
     state: z.string().optional(),
     requestedTargetQps: z.bigint().optional(),
+    estimatedCompletionTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    phase: z.string().optional(),
+    indexInitializationPercentage: z.number().optional(),
+    delayedReason: z.string().optional(),
+    targetQpsChangeAllowedAfterTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
   })
   .transform(d => ({
     state: d.state,
     requested_target_qps: d.requestedTargetQps,
+    estimated_completion_time: d.estimatedCompletionTime,
+    phase: d.phase,
+    index_initialization_percentage: d.indexInitializationPercentage,
+    delayed_reason: d.delayedReason,
+    target_qps_change_allowed_after_time: d.targetQpsChangeAllowedAfterTime,
   }));
 
 export const marshalEndpointStatusSchema: z.ZodType = z
@@ -1496,8 +1614,15 @@ export function endpointFieldMask(...paths: string[]): FieldMask<Endpoint> {
 }
 
 const endpointScalingInfoFieldMaskSchema: FieldMaskSchema = {
+  delayedReason: {wire: 'delayed_reason'},
+  estimatedCompletionTime: {wire: 'estimated_completion_time'},
+  indexInitializationPercentage: {wire: 'index_initialization_percentage'},
+  phase: {wire: 'phase'},
   requestedTargetQps: {wire: 'requested_target_qps'},
   state: {wire: 'state'},
+  targetQpsChangeAllowedAfterTime: {
+    wire: 'target_qps_change_allowed_after_time',
+  },
 };
 
 const endpointStatusFieldMaskSchema: FieldMaskSchema = {

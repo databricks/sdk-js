@@ -208,7 +208,8 @@ export const unmarshalAzureKeyInfoSchema: z.ZodType<AzureKeyInfo> = z
     disk_encryption_set_id: z.string().optional(),
     key_access_configuration: z
       .lazy(() => unmarshalKeyAccessConfigurationSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     keyVaultUri: d.key_vault_uri,
@@ -253,7 +254,8 @@ export const unmarshalGcpKeyInfoSchema: z.ZodType<GcpKeyInfo> = z
     kms_key_id: z.string().optional(),
     gcp_service_account: z
       .lazy(() => unmarshalGcpServiceAccountSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     manual: z.boolean().optional(),
   })
   .transform(d => ({

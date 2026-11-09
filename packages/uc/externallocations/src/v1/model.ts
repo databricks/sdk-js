@@ -355,11 +355,15 @@ export const unmarshalExternalLocationInfoSchema: z.ZodType<ExternalLocationInfo
       read_only: z.boolean().optional(),
       comment: z.string().optional(),
       enable_file_events: z.boolean().optional(),
-      file_event_queue: z.lazy(() => unmarshalFileEventQueueSchema).optional(),
+      file_event_queue: z
+        .lazy(() => unmarshalFileEventQueueSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       owner: z.string().optional(),
       encryption_details: z
         .lazy(() => unmarshalEncryptionDetailsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       metastore_id: z.string().optional(),
       credential_id: z.string().optional(),
       created_at: z
@@ -378,7 +382,8 @@ export const unmarshalExternalLocationInfoSchema: z.ZodType<ExternalLocationInfo
       effective_enable_file_events: z.boolean().optional(),
       effective_file_event_queue: z
         .lazy(() => unmarshalFileEventQueueSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       name: d.name,

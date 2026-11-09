@@ -313,7 +313,8 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     comment: z.string().optional(),
     environment_settings: z
       .lazy(() => unmarshalEnvironmentSettingsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     full_name: z.string().optional(),
     url: z.string().optional(),
     credential_type: z.string().optional(),
@@ -330,7 +331,10 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
       .optional(),
     updated_by: z.string().optional(),
     securable_type: z.string().optional(),
-    provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
+    provisioning_info: z
+      .lazy(() => unmarshalProvisioningInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     options: z.record(z.string(), z.string()).optional(),
     secrets: z.record(z.string(), z.string()).optional(),
     properties: z.record(z.string(), z.string()).optional(),

@@ -3243,7 +3243,8 @@ export const unmarshalAvroTransformerOptionsSchema: z.ZodType<AvroTransformerOpt
       parse_mode: z.string().optional(),
       schema_registry: z
         .lazy(() => unmarshalSchemaRegistryConfigSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       schema: d.schema,
@@ -3426,7 +3427,10 @@ export const unmarshalCreatePipelineResponseSchema: z.ZodType<CreatePipelineResp
   z
     .object({
       pipeline_id: z.string().optional(),
-      effective_settings: z.lazy(() => unmarshalPipelineSpecSchema).optional(),
+      effective_settings: z
+        .lazy(() => unmarshalPipelineSpecSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       pipelineId: d.pipeline_id,
@@ -3562,7 +3566,10 @@ export const unmarshalGetPipelineResponseSchema: z.ZodType<GetPipelineResponse> 
   z
     .object({
       pipeline_id: z.string().optional(),
-      spec: z.lazy(() => unmarshalPipelineSpecSchema).optional(),
+      spec: z
+        .lazy(() => unmarshalPipelineSpecSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       state: z.string().optional(),
       cause: z.string().optional(),
       cluster_id: z.string().optional(),
@@ -3579,7 +3586,10 @@ export const unmarshalGetPipelineResponseSchema: z.ZodType<GetPipelineResponse> 
       run_as_user_name: z.string().optional(),
       effective_budget_policy_id: z.string().optional(),
       effective_publishing_mode: z.string().optional(),
-      run_as: z.lazy(() => unmarshalPipelinesJobRunAsSchema).optional(),
+      run_as: z
+        .lazy(() => unmarshalPipelinesJobRunAsSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       parameters: z.record(z.string(), z.string()).optional(),
       effective_serverless_compute_id: z.string().optional(),
     })
@@ -3604,7 +3614,10 @@ export const unmarshalGetPipelineResponseSchema: z.ZodType<GetPipelineResponse> 
 
 export const unmarshalGetUpdateResponseSchema: z.ZodType<GetUpdateResponse> = z
   .object({
-    update: z.lazy(() => unmarshalUpdateInfoSchema).optional(),
+    update: z
+      .lazy(() => unmarshalUpdateInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     update: d.update,
@@ -3640,7 +3653,8 @@ export const unmarshalGoogleAdsOptionsSchema: z.ZodType<GoogleAdsOptions> = z
     sync_start_date: z.string().optional(),
     custom_report_options: z
       .lazy(() => unmarshalGoogleAdsCustomReportOptionsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     managerAccountId: d.manager_account_id,
@@ -3656,7 +3670,8 @@ export const unmarshalGoogleDriveOptionsSchema: z.ZodType<GoogleDriveOptions> =
       entity_type: z.string().optional(),
       file_ingestion_options: z
         .lazy(() => unmarshalFileIngestionOptionsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       url: d.url,
@@ -3674,7 +3689,8 @@ export const unmarshalIngestionGatewayPipelineDefinitionSchema: z.ZodType<Ingest
       gateway_storage_name: z.string().optional(),
       connection_parameters: z
         .lazy(() => unmarshalConnectionParametersSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       connectionName: d.connection_name,
@@ -3703,18 +3719,21 @@ export const unmarshalIngestionPipelineDefinitionSchema: z.ZodType<IngestionPipe
         .lazy(
           () => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       netsuite_jar_path: z.string().optional(),
       source_configurations: z
         .array(z.lazy(() => unmarshalSourceConfigSchema))
         .optional(),
       full_refresh_window: z
         .lazy(() => unmarshalOperationTimeWindowSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       connector_type: z.string().optional(),
       data_staging_options: z
         .lazy(() => unmarshalDataStagingOptionsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       source:
@@ -3793,7 +3812,8 @@ export const unmarshalIngestionPipelineDefinition_ReportSpecSchema: z.ZodType<In
         .lazy(
           () => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       sourceUrl: d.source_url,
@@ -3815,13 +3835,16 @@ export const unmarshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType<In
         .lazy(
           () => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       connector_options: z
         .lazy(() => unmarshalConnectorOptionsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       fanout_options: z
         .lazy(() => unmarshalIngestionPipelineDefinition_FanoutOptionsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       sourceCatalog: d.source_catalog,
@@ -3847,10 +3870,12 @@ export const unmarshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType<Ing
         .lazy(
           () => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       connector_options: z
         .lazy(() => unmarshalConnectorOptionsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       sourceCatalog: d.source_catalog,
@@ -3878,17 +3903,20 @@ export const unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Z
           () =>
             unmarshalIngestionPipelineDefinition_WorkdayReportParametersSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       row_filter: z.string().optional(),
       query_based_connector_config: z
         .lazy(
           () =>
             unmarshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfigSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       auto_full_refresh_policy: z
         .lazy(() => unmarshalAutoFullRefreshPolicySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       table_properties: z.record(z.string(), z.string()).optional(),
       enable_auto_clustering: z.boolean().optional(),
       clustering_columns: z.array(z.string()).optional(),
@@ -3992,8 +4020,14 @@ export const unmarshalKafkaOptionsSchema: z.ZodType<KafkaOptions> = z
   .object({
     topics: z.array(z.string()).optional(),
     topic_pattern: z.string().optional(),
-    key_transformer: z.lazy(() => unmarshalTransformerSchema).optional(),
-    value_transformer: z.lazy(() => unmarshalTransformerSchema).optional(),
+    key_transformer: z
+      .lazy(() => unmarshalTransformerSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    value_transformer: z
+      .lazy(() => unmarshalTransformerSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     starting_offset: z.string().optional(),
     max_offsets_per_trigger: z
       .union([z.number(), z.bigint(), z.string()])
@@ -4020,7 +4054,8 @@ export const unmarshalLinkedInAdsOptionsSchema: z.ZodType<LinkedInAdsOptions> =
         .lazy(
           () => unmarshalLinkedInAdsOptions_LinkedInAdsCustomReportOptionsSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       syncStartDate: d.sync_start_date,
@@ -4111,7 +4146,8 @@ export const unmarshalMetaMarketingOptionsSchema: z.ZodType<MetaMarketingOptions
           () =>
             unmarshalMetaMarketingOptions_MetaMarketingCustomReportOptionsSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       level: d.level,
@@ -4169,7 +4205,8 @@ export const unmarshalOneDriveOptionsSchema: z.ZodType<OneDriveOptions> = z
     entity_type: z.string().optional(),
     file_ingestion_options: z
       .lazy(() => unmarshalFileIngestionOptionsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     url: d.url,
@@ -4287,20 +4324,24 @@ export const unmarshalPipelineClusterSchema: z.ZodType<PipelineCluster> = z
     spark_conf: z.record(z.string(), z.string()).optional(),
     aws_attributes: z
       .lazy(() => unmarshalPipelinesAwsAttributesSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     azure_attributes: z
       .lazy(() => unmarshalPipelinesAzureAttributesSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     gcp_attributes: z
       .lazy(() => unmarshalPipelinesGcpAttributesSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     node_type_id: z.string().optional(),
     driver_node_type_id: z.string().optional(),
     ssh_public_keys: z.array(z.string()).optional(),
     custom_tags: z.record(z.string(), z.string()).optional(),
     cluster_log_conf: z
       .lazy(() => unmarshalPipelinesClusterLogConfSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     spark_env_vars: z.record(z.string(), z.string()).optional(),
     init_scripts: z
       .array(z.lazy(() => unmarshalPipelinesInitScriptInfoSchema))
@@ -4356,15 +4397,27 @@ export const unmarshalPipelineDeploymentSchema: z.ZodType<PipelineDeployment> =
 export const unmarshalPipelineEventSchema: z.ZodType<PipelineEvent> = z
   .object({
     id: z.string().optional(),
-    sequence: z.lazy(() => unmarshalSequencingSchema).optional(),
-    origin: z.lazy(() => unmarshalOriginSchema).optional(),
+    sequence: z
+      .lazy(() => unmarshalSequencingSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    origin: z
+      .lazy(() => unmarshalOriginSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     timestamp: z.string().optional(),
     message: z.string().optional(),
     level: z.string().optional(),
-    error: z.lazy(() => unmarshalErrorDetailSchema).optional(),
+    error: z
+      .lazy(() => unmarshalErrorDetailSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     event_type: z.string().optional(),
     maturity_level: z.string().optional(),
-    truncation: z.lazy(() => unmarshalTruncationSchema).optional(),
+    truncation: z
+      .lazy(() => unmarshalTruncationSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     id: d.id,
@@ -4415,14 +4468,22 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
     libraries: z.array(z.lazy(() => unmarshalPipelineLibrarySchema)).optional(),
     ingestion_definition: z
       .lazy(() => unmarshalIngestionPipelineDefinitionSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     gateway_definition: z
       .lazy(() => unmarshalIngestionGatewayPipelineDefinitionSchema)
-      .optional(),
-    trigger: z.lazy(() => unmarshalPipelineTriggerSchema).optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
+    trigger: z
+      .lazy(() => unmarshalPipelineTriggerSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     target: z.string().optional(),
     schema: z.string().optional(),
-    filters: z.lazy(() => unmarshalFiltersSchema).optional(),
+    filters: z
+      .lazy(() => unmarshalFiltersSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     continuous: z.boolean().optional(),
     development: z.boolean().optional(),
     photon: z.boolean().optional(),
@@ -4433,13 +4494,25 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
       .array(z.lazy(() => unmarshalNotificationsSchema))
       .optional(),
     serverless: z.boolean().optional(),
-    deployment: z.lazy(() => unmarshalPipelineDeploymentSchema).optional(),
-    restart_window: z.lazy(() => unmarshalRestartWindowSchema).optional(),
+    deployment: z
+      .lazy(() => unmarshalPipelineDeploymentSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    restart_window: z
+      .lazy(() => unmarshalRestartWindowSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     budget_policy_id: z.string().optional(),
     tags: z.record(z.string(), z.string()).optional(),
-    event_log: z.lazy(() => unmarshalEventLogSpecSchema).optional(),
+    event_log: z
+      .lazy(() => unmarshalEventLogSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     root_path: z.string().optional(),
-    environment: z.lazy(() => unmarshalPipelinesEnvironmentSchema).optional(),
+    environment: z
+      .lazy(() => unmarshalPipelinesEnvironmentSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     parent_path: z.string().optional(),
     usage_policy_id: z.string().optional(),
     serverless_compute_id: z.string().optional(),
@@ -4689,7 +4762,10 @@ export const unmarshalPipelinesS3StorageInfoSchema: z.ZodType<PipelinesS3Storage
 export const unmarshalPostgresCatalogConfigSchema: z.ZodType<PostgresCatalogConfig> =
   z
     .object({
-      slot_config: z.lazy(() => unmarshalPostgresSlotConfigSchema).optional(),
+      slot_config: z
+        .lazy(() => unmarshalPostgresSlotConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       slotConfig: d.slot_config,
@@ -4715,7 +4791,8 @@ export const unmarshalProtobufTransformerOptionsSchema: z.ZodType<ProtobufTransf
       parse_mode: z.string().optional(),
       schema_registry: z
         .lazy(() => unmarshalSchemaRegistryConfigSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       descFilePath: d.desc_file_path,
@@ -4739,7 +4816,8 @@ export const unmarshalRedditAdsOptionsSchema: z.ZodType<RedditAdsOptions> = z
     lookback_window_days: z.number().optional(),
     custom_report_options: z
       .lazy(() => unmarshalRedditAdsOptions_RedditAdsCustomReportOptionsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     syncStartDate: d.sync_start_date,
@@ -4776,7 +4854,8 @@ export const unmarshalSchemaRegistryConfigSchema: z.ZodType<SchemaRegistryConfig
     .object({
       confluent_options: z
         .lazy(() => unmarshalConfluentSchemaRegistryOptionsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       protobuf_message_name: z.string().optional(),
       connection_name: z.string().optional(),
     })
@@ -4788,7 +4867,10 @@ export const unmarshalSchemaRegistryConfigSchema: z.ZodType<SchemaRegistryConfig
 
 export const unmarshalSequencingSchema: z.ZodType<Sequencing> = z
   .object({
-    data_plane_id: z.lazy(() => unmarshalDataPlaneIdSchema).optional(),
+    data_plane_id: z
+      .lazy(() => unmarshalDataPlaneIdSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     control_plane_seq_no: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -4818,7 +4900,8 @@ export const unmarshalSharepointOptionsSchema: z.ZodType<SharepointOptions> = z
     entity_type: z.string().optional(),
     file_ingestion_options: z
       .lazy(() => unmarshalFileIngestionOptionsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     url: d.url,
@@ -4850,7 +4933,10 @@ export const unmarshalSourceCatalogConfigSchema: z.ZodType<SourceCatalogConfig> 
 
 export const unmarshalSourceConfigSchema: z.ZodType<SourceConfig> = z
   .object({
-    catalog: z.lazy(() => unmarshalSourceCatalogConfigSchema).optional(),
+    catalog: z
+      .lazy(() => unmarshalSourceCatalogConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     google_ads_config: z.lazy(() => unmarshalGoogleAdsConfigSchema).optional(),
     api_source_connector_config: z
       .lazy(() => unmarshalApiSourceConnectorConfigSchema)
@@ -4909,7 +4995,8 @@ export const unmarshalTikTokAdsOptionsSchema: z.ZodType<TikTokAdsOptions> = z
     query_lifetime: z.boolean().optional(),
     custom_report_options: z
       .lazy(() => unmarshalTikTokAdsOptions_TikTokAdsCustomReportOptionsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     lookbackWindowDays: d.lookback_window_days,
@@ -4996,7 +5083,10 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
   .object({
     pipeline_id: z.string().optional(),
     update_id: z.string().optional(),
-    config: z.lazy(() => unmarshalPipelineSpecSchema).optional(),
+    config: z
+      .lazy(() => unmarshalPipelineSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     cause: z.string().optional(),
     state: z.string().optional(),
     cluster_id: z.string().optional(),

@@ -420,20 +420,35 @@ export const unmarshalMigrationSchema: z.ZodType<Migration> = z
     asset_type: z.string().optional(),
     asset_uri: z.string().optional(),
     state: z.string().optional(),
-    initiator: z.lazy(() => unmarshalMigration_InitiatorSchema).optional(),
-    validation_report: z.lazy(() => unmarshalValidationReportSchema).optional(),
-    baking_config: z.lazy(() => unmarshalBakingConfigSchema).optional(),
+    initiator: z
+      .lazy(() => unmarshalMigration_InitiatorSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    validation_report: z
+      .lazy(() => unmarshalValidationReportSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    baking_config: z
+      .lazy(() => unmarshalBakingConfigSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     create_time: z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    baking_report: z.lazy(() => unmarshalBakingReportSchema).optional(),
+    baking_report: z
+      .lazy(() => unmarshalBakingReportSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     state_history: z
       .array(z.lazy(() => unmarshalMigration_StateTransitionSchema))
       .optional(),
     etag: z.string().optional(),
     auto_approve: z.boolean().optional(),
-    migration_report: z.lazy(() => unmarshalMigrationReportSchema).optional(),
+    migration_report: z
+      .lazy(() => unmarshalMigrationReportSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     run_validation: z.boolean().optional(),
   })
   .transform(d => ({
@@ -501,7 +516,10 @@ export const unmarshalMigrationAssetSchema: z.ZodType<MigrationAsset> = z
 
 export const unmarshalMigrationReportSchema: z.ZodType<MigrationReport> = z
   .object({
-    primary_asset: z.lazy(() => unmarshalMigrationAssetSchema).optional(),
+    primary_asset: z
+      .lazy(() => unmarshalMigrationAssetSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     secondary_assets: z
       .array(z.lazy(() => unmarshalMigrationAssetSchema))
       .optional(),

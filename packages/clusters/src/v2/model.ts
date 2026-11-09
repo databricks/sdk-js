@@ -3692,7 +3692,8 @@ export const unmarshalAzureAttributesSchema: z.ZodType<AzureAttributes> = z
   .object({
     log_analytics_info: z
       .lazy(() => unmarshalLogAnalyticsInfoSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     first_on_demand: z.number().optional(),
     availability: z.string().optional(),
     spot_bid_max_price: z.number().optional(),
@@ -3726,33 +3727,53 @@ export const unmarshalClusterAttributesSchema: z.ZodType<ClusterAttributes> = z
     cluster_name: z.string().optional(),
     spark_version: z.string().optional(),
     spark_conf: z.record(z.string(), z.string()).optional(),
-    aws_attributes: z.lazy(() => unmarshalAwsAttributesSchema).optional(),
-    azure_attributes: z.lazy(() => unmarshalAzureAttributesSchema).optional(),
-    gcp_attributes: z.lazy(() => unmarshalGcpAttributesSchema).optional(),
+    aws_attributes: z
+      .lazy(() => unmarshalAwsAttributesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    azure_attributes: z
+      .lazy(() => unmarshalAzureAttributesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    gcp_attributes: z
+      .lazy(() => unmarshalGcpAttributesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     node_type_id: z.string().optional(),
     driver_node_type_id: z.string().optional(),
     worker_node_type_flexibility: z
       .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     driver_node_type_flexibility: z
       .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     ssh_public_keys: z.array(z.string()).optional(),
     custom_tags: z.record(z.string(), z.string()).optional(),
-    cluster_log_conf: z.lazy(() => unmarshalClusterLogConfSchema).optional(),
+    cluster_log_conf: z
+      .lazy(() => unmarshalClusterLogConfSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     spark_env_vars: z.record(z.string(), z.string()).optional(),
     autotermination_minutes: z.number().optional(),
     enable_elastic_disk: z.boolean().optional(),
     init_scripts: z
       .array(z.lazy(() => unmarshalInitScriptInfoSchema))
       .optional(),
-    docker_image: z.lazy(() => unmarshalDockerImageSchema).optional(),
+    docker_image: z
+      .lazy(() => unmarshalDockerImageSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     instance_pool_id: z.string().optional(),
     single_user_name: z.string().optional(),
     policy_id: z.string().optional(),
     enable_local_disk_encryption: z.boolean().optional(),
     driver_instance_pool_id: z.string().optional(),
-    workload_type: z.lazy(() => unmarshalWorkloadTypeSchema).optional(),
+    workload_type: z
+      .lazy(() => unmarshalWorkloadTypeSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     data_security_mode: z.string().optional(),
     runtime_engine: z.string().optional(),
     kind: z.string().optional(),
@@ -3804,7 +3825,8 @@ export const unmarshalClusterComplianceSchema: z.ZodType<ClusterCompliance> = z
     violations: z.record(z.string(), z.string()).optional(),
     pending_enforcement: z
       .lazy(() => unmarshalPendingEnforcementSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     clusterId: d.cluster_id,
@@ -3821,10 +3843,14 @@ export const unmarshalClusterEventSchema: z.ZodType<ClusterEvent> = z
       .transform(v => BigInt(v))
       .optional(),
     type: z.string().optional(),
-    details: z.lazy(() => unmarshalEventDetailsSchema).optional(),
+    details: z
+      .lazy(() => unmarshalEventDetailsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     data_plane_event_details: z
       .lazy(() => unmarshalDataPlaneEventDetailsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     clusterId: d.cluster_id,
@@ -3846,12 +3872,22 @@ export const unmarshalClusterInfoSchema: z.ZodType<ClusterInfo> = z
       .optional(),
     cluster_cores: z.number().optional(),
     default_tags: z.record(z.string(), z.string()).optional(),
-    cluster_log_status: z.lazy(() => unmarshalLogSyncStatusSchema).optional(),
+    cluster_log_status: z
+      .lazy(() => unmarshalLogSyncStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     termination_reason: z
       .lazy(() => unmarshalTerminationReasonSchema)
-      .optional(),
-    spec: z.lazy(() => unmarshalClusterInfo_ComputeSpecSchema).optional(),
-    driver: z.lazy(() => unmarshalSparkInfo_SparkNodeSchema).optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
+    spec: z
+      .lazy(() => unmarshalClusterInfo_ComputeSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    driver: z
+      .lazy(() => unmarshalSparkInfo_SparkNodeSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     executors: z
       .array(z.lazy(() => unmarshalSparkInfo_SparkNodeSchema))
       .optional(),
@@ -3863,33 +3899,53 @@ export const unmarshalClusterInfoSchema: z.ZodType<ClusterInfo> = z
     cluster_name: z.string().optional(),
     spark_version: z.string().optional(),
     spark_conf: z.record(z.string(), z.string()).optional(),
-    aws_attributes: z.lazy(() => unmarshalAwsAttributesSchema).optional(),
-    azure_attributes: z.lazy(() => unmarshalAzureAttributesSchema).optional(),
-    gcp_attributes: z.lazy(() => unmarshalGcpAttributesSchema).optional(),
+    aws_attributes: z
+      .lazy(() => unmarshalAwsAttributesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    azure_attributes: z
+      .lazy(() => unmarshalAzureAttributesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    gcp_attributes: z
+      .lazy(() => unmarshalGcpAttributesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     node_type_id: z.string().optional(),
     driver_node_type_id: z.string().optional(),
     worker_node_type_flexibility: z
       .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     driver_node_type_flexibility: z
       .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     ssh_public_keys: z.array(z.string()).optional(),
     custom_tags: z.record(z.string(), z.string()).optional(),
-    cluster_log_conf: z.lazy(() => unmarshalClusterLogConfSchema).optional(),
+    cluster_log_conf: z
+      .lazy(() => unmarshalClusterLogConfSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     spark_env_vars: z.record(z.string(), z.string()).optional(),
     autotermination_minutes: z.number().optional(),
     enable_elastic_disk: z.boolean().optional(),
     init_scripts: z
       .array(z.lazy(() => unmarshalInitScriptInfoSchema))
       .optional(),
-    docker_image: z.lazy(() => unmarshalDockerImageSchema).optional(),
+    docker_image: z
+      .lazy(() => unmarshalDockerImageSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     instance_pool_id: z.string().optional(),
     single_user_name: z.string().optional(),
     policy_id: z.string().optional(),
     enable_local_disk_encryption: z.boolean().optional(),
     driver_instance_pool_id: z.string().optional(),
-    workload_type: z.lazy(() => unmarshalWorkloadTypeSchema).optional(),
+    workload_type: z
+      .lazy(() => unmarshalWorkloadTypeSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     data_security_mode: z.string().optional(),
     runtime_engine: z.string().optional(),
     kind: z.string().optional(),
@@ -3984,33 +4040,53 @@ export const unmarshalClusterInfo_ComputeSpecSchema: z.ZodType<ClusterInfo_Compu
       cluster_name: z.string().optional(),
       spark_version: z.string().optional(),
       spark_conf: z.record(z.string(), z.string()).optional(),
-      aws_attributes: z.lazy(() => unmarshalAwsAttributesSchema).optional(),
-      azure_attributes: z.lazy(() => unmarshalAzureAttributesSchema).optional(),
-      gcp_attributes: z.lazy(() => unmarshalGcpAttributesSchema).optional(),
+      aws_attributes: z
+        .lazy(() => unmarshalAwsAttributesSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      azure_attributes: z
+        .lazy(() => unmarshalAzureAttributesSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      gcp_attributes: z
+        .lazy(() => unmarshalGcpAttributesSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       node_type_id: z.string().optional(),
       driver_node_type_id: z.string().optional(),
       worker_node_type_flexibility: z
         .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       driver_node_type_flexibility: z
         .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       ssh_public_keys: z.array(z.string()).optional(),
       custom_tags: z.record(z.string(), z.string()).optional(),
-      cluster_log_conf: z.lazy(() => unmarshalClusterLogConfSchema).optional(),
+      cluster_log_conf: z
+        .lazy(() => unmarshalClusterLogConfSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       spark_env_vars: z.record(z.string(), z.string()).optional(),
       autotermination_minutes: z.number().optional(),
       enable_elastic_disk: z.boolean().optional(),
       init_scripts: z
         .array(z.lazy(() => unmarshalInitScriptInfoSchema))
         .optional(),
-      docker_image: z.lazy(() => unmarshalDockerImageSchema).optional(),
+      docker_image: z
+        .lazy(() => unmarshalDockerImageSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       instance_pool_id: z.string().optional(),
       single_user_name: z.string().optional(),
       policy_id: z.string().optional(),
       enable_local_disk_encryption: z.boolean().optional(),
       driver_instance_pool_id: z.string().optional(),
-      workload_type: z.lazy(() => unmarshalWorkloadTypeSchema).optional(),
+      workload_type: z
+        .lazy(() => unmarshalWorkloadTypeSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       data_security_mode: z.string().optional(),
       runtime_engine: z.string().optional(),
       kind: z.string().optional(),
@@ -4186,33 +4262,53 @@ export const unmarshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsS
       cluster_name: z.string().optional(),
       spark_version: z.string().optional(),
       spark_conf: z.record(z.string(), z.string()).optional(),
-      aws_attributes: z.lazy(() => unmarshalAwsAttributesSchema).optional(),
-      azure_attributes: z.lazy(() => unmarshalAzureAttributesSchema).optional(),
-      gcp_attributes: z.lazy(() => unmarshalGcpAttributesSchema).optional(),
+      aws_attributes: z
+        .lazy(() => unmarshalAwsAttributesSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      azure_attributes: z
+        .lazy(() => unmarshalAzureAttributesSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      gcp_attributes: z
+        .lazy(() => unmarshalGcpAttributesSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       node_type_id: z.string().optional(),
       driver_node_type_id: z.string().optional(),
       worker_node_type_flexibility: z
         .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       driver_node_type_flexibility: z
         .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       ssh_public_keys: z.array(z.string()).optional(),
       custom_tags: z.record(z.string(), z.string()).optional(),
-      cluster_log_conf: z.lazy(() => unmarshalClusterLogConfSchema).optional(),
+      cluster_log_conf: z
+        .lazy(() => unmarshalClusterLogConfSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       spark_env_vars: z.record(z.string(), z.string()).optional(),
       autotermination_minutes: z.number().optional(),
       enable_elastic_disk: z.boolean().optional(),
       init_scripts: z
         .array(z.lazy(() => unmarshalInitScriptInfoSchema))
         .optional(),
-      docker_image: z.lazy(() => unmarshalDockerImageSchema).optional(),
+      docker_image: z
+        .lazy(() => unmarshalDockerImageSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       instance_pool_id: z.string().optional(),
       single_user_name: z.string().optional(),
       policy_id: z.string().optional(),
       enable_local_disk_encryption: z.boolean().optional(),
       driver_instance_pool_id: z.string().optional(),
-      workload_type: z.lazy(() => unmarshalWorkloadTypeSchema).optional(),
+      workload_type: z
+        .lazy(() => unmarshalWorkloadTypeSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       data_security_mode: z.string().optional(),
       runtime_engine: z.string().optional(),
       kind: z.string().optional(),
@@ -4285,12 +4381,25 @@ export const unmarshalEventDetailsSchema: z.ZodType<EventDetails> = z
     target_num_workers: z.number().optional(),
     previous_attributes: z
       .lazy(() => unmarshalClusterAttributesSchema)
-      .optional(),
-    attributes: z.lazy(() => unmarshalClusterAttributesSchema).optional(),
-    previous_cluster_size: z.lazy(() => unmarshalClusterSizeSchema).optional(),
-    cluster_size: z.lazy(() => unmarshalClusterSizeSchema).optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
+    attributes: z
+      .lazy(() => unmarshalClusterAttributesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    previous_cluster_size: z
+      .lazy(() => unmarshalClusterSizeSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    cluster_size: z
+      .lazy(() => unmarshalClusterSizeSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     cause: z.string().optional(),
-    reason: z.lazy(() => unmarshalTerminationReasonSchema).optional(),
+    reason: z
+      .lazy(() => unmarshalTerminationReasonSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     user: z.string().optional(),
     previous_disk_size: z
       .union([z.number(), z.bigint(), z.string()])
@@ -4310,7 +4419,8 @@ export const unmarshalEventDetailsSchema: z.ZodType<EventDetails> = z
     job_run_name: z.string().optional(),
     init_scripts: z
       .lazy(() => unmarshalInitScriptEventDetailsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     enable_termination_for_node_blocklisted: z.boolean().optional(),
     current_num_vcpus: z.number().optional(),
     target_num_vcpus: z.number().optional(),
@@ -4372,7 +4482,10 @@ export const unmarshalGcsStorageInfoSchema: z.ZodType<GcsStorageInfo> = z
 export const unmarshalGetEventsResponseSchema: z.ZodType<GetEventsResponse> = z
   .object({
     events: z.array(z.lazy(() => unmarshalClusterEventSchema)).optional(),
-    next_page: z.lazy(() => unmarshalListEventsRequestSchema).optional(),
+    next_page: z
+      .lazy(() => unmarshalListEventsRequestSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     total_count: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -4395,7 +4508,8 @@ export const unmarshalGetPolicyComplianceForClusterResponseSchema: z.ZodType<Get
       violations: z.record(z.string(), z.string()).optional(),
       pending_enforcement: z
         .lazy(() => unmarshalPendingEnforcementSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       isCompliant: d.is_compliant,
@@ -4652,12 +4766,16 @@ export const unmarshalNodeTypeSchema: z.ZodType<NodeType> = z
     num_gpus: z.number().optional(),
     node_instance_type: z
       .lazy(() => unmarshalNodeInstanceTypeSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     is_hidden: z.boolean().optional(),
     support_port_forwarding: z.boolean().optional(),
     display_order: z.number().optional(),
     is_io_cache_enabled: z.boolean().optional(),
-    node_info: z.lazy(() => unmarshalCloudProviderNodeInfoSchema).optional(),
+    node_info: z
+      .lazy(() => unmarshalCloudProviderNodeInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     photon_worker_capable: z.boolean().optional(),
     photon_driver_capable: z.boolean().optional(),
     is_encrypted_in_transit: z.boolean().optional(),
@@ -4705,7 +4823,8 @@ export const unmarshalPendingEnforcementSchema: z.ZodType<PendingEnforcement> =
           () =>
             unmarshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       initiate_time: z
         .string()
         .transform(s => Temporal.Instant.from(s))
@@ -4775,7 +4894,8 @@ export const unmarshalSparkInfo_SparkNodeSchema: z.ZodType<SparkInfo_SparkNode> 
         .optional(),
       node_aws_attributes: z
         .lazy(() => unmarshalSparkInfo_SparkNode_SparkNodeAwsAttributesSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       host_private_ip: z.string().optional(),
     })
     .transform(d => ({
@@ -4840,7 +4960,10 @@ export const unmarshalVolumesStorageInfoSchema: z.ZodType<VolumesStorageInfo> =
 
 export const unmarshalWorkloadTypeSchema: z.ZodType<WorkloadType> = z
   .object({
-    clients: z.lazy(() => unmarshalWorkloadType_ClientsTypesSchema).optional(),
+    clients: z
+      .lazy(() => unmarshalWorkloadType_ClientsTypesSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     clients: d.clients,

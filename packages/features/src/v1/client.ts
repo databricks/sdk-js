@@ -65,6 +65,8 @@ import type {
   PurgeFeatureEntitiesRequest,
   PurgeFeatureEntitiesResponse,
   Stream,
+  TriggerMaterializationSetRequest,
+  TriggerMaterializationSetResponse,
   UpdateFeatureRequest,
   UpdateKafkaConfigRequest,
   UpdateMaterializationSetRequest,
@@ -82,6 +84,7 @@ import {
   marshalMaterializedFeatureSchema,
   marshalPurgeFeatureEntitiesRequestSchema,
   marshalStreamSchema,
+  marshalTriggerMaterializationSetRequestSchema,
   unmarshalBackfillFeaturesResponseSchema,
   unmarshalBackfillOperationMetadataSchema,
   unmarshalBatchCreateMaterializedFeaturesResponseSchema,
@@ -99,6 +102,7 @@ import {
   unmarshalPurgeFeatureEntitiesMetadataSchema,
   unmarshalPurgeFeatureEntitiesResponseSchema,
   unmarshalStreamSchema,
+  unmarshalTriggerMaterializationSetResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -1114,6 +1118,82 @@ export class FeaturesClient {
     );
   }
 
+  /**
+   * Requests materialization of all members of the set.
+   * The set must be nonempty and contain only batch materializations.
+   * Runs are allowed while automatic scheduling is paused. Requested runs may wait in a
+   * queue, subject to queue limits and expiry.
+   *
+   * Returns a long-running operation that completes when every requested run reaches a terminal
+   * state. Success requires all runs and any required online synchronization to succeed.
+   * Individual outcomes are available in `MaterializationSetTriggerProgress`.
+   *
+   * Use `CancelOperation` to request cancellation of this operation's unfinished work.
+   * Cancellation is best effort and does not undo completed writes. Online synchronization
+   * already in progress may continue.
+   *
+   * Runs use the features' configured windows and settling delay.
+   */
+  private async triggerMaterializationSetBase(
+    req: TriggerMaterializationSetRequest,
+    options?: CallOptions
+  ): Promise<Operation> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/feature-engineering/materialization-sets/${req.materializationSetId ?? ''}/trigger`;
+    const body = marshalRequest(
+      req,
+      marshalTriggerMaterializationSetRequestSchema
+    );
+    let resp: Operation | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Requests materialization of all members of the set.
+   * The set must be nonempty and contain only batch materializations.
+   * Runs are allowed while automatic scheduling is paused. Requested runs may wait in a
+   * queue, subject to queue limits and expiry.
+   *
+   * Returns a long-running operation that completes when every requested run reaches a terminal
+   * state. Success requires all runs and any required online synchronization to succeed.
+   * Individual outcomes are available in `MaterializationSetTriggerProgress`.
+   *
+   * Use `CancelOperation` to request cancellation of this operation's unfinished work.
+   * Cancellation is best effort and does not undo completed writes. Online synchronization
+   * already in progress may continue.
+   *
+   * Runs use the features' configured windows and settling delay.
+   */
+  async triggerMaterializationSet(
+    req: TriggerMaterializationSetRequest,
+    options?: CallOptions
+  ): Promise<TriggerMaterializationSetOperation> {
+    const op = await this.triggerMaterializationSetBase(req, options);
+    return new TriggerMaterializationSetOperation(
+      op,
+      (req, options) => this.getOperation(req, options),
+      (req, options) => this.cancelOperation(req, options)
+    );
+  }
+
   /** Update a Feature. */
   async updateFeature(
     req: UpdateFeatureRequest,
@@ -1699,6 +1779,101 @@ export class PurgeFeatureEntitiesOperation {
     const op = await this.getOperation({name: this.operation.name}, options);
     this.operation = op;
     return op.done;
+  }
+}
+
+export class TriggerMaterializationSetOperation {
+  constructor(
+    private operation: Operation,
+    private readonly getOperation: (
+      req: GetOperationRequest,
+      options?: CallOptions
+    ) => Promise<Operation>,
+    private readonly cancelOperation: (
+      req: CancelOperationRequest,
+      options?: CallOptions
+    ) => Promise<void>
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<MaterializationSetOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalMaterializationSetOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(options?: LroOptions): Promise<TriggerMaterializationSetResponse> {
+    let result: TriggerMaterializationSetResponse | undefined;
+
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.getOperation(
+        {
+          name: this.operation.name,
+        },
+        callSignal !== undefined ? {signal: callSignal} : undefined
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw new StillRunningError();
+      }
+
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
+        const msg =
+          err.message !== undefined && err.message !== ''
+            ? err.message
+            : 'unknown error';
+        const errorMsg =
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: err,
+        });
+      }
+
+      if (op.result?.$case !== 'response') {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z
+        .lazy(() => unmarshalTriggerMaterializationSetResponseSchema)
+        .parse(op.result.response);
+    };
+
+    await executeWait(call, options);
+    if (result === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(options?: CallOptions): Promise<boolean | undefined> {
+    const op = await this.getOperation({name: this.operation.name}, options);
+    this.operation = op;
+    return op.done;
+  }
+
+  /** Starts asynchronous cancellation on the long-running operation. */
+  async cancel(options?: CallOptions): Promise<void> {
+    await this.cancelOperation({name: this.operation.name}, options);
   }
 }
 

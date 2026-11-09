@@ -496,7 +496,10 @@ export const unmarshalBudgetConfigurationSchema: z.ZodType<BudgetConfiguration> 
       alert_configurations: z
         .array(z.lazy(() => unmarshalAlertConfigurationSchema))
         .optional(),
-      filter: z.lazy(() => unmarshalBudgetConfigurationFilterSchema).optional(),
+      filter: z
+        .lazy(() => unmarshalBudgetConfigurationFilterSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       display_name: z.string().optional(),
       include_external_spend: z.boolean().optional(),
       resource_type: z.string().optional(),
@@ -518,7 +521,8 @@ export const unmarshalBudgetConfigurationFilterSchema: z.ZodType<BudgetConfigura
     .object({
       workspace_id: z
         .lazy(() => unmarshalBudgetConfigurationFilter_WorkspaceIdClauseSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       tags: z
         .array(z.lazy(() => unmarshalBudgetConfigurationFilter_TagClauseSchema))
         .optional(),
@@ -547,7 +551,8 @@ export const unmarshalBudgetConfigurationFilter_TagClauseSchema: z.ZodType<Budge
       key: z.string().optional(),
       value: z
         .lazy(() => unmarshalBudgetConfigurationFilter_ClauseSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       key: d.key,
@@ -587,7 +592,10 @@ export const unmarshalBudgetSpendStatusSchema: z.ZodType<BudgetSpendStatus> = z
 export const unmarshalCreateBudgetConfigurationResponseSchema: z.ZodType<CreateBudgetConfigurationResponse> =
   z
     .object({
-      budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
+      budget: z
+        .lazy(() => unmarshalBudgetConfigurationSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       budget: d.budget,
@@ -599,7 +607,10 @@ export const unmarshalDeleteBudgetConfigurationResponseSchema: z.ZodType<DeleteB
 export const unmarshalGetBudgetConfigurationResponseSchema: z.ZodType<GetBudgetConfigurationResponse> =
   z
     .object({
-      budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
+      budget: z
+        .lazy(() => unmarshalBudgetConfigurationSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       budget: d.budget,
@@ -647,7 +658,10 @@ export const unmarshalPrincipalOverrideSchema: z.ZodType<PrincipalOverride> = z
 export const unmarshalUpdateBudgetConfigurationResponseSchema: z.ZodType<UpdateBudgetConfigurationResponse> =
   z
     .object({
-      budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
+      budget: z
+        .lazy(() => unmarshalBudgetConfigurationSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       budget: d.budget,

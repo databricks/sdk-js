@@ -499,7 +499,10 @@ export const unmarshalExecuteCommandSyncResponseSchema: z.ZodType<ExecuteCommand
 export const unmarshalGetMetadataResponseSchema: z.ZodType<GetMetadataResponse> =
   z
     .object({
-      file: z.lazy(() => unmarshalSandboxFileInfoSchema).optional(),
+      file: z
+        .lazy(() => unmarshalSandboxFileInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       file: d.file,
@@ -545,9 +548,18 @@ export const unmarshalRenamePathResponseSchema: z.ZodType<RenamePathResponse> =
 
 export const unmarshalSandboxSchema: z.ZodType<Sandbox> = z
   .object({
-    metadata: z.lazy(() => unmarshalSandboxMetadataSchema).optional(),
-    spec: z.lazy(() => unmarshalSandboxSpecSchema).optional(),
-    status: z.lazy(() => unmarshalSandboxStatusSchema).optional(),
+    metadata: z
+      .lazy(() => unmarshalSandboxMetadataSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    spec: z
+      .lazy(() => unmarshalSandboxSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalSandboxStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     name: z.string().optional(),
     create_time: z
       .string()
@@ -611,8 +623,14 @@ export const unmarshalSandboxMetadataSchema: z.ZodType<SandboxMetadata> = z
 
 export const unmarshalSandboxSpecSchema: z.ZodType<SandboxSpec> = z
   .object({
-    compute: z.lazy(() => unmarshalComputeSpecSchema).optional(),
-    environment: z.lazy(() => unmarshalEnvironmentSpecSchema).optional(),
+    compute: z
+      .lazy(() => unmarshalComputeSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    environment: z
+      .lazy(() => unmarshalEnvironmentSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     compute: d.compute,

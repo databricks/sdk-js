@@ -485,7 +485,8 @@ export const unmarshalFunctionInfoSchema: z.ZodType<FunctionInfo> = z
     schema_name: z.string().optional(),
     input_params: z
       .lazy(() => unmarshalFunctionParameterInfosSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     data_type: z.string().optional(),
     full_data_type: z.string().optional(),
     routine_body: z.string().optional(),
@@ -498,7 +499,8 @@ export const unmarshalFunctionInfoSchema: z.ZodType<FunctionInfo> = z
     specific_name: z.string().optional(),
     return_params: z
       .lazy(() => unmarshalFunctionParameterInfosSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     external_name: z.string().optional(),
     external_language: z.string().optional(),
     sql_path: z.string().optional(),
@@ -507,7 +509,8 @@ export const unmarshalFunctionInfoSchema: z.ZodType<FunctionInfo> = z
     properties: z.string().optional(),
     routine_dependencies: z
       .lazy(() => unmarshalDependencyListSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     metastore_id: z.string().optional(),
     full_name: z.string().optional(),
     created_at: z

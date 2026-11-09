@@ -1013,7 +1013,10 @@ export const unmarshalAccountGroupSchema: z.ZodType<AccountGroup> = z
     members: z
       .array(z.lazy(() => unmarshalAccountComplexValueSchema))
       .optional(),
-    meta: z.lazy(() => unmarshalAccountResourceMetaSchema).optional(),
+    meta: z
+      .lazy(() => unmarshalAccountResourceMetaSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     roles: z.array(z.lazy(() => unmarshalAccountComplexValueSchema)).optional(),
     account_id: z.string().optional(),
   })
@@ -1078,7 +1081,10 @@ export const unmarshalAccountUserSchema: z.ZodType<AccountUser> = z
       .optional(),
     externalId: z.string().optional(),
     id: z.string().optional(),
-    name: z.lazy(() => unmarshalAccountNameSchema).optional(),
+    name: z
+      .lazy(() => unmarshalAccountNameSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     roles: z.array(z.lazy(() => unmarshalAccountComplexValueSchema)).optional(),
     userName: z.string().optional(),
     account_id: z.string().optional(),
@@ -1130,7 +1136,10 @@ export const unmarshalGroupSchema: z.ZodType<Group> = z
     groups: z.array(z.lazy(() => unmarshalComplexValueSchema)).optional(),
     id: z.string().optional(),
     members: z.array(z.lazy(() => unmarshalComplexValueSchema)).optional(),
-    meta: z.lazy(() => unmarshalResourceMetaSchema).optional(),
+    meta: z
+      .lazy(() => unmarshalResourceMetaSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     roles: z.array(z.lazy(() => unmarshalComplexValueSchema)).optional(),
     schemas: z.array(z.string()).optional(),
   })
@@ -1372,7 +1381,10 @@ export const unmarshalUserSchema: z.ZodType<User> = z
     externalId: z.string().optional(),
     groups: z.array(z.lazy(() => unmarshalComplexValueSchema)).optional(),
     id: z.string().optional(),
-    name: z.lazy(() => unmarshalNameSchema).optional(),
+    name: z
+      .lazy(() => unmarshalNameSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     roles: z.array(z.lazy(() => unmarshalComplexValueSchema)).optional(),
     schemas: z.array(z.string()).optional(),
     userName: z.string().optional(),

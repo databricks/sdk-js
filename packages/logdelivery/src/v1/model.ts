@@ -257,7 +257,8 @@ export const unmarshalCreateLogDeliveryConfigurationResponseSchema: z.ZodType<Cr
     .object({
       log_delivery_configuration: z
         .lazy(() => unmarshalLogDeliveryConfigurationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       logDeliveryConfiguration: d.log_delivery_configuration,
@@ -268,7 +269,8 @@ export const unmarshalGetLogDeliveryConfigurationResponseSchema: z.ZodType<GetLo
     .object({
       log_delivery_configuration: z
         .lazy(() => unmarshalLogDeliveryConfigurationSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       logDeliveryConfiguration: d.log_delivery_configuration,
@@ -317,7 +319,8 @@ export const unmarshalLogDeliveryConfigurationSchema: z.ZodType<LogDeliveryConfi
         .optional(),
       log_delivery_status: z
         .lazy(() => unmarshalLogDeliveryStatusSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       configId: d.config_id,

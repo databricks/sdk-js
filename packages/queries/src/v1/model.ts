@@ -431,7 +431,8 @@ export const unmarshalEnumValueSchema: z.ZodType<EnumValue> = z
     enum_options: z.string().optional(),
     multi_values_options: z
       .lazy(() => unmarshalMultiValuesOptionsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     values: d.values,
@@ -583,7 +584,8 @@ export const unmarshalQueryBackedValueSchema: z.ZodType<QueryBackedValue> = z
     query_id: z.string().optional(),
     multi_values_options: z
       .lazy(() => unmarshalMultiValuesOptionsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     values: d.values,

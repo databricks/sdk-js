@@ -751,7 +751,10 @@ export const unmarshalDeleteInstancePoolResponseSchema: z.ZodType<DeleteInstance
 
 export const unmarshalDiskSpecSchema: z.ZodType<DiskSpec> = z
   .object({
-    disk_type: z.lazy(() => unmarshalDiskTypeSchema).optional(),
+    disk_type: z
+      .lazy(() => unmarshalDiskTypeSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     disk_count: z.number().optional(),
     disk_size: z.number().optional(),
     disk_iops: z.number().optional(),
@@ -811,8 +814,14 @@ export const unmarshalEditInstancePoolResponseSchema: z.ZodType<EditInstancePool
 export const unmarshalGetInstancePoolResponseSchema: z.ZodType<GetInstancePoolResponse> =
   z
     .object({
-      stats: z.lazy(() => unmarshalInstancePoolStatsSchema).optional(),
-      status: z.lazy(() => unmarshalInstancePoolStatusSchema).optional(),
+      stats: z
+        .lazy(() => unmarshalInstancePoolStatsSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      status: z
+        .lazy(() => unmarshalInstancePoolStatusSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       instance_pool_id: z.string().optional(),
       default_tags: z.record(z.string(), z.string()).optional(),
       state: z.string().optional(),
@@ -821,25 +830,32 @@ export const unmarshalGetInstancePoolResponseSchema: z.ZodType<GetInstancePoolRe
       max_capacity: z.number().optional(),
       aws_attributes: z
         .lazy(() => unmarshalInstancePoolAwsAttributesSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       node_type_id: z.string().optional(),
       custom_tags: z.record(z.string(), z.string()).optional(),
       idle_instance_autotermination_minutes: z.number().optional(),
       enable_elastic_disk: z.boolean().optional(),
-      disk_spec: z.lazy(() => unmarshalDiskSpecSchema).optional(),
+      disk_spec: z
+        .lazy(() => unmarshalDiskSpecSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       preloaded_docker_images: z
         .array(z.lazy(() => unmarshalDockerImageSchema))
         .optional(),
       preloaded_spark_versions: z.array(z.string()).optional(),
       azure_attributes: z
         .lazy(() => unmarshalInstancePoolAzureAttributesSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       gcp_attributes: z
         .lazy(() => unmarshalInstancePoolGcpAttributesSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       node_type_flexibility: z
         .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       remote_disk_throughput: z.number().optional(),
       total_initial_remote_disk_size: z.number().optional(),
     })
@@ -871,8 +887,14 @@ export const unmarshalGetInstancePoolResponseSchema: z.ZodType<GetInstancePoolRe
 export const unmarshalInstancePoolAndStatsSchema: z.ZodType<InstancePoolAndStats> =
   z
     .object({
-      stats: z.lazy(() => unmarshalInstancePoolStatsSchema).optional(),
-      status: z.lazy(() => unmarshalInstancePoolStatusSchema).optional(),
+      stats: z
+        .lazy(() => unmarshalInstancePoolStatsSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      status: z
+        .lazy(() => unmarshalInstancePoolStatusSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       instance_pool_id: z.string().optional(),
       default_tags: z.record(z.string(), z.string()).optional(),
       state: z.string().optional(),
@@ -881,25 +903,32 @@ export const unmarshalInstancePoolAndStatsSchema: z.ZodType<InstancePoolAndStats
       max_capacity: z.number().optional(),
       aws_attributes: z
         .lazy(() => unmarshalInstancePoolAwsAttributesSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       node_type_id: z.string().optional(),
       custom_tags: z.record(z.string(), z.string()).optional(),
       idle_instance_autotermination_minutes: z.number().optional(),
       enable_elastic_disk: z.boolean().optional(),
-      disk_spec: z.lazy(() => unmarshalDiskSpecSchema).optional(),
+      disk_spec: z
+        .lazy(() => unmarshalDiskSpecSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       preloaded_docker_images: z
         .array(z.lazy(() => unmarshalDockerImageSchema))
         .optional(),
       preloaded_spark_versions: z.array(z.string()).optional(),
       azure_attributes: z
         .lazy(() => unmarshalInstancePoolAzureAttributesSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       gcp_attributes: z
         .lazy(() => unmarshalInstancePoolGcpAttributesSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       node_type_flexibility: z
         .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       remote_disk_throughput: z.number().optional(),
       total_initial_remote_disk_size: z.number().optional(),
     })

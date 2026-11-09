@@ -1344,8 +1344,12 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
     routine_definition: z.string().optional(),
     input_params: z
       .lazy(() => unmarshalFunctionParameterInfosSchema)
-      .optional(),
-    dependency_list: z.lazy(() => unmarshalDependencyListSchema).optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
+    dependency_list: z
+      .lazy(() => unmarshalDependencyListSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     properties: z.string().optional(),
   })
   .transform(d => ({
@@ -1477,7 +1481,10 @@ export const unmarshalListProviderShareAssetsResponseSchema: z.ZodType<ListProvi
       functions: z.array(z.lazy(() => unmarshalFunctionSchema)).optional(),
       notebooks: z.array(z.lazy(() => unmarshalNotebookFileSchema)).optional(),
       volumes: z.array(z.lazy(() => unmarshalVolumeSchema)).optional(),
-      share: z.lazy(() => unmarshalShareSchema).optional(),
+      share: z
+        .lazy(() => unmarshalShareSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       tables: d.tables,
@@ -1624,7 +1631,10 @@ export const unmarshalProviderInfoSchema: z.ZodType<ProviderInfo> = z
     recipient_profile_str: z.string().optional(),
     comment: z.string().optional(),
     owner: z.string().optional(),
-    recipient_profile: z.lazy(() => unmarshalRecipientProfileSchema).optional(),
+    recipient_profile: z
+      .lazy(() => unmarshalRecipientProfileSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     created_at: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
@@ -1673,10 +1683,14 @@ export const unmarshalRecipientInfoSchema: z.ZodType<RecipientInfo> = z
     data_recipient_global_metastore_id: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
-    ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
+    ip_access_list: z
+      .lazy(() => unmarshalIpAccessListSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     properties_kvpairs: z
       .lazy(() => unmarshalPropertiesKvPairsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     expiration_time: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))

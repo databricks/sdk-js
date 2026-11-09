@@ -1276,7 +1276,10 @@ export const unmarshalCreateExperimentResponseSchema: z.ZodType<CreateExperiment
 export const unmarshalCreateLoggedModelResponseSchema: z.ZodType<CreateLoggedModelResponse> =
   z
     .object({
-      model: z.lazy(() => unmarshalLoggedModelSchema).optional(),
+      model: z
+        .lazy(() => unmarshalLoggedModelSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       model: d.model,
@@ -1284,7 +1287,10 @@ export const unmarshalCreateLoggedModelResponseSchema: z.ZodType<CreateLoggedMod
 
 export const unmarshalCreateRunResponseSchema: z.ZodType<CreateRunResponse> = z
   .object({
-    run: z.lazy(() => unmarshalRunSchema).optional(),
+    run: z
+      .lazy(() => unmarshalRunSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     run: d.run,
@@ -1311,7 +1317,10 @@ export const unmarshalDatasetSchema: z.ZodType<Dataset> = z
 export const unmarshalDatasetInputSchema: z.ZodType<DatasetInput> = z
   .object({
     tags: z.array(z.lazy(() => unmarshalInputTagSchema)).optional(),
-    dataset: z.lazy(() => unmarshalDatasetSchema).optional(),
+    dataset: z
+      .lazy(() => unmarshalDatasetSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     tags: d.tags,
@@ -1359,7 +1368,8 @@ export const unmarshalExperimentSchema: z.ZodType<Experiment> = z
     tags: z.array(z.lazy(() => unmarshalExperimentTagSchema)).optional(),
     trace_location: z
       .lazy(() => unmarshalExperimentTraceLocationSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     experimentId: d.experiment_id,
@@ -1417,7 +1427,10 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
 export const unmarshalFinalizeLoggedModelResponseSchema: z.ZodType<FinalizeLoggedModelResponse> =
   z
     .object({
-      model: z.lazy(() => unmarshalLoggedModelSchema).optional(),
+      model: z
+        .lazy(() => unmarshalLoggedModelSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       model: d.model,
@@ -1426,7 +1439,10 @@ export const unmarshalFinalizeLoggedModelResponseSchema: z.ZodType<FinalizeLogge
 export const unmarshalGetExperimentByNameResponseSchema: z.ZodType<GetExperimentByNameResponse> =
   z
     .object({
-      experiment: z.lazy(() => unmarshalExperimentSchema).optional(),
+      experiment: z
+        .lazy(() => unmarshalExperimentSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       experiment: d.experiment,
@@ -1435,7 +1451,10 @@ export const unmarshalGetExperimentByNameResponseSchema: z.ZodType<GetExperiment
 export const unmarshalGetExperimentResponseSchema: z.ZodType<GetExperimentResponse> =
   z
     .object({
-      experiment: z.lazy(() => unmarshalExperimentSchema).optional(),
+      experiment: z
+        .lazy(() => unmarshalExperimentSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       runs: z.array(z.lazy(() => unmarshalRunInfoSchema)).optional(),
     })
     .transform(d => ({
@@ -1446,7 +1465,10 @@ export const unmarshalGetExperimentResponseSchema: z.ZodType<GetExperimentRespon
 export const unmarshalGetLoggedModelResponseSchema: z.ZodType<GetLoggedModelResponse> =
   z
     .object({
-      model: z.lazy(() => unmarshalLoggedModelSchema).optional(),
+      model: z
+        .lazy(() => unmarshalLoggedModelSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       model: d.model,
@@ -1465,7 +1487,10 @@ export const unmarshalGetMetricHistoryResponseSchema: z.ZodType<GetMetricHistory
 
 export const unmarshalGetRunResponseSchema: z.ZodType<GetRunResponse> = z
   .object({
-    run: z.lazy(() => unmarshalRunSchema).optional(),
+    run: z
+      .lazy(() => unmarshalRunSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     run: d.run,
@@ -1575,8 +1600,14 @@ export const unmarshalLogParamResponseSchema: z.ZodType<LogParamResponse> =
 
 export const unmarshalLoggedModelSchema: z.ZodType<LoggedModel> = z
   .object({
-    info: z.lazy(() => unmarshalLoggedModelInfoSchema).optional(),
-    data: z.lazy(() => unmarshalLoggedModelDataSchema).optional(),
+    info: z
+      .lazy(() => unmarshalLoggedModelInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    data: z
+      .lazy(() => unmarshalLoggedModelDataSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     info: d.info,
@@ -1718,9 +1749,18 @@ export const unmarshalRestoreRunsResponseSchema: z.ZodType<RestoreRunsResponse> 
 
 export const unmarshalRunSchema: z.ZodType<Run> = z
   .object({
-    info: z.lazy(() => unmarshalRunInfoSchema).optional(),
-    data: z.lazy(() => unmarshalRunDataSchema).optional(),
-    inputs: z.lazy(() => unmarshalRunInputsSchema).optional(),
+    info: z
+      .lazy(() => unmarshalRunInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    data: z
+      .lazy(() => unmarshalRunDataSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    inputs: z
+      .lazy(() => unmarshalRunInputsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     info: d.info,
@@ -1868,7 +1908,10 @@ export const unmarshalUpdateExperimentResponseSchema: z.ZodType<UpdateExperiment
 
 export const unmarshalUpdateRunResponseSchema: z.ZodType<UpdateRunResponse> = z
   .object({
-    run_info: z.lazy(() => unmarshalRunInfoSchema).optional(),
+    run_info: z
+      .lazy(() => unmarshalRunInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     runInfo: d.run_info,

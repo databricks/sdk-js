@@ -878,7 +878,10 @@ export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnv
       message: z.string().optional(),
       is_default: z.boolean().optional(),
       base_environment_type: z.string().optional(),
-      spec: z.lazy(() => unmarshalEnvironmentSpecSchema).optional(),
+      spec: z
+        .lazy(() => unmarshalEnvironmentSpecSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       name: d.name,

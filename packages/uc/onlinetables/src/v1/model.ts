@@ -271,7 +271,8 @@ export const unmarshalContinuousUpdateStatusSchema: z.ZodType<ContinuousUpdateSt
         .optional(),
       initial_pipeline_sync_progress: z
         .lazy(() => unmarshalPipelineProgressSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       lastProcessedCommitVersion: d.last_processed_commit_version,
@@ -298,8 +299,14 @@ export const unmarshalFailedStatusSchema: z.ZodType<FailedStatus> = z
 export const unmarshalOnlineTableSchema: z.ZodType<OnlineTable> = z
   .object({
     name: z.string().optional(),
-    spec: z.lazy(() => unmarshalOnlineTableSpecSchema).optional(),
-    status: z.lazy(() => unmarshalOnlineTableStatusSchema).optional(),
+    spec: z
+      .lazy(() => unmarshalOnlineTableSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    status: z
+      .lazy(() => unmarshalOnlineTableStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     table_serving_url: z.string().optional(),
     unity_catalog_provisioning_state: z.string().optional(),
   })
@@ -419,7 +426,8 @@ export const unmarshalProvisioningStatusSchema: z.ZodType<ProvisioningStatus> =
     .object({
       initial_pipeline_sync_progress: z
         .lazy(() => unmarshalPipelineProgressSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       initialPipelineSyncProgress: d.initial_pipeline_sync_progress,
@@ -438,7 +446,8 @@ export const unmarshalTriggeredUpdateStatusSchema: z.ZodType<TriggeredUpdateStat
         .optional(),
       triggered_update_progress: z
         .lazy(() => unmarshalPipelineProgressSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       lastProcessedCommitVersion: d.last_processed_commit_version,

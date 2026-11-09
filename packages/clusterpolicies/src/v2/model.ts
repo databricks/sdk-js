@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -21,6 +22,82 @@ export const PolicySortColumn = {
 export type PolicySortColumn =
   | (typeof PolicySortColumn)[keyof typeof PolicySortColumn]
   | (string & {});
+
+/** T-shirt size for per-workload Spark executor limits. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const TshirtSize = {
+  /** Default value; no per-workload rate limit specified. */
+  T_SHIRT_SIZE_UNSPECIFIED: 'T_SHIRT_SIZE_UNSPECIFIED',
+  /** Small per-workload Spark executor limit. */
+  T_SHIRT_SIZE_SMALL: 'T_SHIRT_SIZE_SMALL',
+  /** Medium per-workload Spark executor limit. */
+  T_SHIRT_SIZE_MEDIUM: 'T_SHIRT_SIZE_MEDIUM',
+  /** Large per-workload Spark executor limit. */
+  T_SHIRT_SIZE_LARGE: 'T_SHIRT_SIZE_LARGE',
+  /** Extra-large per-workload Spark executor limit. */
+  T_SHIRT_SIZE_X_LARGE: 'T_SHIRT_SIZE_X_LARGE',
+  /** Double extra-large per-workload Spark executor limit. */
+  T_SHIRT_SIZE_2X_LARGE: 'T_SHIRT_SIZE_2X_LARGE',
+  /** Triple extra-large per-workload Spark executor limit. */
+  T_SHIRT_SIZE_3X_LARGE: 'T_SHIRT_SIZE_3X_LARGE',
+  /** Quadruple extra-large per-workload Spark executor limit. */
+  T_SHIRT_SIZE_4X_LARGE: 'T_SHIRT_SIZE_4X_LARGE',
+} as const;
+export type TshirtSize =
+  | (typeof TshirtSize)[keyof typeof TshirtSize]
+  | (string & {});
+
+/**
+ * Compute products allowed by a policy and their product-specific constraints. At least one
+ * product must be set.
+ */
+export interface AllowedComputeProducts {
+  /** Constraints for serverless automated compute. Absence disallows automated compute. */
+  automated?: AutomatedConstraints | undefined;
+  /** Constraints for Lakebase instances. Absence disallows Lakebase. */
+  lakebase?: LakebaseConstraints | undefined;
+}
+
+/** Constraints applied to serverless automated workloads by a compute policy. */
+export interface AutomatedConstraints {
+  /** Maximum per-workload Spark executor allocation. Absence imposes no limit. */
+  perWorkloadMax?: RateLimitConfig | undefined;
+}
+
+/**
+ * A compute policy resource. A workspace-scoped policy that allows one or more compute products,
+ * each with product-specific constraints.
+ */
+export interface ComputePolicy {
+  /** The unique identifier of the compute policy (UUID). Server-assigned on create. */
+  computePolicyId?: string | undefined;
+  /** The display name of the compute policy. */
+  displayName?: string | undefined;
+  /**
+   * The compute products allowed by this policy and their constraints. At least one product must
+   * be set.
+   */
+  allowedComputeProducts?: AllowedComputeProducts | undefined;
+  /**
+   * User-defined key/value tags on the compute policy, provided at creation and validated.
+   * unified-tagging is the system of record for tag assignments.
+   */
+  tags?: Record<string, string> | undefined;
+  /**
+   * Whether this is the workspace default policy for its single allowed compute product. Default
+   * policies are system-provisioned and cannot be deleted or renamed.
+   */
+  isDefault?: boolean | undefined;
+  /** The creation timestamp. */
+  createTime?: Temporal.Instant | undefined;
+  /** Whether the calling user has use permission on this compute policy. */
+  canUse?: boolean | undefined;
+  /**
+   * Whether the calling user has manage permission on this compute policy. Manage includes use, so
+   * can_use is also true whenever this is true.
+   */
+  canManage?: boolean | undefined;
+}
 
 export interface CreatePolicyRequest {
   /**
@@ -109,6 +186,14 @@ export interface GetPolicyRequest {
   policyId?: string | undefined;
 }
 
+/** Constraints applied to Lakebase instances by a compute policy. */
+export interface LakebaseConstraints {
+  /** Maximum capacity units permitted per instance. Absence imposes no limit. */
+  maxCapacityUnitsPerInstance?: bigint | undefined;
+  /** Maximum idle time in minutes before scale-to-zero. Absence imposes no requirement. */
+  maxIdleMinutesBeforeScaleToZero?: bigint | undefined;
+}
+
 export interface Library {
   lib?:
     | {
@@ -170,6 +255,25 @@ export interface Library {
     | undefined;
 }
 
+/** Request to list compute policies in a workspace. */
+export interface ListComputePoliciesRequest {
+  /**
+   * Maximum number of policies to return per response. Unset or zero defaults to 100. The server
+   * caps requests above 150.
+   */
+  pageSize?: number | undefined;
+  /** Token for cursor-based pagination. */
+  pageToken?: string | undefined;
+}
+
+/** Response for listing compute policies. */
+export interface ListComputePoliciesResponse {
+  /** The list of compute policies. */
+  computePolicies?: ComputePolicy[] | undefined;
+  /** Token for the next page of results. Empty if no more results. */
+  nextPageToken?: string | undefined;
+}
+
 export interface ListPoliciesRequest {
   /**
    * The order in which the policies get listed.
@@ -188,6 +292,25 @@ export interface ListPoliciesRequest {
 export interface ListPoliciesResponse {
   /** List of policies. */
   policies?: Policy[] | undefined;
+}
+
+/** Request to list serverless computes in a workspace. */
+export interface ListServerlessComputesRequest {
+  /**
+   * Maximum number of computes to return per response. Unset or zero defaults
+   * to 100. The server caps requests above 150 to bound per-request RBAC fan-out.
+   */
+  pageSize?: number | undefined;
+  /** Token for cursor-based pagination. */
+  pageToken?: string | undefined;
+}
+
+/** Response for listing serverless computes. */
+export interface ListServerlessComputesResponse {
+  /** The list of serverless computes. */
+  serverlessComputes?: ServerlessCompute[] | undefined;
+  /** Token for the next page of results. Empty if no more results. */
+  nextPageToken?: string | undefined;
 }
 
 export interface MavenLibrary {
@@ -274,6 +397,93 @@ export interface RCranLibrary {
   repo?: string | undefined;
 }
 
+/** Rate-limit configuration for serverless compute workloads. */
+export interface RateLimitConfig {
+  tShirtSize?: TshirtSize | undefined;
+  /**
+   * Proto enum name of t_shirt_size (e.g. T_SHIRT_SIZE_SMALL). Output-only; derived
+   * on read so a minting client that does not know a new enum value can still put
+   * the name on the cost-control token.
+   */
+  tShirtSizeName?: string | undefined;
+}
+
+/** A serverless compute resource. */
+export interface ServerlessCompute {
+  /** The unique identifier of the serverless compute (UUID). */
+  serverlessComputeId?: string | undefined;
+  /** The display name of the serverless compute. */
+  name?: string | undefined;
+  /**
+   * Whether this is the workspace default compute for its compute_type.
+   * Default computes are system-provisioned and cannot be deleted or renamed.
+   */
+  isDefault?: boolean | undefined;
+  /** The creation timestamp. */
+  createTime?: Temporal.Instant | undefined;
+  /** Whether the calling user has UseServerlessComputePermission on this compute. */
+  canUse?: boolean | undefined;
+  /** Whether the calling user has ManageServerlessComputePermission on this compute. */
+  canManage?: boolean | undefined;
+}
+
+export const unmarshalAllowedComputeProductsSchema: z.ZodType<AllowedComputeProducts> =
+  z
+    .object({
+      automated: z
+        .lazy(() => unmarshalAutomatedConstraintsSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      lakebase: z
+        .lazy(() => unmarshalLakebaseConstraintsSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      automated: d.automated,
+      lakebase: d.lakebase,
+    }));
+
+export const unmarshalAutomatedConstraintsSchema: z.ZodType<AutomatedConstraints> =
+  z
+    .object({
+      per_workload_max: z
+        .lazy(() => unmarshalRateLimitConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      perWorkloadMax: d.per_workload_max,
+    }));
+
+export const unmarshalComputePolicySchema: z.ZodType<ComputePolicy> = z
+  .object({
+    compute_policy_id: z.string().optional(),
+    display_name: z.string().optional(),
+    allowed_compute_products: z
+      .lazy(() => unmarshalAllowedComputeProductsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    tags: z.record(z.string(), z.string()).optional(),
+    is_default: z.boolean().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    can_use: z.boolean().optional(),
+    can_manage: z.boolean().optional(),
+  })
+  .transform(d => ({
+    computePolicyId: d.compute_policy_id,
+    displayName: d.display_name,
+    allowedComputeProducts: d.allowed_compute_products,
+    tags: d.tags,
+    isDefault: d.is_default,
+    createTime: d.create_time,
+    canUse: d.can_use,
+    canManage: d.can_manage,
+  }));
+
 export const unmarshalCreatePolicyResponseSchema: z.ZodType<CreatePolicyResponse> =
   z
     .object({
@@ -288,6 +498,23 @@ export const unmarshalDeletePolicyResponseSchema: z.ZodType<DeletePolicyResponse
 
 export const unmarshalEditPolicyResponseSchema: z.ZodType<EditPolicyResponse> =
   z.object({});
+
+export const unmarshalLakebaseConstraintsSchema: z.ZodType<LakebaseConstraints> =
+  z
+    .object({
+      max_capacity_units_per_instance: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
+      max_idle_minutes_before_scale_to_zero: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
+    })
+    .transform(d => ({
+      maxCapacityUnitsPerInstance: d.max_capacity_units_per_instance,
+      maxIdleMinutesBeforeScaleToZero: d.max_idle_minutes_before_scale_to_zero,
+    }));
 
 export const unmarshalLibrarySchema: z.ZodType<Library> = z
   .object({
@@ -321,6 +548,19 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
                     : undefined,
   }));
 
+export const unmarshalListComputePoliciesResponseSchema: z.ZodType<ListComputePoliciesResponse> =
+  z
+    .object({
+      compute_policies: z
+        .array(z.lazy(() => unmarshalComputePolicySchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      computePolicies: d.compute_policies,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalListPoliciesResponseSchema: z.ZodType<ListPoliciesResponse> =
   z
     .object({
@@ -328,6 +568,19 @@ export const unmarshalListPoliciesResponseSchema: z.ZodType<ListPoliciesResponse
     })
     .transform(d => ({
       policies: d.policies,
+    }));
+
+export const unmarshalListServerlessComputesResponseSchema: z.ZodType<ListServerlessComputesResponse> =
+  z
+    .object({
+      serverless_computes: z
+        .array(z.lazy(() => unmarshalServerlessComputeSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      serverlessComputes: d.serverless_computes,
+      nextPageToken: d.next_page_token,
     }));
 
 export const unmarshalMavenLibrarySchema: z.ZodType<MavenLibrary> = z
@@ -394,6 +647,37 @@ export const unmarshalRCranLibrarySchema: z.ZodType<RCranLibrary> = z
   .transform(d => ({
     package: d.package,
     repo: d.repo,
+  }));
+
+export const unmarshalRateLimitConfigSchema: z.ZodType<RateLimitConfig> = z
+  .object({
+    t_shirt_size: z.string().optional(),
+    t_shirt_size_name: z.string().optional(),
+  })
+  .transform(d => ({
+    tShirtSize: d.t_shirt_size,
+    tShirtSizeName: d.t_shirt_size_name,
+  }));
+
+export const unmarshalServerlessComputeSchema: z.ZodType<ServerlessCompute> = z
+  .object({
+    serverless_compute_id: z.string().optional(),
+    name: z.string().optional(),
+    is_default: z.boolean().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    can_use: z.boolean().optional(),
+    can_manage: z.boolean().optional(),
+  })
+  .transform(d => ({
+    serverlessComputeId: d.serverless_compute_id,
+    name: d.name,
+    isDefault: d.is_default,
+    createTime: d.create_time,
+    canUse: d.can_use,
+    canManage: d.can_manage,
   }));
 
 export const marshalCreatePolicyRequestSchema: z.ZodType = z

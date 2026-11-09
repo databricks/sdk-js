@@ -386,7 +386,8 @@ export const unmarshalFailoverGroupSchema: z.ZodType<FailoverGroup> = z
       .optional(),
     unity_catalog_assets: z
       .lazy(() => unmarshalUcReplicationConfigSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     state: z.string().optional(),
     etag: z.string().optional(),
     create_time: z
@@ -404,7 +405,8 @@ export const unmarshalFailoverGroupSchema: z.ZodType<FailoverGroup> = z
     initial_primary_region: z.string().optional(),
     initial_replication_progress: z
       .lazy(() => unmarshalInitialReplicationProgressSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     has_replication_point_blocking_errors: z.boolean().optional(),
   })
   .transform(d => ({

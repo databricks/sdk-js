@@ -303,7 +303,8 @@ export const unmarshalSecretScopeSchema: z.ZodType<SecretScope> = z
     backend_type: z.string().optional(),
     keyvault_metadata: z
       .lazy(() => unmarshalAzureKeyVaultSecretScopeMetadataSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     name: d.name,

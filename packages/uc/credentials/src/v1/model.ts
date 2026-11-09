@@ -1385,7 +1385,8 @@ export const unmarshalAccountsCreateStorageCredentialResponseSchema: z.ZodType<A
     .object({
       credential_info: z
         .lazy(() => unmarshalStorageCredentialInfoSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       credentialInfo: d.credential_info,
@@ -1399,7 +1400,8 @@ export const unmarshalAccountsGetStorageCredentialResponseSchema: z.ZodType<Acco
     .object({
       credential_info: z
         .lazy(() => unmarshalStorageCredentialInfoSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       credentialInfo: d.credential_info,
@@ -1421,7 +1423,8 @@ export const unmarshalAccountsUpdateStorageCredentialResponseSchema: z.ZodType<A
     .object({
       credential_info: z
         .lazy(() => unmarshalStorageCredentialInfoSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       credentialInfo: d.credential_info,

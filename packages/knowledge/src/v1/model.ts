@@ -17,8 +17,9 @@ export const AssetType = {
    */
   ASSET_TYPE_UC_TABLE: 'ASSET_TYPE_UC_TABLE',
   /**
-   * Lakeview dashboard. Create accepts its UUID as 32 hexadecimal characters
-   * or in hyphenated form. `asset_scope_id` is the decimal workspace ID string.
+   * Workspace dashboard. Create accepts a numeric tree ID or a Lakeview UUID
+   * (32 hex digits or hyphenated). Create and Get return the tree ID.
+   * `asset_scope_id` is the decimal workspace ID string.
    */
   ASSET_TYPE_WORKSPACE_DASHBOARD: 'ASSET_TYPE_WORKSPACE_DASHBOARD',
   /**

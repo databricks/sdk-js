@@ -286,7 +286,10 @@ export const unmarshalObjectInfoSchema: z.ZodType<ObjectInfo> = z
       .transform(v => BigInt(v))
       .optional(),
     resource_id: z.string().optional(),
-    directory_info: z.lazy(() => unmarshalDirectoryInfoSchema).optional(),
+    directory_info: z
+      .lazy(() => unmarshalDirectoryInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     objectType: d.object_type,

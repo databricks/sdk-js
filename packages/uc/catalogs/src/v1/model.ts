@@ -365,9 +365,13 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     isolation_mode: z.string().optional(),
     effective_predictive_optimization_flag: z
       .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     browse_only: z.boolean().optional(),
-    provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
+    provisioning_info: z
+      .lazy(() => unmarshalProvisioningInfoSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     full_name: z.string().optional(),
     securable_type: z.string().optional(),
     custom_max_retention_hours: z
@@ -376,7 +380,8 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
       .optional(),
     managed_encryption_settings: z
       .lazy(() => unmarshalEncryptionSettingsSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     properties: z.record(z.string(), z.string()).optional(),
     options: z.record(z.string(), z.string()).optional(),
   })
@@ -432,7 +437,8 @@ export const unmarshalEncryptionSettingsSchema: z.ZodType<EncryptionSettings> =
       azure_key_vault_key_id: z.string().optional(),
       azure_encryption_settings: z
         .lazy(() => unmarshalAzureEncryptionSettingsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       customerManagedKeyId: d.customer_managed_key_id,

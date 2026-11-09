@@ -87,6 +87,87 @@ export type CollaborationPlatformConnectivityMessage_Connectivity =
   | (typeof CollaborationPlatformConnectivityMessage_Connectivity)[keyof typeof CollaborationPlatformConnectivityMessage_Connectivity]
   | (string & {});
 
+/** Horizontal alignment options for widget titles and descriptions. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DashboardTheme_Alignment = {
+  /** No alignment specified. */
+  ALIGNMENT_UNSPECIFIED: 'ALIGNMENT_UNSPECIFIED',
+  /** Aligns content to the left. */
+  LEFT: 'LEFT',
+  /** Centers content horizontally. */
+  CENTER: 'CENTER',
+  /** Aligns content to the right. */
+  RIGHT: 'RIGHT',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type DashboardTheme_Alignment =
+  | (typeof DashboardTheme_Alignment)[keyof typeof DashboardTheme_Alignment]
+  | (string & {});
+
+/** Defines the font style (slant) applied to rendered text. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DashboardTheme_FontStyle = {
+  /** No font style specified. */
+  FONT_STYLE_UNSPECIFIED: 'FONT_STYLE_UNSPECIFIED',
+  /** Renders text upright (no slant). */
+  FONT_STYLE_NORMAL: 'FONT_STYLE_NORMAL',
+  /** Renders text in italic (slanted). */
+  FONT_STYLE_ITALIC: 'FONT_STYLE_ITALIC',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type DashboardTheme_FontStyle =
+  | (typeof DashboardTheme_FontStyle)[keyof typeof DashboardTheme_FontStyle]
+  | (string & {});
+
+/** Defines the text case transformation applied to rendered text. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DashboardTheme_TextCase = {
+  /** No text case transformation (preserves original casing). */
+  TEXT_CASE_UNSPECIFIED: 'TEXT_CASE_UNSPECIFIED',
+  /** Renders all letters in uppercase. */
+  TEXT_CASE_UPPERCASE: 'TEXT_CASE_UPPERCASE',
+  /** Capitalizes the first letter of each word. */
+  TEXT_CASE_CAPITALIZE: 'TEXT_CASE_CAPITALIZE',
+  /** Renders all letters in lowercase. */
+  TEXT_CASE_LOWERCASE: 'TEXT_CASE_LOWERCASE',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type DashboardTheme_TextCase =
+  | (typeof DashboardTheme_TextCase)[keyof typeof DashboardTheme_TextCase]
+  | (string & {});
+
+/** Defines the decoration line applied to rendered text. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DashboardTheme_TextDecoration = {
+  /** No text decoration specified. */
+  TEXT_DECORATION_UNSPECIFIED: 'TEXT_DECORATION_UNSPECIFIED',
+  /** Renders text with no decoration line. */
+  TEXT_DECORATION_NONE: 'TEXT_DECORATION_NONE',
+  /** Renders text with an underline. */
+  TEXT_DECORATION_UNDERLINE: 'TEXT_DECORATION_UNDERLINE',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type DashboardTheme_TextDecoration =
+  | (typeof DashboardTheme_TextDecoration)[keyof typeof DashboardTheme_TextDecoration]
+  | (string & {});
+
+/** Vertical alignment options for text box content. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const DashboardTheme_VerticalAlign = {
+  /** No vertical alignment specified (defaults to top). */
+  VERTICAL_ALIGN_UNSPECIFIED: 'VERTICAL_ALIGN_UNSPECIFIED',
+  /** Aligns content to the top of the text box. */
+  VERTICAL_ALIGN_TOP: 'VERTICAL_ALIGN_TOP',
+  /** Centers content vertically in the text box. */
+  VERTICAL_ALIGN_CENTER: 'VERTICAL_ALIGN_CENTER',
+  /** Aligns content to the bottom of the text box. */
+  VERTICAL_ALIGN_BOTTOM: 'VERTICAL_ALIGN_BOTTOM',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type DashboardTheme_VerticalAlign =
+  | (typeof DashboardTheme_VerticalAlign)[keyof typeof DashboardTheme_VerticalAlign]
+  | (string & {});
+
 /**
  * ON: Grants all users in all workspaces access to the Personal Compute default policy, allowing all users to create single-machine compute resources.
  * DELEGATE: Moves access control for the Personal Compute default policy to individual workspaces and requires a workspace’s users or groups to be added to the ACLs of that workspace’s Personal Compute default policy before they will be able to create compute resources through that policy.
@@ -199,6 +280,224 @@ export interface CollaborationPlatformConnectivityMessage {
   connectivity?:
     | CollaborationPlatformConnectivityMessage_Connectivity
     | undefined;
+}
+
+/**
+ * Theme settings for customizing AI/BI dashboard UI, including visualization colors,
+ * font colors, background colors, and more.
+ */
+export interface DashboardTheme {
+  /** The background color of the dashboard canvas. */
+  canvasBackgroundColor?: DashboardTheme_DashboardThemeColor | undefined;
+  /** The background color of widgets. */
+  widgetBackgroundColor?: DashboardTheme_DashboardThemeColor | undefined;
+  /** The border color of widgets. */
+  widgetBorderColor?: DashboardTheme_DashboardThemeColor | undefined;
+  /**
+   * The default font color applied to all text in the dashboard.
+   * Superseded by font_settings.base.font_color when font_settings is set.
+   * More specific font settings in turn override base.
+   */
+  fontColor?: DashboardTheme_DashboardThemeColor | undefined;
+  /** The highlight color for selected elements in widgets. */
+  selectionColor?: DashboardTheme_DashboardThemeColor | undefined;
+  /**
+   * Color palette for visualizations. Colors are applied in order (visualization_color_01, visualization_color_02, etc.).
+   * Invalid color values are preserved but ignored during rendering.
+   */
+  visualizationColor01?: string | undefined;
+  /** The color at position 2 in the visualization color palette. */
+  visualizationColor02?: string | undefined;
+  /** The color at position 3 in the visualization color palette. */
+  visualizationColor03?: string | undefined;
+  /** The color at position 4 in the visualization color palette. */
+  visualizationColor04?: string | undefined;
+  /** The color at position 5 in the visualization color palette. */
+  visualizationColor05?: string | undefined;
+  /** The color at position 6 in the visualization color palette. */
+  visualizationColor06?: string | undefined;
+  /** The color at position 7 in the visualization color palette. */
+  visualizationColor07?: string | undefined;
+  /** The color at position 8 in the visualization color palette. */
+  visualizationColor08?: string | undefined;
+  /** The color at position 9 in the visualization color palette. */
+  visualizationColor09?: string | undefined;
+  /** The color at position 10 in the visualization color palette. */
+  visualizationColor10?: string | undefined;
+  /** The color at position 11 in the visualization color palette. */
+  visualizationColor11?: string | undefined;
+  /** The color at position 12 in the visualization color palette. */
+  visualizationColor12?: string | undefined;
+  /** The color at position 13 in the visualization color palette. */
+  visualizationColor13?: string | undefined;
+  /** The color at position 14 in the visualization color palette. */
+  visualizationColor14?: string | undefined;
+  /** The color at position 15 in the visualization color palette. */
+  visualizationColor15?: string | undefined;
+  /** The color at position 16 in the visualization color palette. */
+  visualizationColor16?: string | undefined;
+  /** The color at position 17 in the visualization color palette. */
+  visualizationColor17?: string | undefined;
+  /** The color at position 18 in the visualization color palette. */
+  visualizationColor18?: string | undefined;
+  /** The color at position 19 in the visualization color palette. */
+  visualizationColor19?: string | undefined;
+  /** The color at position 20 in the visualization color palette. */
+  visualizationColor20?: string | undefined;
+  /** Alignment setting for all widget titles and descriptions at the dashboard level. */
+  widgetHeaderAlignment?: DashboardTheme_Alignment | undefined;
+  /**
+   * Font family to customize all text within the dashboard.
+   * Unsupported font names fall back to the default font.
+   * Superseded by font_settings.base.font_family when font_settings is set.
+   */
+  fontFamily?: string | undefined;
+  /**
+   * The default vertical alignment for all text box widgets in the dashboard.
+   * Individual text box widgets can override this.
+   */
+  textBoxVerticalAlign?: DashboardTheme_VerticalAlign | undefined;
+  /** The content padding inside each widget in pixels. */
+  widgetPadding?: number | undefined;
+  /** The gap between widgets in pixels. */
+  widgetMargin?: number | undefined;
+  /** The widget border radius in pixels. */
+  widgetCornerRadius?: number | undefined;
+  /**
+   * The shadow intensity level applied to widgets (0 = no shadow, 100 = maximum).
+   * The actual CSS box-shadow is computed at render time from this value, factoring in
+   * background colors and color mode.
+   */
+  widgetShadow?: number | undefined;
+  /** The sentiment color palette for the dashboard. */
+  sentimentColors?: DashboardTheme_SentimentColors | undefined;
+  /** The continuous gradient configuration for the dashboard. */
+  continuousGradient?: DashboardTheme_ContinuousGradient | undefined;
+  /** The per-category typography overrides for the dashboard. */
+  fontSettings?: DashboardTheme_FontSettings | undefined;
+  /** The corner radius in pixels for rectangular marks in visualizations (bars, columns, histogram bins, etc.). */
+  markCornerRadius?: number | undefined;
+  /** Color of chart grid lines in visualizations (horizontal and vertical guide lines). */
+  gridLineColor?: DashboardTheme_DashboardThemeColor | undefined;
+  /** Color of the zero-value grid line, making it visually distinct from other grid lines. */
+  axisLineColor?: DashboardTheme_DashboardThemeColor | undefined;
+}
+
+/**
+ * Configuration for continuous color gradients, with separate values for light and dark mode.
+ * Each mode's gradient can reference the visualization color palette via
+ * from_categorical_index, use a named color scheme, or define a custom sequential or diverging ramp.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface DashboardTheme_ContinuousGradient {
+  /** Gradient value used when the dashboard is rendered in light mode. */
+  lightMode?: DashboardTheme_ContinuousGradient_GradientValue | undefined;
+  /** Gradient value used when the dashboard is rendered in dark mode. */
+  darkMode?: DashboardTheme_ContinuousGradient_GradientValue | undefined;
+}
+
+/** A custom three-stop diverging gradient ramp. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface DashboardTheme_ContinuousGradient_CustomDivergingRamp {
+  /** The color at the start of the gradient (lowest value). */
+  start?: DashboardTheme_DashboardThemeColor | undefined;
+  /** The color at the midpoint of the gradient. */
+  mid?: DashboardTheme_DashboardThemeColor | undefined;
+  /** The color at the end of the gradient (highest value). */
+  end?: DashboardTheme_DashboardThemeColor | undefined;
+}
+
+/** A custom two-stop sequential gradient ramp. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface DashboardTheme_ContinuousGradient_CustomSequentialRamp {
+  /** The color at the start of the gradient (lowest value). */
+  start?: DashboardTheme_DashboardThemeColor | undefined;
+  /** The color at the end of the gradient (highest value). */
+  end?: DashboardTheme_DashboardThemeColor | undefined;
+}
+
+/** The gradient for one color mode. Set at most one field. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface DashboardTheme_ContinuousGradient_GradientValue {
+  /** A 0-based index into the visualization color palette, where 0 is visualization_color_01. Valid values are 0 to 19. */
+  fromCategoricalIndex?: number | undefined;
+  /** A static color string (for example, '#FF0000'). */
+  color?: string | undefined;
+  /** A named color scheme (for example, 'blues', 'viridis', 'spectral'). */
+  colorScheme?: string | undefined;
+  /** A custom two-stop sequential gradient. */
+  customSequential?:
+    | DashboardTheme_ContinuousGradient_CustomSequentialRamp
+    | undefined;
+  /** A custom three-stop diverging gradient. */
+  customDiverging?:
+    | DashboardTheme_ContinuousGradient_CustomDivergingRamp
+    | undefined;
+}
+
+/**
+ * Represents a color value with optional overrides for light and dark modes.
+ * Authors can customize colors separately to cater to each mode,
+ * based on the viewer's user-level theme preference.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface DashboardTheme_DashboardThemeColor {
+  /** The color used when the dashboard is rendered in light mode (for example, '#FF0000'). */
+  light?: string | undefined;
+  /** The color used when the dashboard is rendered in dark mode (for example, '#FF0000'). */
+  dark?: string | undefined;
+}
+
+/** Defines the typography settings for a single text category. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface DashboardTheme_FontConfig {
+  /** The font family name used for text in this category. */
+  fontFamily?: string | undefined;
+  /** The text case transformation applied to text in this category. */
+  textCase?: DashboardTheme_TextCase | undefined;
+  /** The font color applied to text in this category. */
+  fontColor?: DashboardTheme_DashboardThemeColor | undefined;
+  /** The font size in pixels. */
+  fontSize?: number | undefined;
+  /** The font weight value (for example, 400 for normal, 700 for bold). */
+  fontWeight?: number | undefined;
+  /** The font style (slant) applied to text in this category. */
+  fontStyle?: DashboardTheme_FontStyle | undefined;
+  /** The text decoration applied to text in this category. */
+  textDecoration?: DashboardTheme_TextDecoration | undefined;
+}
+
+/**
+ * Per-category typography overrides. When font_settings.base is set, it takes precedence
+ * over the top-level font_family and font_color. More specific categories
+ * (widget_title, widget_description, field_title, field_value) in turn override base.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface DashboardTheme_FontSettings {
+  /** The default font config applied to all text unless overridden by a more specific category. */
+  base?: DashboardTheme_FontConfig | undefined;
+  /** The font config applied to widget titles. */
+  widgetTitle?: DashboardTheme_FontConfig | undefined;
+  /** The font config applied to widget descriptions. */
+  widgetDescription?: DashboardTheme_FontConfig | undefined;
+  /** The font config applied to field titles (for example, axis titles, table heading titles). */
+  fieldTitle?: DashboardTheme_FontConfig | undefined;
+  /** The font config applied to field values (for example, axis tick labels, table cell values, tooltip values). */
+  fieldValue?: DashboardTheme_FontConfig | undefined;
+}
+
+/**
+ * Shared sentiment colors reusable across visualizations, primarily for conditional
+ * formatting, ensuring consistent positive, negative, and neutral meaning throughout the dashboard.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface DashboardTheme_SentimentColors {
+  /** The color applied to negative sentiment values. */
+  negative?: DashboardTheme_DashboardThemeColor | undefined;
+  /** The color applied to positive sentiment values. */
+  positive?: DashboardTheme_DashboardThemeColor | undefined;
+  /** The color applied to neutral sentiment values. */
+  neutral?: DashboardTheme_DashboardThemeColor | undefined;
 }
 
 export interface GetPublicAccountSettingRequest {
@@ -419,6 +718,11 @@ export interface Setting {
         /** Setting value for collaboration_platform_connectivity setting. This is the setting value set by consumers, check effective_collaboration_platform_connectivity for final setting value. */
         collaborationPlatformConnectivity: CollaborationPlatformConnectivityMessage;
       }
+    | {
+        $case: 'workspaceDashboardTheme';
+        /** Setting value for the workspace_dashboard_theme setting. This is the setting value set by consumers. Check effective_workspace_dashboard_theme for the final setting value. */
+        workspaceDashboardTheme: DashboardTheme;
+      }
     | undefined;
   /**
    * New fields should be added before the oneof below - unless it's a new Setting value message,
@@ -485,6 +789,11 @@ export interface Setting {
         $case: 'effectiveCollaborationPlatformConnectivity';
         /** Effective setting value for collaboration_platform_connectivity setting. This is the final effective value of setting. To set a value use collaboration_platform_connectivity. */
         effectiveCollaborationPlatformConnectivity: CollaborationPlatformConnectivityMessage;
+      }
+    | {
+        $case: 'effectiveWorkspaceDashboardTheme';
+        /** Effective setting value for the workspace_dashboard_theme setting. This is the final effective value of the setting. To set a value, use workspace_dashboard_theme. */
+        effectiveWorkspaceDashboardTheme: DashboardTheme;
       }
     | undefined;
 }
@@ -590,10 +899,12 @@ export const unmarshalClusterAutoRestartMessageSchema: z.ZodType<ClusterAutoRest
       can_toggle: z.boolean().optional(),
       maintenance_window: z
         .lazy(() => unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       enablement_details: z
         .lazy(() => unmarshalClusterAutoRestartMessage_EnablementDetailsSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       restart_even_if_no_updates_available: z.boolean().optional(),
     })
     .transform(d => ({
@@ -627,7 +938,8 @@ export const unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema: z.ZodTy
           () =>
             unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       weekDayBasedSchedule: d.week_day_based_schedule,
@@ -644,7 +956,8 @@ export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSc
           () =>
             unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema
         )
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       frequency: d.frequency,
@@ -671,6 +984,304 @@ export const unmarshalCollaborationPlatformConnectivityMessageSchema: z.ZodType<
     })
     .transform(d => ({
       connectivity: d.connectivity,
+    }));
+
+export const unmarshalDashboardThemeSchema: z.ZodType<DashboardTheme> = z
+  .object({
+    canvas_background_color: z
+      .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    widget_background_color: z
+      .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    widget_border_color: z
+      .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    font_color: z
+      .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    selection_color: z
+      .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    visualization_color_01: z.string().optional(),
+    visualization_color_02: z.string().optional(),
+    visualization_color_03: z.string().optional(),
+    visualization_color_04: z.string().optional(),
+    visualization_color_05: z.string().optional(),
+    visualization_color_06: z.string().optional(),
+    visualization_color_07: z.string().optional(),
+    visualization_color_08: z.string().optional(),
+    visualization_color_09: z.string().optional(),
+    visualization_color_10: z.string().optional(),
+    visualization_color_11: z.string().optional(),
+    visualization_color_12: z.string().optional(),
+    visualization_color_13: z.string().optional(),
+    visualization_color_14: z.string().optional(),
+    visualization_color_15: z.string().optional(),
+    visualization_color_16: z.string().optional(),
+    visualization_color_17: z.string().optional(),
+    visualization_color_18: z.string().optional(),
+    visualization_color_19: z.string().optional(),
+    visualization_color_20: z.string().optional(),
+    widget_header_alignment: z.string().optional(),
+    font_family: z.string().optional(),
+    text_box_vertical_align: z.string().optional(),
+    widget_padding: z.number().optional(),
+    widget_margin: z.number().optional(),
+    widget_corner_radius: z.number().optional(),
+    widget_shadow: z.number().optional(),
+    sentiment_colors: z
+      .lazy(() => unmarshalDashboardTheme_SentimentColorsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    continuous_gradient: z
+      .lazy(() => unmarshalDashboardTheme_ContinuousGradientSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    font_settings: z
+      .lazy(() => unmarshalDashboardTheme_FontSettingsSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    mark_corner_radius: z.number().optional(),
+    grid_line_color: z
+      .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    axis_line_color: z
+      .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+  })
+  .transform(d => ({
+    canvasBackgroundColor: d.canvas_background_color,
+    widgetBackgroundColor: d.widget_background_color,
+    widgetBorderColor: d.widget_border_color,
+    fontColor: d.font_color,
+    selectionColor: d.selection_color,
+    visualizationColor01: d.visualization_color_01,
+    visualizationColor02: d.visualization_color_02,
+    visualizationColor03: d.visualization_color_03,
+    visualizationColor04: d.visualization_color_04,
+    visualizationColor05: d.visualization_color_05,
+    visualizationColor06: d.visualization_color_06,
+    visualizationColor07: d.visualization_color_07,
+    visualizationColor08: d.visualization_color_08,
+    visualizationColor09: d.visualization_color_09,
+    visualizationColor10: d.visualization_color_10,
+    visualizationColor11: d.visualization_color_11,
+    visualizationColor12: d.visualization_color_12,
+    visualizationColor13: d.visualization_color_13,
+    visualizationColor14: d.visualization_color_14,
+    visualizationColor15: d.visualization_color_15,
+    visualizationColor16: d.visualization_color_16,
+    visualizationColor17: d.visualization_color_17,
+    visualizationColor18: d.visualization_color_18,
+    visualizationColor19: d.visualization_color_19,
+    visualizationColor20: d.visualization_color_20,
+    widgetHeaderAlignment: d.widget_header_alignment,
+    fontFamily: d.font_family,
+    textBoxVerticalAlign: d.text_box_vertical_align,
+    widgetPadding: d.widget_padding,
+    widgetMargin: d.widget_margin,
+    widgetCornerRadius: d.widget_corner_radius,
+    widgetShadow: d.widget_shadow,
+    sentimentColors: d.sentiment_colors,
+    continuousGradient: d.continuous_gradient,
+    fontSettings: d.font_settings,
+    markCornerRadius: d.mark_corner_radius,
+    gridLineColor: d.grid_line_color,
+    axisLineColor: d.axis_line_color,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalDashboardTheme_ContinuousGradientSchema: z.ZodType<DashboardTheme_ContinuousGradient> =
+  z
+    .object({
+      light_mode: z
+        .lazy(
+          () => unmarshalDashboardTheme_ContinuousGradient_GradientValueSchema
+        )
+        .nullish()
+        .transform(v => v ?? undefined),
+      dark_mode: z
+        .lazy(
+          () => unmarshalDashboardTheme_ContinuousGradient_GradientValueSchema
+        )
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      lightMode: d.light_mode,
+      darkMode: d.dark_mode,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalDashboardTheme_ContinuousGradient_CustomDivergingRampSchema: z.ZodType<DashboardTheme_ContinuousGradient_CustomDivergingRamp> =
+  z
+    .object({
+      start: z
+        .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      mid: z
+        .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      end: z
+        .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      start: d.start,
+      mid: d.mid,
+      end: d.end,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalDashboardTheme_ContinuousGradient_CustomSequentialRampSchema: z.ZodType<DashboardTheme_ContinuousGradient_CustomSequentialRamp> =
+  z
+    .object({
+      start: z
+        .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      end: z
+        .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      start: d.start,
+      end: d.end,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalDashboardTheme_ContinuousGradient_GradientValueSchema: z.ZodType<DashboardTheme_ContinuousGradient_GradientValue> =
+  z
+    .object({
+      from_categorical_index: z.number().optional(),
+      color: z.string().optional(),
+      color_scheme: z.string().optional(),
+      custom_sequential: z
+        .lazy(
+          () =>
+            unmarshalDashboardTheme_ContinuousGradient_CustomSequentialRampSchema
+        )
+        .nullish()
+        .transform(v => v ?? undefined),
+      custom_diverging: z
+        .lazy(
+          () =>
+            unmarshalDashboardTheme_ContinuousGradient_CustomDivergingRampSchema
+        )
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      fromCategoricalIndex: d.from_categorical_index,
+      color: d.color,
+      colorScheme: d.color_scheme,
+      customSequential: d.custom_sequential,
+      customDiverging: d.custom_diverging,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalDashboardTheme_DashboardThemeColorSchema: z.ZodType<DashboardTheme_DashboardThemeColor> =
+  z
+    .object({
+      light: z.string().optional(),
+      dark: z.string().optional(),
+    })
+    .transform(d => ({
+      light: d.light,
+      dark: d.dark,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalDashboardTheme_FontConfigSchema: z.ZodType<DashboardTheme_FontConfig> =
+  z
+    .object({
+      font_family: z.string().optional(),
+      text_case: z.string().optional(),
+      font_color: z
+        .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      font_size: z.number().optional(),
+      font_weight: z.number().optional(),
+      font_style: z.string().optional(),
+      text_decoration: z.string().optional(),
+    })
+    .transform(d => ({
+      fontFamily: d.font_family,
+      textCase: d.text_case,
+      fontColor: d.font_color,
+      fontSize: d.font_size,
+      fontWeight: d.font_weight,
+      fontStyle: d.font_style,
+      textDecoration: d.text_decoration,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalDashboardTheme_FontSettingsSchema: z.ZodType<DashboardTheme_FontSettings> =
+  z
+    .object({
+      base: z
+        .lazy(() => unmarshalDashboardTheme_FontConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      widget_title: z
+        .lazy(() => unmarshalDashboardTheme_FontConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      widget_description: z
+        .lazy(() => unmarshalDashboardTheme_FontConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      field_title: z
+        .lazy(() => unmarshalDashboardTheme_FontConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      field_value: z
+        .lazy(() => unmarshalDashboardTheme_FontConfigSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      base: d.base,
+      widgetTitle: d.widget_title,
+      widgetDescription: d.widget_description,
+      fieldTitle: d.field_title,
+      fieldValue: d.field_value,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalDashboardTheme_SentimentColorsSchema: z.ZodType<DashboardTheme_SentimentColors> =
+  z
+    .object({
+      negative: z
+        .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      positive: z
+        .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      neutral: z
+        .lazy(() => unmarshalDashboardTheme_DashboardThemeColorSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      negative: d.negative,
+      positive: d.positive,
+      neutral: d.neutral,
     }));
 
 export const unmarshalIntegerMessageSchema: z.ZodType<IntegerMessage> = z
@@ -782,6 +1393,9 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
     collaboration_platform_connectivity: z
       .lazy(() => unmarshalCollaborationPlatformConnectivityMessageSchema)
       .optional(),
+    workspace_dashboard_theme: z
+      .lazy(() => unmarshalDashboardThemeSchema)
+      .optional(),
     effective_boolean_val: z
       .lazy(() => unmarshalBooleanMessageSchema)
       .optional(),
@@ -815,6 +1429,9 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
       .optional(),
     effective_collaboration_platform_connectivity: z
       .lazy(() => unmarshalCollaborationPlatformConnectivityMessageSchema)
+      .optional(),
+    effective_workspace_dashboard_theme: z
+      .lazy(() => unmarshalDashboardThemeSchema)
       .optional(),
   })
   .transform(d => ({
@@ -880,7 +1497,13 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
                                   collaborationPlatformConnectivity:
                                     d.collaboration_platform_connectivity,
                                 }
-                              : undefined,
+                              : d.workspace_dashboard_theme !== undefined
+                                ? {
+                                    $case: 'workspaceDashboardTheme' as const,
+                                    workspaceDashboardTheme:
+                                      d.workspace_dashboard_theme,
+                                  }
+                                : undefined,
     effectiveValue:
       d.effective_boolean_val !== undefined
         ? {
@@ -960,7 +1583,15 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
                                   effectiveCollaborationPlatformConnectivity:
                                     d.effective_collaboration_platform_connectivity,
                                 }
-                              : undefined,
+                              : d.effective_workspace_dashboard_theme !==
+                                  undefined
+                                ? {
+                                    $case:
+                                      'effectiveWorkspaceDashboardTheme' as const,
+                                    effectiveWorkspaceDashboardTheme:
+                                      d.effective_workspace_dashboard_theme,
+                                  }
+                                : undefined,
   }));
 
 export const unmarshalSettingsMetadataSchema: z.ZodType<SettingsMetadata> = z
@@ -1155,6 +1786,261 @@ export const marshalCollaborationPlatformConnectivityMessageSchema: z.ZodType =
       connectivity: d.connectivity,
     }));
 
+export const marshalDashboardThemeSchema: z.ZodType = z
+  .object({
+    canvasBackgroundColor: z
+      .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+      .optional(),
+    widgetBackgroundColor: z
+      .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+      .optional(),
+    widgetBorderColor: z
+      .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+      .optional(),
+    fontColor: z
+      .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+      .optional(),
+    selectionColor: z
+      .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+      .optional(),
+    visualizationColor01: z.string().optional(),
+    visualizationColor02: z.string().optional(),
+    visualizationColor03: z.string().optional(),
+    visualizationColor04: z.string().optional(),
+    visualizationColor05: z.string().optional(),
+    visualizationColor06: z.string().optional(),
+    visualizationColor07: z.string().optional(),
+    visualizationColor08: z.string().optional(),
+    visualizationColor09: z.string().optional(),
+    visualizationColor10: z.string().optional(),
+    visualizationColor11: z.string().optional(),
+    visualizationColor12: z.string().optional(),
+    visualizationColor13: z.string().optional(),
+    visualizationColor14: z.string().optional(),
+    visualizationColor15: z.string().optional(),
+    visualizationColor16: z.string().optional(),
+    visualizationColor17: z.string().optional(),
+    visualizationColor18: z.string().optional(),
+    visualizationColor19: z.string().optional(),
+    visualizationColor20: z.string().optional(),
+    widgetHeaderAlignment: z.string().optional(),
+    fontFamily: z.string().optional(),
+    textBoxVerticalAlign: z.string().optional(),
+    widgetPadding: z.number().optional(),
+    widgetMargin: z.number().optional(),
+    widgetCornerRadius: z.number().optional(),
+    widgetShadow: z.number().optional(),
+    sentimentColors: z
+      .lazy(() => marshalDashboardTheme_SentimentColorsSchema)
+      .optional(),
+    continuousGradient: z
+      .lazy(() => marshalDashboardTheme_ContinuousGradientSchema)
+      .optional(),
+    fontSettings: z
+      .lazy(() => marshalDashboardTheme_FontSettingsSchema)
+      .optional(),
+    markCornerRadius: z.number().optional(),
+    gridLineColor: z
+      .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+      .optional(),
+    axisLineColor: z
+      .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    canvas_background_color: d.canvasBackgroundColor,
+    widget_background_color: d.widgetBackgroundColor,
+    widget_border_color: d.widgetBorderColor,
+    font_color: d.fontColor,
+    selection_color: d.selectionColor,
+    visualization_color_01: d.visualizationColor01,
+    visualization_color_02: d.visualizationColor02,
+    visualization_color_03: d.visualizationColor03,
+    visualization_color_04: d.visualizationColor04,
+    visualization_color_05: d.visualizationColor05,
+    visualization_color_06: d.visualizationColor06,
+    visualization_color_07: d.visualizationColor07,
+    visualization_color_08: d.visualizationColor08,
+    visualization_color_09: d.visualizationColor09,
+    visualization_color_10: d.visualizationColor10,
+    visualization_color_11: d.visualizationColor11,
+    visualization_color_12: d.visualizationColor12,
+    visualization_color_13: d.visualizationColor13,
+    visualization_color_14: d.visualizationColor14,
+    visualization_color_15: d.visualizationColor15,
+    visualization_color_16: d.visualizationColor16,
+    visualization_color_17: d.visualizationColor17,
+    visualization_color_18: d.visualizationColor18,
+    visualization_color_19: d.visualizationColor19,
+    visualization_color_20: d.visualizationColor20,
+    widget_header_alignment: d.widgetHeaderAlignment,
+    font_family: d.fontFamily,
+    text_box_vertical_align: d.textBoxVerticalAlign,
+    widget_padding: d.widgetPadding,
+    widget_margin: d.widgetMargin,
+    widget_corner_radius: d.widgetCornerRadius,
+    widget_shadow: d.widgetShadow,
+    sentiment_colors: d.sentimentColors,
+    continuous_gradient: d.continuousGradient,
+    font_settings: d.fontSettings,
+    mark_corner_radius: d.markCornerRadius,
+    grid_line_color: d.gridLineColor,
+    axis_line_color: d.axisLineColor,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDashboardTheme_ContinuousGradientSchema: z.ZodType = z
+  .object({
+    lightMode: z
+      .lazy(() => marshalDashboardTheme_ContinuousGradient_GradientValueSchema)
+      .optional(),
+    darkMode: z
+      .lazy(() => marshalDashboardTheme_ContinuousGradient_GradientValueSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    light_mode: d.lightMode,
+    dark_mode: d.darkMode,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDashboardTheme_ContinuousGradient_CustomDivergingRampSchema: z.ZodType =
+  z
+    .object({
+      start: z
+        .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+        .optional(),
+      mid: z
+        .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+        .optional(),
+      end: z
+        .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      start: d.start,
+      mid: d.mid,
+      end: d.end,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDashboardTheme_ContinuousGradient_CustomSequentialRampSchema: z.ZodType =
+  z
+    .object({
+      start: z
+        .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+        .optional(),
+      end: z
+        .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      start: d.start,
+      end: d.end,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDashboardTheme_ContinuousGradient_GradientValueSchema: z.ZodType =
+  z
+    .object({
+      fromCategoricalIndex: z.number().optional(),
+      color: z.string().optional(),
+      colorScheme: z.string().optional(),
+      customSequential: z
+        .lazy(
+          () =>
+            marshalDashboardTheme_ContinuousGradient_CustomSequentialRampSchema
+        )
+        .optional(),
+      customDiverging: z
+        .lazy(
+          () =>
+            marshalDashboardTheme_ContinuousGradient_CustomDivergingRampSchema
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      from_categorical_index: d.fromCategoricalIndex,
+      color: d.color,
+      color_scheme: d.colorScheme,
+      custom_sequential: d.customSequential,
+      custom_diverging: d.customDiverging,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDashboardTheme_DashboardThemeColorSchema: z.ZodType = z
+  .object({
+    light: z.string().optional(),
+    dark: z.string().optional(),
+  })
+  .transform(d => ({
+    light: d.light,
+    dark: d.dark,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDashboardTheme_FontConfigSchema: z.ZodType = z
+  .object({
+    fontFamily: z.string().optional(),
+    textCase: z.string().optional(),
+    fontColor: z
+      .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+      .optional(),
+    fontSize: z.number().optional(),
+    fontWeight: z.number().optional(),
+    fontStyle: z.string().optional(),
+    textDecoration: z.string().optional(),
+  })
+  .transform(d => ({
+    font_family: d.fontFamily,
+    text_case: d.textCase,
+    font_color: d.fontColor,
+    font_size: d.fontSize,
+    font_weight: d.fontWeight,
+    font_style: d.fontStyle,
+    text_decoration: d.textDecoration,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDashboardTheme_FontSettingsSchema: z.ZodType = z
+  .object({
+    base: z.lazy(() => marshalDashboardTheme_FontConfigSchema).optional(),
+    widgetTitle: z
+      .lazy(() => marshalDashboardTheme_FontConfigSchema)
+      .optional(),
+    widgetDescription: z
+      .lazy(() => marshalDashboardTheme_FontConfigSchema)
+      .optional(),
+    fieldTitle: z.lazy(() => marshalDashboardTheme_FontConfigSchema).optional(),
+    fieldValue: z.lazy(() => marshalDashboardTheme_FontConfigSchema).optional(),
+  })
+  .transform(d => ({
+    base: d.base,
+    widget_title: d.widgetTitle,
+    widget_description: d.widgetDescription,
+    field_title: d.fieldTitle,
+    field_value: d.fieldValue,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDashboardTheme_SentimentColorsSchema: z.ZodType = z
+  .object({
+    negative: z
+      .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+      .optional(),
+    positive: z
+      .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+      .optional(),
+    neutral: z
+      .lazy(() => marshalDashboardTheme_DashboardThemeColorSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    negative: d.negative,
+    positive: d.positive,
+    neutral: d.neutral,
+  }));
+
 export const marshalIntegerMessageSchema: z.ZodType = z
   .object({
     value: z.number().optional(),
@@ -1256,6 +2142,10 @@ export const marshalSettingSchema: z.ZodType = z
             () => marshalCollaborationPlatformConnectivityMessageSchema
           ),
         }),
+        z.object({
+          $case: z.literal('workspaceDashboardTheme'),
+          workspaceDashboardTheme: z.lazy(() => marshalDashboardThemeSchema),
+        }),
       ])
       .optional(),
     effectiveValue: z
@@ -1326,6 +2216,12 @@ export const marshalSettingSchema: z.ZodType = z
             () => marshalCollaborationPlatformConnectivityMessageSchema
           ),
         }),
+        z.object({
+          $case: z.literal('effectiveWorkspaceDashboardTheme'),
+          effectiveWorkspaceDashboardTheme: z.lazy(
+            () => marshalDashboardThemeSchema
+          ),
+        }),
       ])
       .optional(),
   })
@@ -1365,6 +2261,9 @@ export const marshalSettingSchema: z.ZodType = z
     ...(d.value?.$case === 'collaborationPlatformConnectivity' && {
       collaboration_platform_connectivity:
         d.value.collaborationPlatformConnectivity,
+    }),
+    ...(d.value?.$case === 'workspaceDashboardTheme' && {
+      workspace_dashboard_theme: d.value.workspaceDashboardTheme,
     }),
     ...(d.effectiveValue?.$case === 'effectiveBooleanVal' && {
       effective_boolean_val: d.effectiveValue.effectiveBooleanVal,
@@ -1413,6 +2312,10 @@ export const marshalSettingSchema: z.ZodType = z
       'effectiveCollaborationPlatformConnectivity' && {
       effective_collaboration_platform_connectivity:
         d.effectiveValue.effectiveCollaborationPlatformConnectivity,
+    }),
+    ...(d.effectiveValue?.$case === 'effectiveWorkspaceDashboardTheme' && {
+      effective_workspace_dashboard_theme:
+        d.effectiveValue.effectiveWorkspaceDashboardTheme,
     }),
   }));
 

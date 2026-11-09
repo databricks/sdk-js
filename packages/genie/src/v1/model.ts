@@ -678,6 +678,7 @@ export const TextAttachmentPurpose = {
   /**
    * The final answer / summary for the message. Consumers reading the Get
    * Message API can use this to identify which text attachment holds the answer.
+   * A completed agent-mode message has exactly one text attachment with this purpose.
    */
   TEXT_ATTACHMENT_PURPOSE_ANSWER: 'TEXT_ATTACHMENT_PURPOSE_ANSWER',
 } as const;
@@ -1847,6 +1848,7 @@ export interface TextAttachment {
    * one text attachment (for example a clarifying follow-up question alongside
    * the final answer); use this field to tell them apart. `TEXT_ATTACHMENT_PURPOSE_ANSWER`
    * marks the final answer/summary and `FOLLOW_UP_QUESTION` marks a clarifying question.
+   * Agent-mode messages return the answer as their only text attachment.
    */
   purpose?: TextAttachmentPurpose | undefined;
 }
@@ -1907,7 +1909,10 @@ export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
     comment: z.string().optional(),
     nullable: z.boolean().optional(),
     partition_index: z.number().optional(),
-    mask: z.lazy(() => unmarshalColumnMaskSchema).optional(),
+    mask: z
+      .lazy(() => unmarshalColumnMaskSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     name: d.name,
@@ -2063,7 +2068,8 @@ export const unmarshalGenieEvalResponseSchema: z.ZodType<GenieEvalResponse> = z
     response: z.string().optional(),
     sql_execution_result: z
       .lazy(() => unmarshalStatementResponseSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     response_type: z.string().optional(),
   })
   .transform(d => ({
@@ -2196,7 +2202,8 @@ export const unmarshalGenieGetDownloadFullQueryResultResponseSchema: z.ZodType<G
     .object({
       statement_response: z
         .lazy(() => unmarshalStatementResponseSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       statementResponse: d.statement_response,
@@ -2207,7 +2214,8 @@ export const unmarshalGenieGetMessageQueryResultResponseSchema: z.ZodType<GenieG
     .object({
       statement_response: z
         .lazy(() => unmarshalStatementResponseSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       statementResponse: d.statement_response,
@@ -2322,10 +2330,19 @@ export const unmarshalGenieMessageSchema: z.ZodType<GenieMessage> = z
     attachments: z
       .array(z.lazy(() => unmarshalGenieAttachmentSchema))
       .optional(),
-    query_result: z.lazy(() => unmarshalResultSchema).optional(),
-    error: z.lazy(() => unmarshalMessageErrorSchema).optional(),
+    query_result: z
+      .lazy(() => unmarshalResultSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    error: z
+      .lazy(() => unmarshalMessageErrorSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     message_id: z.string().optional(),
-    feedback: z.lazy(() => unmarshalGenieFeedbackSchema).optional(),
+    feedback: z
+      .lazy(() => unmarshalGenieFeedbackSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     id: d.id,
@@ -2387,7 +2404,8 @@ export const unmarshalGenieQueryAttachmentSchema: z.ZodType<GenieQueryAttachment
       statement_id: z.string().optional(),
       query_result_metadata: z
         .lazy(() => unmarshalGenieResultMetadataSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       thoughts: z.array(z.lazy(() => unmarshalThoughtSchema)).optional(),
     })
     .transform(d => ({
@@ -2450,9 +2468,15 @@ export const unmarshalGenieStartConversationResponseSchema: z.ZodType<GenieStart
   z
     .object({
       message_id: z.string().optional(),
-      message: z.lazy(() => unmarshalGenieMessageSchema).optional(),
+      message: z
+        .lazy(() => unmarshalGenieMessageSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       conversation_id: z.string().optional(),
-      conversation: z.lazy(() => unmarshalGenieConversationSchema).optional(),
+      conversation: z
+        .lazy(() => unmarshalGenieConversationSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       messageId: d.message_id,
@@ -2572,7 +2596,10 @@ export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
 export const unmarshalResultManifestSchema: z.ZodType<ResultManifest> = z
   .object({
     format: z.string().optional(),
-    schema: z.lazy(() => unmarshalSchemaSchema).optional(),
+    schema: z
+      .lazy(() => unmarshalSchemaSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     total_chunk_count: z.number().optional(),
     chunks: z.array(z.lazy(() => unmarshalChunkInfoSchema)).optional(),
     total_row_count: z
@@ -2608,9 +2635,18 @@ export const unmarshalSchemaSchema: z.ZodType<Schema> = z
 export const unmarshalStatementResponseSchema: z.ZodType<StatementResponse> = z
   .object({
     statement_id: z.string().optional(),
-    status: z.lazy(() => unmarshalStatementStatusSchema).optional(),
-    manifest: z.lazy(() => unmarshalResultManifestSchema).optional(),
-    result: z.lazy(() => unmarshalResultDataSchema).optional(),
+    status: z
+      .lazy(() => unmarshalStatementStatusSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    manifest: z
+      .lazy(() => unmarshalResultManifestSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    result: z
+      .lazy(() => unmarshalResultDataSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     statementId: d.statement_id,
@@ -2624,7 +2660,8 @@ export const unmarshalStatementStatusSchema: z.ZodType<StatementStatus> = z
     state: z.string().optional(),
     error: z
       .lazy(() => unmarshalDatabricksServiceExceptionProtoSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     sql_state: z.string().optional(),
   })
   .transform(d => ({

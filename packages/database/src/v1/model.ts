@@ -979,7 +979,8 @@ export const unmarshalDatabaseInstanceSchema: z.ZodType<DatabaseInstance> = z
     effective_retention_window_in_days: z.number().optional(),
     parent_instance_ref: z
       .lazy(() => unmarshalDatabaseInstanceRefSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     child_instance_refs: z
       .array(z.lazy(() => unmarshalDatabaseInstanceRefSchema))
       .optional(),
@@ -1049,10 +1050,12 @@ export const unmarshalDatabaseInstanceRoleSchema: z.ZodType<DatabaseInstanceRole
       membership_role: z.string().optional(),
       attributes: z
         .lazy(() => unmarshalDatabaseInstanceRole_AttributesSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       effective_attributes: z
         .lazy(() => unmarshalDatabaseInstanceRole_AttributesSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
       instance_name: z.string().optional(),
     })
     .transform(d => ({
@@ -1179,11 +1182,15 @@ export const unmarshalSyncedDatabaseTableSchema: z.ZodType<SyncedDatabaseTable> 
       effective_database_instance_name: z.string().optional(),
       logical_database_name: z.string().optional(),
       effective_logical_database_name: z.string().optional(),
-      spec: z.lazy(() => unmarshalSyncedTableSpecSchema).optional(),
+      spec: z
+        .lazy(() => unmarshalSyncedTableSpecSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       unity_catalog_provisioning_state: z.string().optional(),
       data_synchronization_status: z
         .lazy(() => unmarshalSyncedTableStatusSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       name: d.name,
@@ -1209,7 +1216,8 @@ export const unmarshalSyncedTableContinuousUpdateStatusSchema: z.ZodType<SyncedT
         .optional(),
       initial_pipeline_sync_progress: z
         .lazy(() => unmarshalSyncedTablePipelineProgressSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       lastProcessedCommitVersion: d.last_processed_commit_version,
@@ -1294,7 +1302,8 @@ export const unmarshalSyncedTableProvisioningStatusSchema: z.ZodType<SyncedTable
     .object({
       initial_pipeline_sync_progress: z
         .lazy(() => unmarshalSyncedTablePipelineProgressSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       initialPipelineSyncProgress: d.initial_pipeline_sync_progress,
@@ -1308,7 +1317,10 @@ export const unmarshalSyncedTableSpecSchema: z.ZodType<SyncedTableSpec> = z
     timeseries_key: z.string().optional(),
     existing_pipeline_id: z.string().optional(),
     create_database_objects_if_missing: z.boolean().optional(),
-    new_pipeline_spec: z.lazy(() => unmarshalNewPipelineSpecSchema).optional(),
+    new_pipeline_spec: z
+      .lazy(() => unmarshalNewPipelineSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     accelerated_sync: z.boolean().optional(),
     type_overrides: z
       .array(z.lazy(() => unmarshalSyncedTableSpec_TypeOverrideSchema))
@@ -1357,7 +1369,10 @@ export const unmarshalSyncedTableStatusSchema: z.ZodType<SyncedTableStatus> = z
       .lazy(() => unmarshalSyncedTableFailedStatusSchema)
       .optional(),
     pipeline_id: z.string().optional(),
-    last_sync: z.lazy(() => unmarshalSyncedTablePositionSchema).optional(),
+    last_sync: z
+      .lazy(() => unmarshalSyncedTablePositionSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     detailedState: d.detailed_state,
@@ -1398,7 +1413,8 @@ export const unmarshalSyncedTableTriggeredUpdateStatusSchema: z.ZodType<SyncedTa
         .optional(),
       triggered_update_progress: z
         .lazy(() => unmarshalSyncedTablePipelineProgressSchema)
-        .optional(),
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       lastProcessedCommitVersion: d.last_processed_commit_version,

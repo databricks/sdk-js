@@ -256,7 +256,8 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
     storage_location: z.string().optional(),
     effective_predictive_optimization_flag: z
       .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+      .nullish()
+      .transform(v => v ?? undefined),
     schema_id: z.string().optional(),
     browse_only: z.boolean().optional(),
     custom_max_retention_hours: z

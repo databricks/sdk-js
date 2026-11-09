@@ -206,7 +206,10 @@ export const unmarshalCreateRepoResponseSchema: z.ZodType<CreateRepoResponse> =
       provider: z.string().optional(),
       branch: z.string().optional(),
       head_commit_id: z.string().optional(),
-      sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
+      sparse_checkout: z
+        .lazy(() => unmarshalSparseCheckoutSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       id: d.id,
@@ -232,7 +235,10 @@ export const unmarshalGetRepoResponseSchema: z.ZodType<GetRepoResponse> = z
     provider: z.string().optional(),
     branch: z.string().optional(),
     head_commit_id: z.string().optional(),
-    sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
+    sparse_checkout: z
+      .lazy(() => unmarshalSparseCheckoutSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
     git_cli_enabled: z.boolean().optional(),
   })
   .transform(d => ({
@@ -267,7 +273,10 @@ export const unmarshalRepoInfoSchema: z.ZodType<RepoInfo> = z
     provider: z.string().optional(),
     branch: z.string().optional(),
     head_commit_id: z.string().optional(),
-    sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
+    sparse_checkout: z
+      .lazy(() => unmarshalSparseCheckoutSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     id: d.id,

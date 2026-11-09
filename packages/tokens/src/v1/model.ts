@@ -103,7 +103,10 @@ export const unmarshalCreateTokenResponseSchema: z.ZodType<CreateTokenResponse> 
   z
     .object({
       token_value: z.string().optional(),
-      token_info: z.lazy(() => unmarshalPublicTokenInfoSchema).optional(),
+      token_info: z
+        .lazy(() => unmarshalPublicTokenInfoSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       tokenValue: d.token_value,
