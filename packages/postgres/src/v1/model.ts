@@ -1275,6 +1275,13 @@ export interface CdfConfig {
    * parent database. Set at creation; the CdfConfig is immutable.
    */
   postgresSchema?: string | undefined;
+  /**
+   * The service principal (application id) whose identity authorizes this
+   * change data feed's ongoing writes to Unity Catalog. When unset, writes are
+   * authorized as the creating identity. Changing it requires a new CdfConfig,
+   * which writes to new Delta tables.
+   */
+  servicePrincipal?: string | undefined;
 }
 
 /**
@@ -2002,6 +2009,13 @@ export interface GenerateDatabaseCredentialRequest {
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
   endpoint?: string | undefined;
+  /**
+   * The display name of a `<Databricks>` workspace group. When set, the
+   * returned credential is scoped to this group, so the caller connects directly
+   * as the group's Postgres role. The caller must be a member of the group. When
+   * omitted, the credential is scoped to the caller's own identity.
+   */
+  groupName?: string | undefined;
   /**
    * Expiration information for the credential.
    * Users can specify either expire_time or ttl.
@@ -3675,6 +3689,7 @@ export const unmarshalCdfConfigSchema: z.ZodType<CdfConfig> = z
       .optional(),
     cdf_config_id: z.string().optional(),
     postgres_schema: z.string().optional(),
+    service_principal: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3683,6 +3698,7 @@ export const unmarshalCdfConfigSchema: z.ZodType<CdfConfig> = z
     createTime: d.create_time,
     cdfConfigId: d.cdf_config_id,
     postgresSchema: d.postgres_schema,
+    servicePrincipal: d.service_principal,
   }));
 
 export const unmarshalCdfConfigOperationMetadataSchema: z.ZodType<CdfConfigOperationMetadata> =
@@ -5204,6 +5220,7 @@ export const marshalCdfConfigSchema: z.ZodType = z
       .optional(),
     cdfConfigId: z.string().optional(),
     postgresSchema: z.string().optional(),
+    servicePrincipal: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -5212,6 +5229,7 @@ export const marshalCdfConfigSchema: z.ZodType = z
     create_time: d.createTime,
     cdf_config_id: d.cdfConfigId,
     postgres_schema: d.postgresSchema,
+    service_principal: d.servicePrincipal,
   }));
 
 export const marshalDailyScheduleSchema: z.ZodType = z
@@ -5532,6 +5550,7 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
   .object({
     claims: z.array(z.lazy(() => marshalRequestedClaimsSchema)).optional(),
     endpoint: z.string().optional(),
+    groupName: z.string().optional(),
     expiration: z
       .discriminatedUnion('$case', [
         z.object({
@@ -5552,6 +5571,7 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
   .transform(d => ({
     claims: d.claims,
     endpoint: d.endpoint,
+    group_name: d.groupName,
     ...(d.expiration?.$case === 'ttl' && {ttl: d.expiration.ttl}),
     ...(d.expiration?.$case === 'expireTime' && {
       expire_time: d.expiration.expireTime,
