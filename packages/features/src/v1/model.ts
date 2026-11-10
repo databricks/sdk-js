@@ -1298,13 +1298,24 @@ export interface Feature {
   createdAt?: Temporal.Instant | undefined;
   /** Username of the feature creator. */
   createdBy?: string | undefined;
+  /** The feature's resolved output type. */
+  outputDataType?:
+    | {
+        $case: 'outputTypeText';
+        /** Output type in Databricks SQL DDL (e.g., "BIGINT", "DECIMAL(10,2)", "ARRAY<STRING>", "STRUCT<name:STRING>"). */
+        outputTypeText: string;
+      }
+    | undefined;
 }
 
 /** A Python UDF that computes a feature. */
 export interface FeatureFunction {
   /** Three-part name of the Python UDF. */
   udf?: string | undefined;
-  /** Bindings of the UDF's parameters to features. */
+  /**
+   * Bindings of the UDF's parameters to features. Order is not significant, and GetFeatureSpec can
+   * return them in a different order.
+   */
   inputBindings?: FeatureFunction_InputBinding[] | undefined;
   /** Output name of the feature that the UDF computes. */
   output?: string | undefined;
@@ -1327,13 +1338,19 @@ export interface FeatureLookup {
   lookupKeys?: string[] | undefined;
   /** Names of the features to look up, or empty to look up every feature in the table. */
   featureNames?: string[] | undefined;
-  /** Output names for features, in place of their names in the feature table. */
+  /**
+   * Output names for features, in place of their names in the feature table. Order is not
+   * significant, and GetFeatureSpec can return them in a different order.
+   */
   renameOutputs?: RenameOutput[] | undefined;
   /** Keys to use when performing point-in-time lookup. */
   timestampLookupKeys?: string[] | undefined;
   /** Lookback window to use when performing point-in-time lookup. */
   lookbackWindow?: Temporal.Duration | undefined;
-  /** Default values for features. */
+  /**
+   * Default values for features. Order is not significant, and GetFeatureSpec can return them in a
+   * different order.
+   */
   defaultValues?: DefaultValue[] | undefined;
 }
 
@@ -1356,7 +1373,10 @@ export interface FeatureSpec {
    * lookups (`FeatureLookup`) and functions (`FeatureFunction`) in one feature spec.
    */
   features?: Features[] | undefined;
-  /** Output names of columns to leave out of the feature spec. */
+  /**
+   * Output names of columns to leave out of the feature spec. Order is not significant, and
+   * GetFeatureSpec can return them in a different order.
+   */
   excludeColumns?: string[] | undefined;
   /** How pip requirements for the serving container are specified. */
   pipRequirementsSpec?:
@@ -3399,6 +3419,7 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
       .transform(s => Temporal.Instant.from(s))
       .optional(),
     created_by: z.string().optional(),
+    output_type_text: z.string().optional(),
   })
   .transform(d => ({
     fullName: d.full_name,
@@ -3416,6 +3437,10 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
     name: d.name,
     createdAt: d.created_at,
     createdBy: d.created_by,
+    outputDataType:
+      d.output_type_text !== undefined
+        ? {$case: 'outputTypeText' as const, outputTypeText: d.output_type_text}
+        : undefined,
   }));
 
 export const unmarshalFeatureFunctionSchema: z.ZodType<FeatureFunction> = z
@@ -5312,6 +5337,14 @@ export const marshalFeatureSchema: z.ZodType = z
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     createdBy: z.string().optional(),
+    outputDataType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('outputTypeText'),
+          outputTypeText: z.string(),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
     full_name: d.fullName,
@@ -5329,6 +5362,9 @@ export const marshalFeatureSchema: z.ZodType = z
     name: d.name,
     created_at: d.createdAt,
     created_by: d.createdBy,
+    ...(d.outputDataType?.$case === 'outputTypeText' && {
+      output_type_text: d.outputDataType.outputTypeText,
+    }),
   }));
 
 export const marshalFeatureFunctionSchema: z.ZodType = z
@@ -6687,6 +6723,7 @@ const featureFieldMaskSchema: FieldMaskSchema = {
     children: () => lineageContextFieldMaskSchema,
   },
   name: {wire: 'name'},
+  outputTypeText: {wire: 'output_type_text'},
   schemaName: {wire: 'schema_name'},
   source: {wire: 'source', children: () => dataSourceFieldMaskSchema},
   timeWindow: {wire: 'time_window', children: () => timeWindowFieldMaskSchema},
