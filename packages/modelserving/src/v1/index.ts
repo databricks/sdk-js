@@ -14,6 +14,7 @@ export {
 
 export {
   Behavior,
+  CommitmentTerm,
   ServedModelDeploymentState,
   ServingEndpointDetailedPermissionLevel,
   TelemetryFeature,

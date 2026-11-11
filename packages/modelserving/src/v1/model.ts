@@ -11,6 +11,32 @@ export const Behavior = {
 } as const;
 export type Behavior = (typeof Behavior)[keyof typeof Behavior] | (string & {});
 
+/** The commitment term length for a Provisioned Throughput pool. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const CommitmentTerm = {
+  /** Default value when no commitment term is specified. */
+  COMMITMENT_TERM_UNSPECIFIED: 'COMMITMENT_TERM_UNSPECIFIED',
+  /** A one-month commitment term. */
+  COMMITMENT_TERM_1_MONTH: 'COMMITMENT_TERM_1_MONTH',
+  /** A three-month commitment term. */
+  COMMITMENT_TERM_3_MONTHS: 'COMMITMENT_TERM_3_MONTHS',
+  /** A one-hour commitment term. */
+  COMMITMENT_TERM_1_HOUR: 'COMMITMENT_TERM_1_HOUR',
+  /** A twelve-hour commitment term. */
+  COMMITMENT_TERM_12_HOURS: 'COMMITMENT_TERM_12_HOURS',
+  /** A one-day commitment term. */
+  COMMITMENT_TERM_1_DAY: 'COMMITMENT_TERM_1_DAY',
+  /** A one-week commitment term. */
+  COMMITMENT_TERM_1_WEEK: 'COMMITMENT_TERM_1_WEEK',
+  /** A six-month commitment term. */
+  COMMITMENT_TERM_6_MONTHS: 'COMMITMENT_TERM_6_MONTHS',
+  /** A one-year commitment term. */
+  COMMITMENT_TERM_1_YEAR: 'COMMITMENT_TERM_1_YEAR',
+} as const;
+export type CommitmentTerm =
+  | (typeof CommitmentTerm)[keyof typeof CommitmentTerm]
+  | (string & {});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ServedModelDeploymentState = {
   DEPLOYMENT_UNKNOWN: 'DEPLOYMENT_UNKNOWN',
@@ -962,6 +988,11 @@ export interface PtServedModel {
    * maintains fixed capacity at provisioned_model_units.
    */
   burstScalingEnabled?: boolean | undefined;
+  /**
+   * Commitment term to purchase for this served entity; its presence marks the entity as reserved
+   * (vs on-demand) PT. Valid on create and on update (purchases a commitment for a scale-up).
+   */
+  ptTerm?: CommitmentTerm | undefined;
 }
 
 export interface PutInferenceEndpointAiGatewayRequest {
@@ -2667,6 +2698,7 @@ export const marshalPtServedModelSchema: z.ZodType = z
     entityVersion: z.string().optional(),
     provisionedModelUnits: z.bigint().optional(),
     burstScalingEnabled: z.boolean().optional(),
+    ptTerm: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2674,6 +2706,7 @@ export const marshalPtServedModelSchema: z.ZodType = z
     entity_version: d.entityVersion,
     provisioned_model_units: d.provisionedModelUnits,
     burst_scaling_enabled: d.burstScalingEnabled,
+    pt_term: d.ptTerm,
   }));
 
 export const marshalPutInferenceEndpointAiGatewayRequestSchema: z.ZodType = z
