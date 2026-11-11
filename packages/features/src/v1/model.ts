@@ -1023,8 +1023,12 @@ export interface CreateKafkaConfigRequest {
 
 export interface CreateMaterializationSetRequest {
   /**
-   * The materialization set to create. Supply materialization_set_id to choose the identifier;
-   * leave it unset to have one assigned.
+   * The materialization set to create. Set `materialization_set_id` to
+   * choose the identifier, or omit it to have one assigned.
+   *
+   * Members with a cron schedule or table trigger must request the same
+   * `paused` value. An omitted `paused` defaults to `false`.
+   * A set can be created paused only if all members are batch materializations.
    */
   materializationSet?: MaterializationSet | undefined;
   /**
@@ -1883,10 +1887,7 @@ export interface MaterializationFailureNotification {
   finalAttemptOnly?: boolean | undefined;
 }
 
-/**
- * Notifications for the jobs and pipelines that materialize the features in a set, one field per
- * trigger.
- */
+/** Notifications for the jobs and pipelines that materialize features, one field per trigger. */
 export interface MaterializationNotifications {
   /** Who to notify when a run succeeds. */
   onSuccess?: MaterializationSuccessNotification | undefined;
@@ -2089,7 +2090,11 @@ export interface MaterializedFeature {
   pipelineId?: string | undefined;
   /** The ID of the job that materializes the feature. This is present for both batch and streaming features. */
   jobId?: bigint | undefined;
-  /** Notification configuration for the jobs and pipelines that materialize this feature. */
+  /**
+   * Notification configuration around the lifecycle of the job or pipeline that materializes
+   * this feature. Features which are materialized in the same pipeline will share the same
+   * notification.
+   */
   notifications?: MaterializationNotifications | undefined;
   /**
    * The ID of the materialization set containing this materialized feature.
