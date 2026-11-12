@@ -333,19 +333,6 @@ export interface CommonConfig {
    */
   etag?: string | undefined;
   /**
-   * UC volume path holding user-authored custom presets, e.g.
-   * `/Volumes/{catalog}/{schema}/{volume}`. User-provided with no default:
-   * when unset, custom presets are unavailable and only built-in presets apply.
-   */
-  customPresetsPath?: string | undefined;
-  /**
-   * UC volume path holding user-authored custom content packs, e.g.
-   * `/Volumes/{catalog}/{schema}/{volume}`. User-provided with no default:
-   * when unset, custom content packs are unavailable (referencing one is
-   * rejected) and only built-in content packs apply.
-   */
-  customContentPackPath?: string | undefined;
-  /**
    * Whether users may grant permissions on individual resources rather than
    * only at the Folder level.
    */
@@ -1041,7 +1028,8 @@ export interface Rule {
   references?: string[] | undefined;
   /**
    * Long-form operational guidance carried from the authored rule metadata. Supports up to 4096
-   * characters. Requests exceeding this limit are rejected.
+   * characters. Requests exceeding this limit are rejected. Supports Markdown; analysts and the
+   * investigation agent follow it when triaging this rule's alerts.
    */
   runbook?: string | undefined;
   /**
@@ -1611,8 +1599,6 @@ export const unmarshalCommonConfigSchema: z.ZodType<CommonConfig> = z
       .nullish()
       .transform(v => v ?? undefined),
     etag: z.string().optional(),
-    custom_presets_path: z.string().optional(),
-    custom_content_pack_path: z.string().optional(),
     per_resource_permissions_enabled: z.boolean().optional(),
   })
   .transform(d => ({
@@ -1621,8 +1607,6 @@ export const unmarshalCommonConfigSchema: z.ZodType<CommonConfig> = z
     updateTime: d.update_time,
     updatedBy: d.updated_by,
     etag: d.etag,
-    customPresetsPath: d.custom_presets_path,
-    customContentPackPath: d.custom_content_pack_path,
     perResourcePermissionsEnabled: d.per_resource_permissions_enabled,
   }));
 
@@ -2424,8 +2408,6 @@ export const marshalCommonConfigSchema: z.ZodType = z
       .optional(),
     updatedBy: z.lazy(() => marshalPrincipalSchema).optional(),
     etag: z.string().optional(),
-    customPresetsPath: z.string().optional(),
-    customContentPackPath: z.string().optional(),
     perResourcePermissionsEnabled: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2434,8 +2416,6 @@ export const marshalCommonConfigSchema: z.ZodType = z
     update_time: d.updateTime,
     updated_by: d.updatedBy,
     etag: d.etag,
-    custom_presets_path: d.customPresetsPath,
-    custom_content_pack_path: d.customContentPackPath,
     per_resource_permissions_enabled: d.perResourcePermissionsEnabled,
   }));
 
@@ -3144,8 +3124,6 @@ const cloudWatchLogsEnvelopeFieldMaskSchema: FieldMaskSchema = {
 };
 
 const commonConfigFieldMaskSchema: FieldMaskSchema = {
-  customContentPackPath: {wire: 'custom_content_pack_path'},
-  customPresetsPath: {wire: 'custom_presets_path'},
   etag: {wire: 'etag'},
   name: {wire: 'name'},
   perResourcePermissionsEnabled: {wire: 'per_resource_permissions_enabled'},
