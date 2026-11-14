@@ -160,22 +160,22 @@ describe('fromHttpError', () => {
       }),
     },
     {
-      desc: 'HTML body',
+      desc: 'HTML body decoded into message',
       statusCode: 502,
       body: encode('<html><body>Bad Gateway</body></html>'),
       want: new ApiError({
         code: Code.UNKNOWN,
-        message: '',
+        message: '<html><body>Bad Gateway</body></html>',
         details: emptyDetails,
       }),
     },
     {
-      desc: 'malformed JSON',
+      desc: 'malformed JSON decoded into message',
       statusCode: 400,
       body: encode('{not valid json'),
       want: new ApiError({
         code: Code.UNKNOWN,
-        message: '',
+        message: '{not valid json',
         details: emptyDetails,
       }),
     },
