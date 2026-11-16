@@ -69,11 +69,16 @@ export type DateValue_DynamicDate =
   | (string & {});
 
 export interface CreateQueryRequest {
+  /** The query to create. A display name and query text are required. */
   query?: CreateQueryRequestQuery | undefined;
   /** If true, automatically resolve query display name conflicts. Otherwise, fail the request if the query's display name conflicts with an existing query's display name. */
   autoResolveDisplayName?: boolean | undefined;
 }
 
+/**
+ * A saved Databricks SQL query. A query stores the SQL text, the SQL warehouse it runs on, its
+ * parameters, and metadata such as the display name, description, owner, and tags.
+ */
 export interface CreateQueryRequestQuery {
   /** Display name of the query that appears in list views, widget headings, and on the query page. */
   displayName?: string | undefined;
@@ -83,10 +88,16 @@ export interface CreateQueryRequestQuery {
   warehouseId?: string | undefined;
   /** Text of the query to be run. */
   queryText?: string | undefined;
-  /** Sets the "Run as" role for the object. */
+  /**
+   * Whose credentials the query runs with when it is shared. `VIEWER` uses the credentials of the
+   * user running the query. `OWNER` uses the owner's credentials where the product supports that,
+   * such as for legacy alerts and jobs. When omitted on create, the workspace default applies. A
+   * workspace admin can disallow `OWNER`.
+   */
   runAsMode?: RunAsMode | undefined;
   /** Workspace path of the workspace folder containing the object. */
   parentPath?: string | undefined;
+  /** Tags attached to the query. Tags appear in the query list and can be used to filter it. */
   tags?: string[] | undefined;
   /** List of query parameter definitions. */
   parameters?: QueryParameter[] | undefined;
@@ -99,7 +110,12 @@ export interface CreateQueryRequestQuery {
 }
 
 export interface DateRange {
+  /**
+   * Start of the range in the format `yyyy-MM-dd`, optionally followed by a time as ` HH:mm` or
+   * ` HH:mm:ss`.
+   */
   start?: string | undefined;
+  /** End of the range, in the same format as `start`. */
   end?: string | undefined;
 }
 
@@ -118,6 +134,10 @@ export interface DateRangeValue {
     | undefined;
   /** Date-time precision to format the value into when the query is run. Defaults to DAY_PRECISION (YYYY-MM-DD). */
   precision?: DatePrecision | undefined;
+  /**
+   * Day the week starts on for week-based dynamic ranges such as `THIS_WEEK` and `LAST_WEEK`, from
+   * 0 (Sunday) to 6 (Saturday). Defaults to 0.
+   */
   startDayOfWeek?: number | undefined;
 }
 
@@ -130,7 +150,10 @@ export interface DateValue {
       }
     | {
         $case: 'dateValue';
-        /** Manually specified date-time value. */
+        /**
+         * Manually specified date-time value in the format `yyyy-MM-dd`, optionally followed by a time
+         * as ` HH:mm` or ` HH:mm:ss`.
+         */
         dateValue: string;
       }
     | undefined;
@@ -155,19 +178,28 @@ export interface EnumValue {
 }
 
 export interface GetQueryRequest {
+  /** UUID of the query to fetch. */
   id?: string | undefined;
 }
 
 export interface ListQueriesRequest {
+  /** Token from the `next_page_token` of a previous response. Omit it to fetch the first page. */
   pageToken?: string | undefined;
+  /** Maximum number of queries to return per page. Values above 100 are coerced to 100. */
   pageSize?: number | undefined;
 }
 
 export interface ListQueriesResponse {
+  /** Queries on this page. */
   results?: ListQueryObjectsResponseQuery[] | undefined;
+  /** Token to pass as `page_token` to fetch the next page. Omitted when there are no more pages. */
   nextPageToken?: string | undefined;
 }
 
+/**
+ * A saved Databricks SQL query. A query stores the SQL text, the SQL warehouse it runs on, its
+ * parameters, and metadata such as the display name, description, owner, and tags.
+ */
 export interface ListQueryObjectsResponseQuery {
   /** UUID identifying the query. */
   id?: string | undefined;
@@ -181,12 +213,18 @@ export interface ListQueryObjectsResponseQuery {
   warehouseId?: string | undefined;
   /** Text of the query to be run. */
   queryText?: string | undefined;
-  /** Sets the "Run as" role for the object. */
+  /**
+   * Whose credentials the query runs with when it is shared. `VIEWER` uses the credentials of the
+   * user running the query. `OWNER` uses the owner's credentials where the product supports that,
+   * such as for legacy alerts and jobs. When omitted on create, the workspace default applies. A
+   * workspace admin can disallow `OWNER`.
+   */
   runAsMode?: RunAsMode | undefined;
   /** Indicates whether the query is trashed. */
   lifecycleState?: LifecycleState | undefined;
   /** Username of the user who last saved changes to this query. */
   lastModifierUserName?: string | undefined;
+  /** Tags attached to the query. Tags appear in the query list and can be used to filter it. */
   tags?: string[] | undefined;
   /** Timestamp when this query was created. */
   createTime?: Temporal.Instant | undefined;
@@ -223,9 +261,14 @@ export interface MultiValuesOptions {
 }
 
 export interface NumericValue {
+  /** Number substituted for the parameter marker when the query runs. */
   value?: number | undefined;
 }
 
+/**
+ * A saved Databricks SQL query. A query stores the SQL text, the SQL warehouse it runs on, its
+ * parameters, and metadata such as the display name, description, owner, and tags.
+ */
 export interface Query {
   /** UUID identifying the query. */
   id?: string | undefined;
@@ -239,7 +282,12 @@ export interface Query {
   warehouseId?: string | undefined;
   /** Text of the query to be run. */
   queryText?: string | undefined;
-  /** Sets the "Run as" role for the object. */
+  /**
+   * Whose credentials the query runs with when it is shared. `VIEWER` uses the credentials of the
+   * user running the query. `OWNER` uses the owner's credentials where the product supports that,
+   * such as for legacy alerts and jobs. When omitted on create, the workspace default applies. A
+   * workspace admin can disallow `OWNER`.
+   */
   runAsMode?: RunAsMode | undefined;
   /** Indicates whether the query is trashed. */
   lifecycleState?: LifecycleState | undefined;
@@ -247,6 +295,7 @@ export interface Query {
   lastModifierUserName?: string | undefined;
   /** Workspace path of the workspace folder containing the object. */
   parentPath?: string | undefined;
+  /** Tags attached to the query. Tags appear in the query list and can be used to filter it. */
   tags?: string[] | undefined;
   /** Timestamp when this query was created. */
   createTime?: Temporal.Instant | undefined;
@@ -312,21 +361,36 @@ export interface QueryParameter {
 }
 
 export interface TextValue {
+  /**
+   * Text substituted for the parameter marker when the query runs. Quotation marks are added
+   * around the value automatically.
+   */
   value?: string | undefined;
 }
 
 export interface TrashQueryRequest {
+  /** UUID of the query to move to the trash. */
   id?: string | undefined;
 }
 
 export interface UpdateQueryRequest {
+  /** Query fields to update. Only the fields named in `update_mask` are changed. */
   query?: UpdateQueryRequestQuery | undefined;
+  /**
+   * Comma-separated list of the query fields to update, such as the display name or query text.
+   * Fields not listed keep their current values.
+   */
   updateMask?: FieldMask<UpdateQueryRequestQuery> | undefined;
+  /** UUID of the query to update. */
   id?: string | undefined;
-  /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */
+  /** If true, automatically resolve query display name conflicts. Otherwise, fail the request if the query's display name conflicts with an existing query's display name. */
   autoResolveDisplayName?: boolean | undefined;
 }
 
+/**
+ * A saved Databricks SQL query. A query stores the SQL text, the SQL warehouse it runs on, its
+ * parameters, and metadata such as the display name, description, owner, and tags.
+ */
 export interface UpdateQueryRequestQuery {
   /** Display name of the query that appears in list views, widget headings, and on the query page. */
   displayName?: string | undefined;
@@ -338,8 +402,14 @@ export interface UpdateQueryRequestQuery {
   warehouseId?: string | undefined;
   /** Text of the query to be run. */
   queryText?: string | undefined;
-  /** Sets the "Run as" role for the object. */
+  /**
+   * Whose credentials the query runs with when it is shared. `VIEWER` uses the credentials of the
+   * user running the query. `OWNER` uses the owner's credentials where the product supports that,
+   * such as for legacy alerts and jobs. When omitted on create, the workspace default applies. A
+   * workspace admin can disallow `OWNER`.
+   */
   runAsMode?: RunAsMode | undefined;
+  /** Tags attached to the query. Tags appear in the query list and can be used to filter it. */
   tags?: string[] | undefined;
   /** List of query parameter definitions. */
   parameters?: QueryParameter[] | undefined;

@@ -108,7 +108,12 @@ export type DayOfWeek =
 export const EndpointType = {
   /** Default value, not used */
   ENDPOINT_TYPE_UNSPECIFIED: 'ENDPOINT_TYPE_UNSPECIFIED',
+  /** The branch's primary compute. It accepts reads and writes, and each branch has exactly one. */
   ENDPOINT_TYPE_READ_WRITE: 'ENDPOINT_TYPE_READ_WRITE',
+  /**
+   * A read replica. It serves read-only queries against the branch's data, and a branch can have
+   * several.
+   */
   ENDPOINT_TYPE_READ_ONLY: 'ENDPOINT_TYPE_READ_ONLY',
 } as const;
 export type EndpointType =
@@ -787,9 +792,13 @@ export type BranchStatus_State =
 export const EndpointStatus_State = {
   /** Default value, not used */
   STATE_UNSPECIFIED: 'STATE_UNSPECIFIED',
+  /** The compute is being provisioned or started. */
   INIT: 'INIT',
+  /** The compute is running and accepts connections. */
   ACTIVE: 'ACTIVE',
+  /** The compute is suspended. Unless the endpoint is disabled, the next connection attempt restarts it. */
   IDLE: 'IDLE',
+  /** The endpoint's compute instances are not all in the same state, for example during a failover. */
   DEGRADED: 'DEGRADED',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -1054,7 +1063,13 @@ export interface Branch {
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the branch was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The spec contains the branch configuration. */
+  /**
+   * The spec contains the branch configuration.
+   *
+   * Read the resource's current values from `status`, rather than `spec`.
+   * `spec` tracks field ownership for infrastructure-as-code tools and may omit
+   * unmanaged fields.
+   */
   spec?: BranchSpec | undefined;
   /** The current status of a Branch. */
   status?: BranchStatus | undefined;
@@ -1170,9 +1185,12 @@ export interface Catalog {
    * Format: "catalogs/{catalog_id}".
    */
   name?: string | undefined;
-  /** System-generated unique identifier for the catalog. */
+  /** The immutable UUID that identifies the catalog, assigned when the catalog is created. */
   uid?: string | undefined;
-  /** The desired state of the Catalog. */
+  /**
+   * The desired state of the Catalog. The catalog has no update method, so the spec is fixed when
+   * the catalog is created.
+   */
   spec?: Catalog_CatalogSpec | undefined;
   /** The observed state of the Catalog. */
   status?: Catalog_CatalogStatus | undefined;
@@ -1180,7 +1198,10 @@ export interface Catalog {
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the catalog was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The part of the name, chosen by the user when the resource was created. */
+  /**
+   * The ID chosen when the catalog was created, which is also its name in Unity Catalog. It is the
+   * last segment of the name field.
+   */
   catalogId?: string | undefined;
 }
 
@@ -1190,6 +1211,7 @@ export interface Catalog_CatalogSpec {
   /**
    * The name of the Postgres database inside the specified Lakebase project and branch to be associated with the UC catalog.
    * This database must already exist, unless create_database_if_missing is set to true on creation.
+   * The system databases postgres, databricks_system, template0 and template1 cannot be registered.
    *
    * A database can only be registered with one UC catalog at a time.
    * To re-register a database with a different catalog, the existing catalog must be deleted first.
@@ -1213,7 +1235,8 @@ export interface Catalog_CatalogSpec {
    */
   createDatabaseIfMissing?: boolean | undefined;
   /**
-   * The resource path of the branch associated with the catalog.
+   * The resource path of the branch that holds the Postgres database. The branch must have a
+   * read-write compute endpoint.
    *
    * Format: projects/{project_id}/branches/{branch_id}.
    */
@@ -1342,8 +1365,8 @@ export interface CreateBranchRequest {
 
 export interface CreateCatalogRequest {
   /**
-   * The ID in the Unity Catalog.
-   * It becomes the full resource name, for example "my_catalog" becomes "catalogs/my_catalog".
+   * The ID of the catalog to create, which is also its name in Unity Catalog. It becomes the last
+   * segment of the catalog's resource name, catalogs/{catalog_id}.
    */
   catalogId?: string | undefined;
   catalog?: Catalog | undefined;
@@ -1385,9 +1408,8 @@ export interface CreateDatabaseRequest {
    */
   parent?: string | undefined;
   /**
-   * The ID to use for the Database, which will become the final component of
-   * the database's resource name.
-   * This ID becomes the database name in postgres.
+   * The ID used to identify and manage the Database resource through the API.
+   * The Postgres database name is specified in `spec.postgres_database`.
    *
    * This value should be 4-63 characters, and only use characters available in DNS names,
    * as defined by RFC-1123
@@ -1411,14 +1433,19 @@ export interface CreateEndpointRequest {
    */
   parent?: string | undefined;
   /**
-   * The ID to use for the Endpoint. This becomes the final component of the endpoint's resource name.
-   * The ID is required and must be 1-63 characters long, start with a lowercase letter, and contain only lowercase letters, numbers, and hyphens.
-   * For example, `primary` becomes `projects/my-app/branches/development/endpoints/primary`.
+   * The ID to use for the endpoint. It becomes the final segment of the endpoint's resource name,
+   * `projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}`. The ID must be 3 to 63 characters
+   * long, start with a lowercase letter, end with a lowercase letter or digit, and contain only lowercase
+   * letters, digits, and hyphens.
    */
   endpointId?: string | undefined;
-  /** The Endpoint to create. */
+  /** The endpoint to create. Only `spec` is read from this message; the system sets the other fields. */
   endpoint?: Endpoint | undefined;
-  /** If true, update the endpoint if it already exists instead of returning an error. */
+  /**
+   * If true, update the endpoint if it already exists instead of returning an error. The request's
+   * `spec.endpoint_type` must match the existing endpoint's type, and the other `spec` fields are applied
+   * as an update. Use this to configure the read-write endpoint that was created together with the branch.
+   */
   replaceExisting?: boolean | undefined;
 }
 
@@ -1435,9 +1462,10 @@ export interface CreateMigrationRequest {
 
 export interface CreateProjectRequest {
   /**
-   * The ID to use for the Project. This becomes the final component of the project's resource name.
-   * The ID is required and must be 1-63 characters long, start with a lowercase letter, and contain only lowercase letters, numbers, and hyphens.
-   * For example, `my-app` becomes `projects/my-app`.
+   * The ID to use for the project. It becomes the final segment of the project's resource name,
+   * `projects/{project_id}`. The ID must be 3 to 63 characters long, start with a lowercase letter,
+   * end with a lowercase letter or digit, and contain only lowercase letters, digits, and hyphens.
+   * The ID of a soft-deleted project stays reserved until that project is permanently deleted.
    */
   projectId?: string | undefined;
   /** The Project to create. */
@@ -1451,9 +1479,8 @@ export interface CreateRoleRequest {
    */
   parent?: string | undefined;
   /**
-   * The ID to use for the Role, which will become the final component of
-   * the role's resource name.
-   * This ID becomes the role in Postgres.
+   * The ID used to identify and manage the Role resource through the API.
+   * The Postgres role name is specified in `spec.postgres_role`.
    *
    * This value should be 4-63 characters, and valid characters
    * are lowercase letters, numbers, and hyphens, as defined by RFC 1123.
@@ -1632,7 +1659,13 @@ export interface Database {
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the database was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The desired state of the Database. */
+  /**
+   * The desired state of the Database.
+   *
+   * Read the resource's current values from `status`, rather than `spec`.
+   * `spec` tracks field ownership for infrastructure-as-code tools and may omit
+   * unmanaged fields.
+   */
   spec?: Database_DatabaseSpec | undefined;
   /** The observed state of the Database. */
   status?: Database_DatabaseStatus | undefined;
@@ -1648,7 +1681,7 @@ export interface Database_DatabaseSpec {
    *
    * To change the owner, pass valid existing Role name when updating the Database
    *
-   * A database always has an owner.
+   * Required when creating the Database.
    */
   role?: string | undefined;
   /**
@@ -1777,8 +1810,11 @@ export interface DeleteProjectRequest {
    */
   name?: string | undefined;
   /**
-   * If true, permanently deletes the project (hard delete).
-   * If false or unset, performs a soft delete.
+   * If true, permanently deletes the project and all of its data immediately. If false or unset, the
+   * project is soft-deleted: it stops accepting connections and is retained for 7 days, during which
+   * it can be restored with Undelete, and is then permanently deleted. Deleting an already
+   * soft-deleted project with `purge` set to true removes it immediately. See
+   * https://docs.databricks.com/aws/en/oltp/projects/manage-projects for details.
    */
   purge?: boolean | undefined;
 }
@@ -1825,13 +1861,21 @@ export interface DeltaTableSyncInfo {
   deltaCommitTime?: Temporal.Instant | undefined;
 }
 
+/**
+ * A compute endpoint of a Lakebase Postgres branch. An endpoint provides the compute that runs Postgres
+ * for the branch's data and the hostnames that clients connect to. Each branch has one read-write
+ * endpoint, created together with the branch, and can have additional read-only endpoints (read replicas).
+ */
 export interface Endpoint {
   /**
    * Output only. The full resource path of the endpoint.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
   name?: string | undefined;
-  /** System-generated unique ID for the endpoint. */
+  /**
+   * A system-generated ID that identifies the endpoint. Unlike `name`, it is not derived from the
+   * user-chosen endpoint ID. The endpoint's connection hostnames are based on this ID.
+   */
   uid?: string | undefined;
   /**
    * The branch containing this endpoint (API resource hierarchy).
@@ -1842,11 +1886,21 @@ export interface Endpoint {
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the compute endpoint was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The spec contains the compute endpoint configuration, including autoscaling limits, suspend timeout, and disabled state. */
+  /**
+   * The desired configuration of the endpoint. Every field under `spec` except `endpoint_type` can be
+   * changed after creation. See `status` for the configuration that is currently in effect.
+   *
+   * Read the resource's current values from `status`, rather than `spec`.
+   * `spec` tracks field ownership for infrastructure-as-code tools and may omit
+   * unmanaged fields.
+   */
   spec?: EndpointSpec | undefined;
-  /** Current operational status of the compute endpoint. */
+  /**
+   * The configuration and state of the endpoint that are currently in effect, as reported by the
+   * system, including the hostnames to connect to.
+   */
   status?: EndpointStatus | undefined;
-  /** The part of the name, chosen by the user when the resource was created. */
+  /** The endpoint ID chosen when the endpoint was created. It is the final segment of `name`. */
   endpointId?: string | undefined;
 }
 
@@ -1864,7 +1918,7 @@ export interface EndpointGroupSpec {
   max?: number | undefined;
   /**
    * Whether to allow read-only connections to read-write endpoints. Only relevant for read-write endpoints where
-   * size.max > 1.
+   * `max` is greater than 1. When enabled, the endpoint also reports a read-only host in `status.hosts`.
    */
   enableReadableSecondaries?: boolean | undefined;
 }
@@ -1882,8 +1936,8 @@ export interface EndpointGroupStatus {
    */
   max?: number | undefined;
   /**
-   * Whether read-only connections to read-write endpoints are allowed. Only relevant if read replicas are configured
-   * by specifying size.max > 1.
+   * Whether read-only connections to read-write endpoints are allowed. Only relevant if the endpoint has more than
+   * one compute (`max` greater than 1).
    */
   enableReadableSecondaries?: boolean | undefined;
 }
@@ -1915,25 +1969,33 @@ export interface EndpointOperationMetadata {}
 
 /** A collection of settings for a compute endpoint. */
 export interface EndpointSettings {
-  /** A raw representation of Postgres settings. */
+  /**
+   * Postgres server parameters to set on the compute endpoint, keyed by parameter name. Each value is
+   * given as a string.
+   */
   pgSettings?: Record<string, string> | undefined;
 }
 
 export interface EndpointSpec {
   /** The endpoint type. A branch can only have one READ_WRITE endpoint. */
   endpointType?: EndpointType | undefined;
-  /** The minimum number of Compute Units. Minimum value is 0.5. */
+  /**
+   * The minimum number of Compute Units. Minimum value is 0.5, and it must not exceed
+   * `autoscaling_limit_max_cu`. When omitted at creation, the project's default endpoint settings apply.
+   */
   autoscalingLimitMinCu?: number | undefined;
   /**
    * The maximum number of Compute Units. The maximum value is 64.
    * The difference between the minimum and maximum Compute Units (max - min) must not exceed 16.
+   * Set it equal to `autoscaling_limit_min_cu` for a fixed-size compute. When omitted at creation, the
+   * project's default endpoint settings apply.
    */
   autoscalingLimitMaxCu?: number | undefined;
   /**
    * Whether to restrict connections to the compute endpoint.
    * Enabling this option schedules a suspend compute operation.
    * A disabled compute endpoint cannot be enabled by a connection or
-   * console action.
+   * console action. To accept connections again, set this field back to false.
    */
   disabled?: boolean | undefined;
   /**
@@ -1945,7 +2007,9 @@ export interface EndpointSpec {
         $case: 'suspendTimeoutDuration';
         /**
          * Duration of inactivity after which the compute endpoint is automatically suspended.
-         * If specified should be between 60s and 604800s (1 minute to 1 week).
+         * If specified, the value must be between 60s and 604800s (1 minute to 1 week). A suspended endpoint
+         * keeps its hostnames and configuration, and the next connection attempt restarts it. When neither
+         * this field nor `no_suspension` is set at creation, the project's default endpoint settings apply.
          * Mutually exclusive with `no_suspension`.
          */
         suspendTimeoutDuration: Temporal.Duration;
@@ -1954,17 +2018,22 @@ export interface EndpointSpec {
         $case: 'noSuspension';
         /**
          * When set to true, explicitly disables automatic suspension (never suspend).
-         * Should be set to true when provided.
+         * The value must be true when provided.
          * Mutually exclusive with `suspend_timeout_duration`.
          */
         noSuspension: boolean;
       }
     | undefined;
+  /**
+   * Postgres server parameters for the compute endpoint. On update, an empty `pg_settings` map leaves
+   * the current parameters unchanged.
+   */
   settings?: EndpointSettings | undefined;
   /**
    * Settings for optional HA configuration of the endpoint. If unspecified, the endpoint defaults
    * to non HA settings, with a single compute backing the endpoint (and no readable secondaries
-   * for Read/Write endpoints).
+   * for Read/Write endpoints). Automatic suspension is not available for an endpoint with more than one
+   * compute, so set `no_suspension` to true when configuring one.
    */
   group?: EndpointGroupSpec | undefined;
 }
@@ -1983,7 +2052,9 @@ export interface EndpointStatus {
    * The difference between the minimum and maximum Compute Units (max - min) must not exceed 16.
    */
   autoscalingLimitMaxCu?: number | undefined;
+  /** The state the compute endpoint is in now. */
   currentState?: EndpointStatus_State | undefined;
+  /** The state the compute endpoint is transitioning to, if a transition is in progress. */
   pendingState?: EndpointStatus_State | undefined;
   /**
    * Whether to restrict connections to the compute endpoint.
@@ -1992,12 +2063,16 @@ export interface EndpointStatus {
    * console action.
    */
   disabled?: boolean | undefined;
-  /** Duration of inactivity after which the compute endpoint is automatically suspended. */
+  /**
+   * Duration of inactivity after which the compute endpoint is automatically suspended. Absent when
+   * automatic suspension is disabled.
+   */
   suspendTimeoutDuration?: Temporal.Duration | undefined;
+  /** The Postgres server parameters currently set on the compute endpoint. */
   settings?: EndpointSettings | undefined;
   /** Details on the HA configuration of the endpoint. */
   group?: EndpointGroupStatus | undefined;
-  /** Part of the resource name. */
+  /** The endpoint ID, which is the final segment of the endpoint's resource name. */
   endpointId?: string | undefined;
 }
 
@@ -2168,9 +2243,12 @@ export interface InitialBranchSpec {
 export interface InitialEndpointSpec {
   /** Settings for HA configuration of the endpoint. */
   group?: EndpointGroupSpec | undefined;
-  /** The minimum number of Compute Units for the initial endpoint. */
+  /**
+   * The minimum number of Compute Units for the initial endpoint. Minimum value is 0.5, and it must
+   * not exceed autoscaling_limit_max_cu.
+   */
   autoscalingLimitMinCu?: number | undefined;
-  /** The maximum number of Compute Units for the initial endpoint. */
+  /** The maximum number of Compute Units for the initial endpoint. Minimum value is 0.5. */
   autoscalingLimitMaxCu?: number | undefined;
   suspension?:
     | {
@@ -2325,7 +2403,7 @@ export interface ListEndpointsRequest {
   parent?: string | undefined;
   /** Page token from a previous response. If not provided, returns the first page. */
   pageToken?: string | undefined;
-  /** Upper bound for items returned. Cannot be negative. */
+  /** Upper bound for the number of endpoints returned. If set, the value must be at least 10. */
   pageSize?: number | undefined;
 }
 
@@ -2363,7 +2441,10 @@ export interface ListMigrationsResponse {
 export interface ListProjectsRequest {
   /** Page token from a previous response. If not provided, returns the first page. */
   pageToken?: string | undefined;
-  /** Upper bound for items returned. Cannot be negative. The maximum value is 100. */
+  /**
+   * Upper bound for the number of projects returned. Cannot be negative. Values above the maximum
+   * page size are reduced to that maximum.
+   */
   pageSize?: number | undefined;
   /**
    * Whether to include soft-deleted projects in the response.
@@ -2554,15 +2635,29 @@ export interface Project {
    * Format: projects/{project_id}
    */
   name?: string | undefined;
-  /** System-generated unique ID for the project. */
+  /**
+   * A system-generated UUID that identifies the project. Unlike `name`, it is not derived from the
+   * user-chosen project ID.
+   */
   uid?: string | undefined;
   /** A timestamp indicating when the project was created. */
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the project was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The spec contains the project configuration, including display_name, pg_version (Postgres version), history_retention_duration, and default_endpoint_settings. */
+  /**
+   * The desired configuration of the project. The fields under `spec` are the ones that can be
+   * changed after creation, except `pg_version`, which is fixed when the project is created. See
+   * `status` for the configuration that is currently in effect.
+   *
+   * Read the resource's current values from `status`, rather than `spec`.
+   * `spec` tracks field ownership for infrastructure-as-code tools and may omit
+   * unmanaged fields.
+   */
   spec?: ProjectSpec | undefined;
-  /** The current status of a Project. */
+  /**
+   * The configuration and state of the project that are currently in effect, as reported by the
+   * system.
+   */
   status?: ProjectStatus | undefined;
   /**
    * Configuration settings for the initial Read/Write endpoint created inside the initial branch for a newly
@@ -2587,7 +2682,7 @@ export interface Project {
    * and do not affect resources created after project creation.
    */
   initialBranchSpec?: InitialBranchSpec | undefined;
-  /** The part of the name, chosen by the user when the resource was created. */
+  /** The project ID chosen when the project was created. It is the final segment of `name`. */
   projectId?: string | undefined;
 }
 
@@ -2634,10 +2729,20 @@ export interface ProjectOperationMetadata {}
 export interface ProjectSpec {
   /** Human-readable project name. Length should be between 1 and 256 characters. */
   displayName?: string | undefined;
-  /** The major Postgres version number. The set of supported versions may vary; consult the API documentation for currently accepted values. */
+  /**
+   * The major Postgres version number. Defaults to 17 when omitted. The set of versions that new
+   * projects can use may change over time.
+   */
   pgVersion?: number | undefined;
-  /** The number of seconds to retain the shared history for point in time recovery for all branches in this project. Value should be between 172800s (2 days) and 3024000s (35 days). */
+  /**
+   * The number of seconds to retain the shared history for point in time recovery for all branches in this project. Value should be between 172800s (2 days) and 3024000s (35 days).
+   * Defaults to 604800s (7 days) when omitted.
+   */
   historyRetentionDuration?: Temporal.Duration | undefined;
+  /**
+   * Settings applied by default to compute endpoints created in this project. The initial endpoint
+   * also takes these values for any setting that initial_endpoint_spec does not provide.
+   */
   defaultEndpointSettings?: ProjectDefaultEndpointSettings | undefined;
   /**
    * The desired budget policy to associate with the project.
@@ -2645,7 +2750,7 @@ export interface ProjectSpec {
    */
   budgetPolicyId?: string | undefined;
   /**
-   * Custom tags to associate with the project. Forwarded to LBM for billing and cost tracking.
+   * Custom tags to associate with the project, used for billing and cost tracking.
    * To update tags, provide the new tag list and include "spec.custom_tags" in the update_mask.
    * To clear all tags, provide an empty list and include "spec.custom_tags" in the update_mask.
    * To preserve existing tags, omit this field from the update_mask (or use wildcard "*" which auto-excludes empty tags).
@@ -2654,8 +2759,11 @@ export interface ProjectSpec {
   /** Whether to enable PG native password login on all endpoints in this project. Defaults to false. */
   enablePgNativeLogin?: boolean | undefined;
   /**
-   * The full resource path for the default branch of the project
+   * The full resource path of the default branch of the project.
    * Format: projects/{project_id}/branches/{branch_id}
+   * At creation time, the branch ID in this path names the initial branch, which is called
+   * `production` when the field is omitted. On update, the path must name an existing branch of this
+   * project, which then becomes the default branch.
    */
   defaultBranch?: string | undefined;
 }
@@ -2683,9 +2791,9 @@ export interface ProjectStatus {
   owner?: string | undefined;
   /** Whether to enable PG native password login on all endpoints in this project. */
   enablePgNativeLogin?: boolean | undefined;
-  /** The full resource path of the default branch of the project */
+  /** The full resource path of the default branch of the project. */
   defaultBranch?: string | undefined;
-  /** Part of the resource name. */
+  /** The project ID, which is the final segment of the project's resource name. */
   projectId?: string | undefined;
 }
 
@@ -2737,7 +2845,13 @@ export interface Role {
   parent?: string | undefined;
   createTime?: Temporal.Instant | undefined;
   updateTime?: Temporal.Instant | undefined;
-  /** The spec contains the role configuration, including identity type, authentication method, and role attributes. */
+  /**
+   * The spec contains the role configuration, including identity type, authentication method, and role attributes.
+   *
+   * Read the resource's current values from `status`, rather than `spec`.
+   * `spec` tracks field ownership for infrastructure-as-code tools and may omit
+   * unmanaged fields.
+   */
   spec?: Role_RoleSpec | undefined;
   /** Current status of the role, including its identity type, authentication method, and role attributes. */
   status?: Role_RoleStatus | undefined;
@@ -2760,24 +2874,21 @@ export interface Role_Attributes {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Role_RoleSpec {
-  /** An enum value for a standard role that this role is a member of. */
+  /**
+   * An enum value for a standard role that this role is a member of.
+   * When selected in update_mask, this field replaces all existing memberships.
+   * An empty or omitted list clears all memberships, including DATABRICKS_SUPERUSER.
+   */
   membershipRoles?: Role_MembershipRole[] | undefined;
   /**
    * The type of role.
-   * When specifying a managed-identity, the chosen role_id must be a valid:
+   * When specifying a managed-identity, the chosen postgres_role must be a valid:
    *
    * * application ID for SERVICE_PRINCIPAL
    * * user email for USER
    * * group name for GROUP
    *
-   * This field is set when the role is created and cannot be changed.
-   * When replacing an existing role with replace_existing=true, omit this
-   * field or supply its current value. A differing value returns
-   * INVALID_PARAMETER_VALUE and rejects the entire request, including changes
-   * to mutable fields.
-   * With `*` or masks containing only mutable fields, supplied values are ignored.
-   * Including this field as an explicit path in update_mask returns
-   * INVALID_PARAMETER_VALUE.
+   * This value cannot be changed after creation.
    */
   identityType?: Role_IdentityType | undefined;
   /** The desired API-exposed Postgres role attribute to associate with the role. Optional. */
@@ -2793,9 +2904,8 @@ export interface Role_RoleSpec {
    * * PG_PASSWORD_SCRAM_SHA_256: the role authenticates with a Postgres
    * password verified server-side using the SCRAM-SHA-256 mechanism.
    * Lakebase generates a password for the role.
-   * * NO_LOGIN: the role cannot open a Postgres session at all. Useful for
-   * roles that exist only to own objects or to aggregate privileges that
-   * are then granted to other, loginable roles.
+   *
+   * NO_LOGIN is not currently supported for Role creation.
    *
    * If auth_method is left unspecified, a meaningful authentication method is derived from the identity_type:
    * * For the managed identities, OAUTH is used.
@@ -2804,14 +2914,7 @@ export interface Role_RoleSpec {
    * NOTE: for the <Databricks> identity type GROUP, LAKEBASE_OAUTH_V1
    * is the default auth method (group can login as well).
    *
-   * This field is set when the role is created and cannot be changed.
-   * When replacing an existing role with replace_existing=true, omit this
-   * field or supply its current value. A differing value returns
-   * INVALID_PARAMETER_VALUE and rejects the entire request, including changes
-   * to mutable fields.
-   * With `*` or masks containing only mutable fields, supplied values are ignored.
-   * Including this field as an explicit path in update_mask returns
-   * INVALID_PARAMETER_VALUE.
+   * This value cannot be changed after creation.
    */
   authMethod?: Role_AuthMethod | undefined;
   /**
@@ -2829,14 +2932,7 @@ export interface Role_RoleSpec {
    * 2. app ID for IdentityType.SERVICE_PRINCIPAL
    * 2. group name for IdentityType.GROUP
    *
-   * This field is set when the role is created and cannot be changed.
-   * When replacing an existing role with replace_existing=true, omit this
-   * field or supply its current value. A differing value returns
-   * INVALID_PARAMETER_VALUE and rejects the entire request, including changes
-   * to mutable fields.
-   * With `*` or masks containing only mutable fields, supplied values are ignored.
-   * Including this field as an explicit path in update_mask returns
-   * INVALID_PARAMETER_VALUE.
+   * This value cannot be changed after creation.
    */
   postgresRole?: string | undefined;
 }
@@ -3306,7 +3402,11 @@ export interface UpdateEndpointRequest {
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
   endpoint?: Endpoint | undefined;
-  /** The list of fields to update. */
+  /**
+   * The fields to update, as paths relative to the endpoint, for example `spec.autoscaling_limit_max_cu`.
+   * Pass `spec` to update every field that is set in `spec`. Only fields under `spec` can be updated. To
+   * change the suspension setting, include `spec.suspension` or the specific suspension field.
+   */
   updateMask?: FieldMask<Endpoint> | undefined;
 }
 
@@ -3326,7 +3426,10 @@ export interface UpdateProjectRequest {
    * Format: projects/{project_id}
    */
   project?: Project | undefined;
-  /** The list of fields to update. */
+  /**
+   * The fields to update, as paths relative to the project, for example `spec.display_name`. Pass
+   * `*` to update every field that is set in the request. Only fields under `spec` can be updated.
+   */
   updateMask?: FieldMask<Project> | undefined;
 }
 

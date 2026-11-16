@@ -106,7 +106,10 @@ export class ReposClient {
     return resp;
   }
 
-  /** Deletes the specified repo. */
+  /**
+   * Deletes the Git folder (repo) and its contents from the workspace. The remote Git repository
+   * is not affected.
+   */
   async deleteRepo(
     req: DeleteRepoRequest,
     options?: CallOptions
@@ -228,7 +231,7 @@ export class ReposClient {
 
   /**
    * Updates the repo to a different branch or tag, or updates the repo to the latest commit on
-   * the same branch.
+   * the same branch. Exactly one of `branch` or `tag` must be specified.
    */
   async updateRepo(
     req: UpdateRepoRequest,

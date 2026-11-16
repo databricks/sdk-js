@@ -23,24 +23,24 @@ export type PolicySortColumn =
   | (typeof PolicySortColumn)[keyof typeof PolicySortColumn]
   | (string & {});
 
-/** T-shirt size for per-workload Spark executor limits. */
+/** T-shirt size for Spark executor limits. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const TshirtSize = {
-  /** Default value; no per-workload rate limit specified. */
+  /** Default value; no rate limit specified. */
   T_SHIRT_SIZE_UNSPECIFIED: 'T_SHIRT_SIZE_UNSPECIFIED',
-  /** Small per-workload Spark executor limit. */
+  /** Small Spark executor limit. */
   T_SHIRT_SIZE_SMALL: 'T_SHIRT_SIZE_SMALL',
-  /** Medium per-workload Spark executor limit. */
+  /** Medium Spark executor limit. */
   T_SHIRT_SIZE_MEDIUM: 'T_SHIRT_SIZE_MEDIUM',
-  /** Large per-workload Spark executor limit. */
+  /** Large Spark executor limit. */
   T_SHIRT_SIZE_LARGE: 'T_SHIRT_SIZE_LARGE',
-  /** Extra-large per-workload Spark executor limit. */
+  /** Extra-large Spark executor limit. */
   T_SHIRT_SIZE_X_LARGE: 'T_SHIRT_SIZE_X_LARGE',
-  /** Double extra-large per-workload Spark executor limit. */
+  /** Double extra-large Spark executor limit. */
   T_SHIRT_SIZE_2X_LARGE: 'T_SHIRT_SIZE_2X_LARGE',
-  /** Triple extra-large per-workload Spark executor limit. */
+  /** Triple extra-large Spark executor limit. */
   T_SHIRT_SIZE_3X_LARGE: 'T_SHIRT_SIZE_3X_LARGE',
-  /** Quadruple extra-large per-workload Spark executor limit. */
+  /** Quadruple extra-large Spark executor limit. */
   T_SHIRT_SIZE_4X_LARGE: 'T_SHIRT_SIZE_4X_LARGE',
 } as const;
 export type TshirtSize =

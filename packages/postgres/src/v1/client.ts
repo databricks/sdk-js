@@ -368,7 +368,13 @@ export class PostgresClient {
     );
   }
 
-  /** Register a Postgres database in the Unity Catalog. */
+  /**
+   * Registers a Postgres database from a Lakebase project branch as a catalog in Unity Catalog, so
+   * that its schemas, tables and views are governed and discoverable through Unity Catalog. The
+   * catalog is read-only; the data stays managed through Postgres. Returns a long-running
+   * operation. Poll it until done is true; its response holds the new catalog. For an overview, see
+   * https://docs.databricks.com/aws/en/oltp/projects/register-uc.
+   */
   private async createCatalogBase(
     req: CreateCatalogRequest,
     options?: CallOptions
@@ -410,7 +416,13 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Register a Postgres database in the Unity Catalog. */
+  /**
+   * Registers a Postgres database from a Lakebase project branch as a catalog in Unity Catalog, so
+   * that its schemas, tables and views are governed and discoverable through Unity Catalog. The
+   * catalog is read-only; the data stays managed through Postgres. Returns a long-running
+   * operation. Poll it until done is true; its response holds the new catalog. For an overview, see
+   * https://docs.databricks.com/aws/en/oltp/projects/register-uc.
+   */
   async createCatalog(
     req: CreateCatalogRequest,
     options?: CallOptions
@@ -589,7 +601,11 @@ export class PostgresClient {
     );
   }
 
-  /** Creates a new compute endpoint in the branch. */
+  /**
+   * Creates a compute endpoint in the branch. Each branch gets its read-write endpoint when the branch is
+   * created, so use this method to add read-only endpoints (read replicas) or, with `replace_existing`,
+   * to reconfigure the existing read-write endpoint.
+   */
   private async createEndpointBase(
     req: CreateEndpointRequest,
     options?: CallOptions
@@ -634,7 +650,11 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Creates a new compute endpoint in the branch. */
+  /**
+   * Creates a compute endpoint in the branch. Each branch gets its read-write endpoint when the branch is
+   * created, so use this method to add read-only endpoints (read replicas) or, with `replace_existing`,
+   * to reconfigure the existing read-write endpoint.
+   */
   async createEndpoint(
     req: CreateEndpointRequest,
     options?: CallOptions
@@ -698,7 +718,11 @@ export class PostgresClient {
     );
   }
 
-  /** Creates a new Lakebase Autoscaling Postgres database project, which contains branches and compute endpoints. */
+  /**
+   * Creates a new Lakebase Autoscaling Postgres database project, which contains branches and compute endpoints.
+   * The new project starts with a single branch, a read-write compute endpoint on that branch, a Postgres database
+   * named `databricks_postgres`, and a Postgres role for the calling identity.
+   */
   private async createProjectBase(
     req: CreateProjectRequest,
     options?: CallOptions
@@ -740,7 +764,11 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Creates a new Lakebase Autoscaling Postgres database project, which contains branches and compute endpoints. */
+  /**
+   * Creates a new Lakebase Autoscaling Postgres database project, which contains branches and compute endpoints.
+   * The new project starts with a single branch, a read-write compute endpoint on that branch, a Postgres database
+   * named `databricks_postgres`, and a Postgres role for the calling identity.
+   */
   async createProject(
     req: CreateProjectRequest,
     options?: CallOptions
@@ -959,7 +987,11 @@ export class PostgresClient {
     );
   }
 
-  /** Delete a Database Catalog. */
+  /**
+   * Deletes the catalog from Unity Catalog. The Postgres database and its tables remain in the
+   * branch, and the database can be registered again afterwards. Returns a long-running operation.
+   * Poll it until done is true.
+   */
   private async deleteCatalogBase(
     req: DeleteCatalogRequest,
     options?: CallOptions
@@ -988,7 +1020,11 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Delete a Database Catalog. */
+  /**
+   * Deletes the catalog from Unity Catalog. The Postgres database and its tables remain in the
+   * branch, and the database can be registered again afterwards. Returns a long-running operation.
+   * Poll it until done is true.
+   */
   async deleteCatalog(
     req: DeleteCatalogRequest,
     options?: CallOptions
@@ -1133,7 +1169,11 @@ export class PostgresClient {
     );
   }
 
-  /** Deletes the specified compute endpoint. */
+  /**
+   * Deletes the specified compute endpoint. Deletion is permanent. Only read-only endpoints can be
+   * deleted this way, because a branch's read-write endpoint is deleted together with the branch. To stop
+   * the compute costs of a read-write endpoint without deleting the branch, set `spec.disabled` to true.
+   */
   private async deleteEndpointBase(
     req: DeleteEndpointRequest,
     options?: CallOptions
@@ -1162,7 +1202,11 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Deletes the specified compute endpoint. */
+  /**
+   * Deletes the specified compute endpoint. Deletion is permanent. Only read-only endpoints can be
+   * deleted this way, because a branch's read-write endpoint is deleted together with the branch. To stop
+   * the compute costs of a read-write endpoint without deleting the branch, set `spec.disabled` to true.
+   */
   async deleteEndpoint(
     req: DeleteEndpointRequest,
     options?: CallOptions
@@ -1213,7 +1257,10 @@ export class PostgresClient {
     );
   }
 
-  /** Deletes the specified database project. */
+  /**
+   * Deletes the specified database project. By default the project is soft-deleted and can be restored with
+   * Undelete during its retention period; set `purge` to delete it permanently.
+   */
   private async deleteProjectBase(
     req: DeleteProjectRequest,
     options?: CallOptions
@@ -1248,7 +1295,10 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Deletes the specified database project. */
+  /**
+   * Deletes the specified database project. By default the project is soft-deleted and can be restored with
+   * Undelete during its retention period; set `purge` to delete it permanently.
+   */
   async deleteProject(
     req: DeleteProjectRequest,
     options?: CallOptions
@@ -1476,7 +1526,10 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Get a Database Catalog. */
+  /**
+   * Gets the catalog with the given name. The status reports the Postgres database, project and
+   * branch that the catalog registers.
+   */
   async getCatalog(
     req: GetCatalogRequest,
     options?: CallOptions
@@ -2145,7 +2198,10 @@ export class PostgresClient {
     }
   }
 
-  /** Returns a paginated list of compute endpoints in the branch. */
+  /**
+   * Lists the compute endpoints in the branch, including its read-write endpoint and any read-only
+   * endpoints.
+   */
   async listEndpoints(
     req: ListEndpointsRequest,
     options?: CallOptions
@@ -2587,7 +2643,11 @@ export class PostgresClient {
     );
   }
 
-  /** Undeletes a soft-deleted project. */
+  /**
+   * Restores a soft-deleted project together with its branches and their data, compute endpoints, Postgres
+   * databases and roles, project settings, and permissions. A project can be restored until its `purge_time`;
+   * after that it is permanently deleted and cannot be recovered.
+   */
   private async undeleteProjectBase(
     req: UndeleteProjectRequest,
     options?: CallOptions
@@ -2617,7 +2677,11 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Undeletes a soft-deleted project. */
+  /**
+   * Restores a soft-deleted project together with its branches and their data, compute endpoints, Postgres
+   * databases and roles, project settings, and permissions. A project can be restored until its `purge_time`;
+   * after that it is permanently deleted and cannot be recovered.
+   */
   async undeleteProject(
     req: UndeleteProjectRequest,
     options?: CallOptions
@@ -2787,7 +2851,11 @@ export class PostgresClient {
     );
   }
 
-  /** Updates the specified compute endpoint. You can update autoscaling limits, suspend timeout, or enable/disable the compute endpoint. */
+  /**
+   * Updates the configuration of the specified compute endpoint. Only the `spec` fields named in
+   * `update_mask` change, and `spec.endpoint_type` cannot be changed. The endpoint keeps its hostnames
+   * across updates, so existing connection strings stay valid.
+   */
   private async updateEndpointBase(
     req: UpdateEndpointRequest,
     options?: CallOptions
@@ -2829,7 +2897,11 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Updates the specified compute endpoint. You can update autoscaling limits, suspend timeout, or enable/disable the compute endpoint. */
+  /**
+   * Updates the configuration of the specified compute endpoint. Only the `spec` fields named in
+   * `update_mask` change, and `spec.endpoint_type` cannot be changed. The endpoint keeps its hostnames
+   * across updates, so existing connection strings stay valid.
+   */
   async updateEndpoint(
     req: UpdateEndpointRequest,
     options?: CallOptions
@@ -2893,7 +2965,7 @@ export class PostgresClient {
     );
   }
 
-  /** Updates the specified database project. */
+  /** Updates the configuration of the specified database project. Only the fields named in `update_mask` change. */
   private async updateProjectBase(
     req: UpdateProjectRequest,
     options?: CallOptions
@@ -2935,7 +3007,7 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Updates the specified database project. */
+  /** Updates the configuration of the specified database project. Only the fields named in `update_mask` change. */
   async updateProject(
     req: UpdateProjectRequest,
     options?: CallOptions

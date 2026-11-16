@@ -20,14 +20,19 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CheckPolicyRequest,
   CheckPolicyResponse,
+  CreateRestrictedSharingGroupRequest,
+  DeleteRestrictedSharingGroupRequest,
   DeleteWorkspacePermissionAssignmentRequest,
   DeleteWorkspacePermissionAssignmentResponse,
   GetObjectPermissionsRequest,
+  GetRestrictedSharingGroupRequest,
   GetRuleSetRequest,
   ListAssignableRolesForResourceRequest,
   ListAssignableRolesForResourceResponse,
   ListPermissionLevelsRequest,
   ListPermissionLevelsResponse,
+  ListRestrictedSharingGroupsRequest,
+  ListRestrictedSharingGroupsResponse,
   ListWorkspacePermissionAssignmentsRequest,
   ListWorkspacePermissionAssignmentsResponse,
   ListWorkspacePermissionsRequest,
@@ -35,6 +40,7 @@ import type {
   MigratePermissionsRequest,
   MigratePermissionsResponse,
   PermissionsResponse,
+  RestrictedSharingGroup,
   RuleSet,
   SetObjectPermissionsRequest,
   UpdateObjectPermissionsRequest,
@@ -47,6 +53,7 @@ import {
   marshalConsistencyTokenSchema,
   marshalMigratePermissionsRequestSchema,
   marshalResourceInfoSchema,
+  marshalRestrictedSharingGroupSchema,
   marshalSetObjectPermissionsRequestSchema,
   marshalUpdateObjectPermissionsRequestSchema,
   marshalUpdateRuleSetRequestSchema,
@@ -55,10 +62,12 @@ import {
   unmarshalDeleteWorkspacePermissionAssignmentResponseSchema,
   unmarshalListAssignableRolesForResourceResponseSchema,
   unmarshalListPermissionLevelsResponseSchema,
+  unmarshalListRestrictedSharingGroupsResponseSchema,
   unmarshalListWorkspacePermissionAssignmentsResponseSchema,
   unmarshalListWorkspacePermissionsResponseSchema,
   unmarshalMigratePermissionsResponseSchema,
   unmarshalPermissionsResponseSchema,
+  unmarshalRestrictedSharingGroupSchema,
   unmarshalRuleSetSchema,
   unmarshalWorkspacePermissionAssignmentOutputSchema,
 } from './model';
@@ -441,6 +450,176 @@ export class AccessManagementClient {
       throw new Error('operation completed without a result.');
     }
     return resp;
+  }
+
+  /**
+   * Adds a group to the workspace's restricted list. The workspace allows at
+   * most 100 restricted sharing groups. Requires workspace admin.
+   */
+  async createRestrictedSharingGroup(
+    req: CreateRestrictedSharingGroupRequest,
+    options?: CallOptions
+  ): Promise<RestrictedSharingGroup> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/access-control/restricted-sharing-groups`;
+    const params = new URLSearchParams();
+    if (req.restrictedSharingGroupId !== undefined) {
+      params.append(
+        'restricted_sharing_group_id',
+        req.restrictedSharingGroupId
+      );
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(
+      req.restrictedSharingGroup,
+      marshalRestrictedSharingGroupSchema
+    );
+    let resp: RestrictedSharingGroup | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalRestrictedSharingGroupSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Removes a group from the workspace's restricted list. Requires workspace
+   * admin.
+   */
+  async deleteRestrictedSharingGroup(
+    req: DeleteRestrictedSharingGroupRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/access-control/${req.name ?? ''}`;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /**
+   * Gets a restricted sharing group in the workspace. Use it to check whether
+   * a group is on the workspace's restricted list. Requires workspace admin.
+   */
+  async getRestrictedSharingGroup(
+    req: GetRestrictedSharingGroupRequest,
+    options?: CallOptions
+  ): Promise<RestrictedSharingGroup> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/access-control/${req.name ?? ''}`;
+    let resp: RestrictedSharingGroup | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalRestrictedSharingGroupSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Lists the restricted sharing groups in the workspace. Requires workspace
+   * admin.
+   */
+  async listRestrictedSharingGroups(
+    req: ListRestrictedSharingGroupsRequest,
+    options?: CallOptions
+  ): Promise<ListRestrictedSharingGroupsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/access-control/restricted-sharing-groups`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListRestrictedSharingGroupsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListRestrictedSharingGroupsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listRestrictedSharingGroupsIter(
+    req: ListRestrictedSharingGroupsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<RestrictedSharingGroup> {
+    const pageReq: ListRestrictedSharingGroupsRequest = {...req};
+    for (;;) {
+      const resp = await this.listRestrictedSharingGroups(pageReq, options);
+      for (const item of resp.restrictedSharingGroups ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
   }
 
   /** Migrate Permissions. */

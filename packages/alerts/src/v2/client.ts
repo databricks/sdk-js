@@ -66,7 +66,7 @@ export class AlertsClient {
     return this.config;
   }
 
-  /** Create Alert */
+  /** Creates an alert that runs `query_text` on the given schedule and evaluates the result against the configured condition. */
   async createAlert(
     req: CreateAlertRequest,
     options?: CallOptions
@@ -212,7 +212,7 @@ export class AlertsClient {
     return resp;
   }
 
-  /** Update alert */
+  /** Updates an alert. Only the fields listed in `update_mask` are changed; all other fields keep their current values. */
   async updateAlert(
     req: UpdateAlertRequest,
     options?: CallOptions

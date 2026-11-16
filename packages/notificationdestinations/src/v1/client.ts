@@ -130,7 +130,7 @@ export class NotificationDestinationsClient {
     return resp;
   }
 
-  /** Gets a notification destination. */
+  /** Gets a notification destination by ID. Workspace admins also receive its config. */
   async getNotificationDestination(
     req: GetNotificationDestinationRequest,
     options?: CallOptions
@@ -159,7 +159,7 @@ export class NotificationDestinationsClient {
     return resp;
   }
 
-  /** Lists notification destinations. */
+  /** Lists the notification destinations in the workspace. Results never include a destination's config; workspace admins can retrieve it with Get. */
   async listNotificationDestinations(
     req: ListNotificationDestinationsRequest,
     options?: CallOptions
@@ -217,7 +217,7 @@ export class NotificationDestinationsClient {
     }
   }
 
-  /** Updates a notification destination. Requires workspace admin permissions. At least one field is required in the request body. */
+  /** Updates a notification destination. Requires workspace admin permissions. At least one field is required in the request body. A config provided in the request replaces the existing one. */
   async updateNotificationDestination(
     req: UpdateNotificationDestinationRequest,
     options?: CallOptions

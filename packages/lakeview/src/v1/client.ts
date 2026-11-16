@@ -104,12 +104,7 @@ export class LakeviewClient {
     return this.config;
   }
 
-  /**
-   * Create a draft dashboard.
-   *
-   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
-   * entitlement. Grant Databricks SQL access in addition to Workspace access.
-   */
+  /** Create a draft dashboard. */
   async createDashboard(
     req: CreateDashboardRequest,
     options?: CallOptions
@@ -303,12 +298,7 @@ export class LakeviewClient {
     await executeCall(call, options);
   }
 
-  /**
-   * Get a draft dashboard.
-   *
-   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
-   * entitlement. Grant Databricks SQL access in addition to Workspace access.
-   */
+  /** Get a draft dashboard. */
   async getDashboard(
     req: GetDashboardRequest,
     options?: CallOptions
@@ -500,10 +490,8 @@ export class LakeviewClient {
   }
 
   /**
-   * List dashboards.
-   *
-   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
-   * entitlement. Grant Databricks SQL access in addition to Workspace access.
+   * List the dashboards that the caller can view. Each entry carries summary metadata only; use
+   * Get dashboard to retrieve a dashboard's full definition.
    */
   async listDashboards(
     req: ListDashboardsRequest,
@@ -726,12 +714,7 @@ export class LakeviewClient {
     return resp;
   }
 
-  /**
-   * Publish the current draft dashboard.
-   *
-   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
-   * entitlement. Grant Databricks SQL access in addition to Workspace access.
-   */
+  /** Publish the current draft dashboard. */
   async publishDashboard(
     req: PublishDashboardRequest,
     options?: CallOptions
@@ -761,12 +744,7 @@ export class LakeviewClient {
     return resp;
   }
 
-  /**
-   * Revert a dashboard's definition in draft mode to the last published version.
-   *
-   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
-   * entitlement. Grant Databricks SQL access in addition to Workspace access.
-   */
+  /** Revert a dashboard's definition in draft mode to the last published version. */
   async revertDashboard(
     req: RevertDashboardRequest,
     options?: CallOptions
@@ -796,12 +774,7 @@ export class LakeviewClient {
     return resp;
   }
 
-  /**
-   * Trash a dashboard.
-   *
-   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
-   * entitlement. Grant Databricks SQL access in addition to Workspace access.
-   */
+  /** Trash a dashboard. */
   async trashDashboard(
     req: TrashDashboardRequest,
     options?: CallOptions
@@ -830,12 +803,7 @@ export class LakeviewClient {
     return resp;
   }
 
-  /**
-   * Unpublish the dashboard.
-   *
-   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
-   * entitlement. Grant Databricks SQL access in addition to Workspace access.
-   */
+  /** Unpublish the dashboard. */
   async unpublishDashboard(
     req: UnpublishDashboardRequest,
     options?: CallOptions
@@ -864,12 +832,7 @@ export class LakeviewClient {
     return resp;
   }
 
-  /**
-   * Update a draft dashboard.
-   *
-   * Requires the [Databricks SQL access](https://docs.databricks.com/security/auth/entitlements)
-   * entitlement. Grant Databricks SQL access in addition to Workspace access.
-   */
+  /** Update a draft dashboard. */
   async updateDashboard(
     req: UpdateDashboardRequest,
     options?: CallOptions

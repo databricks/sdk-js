@@ -94,6 +94,7 @@ export type {
   GetMaterializedFeatureRequest,
   GetOperationRequest,
   GetStreamRequest,
+  IcebergTableSource,
   IngestionConfig,
   IngestionDestination,
   InputBinding,

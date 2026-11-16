@@ -23,6 +23,7 @@ import {z} from 'zod';
 import type {
   App,
   AppDeployment,
+  AppDeploymentScanFinding,
   AppThumbnail,
   AppUpdate,
   AsyncUpdateAppRequest,
@@ -36,11 +37,14 @@ import type {
   DeleteCustomTemplateRequest,
   DeleteSpaceRequest,
   GetAppDeploymentRequest,
+  GetAppDeploymentScanFindingRequest,
   GetAppRequest,
   GetAppUpdateRequest,
   GetCustomTemplateRequest,
   GetOperationRequest,
   GetSpaceRequest,
+  ListAppDeploymentScanFindingsRequest,
+  ListAppDeploymentScanFindingsResponse,
   ListAppDeploymentsRequest,
   ListAppDeploymentsResponse,
   ListAppsRequest,
@@ -54,6 +58,7 @@ import type {
   SpaceUpdate,
   StartAppRequest,
   StopAppRequest,
+  UpdateAppDeploymentScanFindingRequest,
   UpdateAppRequest,
   UpdateAppThumbnailRequest,
   UpdateCustomTemplateRequest,
@@ -63,6 +68,7 @@ import {
   AppDeployment_State,
   AppUpdate_UpdateStatus_UpdateState,
   ComputeStatus_ComputeState,
+  marshalAppDeploymentScanFindingSchema,
   marshalAppDeploymentSchema,
   marshalAppSchema,
   marshalAsyncUpdateAppRequestSchema,
@@ -71,11 +77,13 @@ import {
   marshalStartAppRequestSchema,
   marshalStopAppRequestSchema,
   marshalUpdateAppThumbnailRequestSchema,
+  unmarshalAppDeploymentScanFindingSchema,
   unmarshalAppDeploymentSchema,
   unmarshalAppSchema,
   unmarshalAppThumbnailSchema,
   unmarshalAppUpdateSchema,
   unmarshalCustomTemplateSchema,
+  unmarshalListAppDeploymentScanFindingsResponseSchema,
   unmarshalListAppDeploymentsResponseSchema,
   unmarshalListAppsResponseSchema,
   unmarshalListCustomTemplatesResponseSchema,
@@ -332,7 +340,7 @@ export class AppsClient {
     );
   }
 
-  /** Deletes an app. */
+  /** Deletes an app and the dedicated service principal created for it. */
   async deleteApp(req: DeleteAppRequest, options?: CallOptions): Promise<App> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/apps/${req.name ?? ''}`;
@@ -505,6 +513,35 @@ export class AppsClient {
     return resp;
   }
 
+  /** Retrieves a single security scan finding for an app deployment. */
+  async getAppDeploymentScanFinding(
+    req: GetAppDeploymentScanFindingRequest,
+    options?: CallOptions
+  ): Promise<AppDeploymentScanFinding> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/${req.name ?? ''}`;
+    let resp: AppDeploymentScanFinding | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalAppDeploymentScanFindingSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
   /** Gets the status of an app update. */
   async getAppUpdate(
     req: GetAppUpdateRequest,
@@ -616,6 +653,64 @@ export class AppsClient {
       throw new Error('operation completed without a result.');
     }
     return resp;
+  }
+
+  /** Lists the security scan findings for an app deployment. */
+  async listAppDeploymentScanFindings(
+    req: ListAppDeploymentScanFindingsRequest,
+    options?: CallOptions
+  ): Promise<ListAppDeploymentScanFindingsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/${req.parent ?? ''}/scanFindings`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListAppDeploymentScanFindingsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListAppDeploymentScanFindingsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listAppDeploymentScanFindingsIter(
+    req: ListAppDeploymentScanFindingsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<AppDeploymentScanFinding> {
+    const pageReq: ListAppDeploymentScanFindingsRequest = {...req};
+    for (;;) {
+      const resp = await this.listAppDeploymentScanFindings(pageReq, options);
+      for (const item of resp.appDeploymentScanFindings ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
   }
 
   /** Lists all app deployments for the app with the supplied name. */
@@ -947,6 +1042,51 @@ export class AppsClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Updates the triage status (resolved / ignored / in-progress) of a single scan finding. */
+  async updateAppDeploymentScanFinding(
+    req: UpdateAppDeploymentScanFindingRequest,
+    options?: CallOptions
+  ): Promise<AppDeploymentScanFinding> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/${req.appDeploymentScanFinding?.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(
+      req.appDeploymentScanFinding,
+      marshalAppDeploymentScanFindingSchema
+    );
+    let resp: AppDeploymentScanFinding | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalAppDeploymentScanFindingSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

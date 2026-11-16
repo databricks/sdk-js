@@ -87,6 +87,10 @@ export type SchedulePauseStatus =
   | (typeof SchedulePauseStatus)[keyof typeof SchedulePauseStatus]
   | (string & {});
 
+/**
+ * A SQL alert. An alert runs a query on a schedule, evaluates the result against a condition,
+ * and notifies users or notification destinations when the condition is met.
+ */
 export interface Alert {
   /** The canonical identifier of the alert to retrieve information about. */
   id?: string | undefined;
@@ -105,18 +109,23 @@ export interface Alert {
   /** ID of the SQL warehouse attached to the alert. */
   warehouseId?: string | undefined;
   /**
+   * Deprecated: Use `run_as` field instead. This field will be removed in a future release.
    * The run as username or application ID of service principal.
    * On Create and Update, this field can be set to application ID of an active service principal. Setting this field requires the servicePrincipal/user role.
-   * Deprecated: Use `run_as` field instead. This field will be removed in a future release.
    */
   runAsUserName?: string | undefined;
+  /** Condition evaluated against the query result, and who is notified when it is met. */
   evaluation?: AlertEvaluation | undefined;
+  /** Schedule on which the alert runs its query and evaluates the condition. */
   schedule?: CronSchedule | undefined;
-  /** Indicates whether the query is trashed. */
+  /** Indicates whether the alert is active (`ACTIVE`) or has been moved to the trash (`DELETED`). */
   lifecycleState?: AlertLifecycleState | undefined;
-  /** Custom summary for the alert. Interpreted according to `custom_template_format`. */
+  /** Custom summary for the alert, used as the notification subject. Interpreted according to `custom_template_format`. */
   customSummary?: string | undefined;
-  /** Custom description for the alert. Interpreted according to `custom_template_format`. */
+  /**
+   * Custom description for the alert, used as the notification body. Interpreted according to `custom_template_format`.
+   * The available template variables are listed at https://docs.databricks.com/aws/en/sql/user/alerts/create#notification-templates.
+   */
   customDescription?: string | undefined;
   /**
    * Specifies the identity that will be used to run the alert.
@@ -163,21 +172,22 @@ export interface Alert {
 export interface AlertEvaluation {
   /** Source column from result to use to evaluate alert */
   source?: AlertOperandColumn | undefined;
-  /** Operator used for comparison in alert evaluation. */
+  /** Operator used for comparison in alert evaluation. The alert is triggered when the comparison of the source value with the threshold is true. `IS_NULL` and `IS_NOT_NULL` take no threshold. */
   comparisonOperator?: ComparisonOperator | undefined;
-  /** Threshold to user for alert evaluation, can be a column or a value. */
+  /** Threshold to compare the source column against, either another column or a fixed value. Not needed when `comparison_operator` is `IS_NULL` or `IS_NOT_NULL`. */
   threshold?: AlertOperand | undefined;
   /** User or Notification Destination to notify when alert is triggered. */
   notification?: AlertNotification | undefined;
-  /** Latest state of alert evaluation. */
+  /** Latest state of alert evaluation: `TRIGGERED` when the condition was met, `OK` when it was not, and `ERROR` when the evaluation failed. */
   state?: AlertEvaluationState | undefined;
   /** Timestamp of the last evaluation. */
   lastEvaluatedAt?: Temporal.Instant | undefined;
-  /** Alert state if result is empty. Please avoid setting this field to be `UNKNOWN` because `UNKNOWN` state is planned to be deprecated. */
+  /** Alert state if result is empty. If not set, an empty result sets the state to `ERROR`. Please avoid setting this field to be `UNKNOWN` because `UNKNOWN` state is planned to be deprecated. */
   emptyResultState?: AlertEvaluationState | undefined;
 }
 
 export interface AlertNotification {
+  /** Users and notification destinations that receive notifications. */
   subscriptions?: AlertSubscription[] | undefined;
   /**
    * Number of seconds an alert waits after being triggered before it is allowed to send another notification.
@@ -192,24 +202,49 @@ export interface AlertNotification {
 export interface AlertOperand {
   /** Only one of the following fields may be set, depending on the type of operand/threshold. */
   operand?:
-    | {$case: 'column'; column: AlertOperandColumn}
-    | {$case: 'value'; value: AlertOperandValue}
+    | {
+        $case: 'column';
+        /** Compare the source against another column of the query result. */
+        column: AlertOperandColumn;
+      }
+    | {
+        $case: 'value';
+        /** Compare the source against a fixed value. */
+        value: AlertOperandValue;
+      }
     | undefined;
 }
 
 export interface AlertOperandColumn {
+  /** Name of the column in the query result. */
   name?: string | undefined;
+  /** Label for the column in notifications. Defaults to `name`. */
   display?: string | undefined;
-  /** If not set, the behavior is equivalent to using `First row` in the UI. */
+  /**
+   * Aggregation applied to the column across all rows of the query result: `SUM`, `COUNT`, `COUNT_DISTINCT`, `AVG`, `MEDIAN`, `MIN`, `MAX` or `STDDEV`.
+   * If not set, the value in the first row is used, which is equivalent to using `First row` in the UI.
+   */
   aggregation?: Aggregation | undefined;
 }
 
 export interface AlertOperandValue {
   /** Only one of the following fields may be set, depending on the type of threshold value. */
   value?:
-    | {$case: 'stringValue'; stringValue: string}
-    | {$case: 'doubleValue'; doubleValue: number}
-    | {$case: 'boolValue'; boolValue: boolean}
+    | {
+        $case: 'stringValue';
+        /** String threshold, for string or timestamp columns. */
+        stringValue: string;
+      }
+    | {
+        $case: 'doubleValue';
+        /** Numeric threshold, for numeric columns. */
+        doubleValue: number;
+      }
+    | {
+        $case: 'boolValue';
+        /** Boolean threshold, for boolean columns. */
+        boolValue: boolean;
+      }
     | undefined;
 }
 
@@ -249,8 +284,16 @@ export interface AlertStatementParameter {
 
 export interface AlertSubscription {
   subscriptionType?:
-    | {$case: 'userEmail'; userEmail: string}
-    | {$case: 'destinationId'; destinationId: string}
+    | {
+        $case: 'userEmail';
+        /** Email address of the workspace user to notify. */
+        userEmail: string;
+      }
+    | {
+        $case: 'destinationId';
+        /** ID of the notification destination to notify, as returned by the Notification Destinations API. */
+        destinationId: string;
+      }
     | undefined;
 }
 
@@ -260,7 +303,7 @@ export interface CreateAlertRequest {
 
 export interface CronSchedule {
   /**
-   * A cron expression using quartz syntax that specifies the schedule for this pipeline.
+   * A cron expression using quartz syntax that specifies the schedule for this alert.
    * Should use the quartz format described here: http://www.quartz-scheduler.org/documentation/quartz-2.1.7/tutorials/tutorial-lesson-06.html
    */
   quartzCronSchedule?: string | undefined;
@@ -270,7 +313,7 @@ export interface CronSchedule {
    * See https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-conf-mgmt-set-timezone.html for details.
    */
   timezoneId?: string | undefined;
-  /** Indicate whether this schedule is paused or not. */
+  /** Indicates whether this schedule is paused. While paused, the alert is not evaluated. */
   pauseStatus?: SchedulePauseStatus | undefined;
 }
 
@@ -282,11 +325,14 @@ export interface CronSchedule {
 export interface Empty {}
 
 export interface GetAlertRequest {
+  /** ID of the alert to retrieve, as returned in the alert's `id` field. */
   id?: string | undefined;
 }
 
 export interface ListAlertsRequest {
+  /** Page token returned as `next_page_token` by a previous call. Omit it to retrieve the first page. */
   pageToken?: string | undefined;
+  /** Maximum number of alerts to return per page. Values above 100 are coerced to 100. */
   pageSize?: number | undefined;
 }
 
@@ -296,6 +342,7 @@ export interface ListAlertsResponse {
 }
 
 export interface TrashAlertRequest {
+  /** ID of the alert to move to the trash. */
   id?: string | undefined;
   /** Whether to permanently delete the alert. If not set, the alert will only be soft deleted. */
   purge?: boolean | undefined;
@@ -303,6 +350,10 @@ export interface TrashAlertRequest {
 
 export interface UpdateAlertRequest {
   alert?: Alert | undefined;
+  /**
+   * Comma-separated list of the alert fields to update, for example `display_name,query_text` or `schedule.pause_status`.
+   * Only the listed fields are changed; all other fields keep their current values. `parent_path` cannot be updated.
+   */
   updateMask?: FieldMask<Alert> | undefined;
 }
 

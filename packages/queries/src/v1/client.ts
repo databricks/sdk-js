@@ -72,7 +72,7 @@ export class QueriesClient {
     return this.config;
   }
 
-  /** Creates a query. */
+  /** Creates a query. The caller becomes the owner of the new query. */
   async createQuery(
     req: CreateQueryRequest,
     options?: CallOptions
@@ -270,7 +270,11 @@ export class QueriesClient {
     return resp;
   }
 
-  /** Updates a query. */
+  /**
+   * Updates the fields of a query named in `update_mask`. Changing `owner_user_name` requires
+   * workspace admin privileges. Changing `run_as_mode` requires CAN MANAGE permission on the query,
+   * and only the query owner can switch it to `OWNER`.
+   */
   async updateQuery(
     req: UpdateQueryRequest,
     options?: CallOptions

@@ -17,8 +17,12 @@ export {
 } from './client';
 
 export {
+  AppDeploymentScanStatus,
   ComputeSize,
   ErrorCode,
+  ScanFindingScannerType,
+  ScanFindingSeverity,
+  ScanFindingStatus,
   SpaceUpdateState,
   AppDeployment_Mode,
   AppDeployment_State,
@@ -51,6 +55,7 @@ export type {
   App,
   AppDeployment,
   AppDeploymentArtifacts,
+  AppDeploymentScanFinding,
   AppDeploymentStatus,
   AppHealthCheck,
   AppManifest,
@@ -89,6 +94,7 @@ export type {
   DeleteSpaceRequest,
   EnvVar,
   GetAppDeploymentRequest,
+  GetAppDeploymentScanFindingRequest,
   GetAppRequest,
   GetAppUpdateRequest,
   GetCustomTemplateRequest,
@@ -96,6 +102,8 @@ export type {
   GetSpaceRequest,
   GitRepository,
   GitSource,
+  ListAppDeploymentScanFindingsRequest,
+  ListAppDeploymentScanFindingsResponse,
   ListAppDeploymentsRequest,
   ListAppDeploymentsResponse,
   ListAppsRequest,
@@ -113,10 +121,15 @@ export type {
   StopAppRequest,
   TelemetryExportDestination,
   UnityCatalog,
+  UpdateAppDeploymentScanFindingRequest,
   UpdateAppRequest,
   UpdateAppThumbnailRequest,
   UpdateCustomTemplateRequest,
   UpdateSpaceRequest,
 } from './model';
 
-export {appFieldMask, spaceFieldMask} from './model';
+export {
+  appDeploymentScanFindingFieldMask,
+  appFieldMask,
+  spaceFieldMask,
+} from './model';

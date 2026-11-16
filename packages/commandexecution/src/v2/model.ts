@@ -67,8 +67,11 @@ export type ResultType =
   | (string & {});
 
 export interface CancelCommandRequest {
+  /** ID of the cluster that hosts the execution context. */
   clusterId?: string | undefined;
+  /** ID of the command to cancel, as returned by __execute__. */
   commandId?: string | undefined;
+  /** ID of the execution context the command runs in. */
   contextId?: string | undefined;
 }
 
@@ -76,17 +79,24 @@ export interface CancelCommandRequest {
 export interface CancelResponse {}
 
 export interface CreateContextRequest {
-  /** Running cluster id */
+  /** ID of the cluster to create the execution context on. The cluster must be running. */
   clusterId?: string | undefined;
+  /** Programming language of the execution context. */
   language?: Language | undefined;
 }
 
 export interface CreateResponse {
+  /**
+   * ID of the new execution context when returned by __Create__, or of the submitted command when
+   * returned by __execute__. Pass it to the other methods of this API as `contextId` or `commandId`.
+   */
   id?: string | undefined;
 }
 
 export interface DestroyContextRequest {
+  /** ID of the cluster that hosts the execution context. */
   clusterId?: string | undefined;
+  /** ID of the execution context to delete, as returned by __Create__. */
   contextId?: string | undefined;
 }
 
@@ -94,42 +104,70 @@ export interface DestroyContextRequest {
 export interface DestroyResponse {}
 
 export interface ExecuteCommandRequest {
-  /** Running cluster id */
+  /** ID of the cluster that hosts the execution context. */
   clusterId?: string | undefined;
-  /** Running context id */
+  /** ID of the execution context to run the command in, as returned by __Create__. */
   contextId?: string | undefined;
+  /** Language the command is written in. */
   language?: Language | undefined;
-  /** Executable code */
+  /** Code to run, written in the specified language. */
   command?: string | undefined;
 }
 
 /** Request to get the status of a previously submitted command. */
 export interface GetCommandStatusRequest {
+  /** ID of the cluster that hosts the execution context. */
   clusterId?: string | undefined;
+  /** ID of the execution context the command runs in. */
   contextId?: string | undefined;
+  /** ID of the command, as returned by __execute__. */
   commandId?: string | undefined;
 }
 
 export interface GetCommandStatusResponse {
+  /** ID of the command. */
   id?: string | undefined;
+  /**
+   * Current status of the command. `Queued` and `Running` mean the command has not completed yet, and
+   * `Cancelling` means a cancellation is in progress. `Finished`, `Error` and `Cancelled` are terminal:
+   * `Finished` means the command ran to completion, including when the code itself raised an error
+   * (reported in `results` with the `error` result type), while `Error` means the execution environment
+   * failed, for example because the driver or the context stopped.
+   */
   status?: CommandStatus | undefined;
+  /**
+   * Output of the command. It is populated only once the command has reached a terminal status, and its
+   * `resultType` tells which of its other fields are set.
+   */
   results?: Results | undefined;
 }
 
 /** Request to retrieve the status of an execution context. */
 export interface GetContextStatusRequest {
+  /** ID of the cluster that hosts the execution context. */
   clusterId?: string | undefined;
+  /** ID of the execution context, as returned by __Create__. */
   contextId?: string | undefined;
 }
 
 export interface GetContextStatusResponse {
+  /** ID of the execution context. */
   id?: string | undefined;
+  /**
+   * Current status of the execution context. `Pending` means the context is still initializing and does
+   * not accept commands yet, `Running` means it is ready, and `Error` means it failed: running commands
+   * may not complete and new commands may be rejected, so create a new context.
+   */
   status?: ContextStatus | undefined;
 }
 
 export interface Results {
-  /** The cause of the error */
+  /** Details of an `error` result, usually the exception message or stack trace. */
   cause?: string | undefined;
+  /**
+   * Output of a `text` result as a string, or the rows of a `table` result as an array of rows, each an
+   * array of column values in the order of `schema`.
+   */
   data?: JsonValue | undefined;
   /**
    * The image data in one of the following formats:
@@ -147,12 +185,20 @@ export interface Results {
   isJsonSchema?: boolean | undefined;
   /** internal field used by SDK */
   pos?: number | undefined;
+  /**
+   * Type of the result, which determines which other fields are set: `text` puts the output in `data`,
+   * `table` fills `data`, `schema`, `truncated` and `isJsonSchema`, `image` and `images` fill `fileName`
+   * and `fileNames` respectively, and `error` fills `cause` and `summary`.
+   */
   resultType?: ResultType | undefined;
-  /** The table schema */
+  /**
+   * Columns of a `table` result, in the order of the values within each row of `data`. Each entry has a
+   * `name`, a `type` and a `metadata` key.
+   */
   schema?: JsonObject[] | undefined;
-  /** The summary of the error */
+  /** Short description of an `error` result, such as the exception type and message, when available. */
   summary?: string | undefined;
-  /** true if partial results are returned. */
+  /** Whether a `table` result was cut off because the command output exceeded the row or byte limit. */
   truncated?: boolean | undefined;
 }
 

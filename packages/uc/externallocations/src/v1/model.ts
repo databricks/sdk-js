@@ -24,7 +24,7 @@ export type SseEncryptionAlgorithm =
 
 export interface AwsSqsQueue {
   /**
-   * The AQS queue url in the format https://sqs.{region}.amazonaws.com/{account id}/{queue name}.
+   * The SQS queue URL in the format `https://sqs.{region}.amazonaws.com/{account id}/{queue name}`.
    * Only required for provided_sqs.
    */
   queueUrl?: string | undefined;
@@ -34,7 +34,7 @@ export interface AwsSqsQueue {
 
 export interface AzureQueueStorage {
   /**
-   * The AQS queue url in the format https://{storage account}.queue.core.windows.net/{queue name}
+   * The AQS queue URL in the format `https://{storage account}.queue.core.windows.net/{queue name}`.
    * Only required for provided_aqs.
    */
   queueUrl?: string | undefined;
@@ -59,7 +59,10 @@ export interface CreateExternalLocationRequest {
   skipValidation?: boolean | undefined;
   /** Name of the external location. */
   name?: string | undefined;
-  /** Path URL of the external location. */
+  /**
+   * URL of the cloud storage path that the external location points to, including the scheme
+   * (for example `s3://`, `abfss://`, or `gs://`).
+   */
   url?: string | undefined;
   /** Name of the storage credential used with this location. */
   credentialName?: string | undefined;
@@ -68,14 +71,18 @@ export interface CreateExternalLocationRequest {
   /** User-provided free-form text description. */
   comment?: string | undefined;
   /**
-   * Whether to enable file events on this external location. Default to `true`. Set to `false` to disable file events.
+   * Whether to enable file events on this external location. Defaults to `true`. Set to `false` to disable file events.
    * The actual applied value may differ due to server-side defaults; check `effective_enable_file_events` for the effective state.
    */
   enableFileEvents?: boolean | undefined;
-  /** File event queue settings. If `enable_file_events` is not `false`, must be defined and have exactly one of the documented properties. */
+  /**
+   * File event queue settings. When `enable_file_events` is `true`, exactly one of the queue options
+   * must be set. Must be omitted when `enable_file_events` is `false`.
+   */
   fileEventQueue?: FileEventQueue | undefined;
   /** The owner of the external location. */
   owner?: string | undefined;
+  /** Encryption options that apply to clients connecting to cloud storage. */
   encryptionDetails?: EncryptionDetails | undefined;
   /** Unique identifier of metastore hosting the external location. */
   metastoreId?: string | undefined;
@@ -85,12 +92,16 @@ export interface CreateExternalLocationRequest {
   createdAt?: bigint | undefined;
   /** Username of external location creator. */
   createdBy?: string | undefined;
-  /** Time at which external location this was last modified, in epoch milliseconds. */
+  /** Time at which this external location was last modified, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** Username of user who last modified the external location. */
   updatedBy?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
+  /**
+   * Whether the current securable is accessible from all workspaces or a specific set of
+   * workspaces. Cannot be set when creating an external location.
+   */
   isolationMode?: IsolationMode | undefined;
   /** Indicates whether fallback mode is enabled for this external location. When fallback mode is enabled, the access to the location falls back to cluster credentials if UC credentials are not sufficient. */
   fallback?: boolean | undefined;
@@ -126,10 +137,19 @@ export interface EncryptionDetails {
     | undefined;
 }
 
+/**
+ * An external location combines a cloud storage path with a storage credential that authorizes
+ * access to that path. Privileges granted on the external location control which users and groups
+ * can access the cloud storage path, for example to create external tables, external volumes, or
+ * managed storage locations under it.
+ */
 export interface ExternalLocationInfo {
   /** Name of the external location. */
   name?: string | undefined;
-  /** Path URL of the external location. */
+  /**
+   * URL of the cloud storage path that the external location points to, including the scheme
+   * (for example `s3://`, `abfss://`, or `gs://`).
+   */
   url?: string | undefined;
   /** Name of the storage credential used with this location. */
   credentialName?: string | undefined;
@@ -138,14 +158,18 @@ export interface ExternalLocationInfo {
   /** User-provided free-form text description. */
   comment?: string | undefined;
   /**
-   * Whether to enable file events on this external location. Default to `true`. Set to `false` to disable file events.
+   * Whether to enable file events on this external location. Defaults to `true`. Set to `false` to disable file events.
    * The actual applied value may differ due to server-side defaults; check `effective_enable_file_events` for the effective state.
    */
   enableFileEvents?: boolean | undefined;
-  /** File event queue settings. If `enable_file_events` is not `false`, must be defined and have exactly one of the documented properties. */
+  /**
+   * File event queue settings. When `enable_file_events` is `true`, exactly one of the queue options
+   * must be set. Must be omitted when `enable_file_events` is `false`.
+   */
   fileEventQueue?: FileEventQueue | undefined;
   /** The owner of the external location. */
   owner?: string | undefined;
+  /** Encryption options that apply to clients connecting to cloud storage. */
   encryptionDetails?: EncryptionDetails | undefined;
   /** Unique identifier of metastore hosting the external location. */
   metastoreId?: string | undefined;
@@ -155,12 +179,16 @@ export interface ExternalLocationInfo {
   createdAt?: bigint | undefined;
   /** Username of external location creator. */
   createdBy?: string | undefined;
-  /** Time at which external location this was last modified, in epoch milliseconds. */
+  /** Time at which this external location was last modified, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** Username of user who last modified the external location. */
   updatedBy?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
+  /**
+   * Whether the current securable is accessible from all workspaces or a specific set of
+   * workspaces. Cannot be set when creating an external location.
+   */
   isolationMode?: IsolationMode | undefined;
   /** Indicates whether fallback mode is enabled for this external location. When fallback mode is enabled, the access to the location falls back to cluster credentials if UC credentials are not sufficient. */
   fallback?: boolean | undefined;
@@ -190,7 +218,7 @@ export interface FileEventQueue {
 
 export interface GcpPubsub {
   /**
-   * The Pub/Sub subscription name in the format projects/{project}/subscriptions/{subscription name}.
+   * The Pub/Sub subscription name in the format `projects/{project}/subscriptions/{subscription name}`.
    * Only required for provided_pubsub.
    */
   subscriptionName?: string | undefined;
@@ -201,12 +229,12 @@ export interface GcpPubsub {
 export interface GetExternalLocationRequest {
   /** Name of the external location. */
   nameArg?: string | undefined;
-  /** Whether to include external locations in the response for which the principal can only access selective metadata for */
+  /** Whether to include external locations in the response for which the principal can only access selective metadata. */
   includeBrowse?: boolean | undefined;
 }
 
 export interface ListExternalLocationsRequest {
-  /** Whether to include external locations in the response for which the principal can only access selective metadata for */
+  /** Whether to include external locations in the response for which the principal can only access selective metadata. */
   includeBrowse?: boolean | undefined;
   /**
    * Maximum number of external locations to return.
@@ -257,7 +285,10 @@ export interface UpdateExternalLocationRequest {
   skipValidation?: boolean | undefined;
   /** Name of the external location. */
   name?: string | undefined;
-  /** Path URL of the external location. */
+  /**
+   * URL of the cloud storage path that the external location points to, including the scheme
+   * (for example `s3://`, `abfss://`, or `gs://`).
+   */
   url?: string | undefined;
   /** Name of the storage credential used with this location. */
   credentialName?: string | undefined;
@@ -266,14 +297,18 @@ export interface UpdateExternalLocationRequest {
   /** User-provided free-form text description. */
   comment?: string | undefined;
   /**
-   * Whether to enable file events on this external location. Default to `true`. Set to `false` to disable file events.
+   * Whether to enable file events on this external location. Defaults to `true`. Set to `false` to disable file events.
    * The actual applied value may differ due to server-side defaults; check `effective_enable_file_events` for the effective state.
    */
   enableFileEvents?: boolean | undefined;
-  /** File event queue settings. If `enable_file_events` is not `false`, must be defined and have exactly one of the documented properties. */
+  /**
+   * File event queue settings. When `enable_file_events` is `true`, exactly one of the queue options
+   * must be set. Must be omitted when `enable_file_events` is `false`.
+   */
   fileEventQueue?: FileEventQueue | undefined;
   /** The owner of the external location. */
   owner?: string | undefined;
+  /** Encryption options that apply to clients connecting to cloud storage. */
   encryptionDetails?: EncryptionDetails | undefined;
   /** Unique identifier of metastore hosting the external location. */
   metastoreId?: string | undefined;
@@ -283,12 +318,16 @@ export interface UpdateExternalLocationRequest {
   createdAt?: bigint | undefined;
   /** Username of external location creator. */
   createdBy?: string | undefined;
-  /** Time at which external location this was last modified, in epoch milliseconds. */
+  /** Time at which this external location was last modified, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** Username of user who last modified the external location. */
   updatedBy?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
+  /**
+   * Whether the current securable is accessible from all workspaces or a specific set of
+   * workspaces. Cannot be set when creating an external location.
+   */
   isolationMode?: IsolationMode | undefined;
   /** Indicates whether fallback mode is enabled for this external location. When fallback mode is enabled, the access to the location falls back to cluster credentials if UC credentials are not sufficient. */
   fallback?: boolean | undefined;

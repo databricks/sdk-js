@@ -82,7 +82,7 @@ export class AiFunctionsClient {
     return this.config;
   }
 
-  /** Cancel a batch. Cancellation is asynchronous: requests in flight drain first, so read the batch to observe the `CANCELLING` and `CANCELLED` statuses. */
+  /** Starts the asynchronous cancellation of a batch. Requests in progress are drained first. Cancellation is best effort, so the batch can still complete. */
   async cancelBatch(
     req: CancelBatchRequest,
     options?: CallOptions
@@ -112,7 +112,7 @@ export class AiFunctionsClient {
     return resp;
   }
 
-  /** Run an AI function over every request in a file on a Unity Catalog volume. The batch runs asynchronously; read it to follow its progress. */
+  /** Creates a batch that runs an AI function on every request in a JSONL file on a Unity Catalog volume. The batch runs asynchronously. To follow its progress, get the batch. */
   async createBatch(
     req: CreateBatchRequest,
     options?: CallOptions
@@ -142,7 +142,7 @@ export class AiFunctionsClient {
     return resp;
   }
 
-  /** Read one batch, with its status and progress. */
+  /** Gets the latest status and progress of a batch. */
   async getBatch(req: GetBatchRequest, options?: CallOptions): Promise<Batch> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/ai-functions/batches/${req.name ?? ''}`;
@@ -168,7 +168,7 @@ export class AiFunctionsClient {
     return resp;
   }
 
-  /** List the batches the caller created in this workspace. */
+  /** Lists the batches that the caller created in this workspace. */
   async listBatches(
     req: ListBatchesRequest,
     options?: CallOptions

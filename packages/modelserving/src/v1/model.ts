@@ -296,12 +296,14 @@ export interface AutoCaptureConfig {
   schemaName?: string | undefined;
   /** The prefix of the table in Unity Catalog. NOTE: On update, you cannot change the prefix name if the inference table is already enabled. */
   tableNamePrefix?: string | undefined;
+  /** The state of the inference table. */
   state?: AutoCaptureState | undefined;
   /** Indicates whether the inference table is enabled. */
   enabled?: boolean | undefined;
 }
 
 export interface AutoCaptureState {
+  /** The payload table that stores the logged requests and responses. */
   payloadTable?: PayloadTable | undefined;
 }
 
@@ -360,6 +362,7 @@ export interface CreateInferenceEndpointRequest {
   budgetPolicyId?: string | undefined;
   /** Email notification settings. */
   emailNotifications?: EmailNotifications | undefined;
+  /** The description of the serving endpoint. */
   description?: string | undefined;
   /** Configuration for persisting endpoint telemetry (logs, traces, and metrics) to Unity Catalog tables. */
   telemetryConfig?: TelemetryConfig | undefined;
@@ -434,6 +437,7 @@ export interface DatabricksModelServingConfig {
 }
 
 export interface DeleteInferenceEndpointRequest {
+  /** The name of the serving endpoint to delete. */
   name?: string | undefined;
 }
 
@@ -605,9 +609,13 @@ export interface FallbackConfig {
 
 /** All fields are not sensitive as they are hard-coded in the system and made available to customers. */
 export interface FoundationModel {
+  /** The name of the foundation model. */
   name?: string | undefined;
+  /** The human-readable display name of the foundation model. */
   displayName?: string | undefined;
+  /** The URL of the Databricks documentation page for the foundation model. */
   docs?: string | undefined;
+  /** A description of the foundation model. */
   description?: string | undefined;
 }
 
@@ -698,9 +706,9 @@ export interface InferenceEndpoint {
   name?: string | undefined;
   /** The email of the user who created the serving endpoint. */
   creator?: string | undefined;
-  /** The timestamp when the endpoint was created in Unix time. */
+  /** The timestamp when the endpoint was created, in milliseconds since the Unix epoch. */
   creationTimestamp?: bigint | undefined;
-  /** The timestamp when the endpoint was last updated by a user in Unix time. */
+  /** The timestamp when the endpoint was last updated by a user, in milliseconds since the Unix epoch. */
   lastUpdatedTimestamp?: bigint | undefined;
   /** Information corresponding to the state of the serving endpoint. */
   state?: InferenceEndpointState | undefined;
@@ -729,9 +737,9 @@ export interface InferenceEndpointDetailed {
   name?: string | undefined;
   /** The email of the user who created the serving endpoint. */
   creator?: string | undefined;
-  /** The timestamp when the endpoint was created in Unix time. */
+  /** The timestamp when the endpoint was created, in milliseconds since the Unix epoch. */
   creationTimestamp?: bigint | undefined;
-  /** The timestamp when the endpoint was last updated by a user in Unix time. */
+  /** The timestamp when the endpoint was last updated by a user, in milliseconds since the Unix epoch. */
   lastUpdatedTimestamp?: bigint | undefined;
   /** Information corresponding to the state of the serving endpoint. */
   state?: InferenceEndpointState | undefined;
@@ -759,7 +767,7 @@ export interface InferenceEndpointDetailed {
   budgetPolicyId?: string | undefined;
   /** Email notification settings. */
   emailNotifications?: EmailNotifications | undefined;
-  /** Description of the serving model */
+  /** Description of the serving endpoint. */
   description?: string | undefined;
   /** Telemetry configuration for the endpoint, including inference-table payload logging. */
   telemetryConfig?: TelemetryConfig | undefined;
@@ -918,6 +926,7 @@ export interface PatchInferenceEndpointTagsRequest {
 }
 
 export interface PatchInferenceEndpointTagsResponse {
+  /** The tags attached to the serving endpoint after the update. */
   tags?: EndpointTag[] | undefined;
 }
 
@@ -935,8 +944,11 @@ export interface PatchInferenceEndpointTelemetryConfigRequest {
 }
 
 export interface PayloadTable {
+  /** The name of the payload table within the configured catalog and schema. */
   name?: string | undefined;
+  /** The status of the payload table. One of PENDING, READY, FAILED or DISABLED. */
   status?: string | undefined;
+  /** More information about the status of the payload table, if available. */
   statusMessage?: string | undefined;
 }
 
@@ -949,7 +961,7 @@ export interface PendingConfig {
   trafficConfig?: TrafficConfig | undefined;
   /** The config version that the serving endpoint is currently serving. */
   configVersion?: number | undefined;
-  /** The timestamp when the update to the pending config started. */
+  /** The timestamp when the update to the pending config started, in milliseconds since the Unix epoch. */
   startTime?: bigint | undefined;
   /**
    * Configuration for legacy Inference Tables which automatically log requests and responses to Unity
@@ -968,6 +980,7 @@ export interface PiiSettings {
 export interface PtEndpointCoreConfig {
   /** The list of served entities under the serving endpoint config. */
   servedEntities?: PtServedModel[] | undefined;
+  /** The traffic configuration associated with the serving endpoint config. */
   trafficConfig?: TrafficConfig | undefined;
 }
 
@@ -976,6 +989,7 @@ export interface PtServedModel {
   name?: string | undefined;
   /** The name of the entity to be served. The entity may be a model in the Databricks Model Registry, a model in the Unity Catalog (UC), or a function of type FEATURE_SPEC in the UC. If it is a UC object, the full name of the object should be given in the form of **catalog_name.schema_name.model_name**. */
   entityName?: string | undefined;
+  /** The version of the model in Unity Catalog to be served. */
   entityVersion?: string | undefined;
   /**
    * The number of model units to be provisioned. Dedicated inference requires positive fixed
@@ -1074,6 +1088,7 @@ export interface PutInferenceEndpointRateLimitsResponse {
 export interface PutPtEndpointConfigRequest {
   /** The name of the pt endpoint to update. This field is required. */
   name?: string | undefined;
+  /** The core config of the serving endpoint. */
   config?: PtEndpointCoreConfig | undefined;
 }
 
@@ -1091,6 +1106,7 @@ export interface Route {
   servedModelName?: string | undefined;
   /** The percentage of endpoint traffic to send to this route. It must be an integer between 0 and 100 inclusive. */
   trafficPercentage?: number | undefined;
+  /** The name of the served entity this route configures traffic for. */
   servedEntityName?: string | undefined;
 }
 
@@ -1101,6 +1117,7 @@ export interface ServedModel {
   externalModel?: ExternalModel | undefined;
   /** The name of the entity to be served. The entity may be a model in the Databricks Model Registry, a model in the Unity Catalog (UC), or a function of type FEATURE_SPEC in the UC. If it is a UC object, the full name of the object should be given in the form of **catalog_name.schema_name.model_name**. */
   entityName?: string | undefined;
+  /** The version of the model in Databricks Model Registry or Unity Catalog to be served, or empty if the entity is a FEATURE_SPEC function. */
   entityVersion?: string | undefined;
   /** The minimum tokens per second that the endpoint can scale down to. */
   minProvisionedThroughput?: number | undefined;
@@ -1122,32 +1139,45 @@ export interface ServedModel {
   burstScalingEnabled?: boolean | undefined;
   /** Whether the compute resources for the served entity should scale down to zero. */
   scaleToZeroEnabled?: boolean | undefined;
+  /** The name of the model in Databricks Model Registry to be served or, if the model resides in Unity Catalog, the full name of the model in the form of **catalog_name.schema_name.model_name**. */
   modelName?: string | undefined;
+  /** The version of the model in Databricks Model Registry or Unity Catalog to be served. */
   modelVersion?: string | undefined;
   /** An object containing a set of optional, user-specified environment variable key-value pairs used for serving this entity. Note: this is an experimental feature and subject to change. Example entity environment variables that refer to <Databricks> secrets: `{"OPENAI_API_KEY": "{{secrets/my_scope/my_key}}", "DATABRICKS_TOKEN": "{{secrets/my_scope2/my_key2}}"}` */
   environmentVars?: Record<string, string> | undefined;
   /** ARN of the instance profile that the served entity uses to access AWS resources. */
   instanceProfileArn?: string | undefined;
+  /** The foundation model that is served. Present for served entities that serve a Databricks-hosted foundation model. */
   foundationModel?: FoundationModel | undefined;
+  /** Information corresponding to the state of the served entity. */
   state?: ServedModelState | undefined;
+  /** The email of the user who created the served entity. */
   creator?: string | undefined;
+  /** The timestamp when the served entity was created, in milliseconds since the Unix epoch. */
   creationTimestamp?: bigint | undefined;
 }
 
 export interface ServedModelLite {
+  /** The name of the served entity. */
   name?: string | undefined;
-  /** Only one of model_name and entity_name should be populated */
+  /** The name of the model in Databricks Model Registry to be served or, if the model resides in Unity Catalog, the full name of the model in the form of **catalog_name.schema_name.model_name**. */
   modelName?: string | undefined;
+  /** The name of the entity to be served. The entity may be a model in the Databricks Model Registry, a model in the Unity Catalog (UC), or a function of type FEATURE_SPEC in the UC. If it is a UC object, the full name of the object is given in the form of **catalog_name.schema_name.model_name**. */
   entityName?: string | undefined;
-  /** Only one of model_version and entity_version should be populated */
+  /** The version of the model in Databricks Model Registry or Unity Catalog to be served. */
   modelVersion?: string | undefined;
+  /** The version of the model in Databricks Model Registry or Unity Catalog to be served, or empty if the entity is a FEATURE_SPEC function. */
   entityVersion?: string | undefined;
+  /** The external model that is served. NOTE: Only one of external_model, foundation_model, and (entity_name, entity_version) is returned based on the endpoint type. */
   externalModel?: ExternalModel | undefined;
+  /** The foundation model that is served. NOTE: Only one of foundation_model, external_model, and (entity_name, entity_version) is returned based on the endpoint type. */
   foundationModel?: FoundationModel | undefined;
 }
 
 export interface ServedModelState {
+  /** The state of the deployment of the served entity. DEPLOYMENT_CREATING indicates that the served entity is not ready yet because the deployment is still being created (for example, the container image is building or the model server is starting for the first time). DEPLOYMENT_RECOVERING indicates that the served entity was previously ready but no longer is and is attempting to recover. DEPLOYMENT_READY indicates that the served entity is ready to receive traffic. DEPLOYMENT_FAILED indicates that there was an error bringing up the served entity (for example, the container image build failed or the model server failed to start due to a model loading error). DEPLOYMENT_ABORTED indicates that the deployment was terminated, likely due to a failure in bringing up another served entity under the same endpoint and config version. */
   deployment?: ServedModelDeploymentState | undefined;
+  /** More information about the state of the served entity, if available. */
   deploymentStateMessage?: string | undefined;
 }
 
@@ -1223,7 +1253,9 @@ export interface UpdateInferenceEndpointNotificationsRequest {
 }
 
 export interface UpdateInferenceEndpointNotificationsResponse {
+  /** The name of the serving endpoint whose notification settings were updated. */
   name?: string | undefined;
+  /** The email notification settings now in effect for the serving endpoint. */
   emailNotifications?: EmailNotifications | undefined;
 }
 

@@ -263,7 +263,11 @@ export interface CreateModelServiceRequest {
    * Each `{...}` component is capped at 255 characters individually.
    */
   parent?: string | undefined;
-  /** Name for the model service, e.g. "my_model_service". */
+  /**
+   * Name of the model service within the parent schema. The name must not
+   * contain periods, spaces, forward slashes, percent signs, or control characters,
+   * and it is stored in lowercase.
+   */
   modelServiceId?: string | undefined;
   /**
    * The model service to create. Do not set `name`; the server derives it from
@@ -458,7 +462,7 @@ export interface InferenceTableConfig {
    */
   tableNamePrefix?: string | undefined;
   /**
-   * Resolved UC table for payload logs.
+   * Resource name of the Unity Catalog table that receives the payload logs.
    * Format: `tables/{catalog}.{schema}.{table}`.
    */
   table?: string | undefined;
@@ -1531,7 +1535,7 @@ export interface ModelProviderServiceConfig_ServiceCredential {
 
 /**
  * A governed AI Gateway endpoint in Unity Catalog that routes inference
- * requests to one or more destinations, such as a <Databricks> foundation model
+ * requests to one or more destinations, such as a Databricks foundation model
  * or an external model reached through a model provider service. Applies
  * centralized access control, rate limits, and auditing to its traffic.
  */
@@ -1540,21 +1544,22 @@ export interface ModelService {
    * Resource name of the model service.
    * Format: `model-services/{catalog}.{schema}.{model_service}`.
    * Each `{...}` component is capped at 255 characters individually.
-   * Server-derived on Create from `parent` +
-   * `model_service_id`; required and immutable on Update/Get/Delete.
+   * The server derives the name on Create from
+   * `parent` and `model_service_id`; it is required and immutable on Update,
+   * Get, and Delete.
    */
   name?: string | undefined;
-  /** Owner of the model service. */
+  /** Username or group name of the model service owner. */
   effectiveOwner?: string | undefined;
-  /** Metastore hosting the model service. */
+  /** Unique identifier of the metastore that contains the model service. */
   metastoreId?: string | undefined;
   /** Time the model service was created. */
   createTime?: Temporal.Instant | undefined;
-  /** Creator identity. */
+  /** Username of the user who created the model service. */
   createdBy?: string | undefined;
   /** Time the model service was last modified. */
   updateTime?: Temporal.Instant | undefined;
-  /** Identity of the last updater. */
+  /** Username of the user who last updated the model service. */
   updatedBy?: string | undefined;
   /** User-provided description. */
   comment?: string | undefined;
@@ -1582,11 +1587,17 @@ export interface ModelService {
 
 /** Operational configuration wrapped around the ModelService resource. */
 export interface ModelServiceConfig {
-  /** Routing configuration: destinations and fallback. */
+  /**
+   * Routing configuration: the primary destinations that receive traffic and
+   * the fallback destinations tried when a primary destination fails.
+   */
   routing?: ModelServiceConfig_RoutingConfig | undefined;
   /** Rate limits applied to requests routed through this model service. */
   rateLimits?: RateLimit[] | undefined;
-  /** Inference table configuration for payload logging. */
+  /**
+   * Configuration for logging request and response payloads to a Unity
+   * Catalog inference table. Omit this field to leave payload logging off.
+   */
   inferenceTable?: InferenceTableConfig | undefined;
 }
 
@@ -1597,7 +1608,11 @@ export interface ModelServiceConfig {
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelServiceConfig_DestinationConfig {
-  /** User-facing label for this destination, used in routing references. */
+  /**
+   * Label that identifies this destination. Names are compared
+   * case-insensitively and must be unique within the primary destinations and
+   * within the fallback destinations.
+   */
   name?: string | undefined;
   /**
    * Backing-model category. Provide the matching type-specific configuration
@@ -1617,12 +1632,12 @@ export interface ModelServiceConfig_DestinationConfig {
   typeConfig?:
     | {
         $case: 'payPerTokenConfig';
-        /** Configuration for a pay-per-token <Databricks> foundation model. */
+        /** Configuration for a pay-per-token Databricks foundation model. */
         payPerTokenConfig: ModelServiceConfig_PayPerTokenConfig;
       }
     | {
         $case: 'provisionedThroughputConfig';
-        /** Configuration for a provisioned-throughput <Databricks> foundation model. */
+        /** Configuration for a provisioned-throughput Databricks foundation model. */
         provisionedThroughputConfig: ModelServiceConfig_ProvisionedThroughputConfig;
       }
     | {
@@ -1681,8 +1696,9 @@ export interface ModelServiceConfig_FallbackConfig {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ModelServiceConfig_PayPerTokenConfig {
   /**
-   * Resource name of the Unity Catalog model.
-   * Format: `models/{catalog}.{schema}.{model}`.
+   * Resource name of the Unity Catalog foundation model. Pay-per-token
+   * foundation models live in the `system.ai` schema, so the name has the
+   * form `models/system.ai.{model}`.
    */
   model?: string | undefined;
 }
@@ -1705,9 +1721,9 @@ export interface ModelServiceConfig_ProvisionedThroughputConfig {
    */
   modelServingEndpoint?: string | undefined;
   /**
-   * UC model FQN of the model served by the backing endpoint (e.g.,
-   * `system.ai.databricks-claude-opus-4-6`). Resolved from Model Serving at
-   * Create/Update time.
+   * Resource name of the Unity Catalog model served by the backing endpoint,
+   * in the form `models/{catalog}.{schema}.{model}`. Resolved from Model
+   * Serving when the model service is created or updated.
    */
   model?: string | undefined;
 }
@@ -1750,7 +1766,7 @@ export interface RateLimit {
    * principal, the service as a whole, or each user by default.
    */
   key?: RateLimit_RateLimitKey | undefined;
-  /** Renewal period. */
+  /** Interval after which the request and token counters reset. */
   renewalPeriod?: RateLimit_RateLimitRenewalPeriod | undefined;
   /**
    * Principal this limit applies to: user email, group name, or service

@@ -34,25 +34,35 @@ export interface CreateVolumeRequest {
    * [Learn more](https://docs.databricks.com/aws/en/volumes/managed-vs-external)
    */
   volumeType?: VolumeType | undefined;
-  /** The storage location on the cloud */
+  /**
+   * The cloud storage URL where the files of the volume are stored.
+   * For an external volume, it must be set on creation to a path within an existing external location.
+   * For a managed volume, it must be omitted on creation; the volume is placed under the managed storage
+   * location of the parent schema, catalog, or metastore, and the assigned path is returned in this field.
+   */
   storageLocation?: string | undefined;
-  /** The identifier of the user who owns the volume */
+  /**
+   * The user or group that owns the volume. The user who creates a volume becomes its owner;
+   * the owner can be changed afterwards with an update.
+   */
   owner?: string | undefined;
   /** The comment attached to the volume */
   comment?: string | undefined;
-  /** The three-level (fully qualified) name of the volume */
+  /** The three-level (fully qualified) name of the volume, in the form catalog_name.schema_name.name. */
   fullName?: string | undefined;
   /** The unique identifier of the volume */
   volumeId?: string | undefined;
   /** The unique identifier of the metastore */
   metastoreId?: string | undefined;
+  /** Time at which the volume was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
   /** The identifier of the user who created the volume */
   createdBy?: string | undefined;
+  /** Time at which the volume was last updated, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the volume last time */
   updatedBy?: string | undefined;
-  /** The AWS access point to use when accesing s3 for this external location. */
+  /** The AWS access point to use when accessing S3 for the storage location of this volume. */
   accessPoint?: string | undefined;
   encryptionDetails?: EncryptionDetails | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -81,16 +91,16 @@ export interface EncryptionDetails {
 export interface GetVolumeRequest {
   /** The fully qualified name of the volume. */
   fullNameArg?: string | undefined;
-  /** Whether to include volumes in the response for which the principal can only access selective metadata for */
+  /** Whether to include volumes for which the principal can only access selective metadata through the BROWSE privilege. */
   includeBrowse?: boolean | undefined;
 }
 
 export interface ListVolumesRequest {
-  /** The identifier of the catalog */
+  /** The name of the catalog that contains the schema. */
   catalogName?: string | undefined;
-  /** The identifier of the schema */
+  /** The name of the schema whose volumes are listed. */
   schemaName?: string | undefined;
-  /** Whether to include volumes in the response for which the principal can only access selective metadata for */
+  /** Whether to include volumes for which the principal can only access selective metadata through the BROWSE privilege. */
   includeBrowse?: boolean | undefined;
   /**
    * Maximum number of volumes to return (page length).
@@ -131,7 +141,7 @@ export interface SseEncryptionDetails {
 export interface UpdateVolumeRequest {
   /** The three-level (fully qualified) name of the volume */
   fullNameArg?: string | undefined;
-  /** New name for the volume. */
+  /** The new name for the volume. Set it to rename the volume. */
   newName?: string | undefined;
   /** The name of the volume */
   name?: string | undefined;
@@ -145,25 +155,35 @@ export interface UpdateVolumeRequest {
    * [Learn more](https://docs.databricks.com/aws/en/volumes/managed-vs-external)
    */
   volumeType?: VolumeType | undefined;
-  /** The storage location on the cloud */
+  /**
+   * The cloud storage URL where the files of the volume are stored.
+   * For an external volume, it must be set on creation to a path within an existing external location.
+   * For a managed volume, it must be omitted on creation; the volume is placed under the managed storage
+   * location of the parent schema, catalog, or metastore, and the assigned path is returned in this field.
+   */
   storageLocation?: string | undefined;
-  /** The identifier of the user who owns the volume */
+  /**
+   * The user or group that owns the volume. The user who creates a volume becomes its owner;
+   * the owner can be changed afterwards with an update.
+   */
   owner?: string | undefined;
   /** The comment attached to the volume */
   comment?: string | undefined;
-  /** The three-level (fully qualified) name of the volume */
+  /** The three-level (fully qualified) name of the volume, in the form catalog_name.schema_name.name. */
   fullName?: string | undefined;
   /** The unique identifier of the volume */
   volumeId?: string | undefined;
   /** The unique identifier of the metastore */
   metastoreId?: string | undefined;
+  /** Time at which the volume was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
   /** The identifier of the user who created the volume */
   createdBy?: string | undefined;
+  /** Time at which the volume was last updated, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the volume last time */
   updatedBy?: string | undefined;
-  /** The AWS access point to use when accesing s3 for this external location. */
+  /** The AWS access point to use when accessing S3 for the storage location of this volume. */
   accessPoint?: string | undefined;
   encryptionDetails?: EncryptionDetails | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -183,25 +203,35 @@ export interface VolumeInfo {
    * [Learn more](https://docs.databricks.com/aws/en/volumes/managed-vs-external)
    */
   volumeType?: VolumeType | undefined;
-  /** The storage location on the cloud */
+  /**
+   * The cloud storage URL where the files of the volume are stored.
+   * For an external volume, it must be set on creation to a path within an existing external location.
+   * For a managed volume, it must be omitted on creation; the volume is placed under the managed storage
+   * location of the parent schema, catalog, or metastore, and the assigned path is returned in this field.
+   */
   storageLocation?: string | undefined;
-  /** The identifier of the user who owns the volume */
+  /**
+   * The user or group that owns the volume. The user who creates a volume becomes its owner;
+   * the owner can be changed afterwards with an update.
+   */
   owner?: string | undefined;
   /** The comment attached to the volume */
   comment?: string | undefined;
-  /** The three-level (fully qualified) name of the volume */
+  /** The three-level (fully qualified) name of the volume, in the form catalog_name.schema_name.name. */
   fullName?: string | undefined;
   /** The unique identifier of the volume */
   volumeId?: string | undefined;
   /** The unique identifier of the metastore */
   metastoreId?: string | undefined;
+  /** Time at which the volume was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
   /** The identifier of the user who created the volume */
   createdBy?: string | undefined;
+  /** Time at which the volume was last updated, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the volume last time */
   updatedBy?: string | undefined;
-  /** The AWS access point to use when accesing s3 for this external location. */
+  /** The AWS access point to use when accessing S3 for the storage location of this volume. */
   accessPoint?: string | undefined;
   encryptionDetails?: EncryptionDetails | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */

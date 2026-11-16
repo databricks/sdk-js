@@ -100,7 +100,13 @@ export class SandboxClient {
     return this.config;
   }
 
-  /** Creates a new Sandbox. */
+  /**
+   * Creates a sandbox with the given `sandbox_id` and starts provisioning it. Provisioning
+   * is asynchronous: the response usually shows the sandbox in `SANDBOX_STATE_PENDING`, so
+   * poll GetSandbox until the state is `SANDBOX_STATE_RUNNING` before running commands in it.
+   * A sandbox that fails to provision ends in `SANDBOX_STATE_STOPPED`. Returns ALREADY_EXISTS
+   * if a sandbox with the same ID already exists in the workspace.
+   */
   async createSandbox(
     req: CreateSandboxRequest,
     options?: CallOptions
@@ -142,7 +148,11 @@ export class SandboxClient {
     return resp;
   }
 
-  /** Deletes a Sandbox. */
+  /**
+   * Deletes a sandbox, including the data in its home directory. A pending or running
+   * sandbox is stopped first and is removed once the teardown completes, after which
+   * GetSandbox returns NOT_FOUND. Deleting a sandbox that is already being deleted succeeds.
+   */
   async deleteSandbox(
     req: DeleteSandboxRequest,
     options?: CallOptions
@@ -194,7 +204,10 @@ export class SandboxClient {
     return resp;
   }
 
-  /** Lists all Sandboxes. */
+  /**
+   * Lists the sandboxes in the workspace that are visible to the caller, including
+   * stopped sandboxes. Sandboxes that are being deleted are not returned.
+   */
   async listSandboxes(
     req: ListSandboxesRequest,
     options?: CallOptions
@@ -250,9 +263,11 @@ export class SandboxClient {
   }
 
   /**
-   * Starts a previously stopped Sandbox under the same sandbox name.
-   * Returns NOT_FOUND if there is no stopped sandbox to start for
-   * the given name.
+   * Starts a previously stopped sandbox under the same sandbox name, with the data in its
+   * home directory intact. Starting is asynchronous: the response usually shows the sandbox
+   * in `SANDBOX_STATE_PENDING`, so poll GetSandbox until the state is `SANDBOX_STATE_RUNNING`.
+   * Returns NOT_FOUND if the sandbox does not exist, FAILED_PRECONDITION if it is pending or
+   * running, and ABORTED while it is still stopping.
    */
   async startSandbox(
     req: StartSandboxRequest,
@@ -284,8 +299,11 @@ export class SandboxClient {
   }
 
   /**
-   * Stops a running Sandbox, preserving it so it can later be restarted with
-   * a Start request.
+   * Stops a running sandbox, preserving it so it can later be restarted with a Start
+   * request. Stopping is asynchronous: the response usually shows the sandbox in
+   * `SANDBOX_STATE_STOPPING`, and it settles to `SANDBOX_STATE_STOPPED` once the shutdown
+   * completes. The data in the home directory is kept; other local changes are discarded.
+   * Stopping a sandbox that is already stopped or stopping succeeds without changes.
    */
   async stopSandbox(
     req: StopSandboxRequest,
@@ -662,6 +680,9 @@ export class SandboxClient {
     const params = new URLSearchParams();
     if (req.path !== undefined) {
       params.append('path', req.path);
+    }
+    if (req.overwrite !== undefined) {
+      params.append('overwrite', String(req.overwrite));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;

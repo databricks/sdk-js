@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-aigateway",
-  "version": "0.24.1",
+  "version": "0.24.2",
   "description": "",
   "type": "module",
   "exports": {

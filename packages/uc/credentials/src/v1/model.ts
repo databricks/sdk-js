@@ -244,6 +244,12 @@ export interface CloudflareApiToken {
   accountId?: string | undefined;
 }
 
+/**
+ * A storage credential represents an authentication and authorization mechanism for accessing
+ * data stored on your cloud tenant. It holds exactly one cloud credential, for example an AWS
+ * IAM role, an Azure managed identity or service principal, or a GCP service account. Only the
+ * field for the selected credential type is set in requests and responses.
+ */
 export interface CreateAccountsStorageCredential {
   /**
    * The credential name. The name must be unique among storage and service
@@ -264,6 +270,7 @@ export interface CreateAccountsStorageCredential {
       }
     | {
         $case: 'gcpServiceAccountKey';
+        /** The GCP service account key configuration. */
         gcpServiceAccountKey: GcpServiceAccountKey;
       }
     | {
@@ -346,6 +353,7 @@ export interface CreateCredentialRequest {
       }
     | {
         $case: 'gcpServiceAccountKey';
+        /** The GCP service account key configuration. */
         gcpServiceAccountKey: GcpServiceAccountKey;
       }
     | {
@@ -431,6 +439,7 @@ export interface CreateStorageCredentialRequest {
       }
     | {
         $case: 'gcpServiceAccountKey';
+        /** The GCP service account key configuration. */
         gcpServiceAccountKey: GcpServiceAccountKey;
       }
     | {
@@ -484,6 +493,12 @@ export interface CreateStorageCredentialRequest {
   isolationMode?: IsolationMode | undefined;
 }
 
+/**
+ * A storage credential represents an authentication and authorization mechanism for accessing
+ * data stored on your cloud tenant. It holds exactly one cloud credential, for example an AWS
+ * IAM role, an Azure managed identity or service principal, or a GCP service account. Only the
+ * field for the selected credential type is set in requests and responses.
+ */
 export interface CredentialInfo {
   /**
    * The credential name. The name must be unique among storage and service
@@ -504,6 +519,7 @@ export interface CredentialInfo {
       }
     | {
         $case: 'gcpServiceAccountKey';
+        /** The GCP service account key configuration. */
         gcpServiceAccountKey: GcpServiceAccountKey;
       }
     | {
@@ -589,7 +605,7 @@ export interface DeleteCredentialRequest {
   /** Name of the credential. */
   nameArg?: string | undefined;
   /**
-   * Force an update even if there are dependent services (when purpose is
+   * Force deletion even if there are dependent services (when purpose is
    * **SERVICE**) or dependent external locations and external tables (when
    * purpose is **STORAGE**).
    */
@@ -609,9 +625,8 @@ export interface DeleteStorageCredentialRequest {
   /** Name of the storage credential. */
   nameArg?: string | undefined;
   /**
-   * Force an update even if there are dependent external locations or external
-   * tables (when purpose is **STORAGE**) or dependent services (when purpose is
-   * **SERVICE**).
+   * Force deletion even if there are dependent external locations or external
+   * tables.
    */
   force?: boolean | undefined;
 }
@@ -887,6 +902,12 @@ export interface R2Credentials {
   sessionToken?: string | undefined;
 }
 
+/**
+ * A storage credential represents an authentication and authorization mechanism for accessing
+ * data stored on your cloud tenant. It holds exactly one cloud credential, for example an AWS
+ * IAM role, an Azure managed identity or service principal, or a GCP service account. Only the
+ * field for the selected credential type is set in requests and responses.
+ */
 export interface StorageCredentialInfo {
   /**
    * The credential name. The name must be unique among storage and service
@@ -907,6 +928,7 @@ export interface StorageCredentialInfo {
       }
     | {
         $case: 'gcpServiceAccountKey';
+        /** The GCP service account key configuration. */
         gcpServiceAccountKey: GcpServiceAccountKey;
       }
     | {
@@ -999,6 +1021,12 @@ export interface TemporaryCredentials {
   url?: string | undefined;
 }
 
+/**
+ * A storage credential represents an authentication and authorization mechanism for accessing
+ * data stored on your cloud tenant. It holds exactly one cloud credential, for example an AWS
+ * IAM role, an Azure managed identity or service principal, or a GCP service account. Only the
+ * field for the selected credential type is set in requests and responses.
+ */
 export interface UpdateAccountsStorageCredential {
   /**
    * The credential name. The name must be unique among storage and service
@@ -1019,6 +1047,7 @@ export interface UpdateAccountsStorageCredential {
       }
     | {
         $case: 'gcpServiceAccountKey';
+        /** The GCP service account key configuration. */
         gcpServiceAccountKey: GcpServiceAccountKey;
       }
     | {
@@ -1104,6 +1133,7 @@ export interface UpdateCredentialRequest {
       }
     | {
         $case: 'gcpServiceAccountKey';
+        /** The GCP service account key configuration. */
         gcpServiceAccountKey: GcpServiceAccountKey;
       }
     | {
@@ -1188,6 +1218,7 @@ export interface UpdateStorageCredentialRequest {
       }
     | {
         $case: 'gcpServiceAccountKey';
+        /** The GCP service account key configuration. */
         gcpServiceAccountKey: GcpServiceAccountKey;
       }
     | {

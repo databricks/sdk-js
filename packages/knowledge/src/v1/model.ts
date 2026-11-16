@@ -238,8 +238,8 @@ export interface Page {
   name?: string | undefined;
   /**
    * Resource name of the domain this page belongs to; format `domains/{domain_id}`.
-   * Required on create. Use the full resource name rather than a bare domain ID.
-   * The domain is fixed after creation; updating it is not supported.
+   * Required on create and when selected by `update_mask`.
+   * Use the full resource name rather than a bare domain ID.
    */
   domain?: string | undefined;
   /**
@@ -293,9 +293,9 @@ export interface UpdatePageRequest {
    */
   page?: Page | undefined;
   /**
-   * Nonempty set of Page fields to update. Supported paths are `display_name`,
+   * Nonempty set of Page fields to update. Supported paths are `domain`, `display_name`,
    * `body`, `synonyms`, `description`, `state`, and `owner_ids`, without a `page.`
-   * prefix. Wildcards, `domain`, and server-assigned fields are not supported.
+   * prefix. Wildcards and server-assigned fields are not supported.
    * In REST requests, pass a comma-separated query parameter, for example
    * `update_mask=display_name,body`. There is no implicit update of all fields.
    */

@@ -178,7 +178,10 @@ export interface CreateExperimentResponse {
 
 /** Request for CreateIssue. */
 export interface CreateIssueRequest {
-  /** experiments/{experiment} */
+  /**
+   * The experiment to create the Issue in, as `experiments/{experiment}`, where
+   * `{experiment}` is the experiment ID. For example, `experiments/1234567890`.
+   */
   parent?: string | undefined;
   /** Output-only fields are ignored. */
   issue?: Issue | undefined;
@@ -437,7 +440,12 @@ export interface GetExperimentResponse {
 
 /** Request for GetIssue. */
 export interface GetIssueRequest {
-  /** experiments/{experiment}/issues/{issue} */
+  /**
+   * The Issue to get, as `experiments/{experiment}/issues/{issue}`, where
+   * `{experiment}` is the experiment ID and `{issue}` is the Issue ID: `iss-`
+   * followed by 32 lowercase hex digits. For example,
+   * `experiments/1234567890/issues/iss-0123456789abcdef0123456789abcdef`.
+   */
   name?: string | undefined;
 }
 
@@ -489,7 +497,12 @@ export interface InputTag {
 
 /** A quality or operational problem found in an experiment's traces. */
 export interface Issue {
-  /** experiments/{experiment}/issues/{issue} */
+  /**
+   * The Issue's resource name, as `experiments/{experiment}/issues/{issue}`,
+   * where `{experiment}` is the experiment ID and `{issue}` is the Issue ID:
+   * `iss-` followed by 32 lowercase hex digits. For example,
+   * `experiments/1234567890/issues/iss-0123456789abcdef0123456789abcdef`.
+   */
   name?: string | undefined;
   /**
    * The last segment of `name`. Issue assessments on traces reference the Issue
@@ -1006,7 +1019,10 @@ export interface SearchExperimentsResponse {
 
 /** Request for SearchIssues. */
 export interface SearchIssuesRequest {
-  /** experiments/{experiment} */
+  /**
+   * The experiment to search, as `experiments/{experiment}`, where
+   * `{experiment}` is the experiment ID. For example, `experiments/1234567890`.
+   */
   parent?: string | undefined;
   /** Case-insensitive substring match on title. */
   query?: string | undefined;

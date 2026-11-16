@@ -82,6 +82,11 @@ export type SpecialDestination =
   | (typeof SpecialDestination)[keyof typeof SpecialDestination]
   | (string & {});
 
+/**
+ * The notification destinations that receive access requests for a Unity Catalog securable. A securable
+ * without destinations of its own uses its owner's email when default owner email destinations are on;
+ * otherwise it inherits the destinations of its nearest parent that has any.
+ */
 export interface AccessRequestDestinations {
   /** The access request destinations for the securable. */
   destinations?: NotificationDestination[] | undefined;
@@ -97,9 +102,9 @@ export interface AccessRequestDestinations {
    * is set directly on the securable) or the nearest parent securable with destinations set.
    */
   destinationSourceSecurable?: Securable | undefined;
-  /** The type of the securable. Redundant with the type in the securable object, but necessary for Terraform integration */
+  /** The type of the securable, repeated from **securable** as a plain string. */
   securableType?: string | undefined;
-  /** The full name of the securable. Redundant with the name in the securable object, but necessary for Terraform integration */
+  /** The full name of the securable, repeated from **securable**. */
   fullName?: string | undefined;
 }
 
@@ -113,6 +118,7 @@ export interface BatchCreateAccessRequestsRequest {
   requests?: CreateAccessRequest[] | undefined;
 }
 
+/** The access request destinations resolved for each principal and securable in the batch. */
 export interface BatchCreateAccessRequestsResponse {
   /** The access request destinations for each securable object the principal requested. */
   responses?: CreateAccessRequestResponse[] | undefined;
@@ -150,9 +156,15 @@ export interface CreateAccessRequestResponse {
 }
 
 export interface GetAccessRequestDestinationsRequest {
-  /** The type of the securable. */
+  /**
+   * The type of the securable. Matching is case-insensitive, and hyphens may replace underscores in
+   * multi-word types.
+   */
   securableType?: string | undefined;
-  /** The full name of the securable. */
+  /**
+   * The full name of the securable: the names of its parents followed by its own name, separated by dots, for
+   * example `main.sales.orders` for a table.
+   */
   fullName?: string | undefined;
 }
 
@@ -176,6 +188,7 @@ export interface NotificationDestination {
 export interface Principal {
   /** <Databricks> user, group or service principal ID. */
   id?: string | undefined;
+  /** The type of principal that **id** identifies: a user, a group, or a service principal. */
   principalType?: PrincipalType | undefined;
 }
 
@@ -202,7 +215,7 @@ export interface Securable {
 }
 
 export interface SecurablePermissions {
-  /** The securable for which the access request destinations are being requested. */
+  /** The securable on which the permissions are requested. */
   securable?: Securable | undefined;
   /** List of requested Unity Catalog permissions. */
   permissions?: string[] | undefined;
@@ -214,6 +227,10 @@ export interface UpdateAccessRequestDestinationsRequest {
    * For each destination, a **destination_id** and **destination_type** must be defined.
    */
   accessRequestDestinations?: AccessRequestDestinations | undefined;
+  /**
+   * The paths of the field mask are not evaluated, because an update always replaces the full list of
+   * destinations.
+   */
   updateMask?: FieldMask<AccessRequestDestinations> | undefined;
 }
 

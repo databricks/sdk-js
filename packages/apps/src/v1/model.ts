@@ -5,6 +5,29 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+/** The security scan outcome for an app deployment, mirrored from the durable scan record. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const AppDeploymentScanStatus = {
+  /** No scan result recorded. The scan may still be in flight, or it ended without recording one. */
+  APP_DEPLOYMENT_SCAN_STATUS_UNSPECIFIED:
+    'APP_DEPLOYMENT_SCAN_STATUS_UNSPECIFIED',
+  /** The scan completed and found nothing. */
+  APP_DEPLOYMENT_SCAN_STATUS_CLEAN: 'APP_DEPLOYMENT_SCAN_STATUS_CLEAN',
+  /** The scan completed and reported findings. */
+  APP_DEPLOYMENT_SCAN_STATUS_FINDINGS: 'APP_DEPLOYMENT_SCAN_STATUS_FINDINGS',
+  /** The scan ran but only covered part of the source. */
+  APP_DEPLOYMENT_SCAN_STATUS_PARTIAL: 'APP_DEPLOYMENT_SCAN_STATUS_PARTIAL',
+  /** The scan did not produce a usable result. Redeploy to scan again. */
+  APP_DEPLOYMENT_SCAN_STATUS_UNAVAILABLE:
+    'APP_DEPLOYMENT_SCAN_STATUS_UNAVAILABLE',
+  /** The deployment was never scanned (e.g. no source change, so no scan ran). */
+  APP_DEPLOYMENT_SCAN_STATUS_NOT_SCANNED:
+    'APP_DEPLOYMENT_SCAN_STATUS_NOT_SCANNED',
+} as const;
+export type AppDeploymentScanStatus =
+  | (typeof AppDeploymentScanStatus)[keyof typeof AppDeploymentScanStatus]
+  | (string & {});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const ComputeSize = {
   MEDIUM: 'MEDIUM',
@@ -521,6 +544,51 @@ export type ErrorCode =
   | (typeof ErrorCode)[keyof typeof ErrorCode]
   | (string & {});
 
+/** The scanner that produced a finding. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ScanFindingScannerType = {
+  /** Default value. Returned when the scanner that produced the finding is not recognized. */
+  SCAN_FINDING_SCANNER_TYPE_UNSPECIFIED:
+    'SCAN_FINDING_SCANNER_TYPE_UNSPECIFIED',
+  /** The finding was produced by the Semgrep static analysis scanner. */
+  SCAN_FINDING_SCANNER_TYPE_SEMGREP: 'SCAN_FINDING_SCANNER_TYPE_SEMGREP',
+} as const;
+export type ScanFindingScannerType =
+  | (typeof ScanFindingScannerType)[keyof typeof ScanFindingScannerType]
+  | (string & {});
+
+/** Severity of a scan finding, as reported by the scanner. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ScanFindingSeverity = {
+  /** Default value. Returned when the scanner did not report a recognized severity. */
+  SCAN_FINDING_SEVERITY_UNSPECIFIED: 'SCAN_FINDING_SEVERITY_UNSPECIFIED',
+  /** Informational finding that does not indicate a likely vulnerability. */
+  SCAN_FINDING_SEVERITY_INFO: 'SCAN_FINDING_SEVERITY_INFO',
+  /** Potential security issue that should be reviewed. */
+  SCAN_FINDING_SEVERITY_WARNING: 'SCAN_FINDING_SEVERITY_WARNING',
+  /** High-confidence security issue that should be fixed. */
+  SCAN_FINDING_SEVERITY_ERROR: 'SCAN_FINDING_SEVERITY_ERROR',
+} as const;
+export type ScanFindingSeverity =
+  | (typeof ScanFindingSeverity)[keyof typeof ScanFindingSeverity]
+  | (string & {});
+
+/** User triage state for a single scan finding. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const ScanFindingStatus = {
+  /** Default value. Treated as IN_PROGRESS when set on an update. */
+  SCAN_FINDING_STATUS_UNSPECIFIED: 'SCAN_FINDING_STATUS_UNSPECIFIED',
+  /** The finding is open: new findings start here until they are resolved or ignored. */
+  SCAN_FINDING_STATUS_IN_PROGRESS: 'SCAN_FINDING_STATUS_IN_PROGRESS',
+  /** The finding was fixed or otherwise addressed. */
+  SCAN_FINDING_STATUS_RESOLVED: 'SCAN_FINDING_STATUS_RESOLVED',
+  /** The finding was reviewed and deliberately ignored. */
+  SCAN_FINDING_STATUS_IGNORED: 'SCAN_FINDING_STATUS_IGNORED',
+} as const;
+export type ScanFindingStatus =
+  | (typeof ScanFindingStatus)[keyof typeof ScanFindingStatus]
+  | (string & {});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const SpaceUpdateState = {
   SPACE_UPDATE_STATE_UNSPECIFIED: 'SPACE_UPDATE_STATE_UNSPECIFIED',
@@ -833,6 +901,11 @@ export interface ApiError {
   details?: Record<string, unknown>[] | undefined;
 }
 
+/**
+ * An app that runs on Databricks Apps. The app runs on managed compute in the workspace and is
+ * deployed from a workspace folder or a Git repository. Each app acts as its own dedicated service
+ * principal.
+ */
 export interface App {
   /**
    * The name of the app. The name must contain only lowercase alphanumeric characters and hyphens.
@@ -841,7 +914,9 @@ export interface App {
   name?: string | undefined;
   /** The description of the app. */
   description?: string | undefined;
+  /** Status of the compute that runs the app. */
   computeStatus?: ComputeStatus | undefined;
+  /** Status of the application process on the app compute, as reported by the app runtime. */
   appStatus?: ApplicationStatus | undefined;
   /** The URL of the app once it is deployed. */
   url?: string | undefined;
@@ -850,11 +925,11 @@ export interface App {
    * to the app compute.
    */
   activeDeployment?: AppDeployment | undefined;
-  /** The creation time of the app. Formatted timestamp in ISO 6801. */
+  /** The creation time of the app. Formatted timestamp in ISO 8601. */
   createTime?: Temporal.Instant | undefined;
   /** The email of the user that created the app. */
   creator?: string | undefined;
-  /** The update time of the app. Formatted timestamp in ISO 6801. */
+  /** The update time of the app. Formatted timestamp in ISO 8601. */
   updateTime?: Temporal.Instant | undefined;
   /** The email of the user that last updated the app. */
   updater?: string | undefined;
@@ -863,9 +938,19 @@ export interface App {
    * for deployment to the app compute.
    */
   pendingDeployment?: AppDeployment | undefined;
-  /** Resources for the app. */
+  /**
+   * Databricks resources the app depends on. Each entry grants the app's service principal the
+   * listed permission on one resource and makes that resource available to the app under the
+   * entry's name.
+   */
   resources?: AppResource[] | undefined;
+  /**
+   * Numeric ID of the service principal the app runs as. Databricks creates a dedicated service
+   * principal for each app and deletes it with the app. Apps in some older spaces run as the
+   * space's shared service principal instead.
+   */
   servicePrincipalId?: bigint | undefined;
+  /** Display name of the app's service principal. */
   servicePrincipalName?: string | undefined;
   /**
    * The default workspace file system path of the source code from which app deployment are
@@ -878,18 +963,47 @@ export interface App {
    * deployment and used as the default reference when automatic deployments are enabled.
    */
   defaultGitSource?: GitSource | undefined;
+  /**
+   * ID of the serverless budget policy that the app's compute usage is attributed to. Budget
+   * policies and usage policies are alternatives: set at most one of `budget_policy_id` and
+   * `usage_policy_id`.
+   */
   budgetPolicyId?: string | undefined;
+  /** ID of the budget policy in effect for the app, after Databricks applies any defaults. */
   effectiveBudgetPolicyId?: string | undefined;
+  /**
+   * OAuth client ID of the app's service principal. The app runtime exposes it to the app as the
+   * DATABRICKS_CLIENT_ID environment variable.
+   */
   servicePrincipalClientId?: string | undefined;
+  /**
+   * API scopes the app requests for user authorization. The user access token that Databricks
+   * forwards to the app is limited to these scopes plus the default identity scopes, so the app
+   * can act on the user's behalf only within them. Workspace admins can restrict which scopes apps
+   * in the workspace may request. See
+   * https://docs.databricks.com/aws/en/dev-tools/databricks-apps/auth.
+   */
   userApiScopes?: string[] | undefined;
   /** The unique identifier of the app. */
   id?: string | undefined;
   /** The effective api scopes granted to the user access token. */
   effectiveUserApiScopes?: string[] | undefined;
+  /** ID of the OAuth app integration that Databricks creates for the app to sign in its users. */
   oauth2AppIntegrationId?: string | undefined;
+  /** OAuth client ID of the app integration that signs in the app's users. */
   oauth2AppClientId?: string | undefined;
+  /**
+   * Size of the compute instances the app runs on. Defaults to MEDIUM. Larger sizes provide more
+   * CPU and memory at a higher hourly cost. See
+   * https://docs.databricks.com/aws/en/dev-tools/databricks-apps/compute-size.
+   */
   computeSize?: ComputeSize | undefined;
+  /**
+   * ID of the usage policy that the app's compute usage is attributed to. Alternative to
+   * `budget_policy_id`.
+   */
   usagePolicyId?: string | undefined;
+  /** ID of the usage policy in effect for the app, after Databricks applies any defaults. */
   effectiveUsagePolicyId?: string | undefined;
   /** Minimum number of app instances the app is configured to run. Must be set together with `compute_max_instances`. */
   computeMinInstances?: number | undefined;
@@ -900,13 +1014,24 @@ export interface App {
    * reference code from this repository by providing only the git reference (branch, tag, or commit).
    */
   gitRepository?: GitRepository | undefined;
+  /**
+   * Destinations that receive the app's OpenTelemetry logs, metrics and traces. Changes take
+   * effect when the app is next deployed.
+   */
   telemetryExportDestinations?: TelemetryExportDestination[] | undefined;
   /** The URL of the thumbnail image for the app. */
   thumbnailUrl?: string | undefined;
   /** Name of the space this app belongs to. */
   space?: string | undefined;
   deploymentSource?:
-    | {$case: 'sourceCodePath'; sourceCodePath: string}
+    | {
+        $case: 'sourceCodePath';
+        /**
+         * Workspace file system path of the app source code. On create, the app is deployed from this
+         * path. Alternative to `git_source`.
+         */
+        sourceCodePath: string;
+      }
     | {
         $case: 'gitSource';
         /**
@@ -917,6 +1042,11 @@ export interface App {
         gitSource: GitSource;
       }
     | undefined;
+  /**
+   * Resources added to the app, plus the resources it inherits from its space.
+   * Empty for apps that are not in a space.
+   */
+  effectiveResources?: AppResource[] | undefined;
   /** Forward the user's access token to the app. Requires stopping and starting app compute to take effect. */
   forwardUserAccessToken?: boolean | undefined;
 }
@@ -951,11 +1081,62 @@ export interface AppDeployment {
   envVars?: EnvVar[] | undefined;
   /** Deploy-time health check for the app. Verifies the app is responding to HTTP requests before considering the deployment successful. */
   healthCheck?: AppHealthCheck | undefined;
+  /**
+   * The security scan outcome for this deployment. UNSPECIFIED means no scan result has been
+   * recorded: the scan may still be in flight, or it ended without recording one, so don't wait
+   * indefinitely for it to change. The other values are terminal.
+   */
+  scanStatus?: AppDeploymentScanStatus | undefined;
+  /**
+   * The number of findings the scan reported but did not store, because the deployment hit
+   * the per-deployment findings cap. Non-zero means the listed findings are incomplete.
+   */
+  scanOmittedFindingsCount?: number | undefined;
+  /**
+   * Whether `scan_omitted_findings_count` is a lower bound rather than an exact count, because
+   * the scanner itself stopped counting.
+   */
+  scanOmittedCountIsLowerBound?: boolean | undefined;
 }
 
 export interface AppDeploymentArtifacts {
   /** The snapshotted workspace file system path of the source code loaded by the deployed app. */
   sourceCodePath?: string | undefined;
+}
+
+/**
+ * A single security scan finding for an app deployment. Findings are produced when a
+ * deployment's source code is scanned, and their triage `status` is preserved across
+ * re-scans of the same deployment.
+ */
+export interface AppDeploymentScanFinding {
+  /**
+   * The resource name of the finding, in the form
+   * `apps/{app}/deployments/{deployment}/scanFindings/{finding_id}`.
+   */
+  name?: string | undefined;
+  /**
+   * The triage status of the finding. This is the only client-writable field; set it to
+   * resolve or ignore a finding.
+   */
+  status?: ScanFindingStatus | undefined;
+  /**
+   * The stable id of the finding (the last segment of `name`), derived from the rule, file,
+   * and line so the same issue keeps its triage status across re-scans.
+   */
+  findingId?: string | undefined;
+  /** The scanner rule that produced the finding. */
+  ruleId?: string | undefined;
+  /** The app-relative path of the file the finding was reported in. */
+  filePath?: string | undefined;
+  /** The line number the finding was reported at. */
+  line?: number | undefined;
+  /** A human-readable description of the finding. */
+  message?: string | undefined;
+  /** The severity reported by the scanner. */
+  severity?: ScanFindingSeverity | undefined;
+  /** The scanner that produced the finding. */
+  scannerType?: ScanFindingScannerType | undefined;
 }
 
 export interface AppDeploymentStatus {
@@ -1059,43 +1240,98 @@ export interface AppManifest_AppResourceUcSecurableSpec {
 }
 
 export interface AppResource {
-  /** Name of the App Resource. */
+  /**
+   * Key that identifies the resource within the app. The app configuration (app.yaml) references
+   * the resource by this key.
+   */
   name?: string | undefined;
   /** Description of the App Resource. */
   description?: string | undefined;
   resource?:
-    | {$case: 'secret'; secret: AppResourceSecret}
-    | {$case: 'sqlWarehouse'; sqlWarehouse: AppResourceSqlWarehouse}
-    | {$case: 'servingEndpoint'; servingEndpoint: AppResourceServingEndpoint}
-    | {$case: 'job'; job: AppResourceJob}
-    | {$case: 'ucSecurable'; ucSecurable: AppResourceUcSecurable}
-    | {$case: 'database'; database: AppResourceDatabase}
-    | {$case: 'genieSpace'; genieSpace: AppResourceGenieSpace}
-    | {$case: 'experiment'; experiment: AppResourceExperiment}
-    | {$case: 'app'; app: AppResourceApp}
-    | {$case: 'postgres'; postgres: AppResourcePostgres}
+    | {
+        $case: 'secret';
+        /** Secret the app is granted access to. */
+        secret: AppResourceSecret;
+      }
+    | {
+        $case: 'sqlWarehouse';
+        /** SQL warehouse the app is granted access to. */
+        sqlWarehouse: AppResourceSqlWarehouse;
+      }
+    | {
+        $case: 'servingEndpoint';
+        /** Model serving endpoint the app is granted access to. */
+        servingEndpoint: AppResourceServingEndpoint;
+      }
+    | {
+        $case: 'job';
+        /** Lakeflow job the app is granted access to. */
+        job: AppResourceJob;
+      }
+    | {
+        $case: 'ucSecurable';
+        /**
+         * Unity Catalog securable (volume, table, function, connection or model service) the app is
+         * granted a privilege on.
+         */
+        ucSecurable: AppResourceUcSecurable;
+      }
+    | {
+        $case: 'database';
+        /** Lakebase Provisioned database the app is granted access to. */
+        database: AppResourceDatabase;
+      }
+    | {
+        $case: 'genieSpace';
+        /** Genie space the app is granted access to. */
+        genieSpace: AppResourceGenieSpace;
+      }
+    | {
+        $case: 'experiment';
+        /** MLflow experiment the app is granted access to. */
+        experiment: AppResourceExperiment;
+      }
+    | {
+        $case: 'app';
+        /** Another app in the workspace that this app is granted access to. */
+        app: AppResourceApp;
+      }
+    | {
+        $case: 'postgres';
+        /** Lakebase Autoscaling Postgres database the app is granted access to. */
+        postgres: AppResourcePostgres;
+      }
     | undefined;
 }
 
 export interface AppResourceApp {
+  /** Name of the app to grant access to. */
   name?: string | undefined;
+  /** Permission to grant on that app. */
   permission?: AppResourceApp_AppPermission | undefined;
 }
 
 export interface AppResourceDatabase {
+  /** Name of the Lakebase database instance. */
   instanceName?: string | undefined;
+  /** Name of the database within the instance. */
   databaseName?: string | undefined;
+  /** Permission to grant the app on the database. */
   permission?: AppResourceDatabase_DatabasePermission | undefined;
 }
 
 export interface AppResourceExperiment {
+  /** ID of the MLflow experiment. */
   experimentId?: string | undefined;
+  /** Permission to grant the app on the experiment. */
   permission?: AppResourceExperiment_ExperimentPermission | undefined;
 }
 
 export interface AppResourceGenieSpace {
   name?: string | undefined;
+  /** ID of the Genie space. */
   spaceId?: string | undefined;
+  /** Permission to grant the app on the Genie space. */
   permission?: AppResourceGenieSpace_GenieSpacePermission | undefined;
 }
 
@@ -1107,8 +1343,17 @@ export interface AppResourceJob {
 }
 
 export interface AppResourcePostgres {
+  /**
+   * Resource name of the Lakebase Autoscaling branch, in the form
+   * `projects/{project}/branches/{branch}`.
+   */
   branch?: string | undefined;
+  /**
+   * Resource name of the database within the branch, in the form
+   * `projects/{project}/branches/{branch}/databases/{database}`.
+   */
   database?: string | undefined;
+  /** Permission to grant the app on the database. */
   permission?: AppResourcePostgres_PostgresPermission | undefined;
 }
 
@@ -1136,8 +1381,17 @@ export interface AppResourceSqlWarehouse {
 }
 
 export interface AppResourceUcSecurable {
+  /**
+   * Full name of the Unity Catalog securable. For volumes, tables and functions this is the
+   * three-level catalog.schema.object name.
+   */
   securableFullName?: string | undefined;
+  /** Kind of Unity Catalog securable that `securable_full_name` refers to. */
   securableType?: AppResourceUcSecurable_UcSecurableType | undefined;
+  /**
+   * Privilege to grant the app on the securable. The privilege must be valid for the securable
+   * type, such as READ_VOLUME for a volume or SELECT for a table.
+   */
   permission?: AppResourceUcSecurable_UcSecurablePermission | undefined;
   /**
    * The securable kind from Unity Catalog.
@@ -1152,19 +1406,32 @@ export interface AppThumbnail {
   thumbnail?: Uint8Array | undefined;
 }
 
+/**
+ * Progress of an app update started by AsyncUpdateApp, together with the values the update
+ * requested.
+ */
 export interface AppUpdate {
+  /** Progress of the update. */
   status?: AppUpdate_UpdateStatus | undefined;
+  /** Description requested by the update. */
   description?: string | undefined;
+  /** Budget policy ID requested by the update. */
   budgetPolicyId?: string | undefined;
+  /** Resources requested by the update. */
   resources?: AppResource[] | undefined;
+  /** User API scopes requested by the update. */
   userApiScopes?: string[] | undefined;
+  /** Compute size requested by the update. */
   computeSize?: ComputeSize | undefined;
+  /** Usage policy ID requested by the update. */
   usagePolicyId?: string | undefined;
   /** Minimum number of app instances the app is configured to run. Must be set together with `compute_max_instances`. */
   computeMinInstances?: number | undefined;
   /** Maximum number of app instances the app is configured to run. Must be set together with `compute_min_instances`. */
   computeMaxInstances?: number | undefined;
+  /** Git repository configuration requested by the update. */
   gitRepository?: GitRepository | undefined;
+  /** Telemetry export destinations requested by the update. */
   telemetryExportDestinations?: TelemetryExportDestination[] | undefined;
   /** Forward the user's access token to the app. Requires stopping and starting app compute to take effect. */
   forwardUserAccessToken?: boolean | undefined;
@@ -1172,29 +1439,41 @@ export interface AppUpdate {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppUpdate_UpdateStatus {
+  /** State of the update. */
   state?: AppUpdate_UpdateStatus_UpdateState | undefined;
+  /** Human-readable detail about the update state. */
   message?: string | undefined;
 }
 
 export interface ApplicationStatus {
   /** State of the application. */
   state?: ApplicationStatus_ApplicationState | undefined;
-  /** Application status message */
+  /** Human-readable detail about the application state. */
   message?: string | undefined;
   /** The number of app instances whose application process is running. */
   runningInstances?: number | undefined;
 }
 
 export interface AsyncUpdateAppRequest {
+  /**
+   * The new values for the app. Only the fields named in `update_mask` are applied; the others must
+   * still be valid.
+   */
   app?: App | undefined;
+  /**
+   * Comma-separated names of the `app` fields to update, such as `description` or `resources`.
+   * A field named in the mask but absent from `app` is cleared, except `compute_size`, which resets
+   * to `MEDIUM`.
+   */
   updateMask?: FieldMask<App> | undefined;
+  /** The name of the app to update. */
   appName?: string | undefined;
 }
 
 export interface ComputeStatus {
   /** State of the app compute. */
   state?: ComputeStatus_ComputeState | undefined;
-  /** Compute status message */
+  /** Human-readable detail about the compute state. */
   message?: string | undefined;
   /** The number of active compute instances currently used and billed for this application. */
   activeInstances?: number | undefined;
@@ -1284,6 +1563,15 @@ export interface GetAppDeploymentRequest {
   deploymentId?: string | undefined;
 }
 
+/** Request message for GetAppDeploymentScanFinding. */
+export interface GetAppDeploymentScanFindingRequest {
+  /**
+   * The resource name of the finding, in the form
+   * `apps/{app}/deployments/{deployment}/scanFindings/{finding_id}`.
+   */
+  name?: string | undefined;
+}
+
 export interface GetAppRequest {
   /** The name of the app. */
   name?: string | undefined;
@@ -1365,6 +1653,27 @@ export interface GitSource {
    * commit SHA that the branch or tag pointed to at deployment time.
    */
   resolvedCommit?: string | undefined;
+}
+
+/** Request message for ListAppDeploymentScanFindings. */
+export interface ListAppDeploymentScanFindingsRequest {
+  /**
+   * The parent deployment whose findings to list, in the form
+   * `apps/{app}/deployments/{deployment}`.
+   */
+  parent?: string | undefined;
+  /** Upper bound for the number of findings returned. */
+  pageSize?: number | undefined;
+  /** Pagination token to request the next page. Requests the first page if absent. */
+  pageToken?: string | undefined;
+}
+
+/** Response message for ListAppDeploymentScanFindings. */
+export interface ListAppDeploymentScanFindingsResponse {
+  /** The scan findings for the deployment. */
+  appDeploymentScanFindings?: AppDeploymentScanFinding[] | undefined;
+  /** Pagination token to request the next page of findings. */
+  nextPageToken?: string | undefined;
 }
 
 export interface ListAppDeploymentsRequest {
@@ -1547,17 +1856,40 @@ export interface StopAppRequest {
 /** A single telemetry export destination with its configuration and status. */
 export interface TelemetryExportDestination {
   /** Destination type and configuration (writable). */
-  destination?: {$case: 'unityCatalog'; unityCatalog: UnityCatalog} | undefined;
+  destination?:
+    | {
+        $case: 'unityCatalog';
+        /** Unity Catalog tables that receive the telemetry. */
+        unityCatalog: UnityCatalog;
+      }
+    | undefined;
 }
 
 /** Unity Catalog Destinations for OTEL telemetry export. */
 export interface UnityCatalog {
-  /** Unity Catalog table for OTEL logs. */
+  /**
+   * Three-level name of the Unity Catalog table that receives OpenTelemetry logs. The table is
+   * created if it does not exist.
+   */
   logsTable?: string | undefined;
-  /** Unity Catalog table for OTEL metrics. */
+  /**
+   * Three-level name of the Unity Catalog table that receives OpenTelemetry metrics. The table is
+   * created if it does not exist.
+   */
   metricsTable?: string | undefined;
-  /** Unity Catalog table for OTEL traces (spans). */
+  /**
+   * Three-level name of the Unity Catalog table that receives OpenTelemetry traces (spans). The
+   * table is created if it does not exist.
+   */
   tracesTable?: string | undefined;
+}
+
+/** Request message for UpdateAppDeploymentScanFinding. */
+export interface UpdateAppDeploymentScanFindingRequest {
+  /** The finding to update. `name` identifies the finding and `status` is the new triage status. */
+  appDeploymentScanFinding?: AppDeploymentScanFinding | undefined;
+  /** The fields to update. Must be exactly `status`, the only updatable field on a scan finding. */
+  updateMask?: FieldMask<AppDeploymentScanFinding> | undefined;
 }
 
 export interface UpdateAppRequest {
@@ -1660,6 +1992,9 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     space: z.string().optional(),
     source_code_path: z.string().optional(),
     git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
+    effective_resources: z
+      .array(z.lazy(() => unmarshalAppResourceSchema))
+      .optional(),
     forward_user_access_token: z.boolean().optional(),
   })
   .transform(d => ({
@@ -1702,6 +2037,7 @@ export const unmarshalAppSchema: z.ZodType<App> = z
         : d.git_source !== undefined
           ? {$case: 'gitSource' as const, gitSource: d.git_source}
           : undefined,
+    effectiveResources: d.effective_resources,
     forwardUserAccessToken: d.forward_user_access_token,
   }));
 
@@ -1737,6 +2073,9 @@ export const unmarshalAppDeploymentSchema: z.ZodType<AppDeployment> = z
       .lazy(() => unmarshalAppHealthCheckSchema)
       .nullish()
       .transform(v => v ?? undefined),
+    scan_status: z.string().optional(),
+    scan_omitted_findings_count: z.number().optional(),
+    scan_omitted_count_is_lower_bound: z.boolean().optional(),
   })
   .transform(d => ({
     deploymentId: d.deployment_id,
@@ -1751,6 +2090,9 @@ export const unmarshalAppDeploymentSchema: z.ZodType<AppDeployment> = z
     command: d.command,
     envVars: d.env_vars,
     healthCheck: d.health_check,
+    scanStatus: d.scan_status,
+    scanOmittedFindingsCount: d.scan_omitted_findings_count,
+    scanOmittedCountIsLowerBound: d.scan_omitted_count_is_lower_bound,
   }));
 
 export const unmarshalAppDeploymentArtifactsSchema: z.ZodType<AppDeploymentArtifacts> =
@@ -1760,6 +2102,31 @@ export const unmarshalAppDeploymentArtifactsSchema: z.ZodType<AppDeploymentArtif
     })
     .transform(d => ({
       sourceCodePath: d.source_code_path,
+    }));
+
+export const unmarshalAppDeploymentScanFindingSchema: z.ZodType<AppDeploymentScanFinding> =
+  z
+    .object({
+      name: z.string().optional(),
+      status: z.string().optional(),
+      finding_id: z.string().optional(),
+      rule_id: z.string().optional(),
+      file_path: z.string().optional(),
+      line: z.number().optional(),
+      message: z.string().optional(),
+      severity: z.string().optional(),
+      scanner_type: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      status: d.status,
+      findingId: d.finding_id,
+      ruleId: d.rule_id,
+      filePath: d.file_path,
+      line: d.line,
+      message: d.message,
+      severity: d.severity,
+      scannerType: d.scanner_type,
     }));
 
 export const unmarshalAppDeploymentStatusSchema: z.ZodType<AppDeploymentStatus> =
@@ -2257,6 +2624,19 @@ export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
     resolvedCommit: d.resolved_commit,
   }));
 
+export const unmarshalListAppDeploymentScanFindingsResponseSchema: z.ZodType<ListAppDeploymentScanFindingsResponse> =
+  z
+    .object({
+      app_deployment_scan_findings: z
+        .array(z.lazy(() => unmarshalAppDeploymentScanFindingSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      appDeploymentScanFindings: d.app_deployment_scan_findings,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalListAppDeploymentsResponseSchema: z.ZodType<ListAppDeploymentsResponse> =
   z
     .object({
@@ -2494,6 +2874,9 @@ export const marshalAppSchema: z.ZodType = z
         }),
       ])
       .optional(),
+    effectiveResources: z
+      .array(z.lazy(() => marshalAppResourceSchema))
+      .optional(),
     forwardUserAccessToken: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2536,6 +2919,7 @@ export const marshalAppSchema: z.ZodType = z
     ...(d.deploymentSource?.$case === 'gitSource' && {
       git_source: d.deploymentSource.gitSource,
     }),
+    effective_resources: d.effectiveResources,
     forward_user_access_token: d.forwardUserAccessToken,
   }));
 
@@ -2561,6 +2945,9 @@ export const marshalAppDeploymentSchema: z.ZodType = z
     command: z.array(z.string()).optional(),
     envVars: z.array(z.lazy(() => marshalEnvVarSchema)).optional(),
     healthCheck: z.lazy(() => marshalAppHealthCheckSchema).optional(),
+    scanStatus: z.string().optional(),
+    scanOmittedFindingsCount: z.number().optional(),
+    scanOmittedCountIsLowerBound: z.boolean().optional(),
   })
   .transform(d => ({
     deployment_id: d.deploymentId,
@@ -2575,6 +2962,9 @@ export const marshalAppDeploymentSchema: z.ZodType = z
     command: d.command,
     env_vars: d.envVars,
     health_check: d.healthCheck,
+    scan_status: d.scanStatus,
+    scan_omitted_findings_count: d.scanOmittedFindingsCount,
+    scan_omitted_count_is_lower_bound: d.scanOmittedCountIsLowerBound,
   }));
 
 export const marshalAppDeploymentArtifactsSchema: z.ZodType = z
@@ -2583,6 +2973,30 @@ export const marshalAppDeploymentArtifactsSchema: z.ZodType = z
   })
   .transform(d => ({
     source_code_path: d.sourceCodePath,
+  }));
+
+export const marshalAppDeploymentScanFindingSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    status: z.string().optional(),
+    findingId: z.string().optional(),
+    ruleId: z.string().optional(),
+    filePath: z.string().optional(),
+    line: z.number().optional(),
+    message: z.string().optional(),
+    severity: z.string().optional(),
+    scannerType: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    status: d.status,
+    finding_id: d.findingId,
+    rule_id: d.ruleId,
+    file_path: d.filePath,
+    line: d.line,
+    message: d.message,
+    severity: d.severity,
+    scanner_type: d.scannerType,
   }));
 
 export const marshalAppDeploymentStatusSchema: z.ZodType = z
@@ -3195,6 +3609,7 @@ const appFieldMaskSchema: FieldMaskSchema = {
   defaultSourceCodePath: {wire: 'default_source_code_path'},
   description: {wire: 'description'},
   effectiveBudgetPolicyId: {wire: 'effective_budget_policy_id'},
+  effectiveResources: {wire: 'effective_resources'},
   effectiveUsagePolicyId: {wire: 'effective_usage_policy_id'},
   effectiveUserApiScopes: {wire: 'effective_user_api_scopes'},
   forwardUserAccessToken: {wire: 'forward_user_access_token'},
@@ -3246,6 +3661,9 @@ const appDeploymentFieldMaskSchema: FieldMaskSchema = {
     children: () => appHealthCheckFieldMaskSchema,
   },
   mode: {wire: 'mode'},
+  scanOmittedCountIsLowerBound: {wire: 'scan_omitted_count_is_lower_bound'},
+  scanOmittedFindingsCount: {wire: 'scan_omitted_findings_count'},
+  scanStatus: {wire: 'scan_status'},
   sourceCodePath: {wire: 'source_code_path'},
   status: {wire: 'status', children: () => appDeploymentStatusFieldMaskSchema},
   updateTime: {wire: 'update_time'},
@@ -3254,6 +3672,27 @@ const appDeploymentFieldMaskSchema: FieldMaskSchema = {
 const appDeploymentArtifactsFieldMaskSchema: FieldMaskSchema = {
   sourceCodePath: {wire: 'source_code_path'},
 };
+
+const appDeploymentScanFindingFieldMaskSchema: FieldMaskSchema = {
+  filePath: {wire: 'file_path'},
+  findingId: {wire: 'finding_id'},
+  line: {wire: 'line'},
+  message: {wire: 'message'},
+  name: {wire: 'name'},
+  ruleId: {wire: 'rule_id'},
+  scannerType: {wire: 'scanner_type'},
+  severity: {wire: 'severity'},
+  status: {wire: 'status'},
+};
+
+export function appDeploymentScanFindingFieldMask(
+  ...paths: string[]
+): FieldMask<AppDeploymentScanFinding> {
+  return FieldMask.build<AppDeploymentScanFinding>(
+    paths,
+    appDeploymentScanFindingFieldMaskSchema
+  );
+}
 
 const appDeploymentStatusFieldMaskSchema: FieldMaskSchema = {
   message: {wire: 'message'},
