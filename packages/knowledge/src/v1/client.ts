@@ -347,9 +347,10 @@ export class KnowledgeClient {
    * the JSON body and supply `update_mask` as a query parameter. The resource
    * `name` identifies the page; omitted mask fields retain their stored values.
    *
-   * Errors: `INVALID_PARAMETER_VALUE` (field validation), `NOT_FOUND` (the page does
-   * not exist), `ALREADY_EXISTS` (a rename would collide with another published
-   * page), `RESOURCE_EXHAUSTED`, `ABORTED`, `INTERNAL_ERROR`.
+   * Errors: `INVALID_PARAMETER_VALUE` (field validation or a nonexistent target domain),
+   * `NOT_FOUND` (the page does not exist), `ALREADY_EXISTS` (a rename or domain change
+   * would collide with another published page), `PERMISSION_DENIED` (insufficient permissions),
+   * `RESOURCE_EXHAUSTED`, `ABORTED`, `INTERNAL_ERROR`.
    */
   async updatePage(
     req: UpdatePageRequest,

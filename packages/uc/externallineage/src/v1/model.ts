@@ -47,8 +47,11 @@ export type Direction_LineageDirection =
   | (typeof Direction_LineageDirection)[keyof typeof Direction_LineageDirection]
   | (string & {});
 
+/** Mapping from a column of the source object to a column of the target object. */
 export interface ColumnRelationship {
+  /** Name of the column in the source object. */
   source?: string | undefined;
+  /** Name of the column in the target object. */
   target?: string | undefined;
 }
 
@@ -56,6 +59,12 @@ export interface CreateExternalLineageRelationshipRequest {
   externalLineageRelationship?: CreateRequestExternalLineage | undefined;
 }
 
+/**
+ * A lineage relationship between a source object and a target object, where at least one of the two is an
+ * external metadata object. The other object can be a Unity Catalog table, a cloud storage path, a model
+ * version, or another external metadata object. A relationship is identified by its source and target;
+ * optional column mappings and key-value properties describe the data flow between them.
+ */
 export interface CreateRequestExternalLineage {
   /** Unique identifier of the external lineage relationship. */
   id?: string | undefined;
@@ -63,16 +72,33 @@ export interface CreateRequestExternalLineage {
   source?: ExternalLineageRelationshipObject | undefined;
   /** Target object of the external lineage relationship. */
   target?: ExternalLineageRelationshipObject | undefined;
-  /** List of column relationships between source and target objects. */
+  /**
+   * List of column relationships between source and target objects. The combined size of all source and
+   * target column names is limited.
+   */
   columns?: ColumnRelationship[] | undefined;
-  /** Key-value properties associated with the external lineage relationship. */
+  /**
+   * Key-value properties associated with the external lineage relationship. The combined length of all keys
+   * and values must not exceed 5000 characters.
+   */
   properties?: Record<string, string> | undefined;
 }
 
 export interface DeleteExternalLineageRelationshipRequest {
+  /**
+   * The relationship to delete, identified by its `source` and `target` objects. Since this field is a query
+   * parameter, flatten the nested fields, for example
+   * `external_lineage_relationship.source.table.name=main.sales.orders`.
+   */
   externalLineageRelationship?: DeleteRequestExternalLineage | undefined;
 }
 
+/**
+ * A lineage relationship between a source object and a target object, where at least one of the two is an
+ * external metadata object. The other object can be a Unity Catalog table, a cloud storage path, a model
+ * version, or another external metadata object. A relationship is identified by its source and target;
+ * optional column mappings and key-value properties describe the data flow between them.
+ */
 export interface DeleteRequestExternalLineage {
   /** Unique identifier of the external lineage relationship. */
   id?: string | undefined;
@@ -80,9 +106,15 @@ export interface DeleteRequestExternalLineage {
   source?: ExternalLineageRelationshipObject | undefined;
   /** Target object of the external lineage relationship. */
   target?: ExternalLineageRelationshipObject | undefined;
-  /** List of column relationships between source and target objects. */
+  /**
+   * List of column relationships between source and target objects. The combined size of all source and
+   * target column names is limited.
+   */
   columns?: ColumnRelationship[] | undefined;
-  /** Key-value properties associated with the external lineage relationship. */
+  /**
+   * Key-value properties associated with the external lineage relationship. The combined length of all keys
+   * and values must not exceed 5000 characters.
+   */
   properties?: Record<string, string> | undefined;
 }
 
@@ -104,6 +136,12 @@ export interface ExternalLineageInfo {
   externalLineageInfo?: ExternalLineageRelationship | undefined;
 }
 
+/**
+ * A lineage relationship between a source object and a target object, where at least one of the two is an
+ * external metadata object. The other object can be a Unity Catalog table, a cloud storage path, a model
+ * version, or another external metadata object. A relationship is identified by its source and target;
+ * optional column mappings and key-value properties describe the data flow between them.
+ */
 export interface ExternalLineageRelationship {
   /** Unique identifier of the external lineage relationship. */
   id?: string | undefined;
@@ -111,41 +149,70 @@ export interface ExternalLineageRelationship {
   source?: ExternalLineageRelationshipObject | undefined;
   /** Target object of the external lineage relationship. */
   target?: ExternalLineageRelationshipObject | undefined;
-  /** List of column relationships between source and target objects. */
+  /**
+   * List of column relationships between source and target objects. The combined size of all source and
+   * target column names is limited.
+   */
   columns?: ColumnRelationship[] | undefined;
-  /** Key-value properties associated with the external lineage relationship. */
+  /**
+   * Key-value properties associated with the external lineage relationship. The combined length of all keys
+   * and values must not exceed 5000 characters.
+   */
   properties?: Record<string, string> | undefined;
 }
 
+/** An external metadata object at one end of an external lineage relationship. */
 export interface ExternalLineageRelationshipExternalMetadata {
+  /** Name of the external metadata object. */
   name?: string | undefined;
 }
 
+/** A version of a Unity Catalog registered model at one end of an external lineage relationship. */
 export interface ExternalLineageRelationshipModelVersion {
+  /** Full name of the registered model, in the form `catalog.schema.model`. */
   name?: string | undefined;
+  /** Version number of the model, as a string. */
   version?: string | undefined;
 }
 
+/** An object at one end of an external lineage relationship. Exactly one of the fields is set. */
 export interface ExternalLineageRelationshipObject {
   tpe?:
-    | {$case: 'table'; table: ExternalLineageRelationshipTable}
-    | {$case: 'path'; path: ExternalLineageRelationshipPath}
+    | {
+        $case: 'table';
+        /** A Unity Catalog table. */
+        table: ExternalLineageRelationshipTable;
+      }
+    | {
+        $case: 'path';
+        /** A cloud storage path registered in Unity Catalog, i.e. under a table, volume, or external location. */
+        path: ExternalLineageRelationshipPath;
+      }
     | {
         $case: 'modelVersion';
+        /** A version of a Unity Catalog registered model. */
         modelVersion: ExternalLineageRelationshipModelVersion;
       }
     | {
         $case: 'externalMetadata';
+        /** An external metadata object registered in Unity Catalog. */
         externalMetadata: ExternalLineageRelationshipExternalMetadata;
       }
     | undefined;
 }
 
+/** A cloud storage path at one end of an external lineage relationship. */
 export interface ExternalLineageRelationshipPath {
+  /**
+   * URL of the cloud storage path. The path must be registered in Unity Catalog, i.e. under a table, volume,
+   * or external location.
+   */
   url?: string | undefined;
 }
 
+/** A Unity Catalog table at one end of an external lineage relationship. */
 export interface ExternalLineageRelationshipTable {
+  /** Full name of the table, in the form `catalog.schema.table`. */
   name?: string | undefined;
 }
 
@@ -204,7 +271,11 @@ export interface ListExternalLineageRelationshipsRequest {
    * `object_info.table.name=main.sales.customers`
    */
   objectInfo?: ExternalLineageRelationshipObject | undefined;
-  /** The lineage direction to filter on. */
+  /**
+   * Direction of the relationships to return, relative to `object_info`. `UPSTREAM` returns the relationships
+   * in which the object is the target, so each result describes a source; `DOWNSTREAM` returns the
+   * relationships in which the object is the source, so each result describes a target.
+   */
   lineageDirection?: Direction_LineageDirection | undefined;
   /**
    * Specifies the maximum number of external lineage relationships to return in a single response.
@@ -216,15 +287,32 @@ export interface ListExternalLineageRelationshipsRequest {
 }
 
 export interface ListExternalLineageRelationshipsResponse {
+  /**
+   * Relationships that match the query. Each entry describes the object at the other end of the relationship
+   * in one of `table_info`, `file_info`, `model_info`, or `external_metadata_info`, together with the
+   * relationship itself in `external_lineage_info`.
+   */
   externalLineageRelationships?: ExternalLineageInfo[] | undefined;
+  /** Opaque token to retrieve the next page of results. Omitted when there are no more results. */
   nextPageToken?: string | undefined;
 }
 
 export interface UpdateExternalLineageRelationshipRequest {
   externalLineageRelationship?: UpdateRequestExternalLineage | undefined;
+  /**
+   * The fields of the relationship to update. The field mask must be a single string, with multiple fields
+   * separated by commas (no spaces), for example `columns,properties`. The `source` and `target` identify the
+   * relationship and cannot be changed.
+   */
   updateMask?: FieldMask<UpdateRequestExternalLineage> | undefined;
 }
 
+/**
+ * A lineage relationship between a source object and a target object, where at least one of the two is an
+ * external metadata object. The other object can be a Unity Catalog table, a cloud storage path, a model
+ * version, or another external metadata object. A relationship is identified by its source and target;
+ * optional column mappings and key-value properties describe the data flow between them.
+ */
 export interface UpdateRequestExternalLineage {
   /** Unique identifier of the external lineage relationship. */
   id?: string | undefined;
@@ -232,9 +320,15 @@ export interface UpdateRequestExternalLineage {
   source?: ExternalLineageRelationshipObject | undefined;
   /** Target object of the external lineage relationship. */
   target?: ExternalLineageRelationshipObject | undefined;
-  /** List of column relationships between source and target objects. */
+  /**
+   * List of column relationships between source and target objects. The combined size of all source and
+   * target column names is limited.
+   */
   columns?: ColumnRelationship[] | undefined;
-  /** Key-value properties associated with the external lineage relationship. */
+  /**
+   * Key-value properties associated with the external lineage relationship. The combined length of all keys
+   * and values must not exceed 5000 characters.
+   */
   properties?: Record<string, string> | undefined;
 }
 

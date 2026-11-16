@@ -1001,7 +1001,7 @@ export interface Rule {
   source?:
     | {
         $case: 'batch';
-        /** Batch SQL rule input. */
+        /** Scheduled detection (also known as batch detection) input. */
         batch: RuleInputBatch;
       }
     | undefined;
@@ -1015,7 +1015,7 @@ export interface Rule {
   originalContentPack?: ContentPackReference | undefined;
   /**
    * ID of the workspace whose compute runs this rule's jobs and owns its
-   * associated resources, such as the SQL warehouse a scheduled rule runs on.
+   * associated resources, such as the SQL warehouse a scheduled detection runs on.
    * Server-assigned; a rule's warehouse can only be changed from this workspace.
    */
   computeWorkspaceId?: string | undefined;
@@ -1033,8 +1033,8 @@ export interface Rule {
    */
   runbook?: string | undefined;
   /**
-   * Time-range configuration for batch rules. If unset, the execution time range is extended by
-   * a fixed `15m` lookback.
+   * Time-range configuration for scheduled detections. If unset, the execution time range is
+   * extended by a fixed `15m` lookback.
    */
   timerange?: RuleTimeRange | undefined;
 }
@@ -1095,9 +1095,9 @@ export interface RuleConfig {
   effectiveDefaultFolder?: string | undefined;
 }
 
-/** Batch input for a detection rule. */
+/** Input for a scheduled detection (also known as batch detection). */
 export interface RuleInputBatch {
-  /** How the batch input is produced. Exactly one shape is required. */
+  /** How the scheduled detection's input is produced. Exactly one shape is required. */
   shape?:
     | {
         $case: 'sql';
@@ -1113,11 +1113,11 @@ export interface RuleInputBatch {
         custom: RuleInputCustomNotebook;
       }
     | undefined;
-  /** SQL warehouse used to run this batch rule. */
+  /** SQL warehouse that runs this scheduled detection. */
   warehouseId?: string | undefined;
 }
 
-/** Batch SQL input for a detection rule. */
+/** SQL query input for a scheduled detection. */
 export interface RuleInputBatchSql {
   /**
    * Default catalog used to resolve unqualified identifiers in `query`. If
@@ -1133,7 +1133,7 @@ export interface RuleInputBatchSql {
   query?: string | undefined;
 }
 
-/** Reference to a custom-user-function notebook for stream or batch input. */
+/** Reference to a custom-user-function notebook for scheduled detection input. */
 export interface RuleInputCustomNotebook {
   /**
    * Fully-qualified notebook path, or a path relative to the configured base
@@ -1187,9 +1187,9 @@ export interface RuleOutput {
 /**
  * Defines when a detection rule executes.
  *
- * A batch rule sets exactly one of `at_least_every` or `cron_expression`. A streaming rule runs
- * continuously and sets no timing; it accepts only `enabled`, and an omitted schedule means
- * enabled. The server rejects any other combination. `enabled` is orthogonal to the timing.
+ * A scheduled detection sets exactly one of `at_least_every` or `cron_expression`. A streaming
+ * rule runs continuously and sets no timing; it accepts only `enabled`, and an omitted schedule
+ * means enabled. The server rejects any other combination. `enabled` is orthogonal to the timing.
  */
 export interface RuleSchedule {
   timing?:
@@ -1207,27 +1207,19 @@ export interface RuleSchedule {
         /** Defines the schedule using a Quartz cron expression. */
         cronExpression: string;
       }
-    | {
-        $case: 'continuous';
-        /**
-         * Runs the rule continuously. Detection rules do not accept it: batch rules reject it, and
-         * streaming rules run continuously without it.
-         */
-        continuous: boolean;
-      }
     | undefined;
   /** Sets whether the job is scheduled to run. Defaults to true. */
   enabled?: boolean | undefined;
 }
 
-/** Time-range configuration for a batch detection rule. */
+/** Time-range configuration for a scheduled detection. */
 export interface RuleTimeRange {
   /**
    * Extends the start of the execution time range by a compact duration with integer
    * days, hours, minutes, and seconds in that order, such as `1h30m` or `15m`.
    * Zero duration disables extension. Unset or empty uses a fixed `15m` at execution
-   * time. Only the start moves; the end is unchanged. Has no effect on batch SQL
-   * that does not use `IN_TIMERANGE`. Values must fit signed 64-bit microseconds.
+   * time. Only the start moves; the end is unchanged. Has no effect on a detection
+   * query that does not use `IN_TIMERANGE`. Values must fit signed 64-bit microseconds.
    */
   extendLookback?: string | undefined;
 }
@@ -2179,7 +2171,6 @@ export const unmarshalRuleScheduleSchema: z.ZodType<RuleSchedule> = z
   .object({
     at_least_every: z.string().optional(),
     cron_expression: z.string().optional(),
-    continuous: z.boolean().optional(),
     enabled: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2191,9 +2182,7 @@ export const unmarshalRuleScheduleSchema: z.ZodType<RuleSchedule> = z
               $case: 'cronExpression' as const,
               cronExpression: d.cron_expression,
             }
-          : d.continuous !== undefined
-            ? {$case: 'continuous' as const, continuous: d.continuous}
-            : undefined,
+          : undefined,
     enabled: d.enabled,
   }));
 
@@ -2938,7 +2927,6 @@ export const marshalRuleScheduleSchema: z.ZodType = z
           $case: z.literal('cronExpression'),
           cronExpression: z.string(),
         }),
-        z.object({$case: z.literal('continuous'), continuous: z.boolean()}),
       ])
       .optional(),
     enabled: z.boolean().optional(),
@@ -2950,7 +2938,6 @@ export const marshalRuleScheduleSchema: z.ZodType = z
     ...(d.timing?.$case === 'cronExpression' && {
       cron_expression: d.timing.cronExpression,
     }),
-    ...(d.timing?.$case === 'continuous' && {continuous: d.timing.continuous}),
     enabled: d.enabled,
   }));
 
@@ -3380,7 +3367,6 @@ const ruleOutputFieldMaskSchema: FieldMaskSchema = {
 
 const ruleScheduleFieldMaskSchema: FieldMaskSchema = {
   atLeastEvery: {wire: 'at_least_every'},
-  continuous: {wire: 'continuous'},
   cronExpression: {wire: 'cron_expression'},
   enabled: {wire: 'enabled'},
 };

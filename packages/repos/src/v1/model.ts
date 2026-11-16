@@ -3,7 +3,7 @@
 import {z} from 'zod';
 
 export interface CreateRepoRequest {
-  /** URL of the Git repository to be linked. */
+  /** HTTPS URL of the Git repository to be linked. SSH URLs are not supported. */
   url?: string | undefined;
   /**
    * Git provider. This field is case-insensitive. The available Git providers are `gitHub`,
@@ -15,6 +15,9 @@ export interface CreateRepoRequest {
   /**
    * Desired path for the repo in the workspace. Almost any path in the workspace can be chosen.
    * If repo is created in `/Repos`, path must be in the format `/Repos/{folder}/{repo-name}`.
+   * If omitted, the repo is created in the calling user's home folder (`/Users/{user}`, or
+   * `/Repos/{user}` in workspaces without workspace files). The repo name is the last path
+   * segment of `url`, for example `cli.git`.
    */
   path?: string | undefined;
   /**
@@ -37,21 +40,25 @@ export interface CreateRepoResponse {
   /** URL of the linked Git repository. */
   url?: string | undefined;
   /**
-   * Git provider of the linked Git repository, e.g. `gitHub`, `azureDevOpsServices`,
-   * `bitbucketServer` (Bitbucket Data Center), `gitLabEnterpriseEdition` (GitLab
-   * Self-Managed), or `awsCodeCommit`.
+   * Git provider of the linked Git repository. Supported providers are `gitHub`,
+   * `bitbucketCloud`, `gitLab`, `azureDevOpsServices`, `gitHubEnterprise`, `bitbucketServer`
+   * (Bitbucket Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and
+   * `awsCodeCommit`.
    */
   provider?: string | undefined;
   /** Branch that the Git folder (repo) is checked out to. */
   branch?: string | undefined;
   /** SHA-1 hash representing the commit ID of the current HEAD of the Git folder (repo). */
   headCommitId?: string | undefined;
-  /** Sparse checkout settings for the Git folder (repo). */
+  /**
+   * Sparse checkout settings for the Git folder (repo). Only present when sparse checkout is
+   * enabled for the Git folder.
+   */
   sparseCheckout?: SparseCheckout | undefined;
 }
 
 export interface DeleteRepoRequest {
-  /** The ID for the corresponding repo to delete. */
+  /** ID of the Git folder (repo) to delete. */
   id?: bigint | undefined;
 }
 
@@ -71,16 +78,23 @@ export interface GetRepoResponse {
   /** URL of the linked Git repository. */
   url?: string | undefined;
   /**
-   * Git provider of the linked Git repository, e.g. `gitHub`, `azureDevOpsServices`,
-   * `bitbucketServer` (Bitbucket Data Center), `gitLabEnterpriseEdition` (GitLab
-   * Self-Managed), or `awsCodeCommit`.
+   * Git provider of the linked Git repository. Supported providers are `gitHub`,
+   * `bitbucketCloud`, `gitLab`, `azureDevOpsServices`, `gitHubEnterprise`, `bitbucketServer`
+   * (Bitbucket Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and
+   * `awsCodeCommit`.
    */
   provider?: string | undefined;
-  /** Branch that the local version of the repo is checked out to. */
+  /**
+   * Branch that the local version of the repo is checked out to. Omitted when the Git folder
+   * (repo) is in a detached HEAD state, for example after checking out a tag.
+   */
   branch?: string | undefined;
   /** SHA-1 hash representing the commit ID of the current HEAD of the repo. */
   headCommitId?: string | undefined;
-  /** Sparse checkout settings for the Git folder (repo). */
+  /**
+   * Sparse checkout settings for the Git folder (repo). Only present when sparse checkout is
+   * enabled for the Git folder.
+   */
   sparseCheckout?: SparseCheckout | undefined;
   /**
    * Whether the Git CLI is enabled for this Git folder (repo). When true, Git commands
@@ -113,25 +127,35 @@ export interface ListReposResponse {
   nextPageToken?: string | undefined;
 }
 
-/** Git folder (repo) information. */
+/**
+ * Git folder (repo) information. A Git folder is a workspace folder that is linked to a remote
+ * Git repository and tracks the branch or commit that is checked out.
+ */
 export interface RepoInfo {
-  /** Id of the git folder (repo) in the Workspace. */
+  /** ID of the Git folder (repo) object in the workspace. */
   id?: bigint | undefined;
   /** Root path of the git folder (repo) in the Workspace. */
   path?: string | undefined;
-  /** URL of the remote git repository. */
+  /** HTTPS URL of the remote Git repository. */
   url?: string | undefined;
   /**
-   * Git provider of the remote git repository, e.g. `gitHub`, `azureDevOpsServices`,
-   * `bitbucketServer` (Bitbucket Data Center), `gitLabEnterpriseEdition` (GitLab
-   * Self-Managed), or `awsCodeCommit`.
+   * Git provider of the remote Git repository. Supported providers are `gitHub`,
+   * `bitbucketCloud`, `gitLab`, `azureDevOpsServices`, `gitHubEnterprise`, `bitbucketServer`
+   * (Bitbucket Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and
+   * `awsCodeCommit`.
    */
   provider?: string | undefined;
-  /** Name of the current git branch of the git folder (repo). */
+  /**
+   * Name of the branch that the Git folder (repo) is checked out to. Omitted when the Git folder
+   * is in a detached HEAD state, for example after checking out a tag.
+   */
   branch?: string | undefined;
-  /** Current git commit id of the git folder (repo). */
+  /** SHA-1 hash of the commit that the Git folder (repo) is currently checked out to. */
   headCommitId?: string | undefined;
-  /** Sparse checkout config for the git folder (repo). */
+  /**
+   * Sparse checkout configuration of the Git folder (repo). Only present when sparse checkout is
+   * enabled for the Git folder.
+   */
   sparseCheckout?: SparseCheckout | undefined;
 }
 
@@ -158,17 +182,20 @@ export interface SparseCheckoutUpdate {
 export interface UpdateRepoRequest {
   /** ID of the Git folder (repo) object in the workspace. */
   id?: bigint | undefined;
-  /** Branch that the local version of the repo is checked out to. */
+  /**
+   * Branch to check out. The Git folder (repo) is then updated to the latest commit of the
+   * branch. Mutually exclusive with `tag`.
+   */
   branch?: string | undefined;
   /**
    * Tag that the local version of the repo is checked out to. Updating the repo to a tag puts
    * the repo in a detached HEAD state. Before committing new changes, you must update the repo to
-   * a branch instead of the detached HEAD.
+   * a branch instead of the detached HEAD. Mutually exclusive with `branch`.
    */
   tag?: string | undefined;
   /**
    * If specified, update the sparse checkout settings. The update will fail if sparse checkout is
-   * not enabled for the repo.
+   * not enabled for the repo. Must be sent together with `branch` or `tag`.
    */
   sparseCheckout?: SparseCheckoutUpdate | undefined;
   /**

@@ -539,6 +539,7 @@ export interface ApiSourceConnectorOptions {
 }
 
 export interface ApplyEnvironmentRequest {
+  /** The ID of the pipeline to apply the environment to. */
   pipelineId?: string | undefined;
 }
 
@@ -628,11 +629,19 @@ export interface ClonePipelineRequest {
   development?: boolean | undefined;
   /** Whether Photon is enabled for this pipeline. */
   photon?: boolean | undefined;
-  /** Pipeline product edition. */
+  /** Pipeline product edition: `CORE`, `PRO`, or `ADVANCED`. Serverless pipelines require `ADVANCED`. */
   edition?: string | undefined;
-  /** SDP Release Channel that specifies which version to use. */
+  /**
+   * Release channel that selects the pipeline runtime version: `CURRENT` (the default) or `PREVIEW`,
+   * which runs on the upcoming runtime release.
+   */
   channel?: string | undefined;
-  /** A catalog in Unity Catalog to publish data from this pipeline to. If `target` is specified, tables in this pipeline are published to a `target` schema inside `catalog` (for example, `catalog`.`target`.`table`). If `target` is not specified, no data is published to Unity Catalog. */
+  /**
+   * A catalog in Unity Catalog to publish data from this pipeline to. Tables are published to the
+   * schema set in `schema` (or the legacy `target`) inside this catalog, for example
+   * `catalog`.`schema`.`table`; source code can also use fully qualified names to write to other
+   * schemas and catalogs. If `catalog` is not specified, the pipeline uses the legacy Hive metastore.
+   */
   catalog?: string | undefined;
   /** List of notification settings for this pipeline. */
   notifications?: Notifications[] | undefined;
@@ -648,7 +657,10 @@ export interface ClonePipelineRequest {
   deployment?: PipelineDeployment | undefined;
   /** Restart window of this pipeline. */
   restartWindow?: RestartWindow | undefined;
-  /** Budget policy of this pipeline. */
+  /**
+   * ID (UUID) of the serverless budget policy applied to this pipeline. Only supported for serverless
+   * pipelines.
+   */
   budgetPolicyId?: string | undefined;
   /**
    * A map of tags associated with the pipeline.
@@ -676,6 +688,8 @@ export interface ClonePipelineRequest {
   usagePolicyId?: string | undefined;
   /** Serverless compute ID specified by the user for serverless pipelines. */
   serverlessComputeId?: string | undefined;
+  /** Test configuration for this pipeline. Used only by test-only updates. */
+  testing?: PipelineTesting | undefined;
   /** The type of clone to perform. Currently, only deep copies are supported */
   cloneMode?: CloneMode | undefined;
 }
@@ -742,7 +756,15 @@ export interface ConnectorOptions {
 export interface CreatePipelineRequest {
   /** If false, deployment will fail if name conflicts with that of another pipeline. */
   allowDuplicateNames?: boolean | undefined;
+  /**
+   * If true, no pipeline is created. The response contains the settings that would be applied, with
+   * server defaults filled in, instead of a pipeline ID.
+   */
   dryRun?: boolean | undefined;
+  /**
+   * The user or service principal that the pipeline runs as. If not specified, the pipeline runs as
+   * the user who created the pipeline.
+   */
   runAs?: PipelinesJobRunAs | undefined;
   /**
    * Key/value map of default parameters to use for pipeline execution.
@@ -792,11 +814,19 @@ export interface CreatePipelineRequest {
   development?: boolean | undefined;
   /** Whether Photon is enabled for this pipeline. */
   photon?: boolean | undefined;
-  /** Pipeline product edition. */
+  /** Pipeline product edition: `CORE`, `PRO`, or `ADVANCED`. Serverless pipelines require `ADVANCED`. */
   edition?: string | undefined;
-  /** SDP Release Channel that specifies which version to use. */
+  /**
+   * Release channel that selects the pipeline runtime version: `CURRENT` (the default) or `PREVIEW`,
+   * which runs on the upcoming runtime release.
+   */
   channel?: string | undefined;
-  /** A catalog in Unity Catalog to publish data from this pipeline to. If `target` is specified, tables in this pipeline are published to a `target` schema inside `catalog` (for example, `catalog`.`target`.`table`). If `target` is not specified, no data is published to Unity Catalog. */
+  /**
+   * A catalog in Unity Catalog to publish data from this pipeline to. Tables are published to the
+   * schema set in `schema` (or the legacy `target`) inside this catalog, for example
+   * `catalog`.`schema`.`table`; source code can also use fully qualified names to write to other
+   * schemas and catalogs. If `catalog` is not specified, the pipeline uses the legacy Hive metastore.
+   */
   catalog?: string | undefined;
   /** List of notification settings for this pipeline. */
   notifications?: Notifications[] | undefined;
@@ -812,7 +842,10 @@ export interface CreatePipelineRequest {
   deployment?: PipelineDeployment | undefined;
   /** Restart window of this pipeline. */
   restartWindow?: RestartWindow | undefined;
-  /** Budget policy of this pipeline. */
+  /**
+   * ID (UUID) of the serverless budget policy applied to this pipeline. Only supported for serverless
+   * pipelines.
+   */
   budgetPolicyId?: string | undefined;
   /**
    * A map of tags associated with the pipeline.
@@ -840,6 +873,8 @@ export interface CreatePipelineRequest {
   usagePolicyId?: string | undefined;
   /** Serverless compute ID specified by the user for serverless pipelines. */
   serverlessComputeId?: string | undefined;
+  /** Test configuration for this pipeline. Used only by test-only updates. */
+  testing?: PipelineTesting | undefined;
 }
 
 export interface CreatePipelineResponse {
@@ -878,6 +913,7 @@ export interface DataStagingOptions {
 }
 
 export interface DeletePipelineRequest {
+  /** The ID of the pipeline to delete. */
   pipelineId?: string | undefined;
   /**
    * If true, deletion will proceed even if resource cleanup fails.
@@ -905,6 +941,7 @@ export interface EditPipelineRequest {
    * a conflict.
    */
   expectedLastModified?: bigint | undefined;
+  /** The user or service principal that the pipeline runs as. */
   runAs?: PipelinesJobRunAs | undefined;
   /**
    * Key/value map of default parameters to use for pipeline execution.
@@ -954,11 +991,19 @@ export interface EditPipelineRequest {
   development?: boolean | undefined;
   /** Whether Photon is enabled for this pipeline. */
   photon?: boolean | undefined;
-  /** Pipeline product edition. */
+  /** Pipeline product edition: `CORE`, `PRO`, or `ADVANCED`. Serverless pipelines require `ADVANCED`. */
   edition?: string | undefined;
-  /** SDP Release Channel that specifies which version to use. */
+  /**
+   * Release channel that selects the pipeline runtime version: `CURRENT` (the default) or `PREVIEW`,
+   * which runs on the upcoming runtime release.
+   */
   channel?: string | undefined;
-  /** A catalog in Unity Catalog to publish data from this pipeline to. If `target` is specified, tables in this pipeline are published to a `target` schema inside `catalog` (for example, `catalog`.`target`.`table`). If `target` is not specified, no data is published to Unity Catalog. */
+  /**
+   * A catalog in Unity Catalog to publish data from this pipeline to. Tables are published to the
+   * schema set in `schema` (or the legacy `target`) inside this catalog, for example
+   * `catalog`.`schema`.`table`; source code can also use fully qualified names to write to other
+   * schemas and catalogs. If `catalog` is not specified, the pipeline uses the legacy Hive metastore.
+   */
   catalog?: string | undefined;
   /** List of notification settings for this pipeline. */
   notifications?: Notifications[] | undefined;
@@ -974,7 +1019,10 @@ export interface EditPipelineRequest {
   deployment?: PipelineDeployment | undefined;
   /** Restart window of this pipeline. */
   restartWindow?: RestartWindow | undefined;
-  /** Budget policy of this pipeline. */
+  /**
+   * ID (UUID) of the serverless budget policy applied to this pipeline. Only supported for serverless
+   * pipelines.
+   */
   budgetPolicyId?: string | undefined;
   /**
    * A map of tags associated with the pipeline.
@@ -1002,6 +1050,8 @@ export interface EditPipelineRequest {
   usagePolicyId?: string | undefined;
   /** Serverless compute ID specified by the user for serverless pipelines. */
   serverlessComputeId?: string | undefined;
+  /** Test configuration for this pipeline. Used only by test-only updates. */
+  testing?: PipelineTesting | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1091,6 +1141,7 @@ export interface Filters {
 }
 
 export interface GetPipelineRequest {
+  /** The ID of the pipeline. */
   pipelineId?: string | undefined;
 }
 
@@ -1829,6 +1880,7 @@ export interface ListUpdatesRequest {
 }
 
 export interface ListUpdatesResponse {
+  /** The updates for the pipeline, ordered with the newest update first. */
   updates?: UpdateInfo[] | undefined;
   /**
    * If present, then there are more results, and this a token to be used in a subsequent request
@@ -2323,11 +2375,19 @@ export interface PipelineSpec {
   development?: boolean | undefined;
   /** Whether Photon is enabled for this pipeline. */
   photon?: boolean | undefined;
-  /** Pipeline product edition. */
+  /** Pipeline product edition: `CORE`, `PRO`, or `ADVANCED`. Serverless pipelines require `ADVANCED`. */
   edition?: string | undefined;
-  /** SDP Release Channel that specifies which version to use. */
+  /**
+   * Release channel that selects the pipeline runtime version: `CURRENT` (the default) or `PREVIEW`,
+   * which runs on the upcoming runtime release.
+   */
   channel?: string | undefined;
-  /** A catalog in Unity Catalog to publish data from this pipeline to. If `target` is specified, tables in this pipeline are published to a `target` schema inside `catalog` (for example, `catalog`.`target`.`table`). If `target` is not specified, no data is published to Unity Catalog. */
+  /**
+   * A catalog in Unity Catalog to publish data from this pipeline to. Tables are published to the
+   * schema set in `schema` (or the legacy `target`) inside this catalog, for example
+   * `catalog`.`schema`.`table`; source code can also use fully qualified names to write to other
+   * schemas and catalogs. If `catalog` is not specified, the pipeline uses the legacy Hive metastore.
+   */
   catalog?: string | undefined;
   /** List of notification settings for this pipeline. */
   notifications?: Notifications[] | undefined;
@@ -2343,7 +2403,10 @@ export interface PipelineSpec {
   deployment?: PipelineDeployment | undefined;
   /** Restart window of this pipeline. */
   restartWindow?: RestartWindow | undefined;
-  /** Budget policy of this pipeline. */
+  /**
+   * ID (UUID) of the serverless budget policy applied to this pipeline. Only supported for serverless
+   * pipelines.
+   */
   budgetPolicyId?: string | undefined;
   /**
    * A map of tags associated with the pipeline.
@@ -2371,6 +2434,8 @@ export interface PipelineSpec {
   usagePolicyId?: string | undefined;
   /** Serverless compute ID specified by the user for serverless pipelines. */
   serverlessComputeId?: string | undefined;
+  /** Test configuration for this pipeline. Used only by test-only updates. */
+  testing?: PipelineTesting | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -2379,6 +2444,7 @@ export interface PipelineState {}
 export interface PipelineStateInfo {
   /** The unique identifier of the pipeline. */
   pipelineId?: string | undefined;
+  /** The current state of the pipeline. */
   state?: PipelineState_PipelineState | undefined;
   /** The unique identifier of the cluster running the pipeline. */
   clusterId?: string | undefined;
@@ -2392,6 +2458,58 @@ export interface PipelineStateInfo {
   runAsUserName?: string | undefined;
   /** The health of a pipeline. */
   health?: PipelineHealthStatus | undefined;
+}
+
+/** The packages that a pipeline's tests need in addition to the pipeline's environment. */
+export interface PipelineTestEnvironment {
+  /**
+   * A list of files that declare the packages the tests need: a project folder, a requirements
+   * file, or a wheel, in the workspace or a UC volume. A project folder can take `--editable` and
+   * an extra, for example `--editable /Workspace/Users/someone@example.com/orders[test]`. Package
+   * names, such as `faker==33.0`, and URLs are rejected.
+   */
+  dependencies?: string[] | undefined;
+}
+
+/** Options for selecting the tests that a test-only update runs. */
+export interface PipelineTestOptions {
+  /**
+   * A list of test files or folders to run, as absolute workspace paths inside the pipeline's test
+   * sources. A path outside the test sources is rejected. To run one test, append `::` and the test
+   * name to a file path, for example `/Workspace/orders/tests/test_orders.py::test_backfill`. When
+   * empty, every test in the test sources runs.
+   */
+  testSelection?: string[] | undefined;
+  /**
+   * A list of arguments to pass to pytest, for example `["-m", "slow"]`. Only `-k` and `-m` are
+   * accepted, each followed by its value. Other arguments are rejected.
+   */
+  pytestArgs?: string[] | undefined;
+}
+
+/** A workspace location that holds pipeline tests. */
+export interface PipelineTestSource {
+  source?:
+    | {
+        $case: 'glob';
+        /** An absolute workspace path to a test file, or to a folder followed by `/\**`. */
+        glob: PathPattern;
+      }
+    | undefined;
+}
+
+/** Test configuration for a pipeline. */
+export interface PipelineTesting {
+  /**
+   * The workspace files and folders that hold the pipeline's tests. They must not overlap the
+   * pipeline's `libraries`.
+   */
+  sources?: PipelineTestSource[] | undefined;
+  /**
+   * Packages that only the tests need. Test-only updates install them in addition to the
+   * pipeline's `environment`. Other updates do not.
+   */
+  environment?: PipelineTestEnvironment | undefined;
 }
 
 export interface PipelineTrigger {
@@ -2969,9 +3087,11 @@ export interface StackFrame {
 }
 
 export interface StartUpdateRequest {
+  /** The ID of the pipeline to start an update for. */
   pipelineId?: string | undefined;
   /** If true, this update will reset all tables before running. */
   fullRefresh?: boolean | undefined;
+  /** What triggered this update, as recorded in the update's `cause`. Defaults to `API_CALL`. */
   cause?: UpdateCause | undefined;
   /**
    * A list of tables to update without fullRefresh. If both refresh_selection and
@@ -2997,6 +3117,19 @@ export interface StartUpdateRequest {
   /** If true, this update only validates the correctness of pipeline source code but does not materialize or publish any datasets. */
   validateOnly?: boolean | undefined;
   /**
+   * If true, this is a test-only update: it runs the pipeline's tests and does not update the
+   * pipeline's datasets. A failing test does not stop the other tests. The update is `COMPLETED` if
+   * at least one test runs and no test fails or errors. Otherwise the update is `FAILED`, including
+   * when no tests are found. Cannot be combined with `validate_only`, `explore_only`, or
+   * `rewind_spec`.
+   */
+  testOnly?: boolean | undefined;
+  /**
+   * Options for selecting the tests that this test-only update runs. Requires `test_only`. When
+   * absent, every test in the pipeline's test sources runs.
+   */
+  testOptions?: PipelineTestOptions | undefined;
+  /**
    * Whether the update is started in the development mode.
    * This is recommended for interactive development and testing.
    * Reuses compute for faster iteration and disables automatic retries.
@@ -3018,10 +3151,12 @@ export interface StartUpdateRequest {
 }
 
 export interface StartUpdateResponse {
+  /** The ID of the update that was started. */
   updateId?: string | undefined;
 }
 
 export interface StopPipelineRequest {
+  /** The ID of the pipeline to stop. */
   pipelineId?: string | undefined;
 }
 
@@ -3186,11 +3321,16 @@ export interface UpdateInfo {
   mode?: UpdateMode | undefined;
   /** Key/value map of parameters used to initiate the update */
   parameters?: Record<string, string> | undefined;
+  /** If true, this update is a test-only update. Absent for other updates. */
+  testOnly?: boolean | undefined;
 }
 
 export interface UpdateStateInfo {
+  /** The ID of the update. */
   updateId?: string | undefined;
+  /** The state of the update. */
   state?: UpdateState | undefined;
+  /** The time when the update was created, in ISO 8601 format. */
   creationTime?: string | undefined;
 }
 
@@ -4516,6 +4656,10 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
     parent_path: z.string().optional(),
     usage_policy_id: z.string().optional(),
     serverless_compute_id: z.string().optional(),
+    testing: z
+      .lazy(() => unmarshalPipelineTestingSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     id: d.id,
@@ -4548,6 +4692,7 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
     parentPath: d.parent_path,
     usagePolicyId: d.usage_policy_id,
     serverlessComputeId: d.serverless_compute_id,
+    testing: d.testing,
   }));
 
 export const unmarshalPipelineStateInfoSchema: z.ZodType<PipelineStateInfo> = z
@@ -4572,6 +4717,42 @@ export const unmarshalPipelineStateInfoSchema: z.ZodType<PipelineStateInfo> = z
     creatorUserName: d.creator_user_name,
     runAsUserName: d.run_as_user_name,
     health: d.health,
+  }));
+
+export const unmarshalPipelineTestEnvironmentSchema: z.ZodType<PipelineTestEnvironment> =
+  z
+    .object({
+      dependencies: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      dependencies: d.dependencies,
+    }));
+
+export const unmarshalPipelineTestSourceSchema: z.ZodType<PipelineTestSource> =
+  z
+    .object({
+      glob: z.lazy(() => unmarshalPathPatternSchema).optional(),
+    })
+    .transform(d => ({
+      source:
+        d.glob !== undefined
+          ? {$case: 'glob' as const, glob: d.glob}
+          : undefined,
+    }));
+
+export const unmarshalPipelineTestingSchema: z.ZodType<PipelineTesting> = z
+  .object({
+    sources: z
+      .array(z.lazy(() => unmarshalPipelineTestSourceSchema))
+      .optional(),
+    environment: z
+      .lazy(() => unmarshalPipelineTestEnvironmentSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+  })
+  .transform(d => ({
+    sources: d.sources,
+    environment: d.environment,
   }));
 
 export const unmarshalPipelineTriggerSchema: z.ZodType<PipelineTrigger> = z
@@ -5102,6 +5283,7 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
     validate_only: z.boolean().optional(),
     mode: z.string().optional(),
     parameters: z.record(z.string(), z.string()).optional(),
+    test_only: z.boolean().optional(),
   })
   .transform(d => ({
     pipelineId: d.pipeline_id,
@@ -5119,6 +5301,7 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
     validateOnly: d.validate_only,
     mode: d.mode,
     parameters: d.parameters,
+    testOnly: d.test_only,
   }));
 
 export const unmarshalUpdateStateInfoSchema: z.ZodType<UpdateStateInfo> = z
@@ -5229,6 +5412,7 @@ export const marshalClonePipelineRequestSchema: z.ZodType = z
     parentPath: z.string().optional(),
     usagePolicyId: z.string().optional(),
     serverlessComputeId: z.string().optional(),
+    testing: z.lazy(() => marshalPipelineTestingSchema).optional(),
     cloneMode: z.string().optional(),
   })
   .transform(d => ({
@@ -5265,6 +5449,7 @@ export const marshalClonePipelineRequestSchema: z.ZodType = z
     parent_path: d.parentPath,
     usage_policy_id: d.usagePolicyId,
     serverless_compute_id: d.serverlessComputeId,
+    testing: d.testing,
     clone_mode: d.cloneMode,
   }));
 
@@ -5468,6 +5653,7 @@ export const marshalCreatePipelineRequestSchema: z.ZodType = z
     parentPath: z.string().optional(),
     usagePolicyId: z.string().optional(),
     serverlessComputeId: z.string().optional(),
+    testing: z.lazy(() => marshalPipelineTestingSchema).optional(),
   })
   .transform(d => ({
     allow_duplicate_names: d.allowDuplicateNames,
@@ -5504,6 +5690,7 @@ export const marshalCreatePipelineRequestSchema: z.ZodType = z
     parent_path: d.parentPath,
     usage_policy_id: d.usagePolicyId,
     serverless_compute_id: d.serverlessComputeId,
+    testing: d.testing,
   }));
 
 export const marshalCronTriggerSchema: z.ZodType = z
@@ -5569,6 +5756,7 @@ export const marshalEditPipelineRequestSchema: z.ZodType = z
     parentPath: z.string().optional(),
     usagePolicyId: z.string().optional(),
     serverlessComputeId: z.string().optional(),
+    testing: z.lazy(() => marshalPipelineTestingSchema).optional(),
   })
   .transform(d => ({
     pipeline_id: d.pipelineId,
@@ -5606,6 +5794,7 @@ export const marshalEditPipelineRequestSchema: z.ZodType = z
     parent_path: d.parentPath,
     usage_policy_id: d.usagePolicyId,
     serverless_compute_id: d.serverlessComputeId,
+    testing: d.testing,
   }));
 
 export const marshalEventLogSpecSchema: z.ZodType = z
@@ -6345,6 +6534,49 @@ export const marshalPipelineLibrarySchema: z.ZodType = z
     ...(d.lib?.$case === 'glob' && {glob: d.lib.glob}),
   }));
 
+export const marshalPipelineTestEnvironmentSchema: z.ZodType = z
+  .object({
+    dependencies: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    dependencies: d.dependencies,
+  }));
+
+export const marshalPipelineTestOptionsSchema: z.ZodType = z
+  .object({
+    testSelection: z.array(z.string()).optional(),
+    pytestArgs: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    test_selection: d.testSelection,
+    pytest_args: d.pytestArgs,
+  }));
+
+export const marshalPipelineTestSourceSchema: z.ZodType = z
+  .object({
+    source: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('glob'),
+          glob: z.lazy(() => marshalPathPatternSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.source?.$case === 'glob' && {glob: d.source.glob}),
+  }));
+
+export const marshalPipelineTestingSchema: z.ZodType = z
+  .object({
+    sources: z.array(z.lazy(() => marshalPipelineTestSourceSchema)).optional(),
+    environment: z.lazy(() => marshalPipelineTestEnvironmentSchema).optional(),
+  })
+  .transform(d => ({
+    sources: d.sources,
+    environment: d.environment,
+  }));
+
 export const marshalPipelineTriggerSchema: z.ZodType = z
   .object({
     trigger: z
@@ -6745,6 +6977,8 @@ export const marshalStartUpdateRequestSchema: z.ZodType = z
     fullRefreshSelectionByPath: z.array(z.string()).optional(),
     resetCheckpointSelection: z.array(z.string()).optional(),
     validateOnly: z.boolean().optional(),
+    testOnly: z.boolean().optional(),
+    testOptions: z.lazy(() => marshalPipelineTestOptionsSchema).optional(),
     development: z.boolean().optional(),
     rewindSpec: z.lazy(() => marshalRewindSpecSchema).optional(),
     parameters: z.record(z.string(), z.string()).optional(),
@@ -6762,6 +6996,8 @@ export const marshalStartUpdateRequestSchema: z.ZodType = z
     full_refresh_selection_by_path: d.fullRefreshSelectionByPath,
     reset_checkpoint_selection: d.resetCheckpointSelection,
     validate_only: d.validateOnly,
+    test_only: d.testOnly,
+    test_options: d.testOptions,
     development: d.development,
     rewind_spec: d.rewindSpec,
     parameters: d.parameters,

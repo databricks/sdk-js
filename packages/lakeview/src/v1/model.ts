@@ -105,7 +105,11 @@ export interface CronSchedule {
 export interface Dashboard {
   /** UUID identifying the dashboard. */
   dashboardId?: string | undefined;
-  /** The display name of the dashboard. */
+  /**
+   * The display name of the dashboard. It is also the file name of the dashboard asset in the
+   * workspace, so it must be unique within the parent folder, cannot contain `/`, and cannot end
+   * with `.json`, `.lvdash` or `.yml`. The display name must not exceed 500 characters.
+   */
   displayName?: string | undefined;
   /**
    * The workspace path of the dashboard asset, including the file name.
@@ -129,19 +133,21 @@ export interface Dashboard {
    */
   etag?: string | undefined;
   /**
-   * The contents of the dashboard in serialized string form.
+   * The dashboard definition (datasets, pages and widgets) as a JSON string, in the same format
+   * as a dashboard file exported from the workspace (`.lvdash.json`). When omitted on create, an
+   * empty dashboard is created; when omitted on update, the existing definition is kept and only
+   * the other fields change. Use the
+   * [get dashboard API](https://docs.databricks.com/api/workspace/lakeview/get) on an existing
+   * dashboard to see a complete example.
    * This field is excluded in List Dashboards responses.
-   * Use the [get dashboard API](https://docs.databricks.com/api/workspace/lakeview/get)
-   * to retrieve an example response, which includes the `serialized_dashboard` field.
-   * This field provides the structure of the JSON string that represents the dashboard's
-   * layout and components.
    */
   serializedDashboard?: string | undefined;
   /** The state of the dashboard resource. Used for tracking trashed status. */
   lifecycleState?: LifecycleState | undefined;
   /**
    * The workspace path of the folder containing the dashboard. Includes leading slash and no
-   * trailing slash.
+   * trailing slash. The folder must already exist; when omitted on create, the dashboard is
+   * created in the caller's home folder.
    * This field is excluded in List Dashboards responses.
    */
   parentPath?: string | undefined;
@@ -150,7 +156,11 @@ export interface Dashboard {
 export interface DashboardCreate {
   /** UUID identifying the dashboard. */
   dashboardId?: string | undefined;
-  /** The display name of the dashboard. */
+  /**
+   * The display name of the dashboard. It is also the file name of the dashboard asset in the
+   * workspace, so it must be unique within the parent folder, cannot contain `/`, and cannot end
+   * with `.json`, `.lvdash` or `.yml`. The display name must not exceed 500 characters.
+   */
   displayName?: string | undefined;
   /**
    * The workspace path of the dashboard asset, including the file name.
@@ -168,19 +178,21 @@ export interface DashboardCreate {
   /** The warehouse ID used to run the dashboard. */
   warehouseId?: string | undefined;
   /**
-   * The contents of the dashboard in serialized string form.
+   * The dashboard definition (datasets, pages and widgets) as a JSON string, in the same format
+   * as a dashboard file exported from the workspace (`.lvdash.json`). When omitted on create, an
+   * empty dashboard is created; when omitted on update, the existing definition is kept and only
+   * the other fields change. Use the
+   * [get dashboard API](https://docs.databricks.com/api/workspace/lakeview/get) on an existing
+   * dashboard to see a complete example.
    * This field is excluded in List Dashboards responses.
-   * Use the [get dashboard API](https://docs.databricks.com/api/workspace/lakeview/get)
-   * to retrieve an example response, which includes the `serialized_dashboard` field.
-   * This field provides the structure of the JSON string that represents the dashboard's
-   * layout and components.
    */
   serializedDashboard?: string | undefined;
   /** The state of the dashboard resource. Used for tracking trashed status. */
   lifecycleState?: LifecycleState | undefined;
   /**
    * The workspace path of the folder containing the dashboard. Includes leading slash and no
-   * trailing slash.
+   * trailing slash. The folder must already exist; when omitted on create, the dashboard is
+   * created in the caller's home folder.
    * This field is excluded in List Dashboards responses.
    */
   parentPath?: string | undefined;

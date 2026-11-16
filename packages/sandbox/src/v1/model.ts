@@ -74,7 +74,11 @@ export interface Command {
 }
 
 export interface ComputeSpec {
-  /** Idle duration after which the sandbox is automatically terminated. */
+  /**
+   * Idle time after which the sandbox is automatically stopped. Unset or 0 disables inactivity
+   * auto-stop. Negative values are rejected. Can be changed on an existing sandbox with
+   * UpdateSandbox.
+   */
   inactivityTimeout?: Temporal.Duration | undefined;
 }
 
@@ -93,9 +97,14 @@ export interface CreateDirectoryResponse {}
 
 /** A request to create a Sandbox. */
 export interface CreateSandboxRequest {
-  /** The sandbox to create. */
+  /** The sandbox to create. An empty body creates a sandbox with the default configuration. */
   sandbox?: Sandbox | undefined;
-  /** Client-supplied ID that becomes the final path segment of the resource name. */
+  /**
+   * Client-supplied ID that becomes the final path segment of the resource name. It must
+   * start with a lowercase letter, contain only lowercase letters, digits and hyphens, end
+   * with a letter or digit, and be at most 63 characters long. Values shaped like a UUID are
+   * rejected.
+   */
   sandboxId?: string | undefined;
 }
 
@@ -114,6 +123,7 @@ export interface DeletePathResponse {}
 
 /** A request to delete a Sandbox. */
 export interface DeleteSandboxRequest {
+  /** Resource name of the sandbox to delete, in the form `sandboxes/{sandbox_id}`. */
   name?: string | undefined;
 }
 
@@ -175,9 +185,10 @@ export interface DownloadFileResponse {
 
 export interface EnvironmentSpec {
   /**
-   * The Unity Catalog container image to use for the sandbox environment
-   * (for example, `catalog.schema.folder.image:tag`). See
-   * [Artifact Registry](https://docs.databricks.com/en/artifact-registry/).
+   * The Unity Catalog container image to run the sandbox from, in the form
+   * `catalog.schema.artifact:tag`, or `catalog.schema.artifact@sha256:<digest>` to pin an
+   * exact version. When omitted, the sandbox runs the default sandbox image. See
+   * [custom images](https://docs.databricks.com/en/compute/serverless/sandbox-custom-image).
    */
   imageUri?: string | undefined;
 }
@@ -257,6 +268,7 @@ export interface GetMetadataResponse {
 
 /** A request to retrieve a Sandbox. */
 export interface GetSandboxRequest {
+  /** Resource name of the sandbox to retrieve, in the form `sandboxes/{sandbox_id}`. */
   name?: string | undefined;
 }
 
@@ -306,13 +318,23 @@ export interface ListDirectoryContentsResponse {
 
 /** A request to list Sandboxes. */
 export interface ListSandboxesRequest {
+  /**
+   * Page token from the `next_page_token` of a previous ListSandboxes response. Omit it to
+   * retrieve the first page.
+   */
   pageToken?: string | undefined;
+  /**
+   * Maximum number of sandboxes to return in one page. When unset or 0 the server returns
+   * up to 1000 sandboxes; values above 5000 are reduced to 5000.
+   */
   pageSize?: number | undefined;
 }
 
 /** A list of Sandboxes. */
 export interface ListSandboxesResponse {
+  /** Sandboxes in this page of results. */
   sandboxes?: Sandbox[] | undefined;
+  /** Token for retrieving the next page of results. Empty when there are no more results. */
   nextPageToken?: string | undefined;
 }
 
@@ -330,9 +352,15 @@ export interface RenamePathRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RenamePathResponse {}
 
-/** A Sandbox resource representing an execution environment. */
+/**
+ * An isolated, pre-configured, low-latency Serverless compute environment for running code.
+ * Create a sandbox, wait until its state is `SANDBOX_STATE_RUNNING`, then run commands in it
+ * with ExecuteCommandSync. The data in its home directory persists across stop and start and
+ * is removed when the sandbox is deleted. See
+ * [Databricks Sandbox](https://docs.databricks.com/en/compute/serverless/sandbox).
+ */
 export interface Sandbox {
-  /** Metadata associated with the sandbox. */
+  /** Tags and other metadata associated with the sandbox. */
   metadata?: SandboxMetadata | undefined;
   /** The desired configuration of the sandbox, supplied by the caller at creation time. */
   spec?: SandboxSpec | undefined;
@@ -376,14 +404,25 @@ export interface SandboxMetadata {
 }
 
 export interface SandboxSpec {
-  /** Compute configuration (size, inactivity timeout) requested for the sandbox. */
+  /** Compute settings requested for the sandbox, such as the inactivity timeout. */
   compute?: ComputeSpec | undefined;
-  /** The execution environment to use for the sandbox. */
+  /** Software environment for the sandbox, such as the container image it runs. */
   environment?: EnvironmentSpec | undefined;
 }
 
 export interface SandboxStatus {
-  /** Lifecycle state of the sandbox. */
+  /**
+   * Lifecycle state of the sandbox.
+   *
+   * - `SANDBOX_STATE_PENDING`: The sandbox is being provisioned after a create or start request
+   * and cannot run commands yet.
+   * - `SANDBOX_STATE_RUNNING`: The sandbox is ready and commands can run in it.
+   * - `SANDBOX_STATE_STOPPING`: The sandbox is shutting down. It settles to
+   * `SANDBOX_STATE_STOPPED`, or disappears if it is being deleted.
+   * - `SANDBOX_STATE_STOPPED`: The sandbox is stopped, by a stop request, inactivity auto-stop,
+   * or a failed provisioning. Its home directory is kept and it can be started again with
+   * StartSandbox.
+   */
   state?: SandboxState | undefined;
 }
 
@@ -425,6 +464,13 @@ export interface UploadFileRequest {
   path?: string | undefined;
   /** The complete file contents. An empty body creates an empty file. */
   contents?: ReadableStream | undefined;
+  /**
+   * Whether to replace an existing file. Defaults to true when omitted.
+   * If false, the upload atomically creates the file only if the destination
+   * does not exist, equivalent to If-None-Match: *. An existing entry returns
+   * 412 Precondition Failed. Explicit true conflicts with If-None-Match: *.
+   */
+  overwrite?: boolean | undefined;
 }
 
 /** A successful upload returns no response body. */

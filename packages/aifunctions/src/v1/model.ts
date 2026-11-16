@@ -23,19 +23,17 @@ const jsonObjectSchema: z.ZodType<JsonObject> = z.record(
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const BatchStatus = {
   BATCH_STATUS_UNSPECIFIED: 'BATCH_STATUS_UNSPECIFIED',
-  /** Accepted, not started yet. */
+  /** The service is preparing to run the batch. */
   PENDING: 'PENDING',
-  /** Requests are being processed. */
+  /** The batch is in progress. */
   IN_PROGRESS: 'IN_PROGRESS',
-  /** Every request is processed and the output file is being written. */
+  /** The service processed every request and is writing the output file. */
   FINALIZING: 'FINALIZING',
-  /** The output is written and available. */
+  /** The batch completed and the output file is written. A request that failed has an `error` line in the output file. */
   COMPLETED: 'COMPLETED',
-  /** The completion window elapsed. The output holds the requests that finished in time. */
-  EXPIRED: 'EXPIRED',
-  /** Cancellation was accepted and requests in flight are draining. */
+  /** The batch is being cancelled. Requests in progress are drained and the output file is written. */
   CANCELLING: 'CANCELLING',
-  /** Cancellation finished. No output file is written. */
+  /** The batch was cancelled. If it had started, the output file holds the results of the requests that finished. */
   CANCELLED: 'CANCELLED',
   /** The batch failed. */
   FAILED: 'FAILED',
@@ -354,47 +352,54 @@ export interface AiParseDocumentResponseMetadata {
   fileMetadata?: AiParseDocumentFileMetadata | undefined;
 }
 
-/** An asynchronous run of one AI function over a file of requests. */
+/**
+ * The AI Functions Asynchronous API lets you process large volumes of requests as a batch in a single call.
+ * It is in Beta: a workspace admin must turn on the **AI Functions Asynchronous API** preview on the workspace
+ * Previews page before you can call it.
+ */
 export interface Batch {
-  /** ID of the batch, in the form `batch_<id>`. The service assigns it. */
+  /** Output only. Identifier. Resource name of the batch, returned by create. Format: `batch_<id>`. */
   name?: string | undefined;
-  /** The AI function to run for every request, for example `ai_extract`. */
+  /** The AI function, for example `ai_parse_document`. */
   endpoint?: string | undefined;
-  /** Path of the JSONL input file on a Unity Catalog volume. Each line is one request. */
+  /** Unity Catalog volume path of the JSONL input file. Each line is one request, in the form `{"custom_id": ..., "body": ...}`. The file can hold up to 50,000 requests and be up to 200 MiB. */
   inputRef?: string | undefined;
-  /** Function options applied to every request in the batch, for example the extraction schema. */
-  params?: JsonObject | undefined;
   /**
-   * Path on a Unity Catalog volume to write the JSONL output to. When it is omitted, the output
-   * stays on Databricks-managed storage and a finished batch returns a short-lived download URL
-   * in this field instead.
+   * Parameters of the function other than its input, applied to every request in the batch, for example
+   * `schema` for `ai_extract`. Put function options, such as `version`, in a nested `options` object. For
+   * the parameters of each function, see [AI Functions](/large-language-models/ai-functions).
    */
+  params?: JsonObject | undefined;
+  /** Unity Catalog volume path to write the JSONL output file to. If the path is a directory, the file is `<path>/<name>_output.jsonl`. Each line is the result of one request, in the form `{"custom_id": ..., "response": ...}`, or `{"custom_id": ..., "error": {"type": ..., "message": ...}}` for a request that failed. */
   outputRef?: string | undefined;
-  /** Output only. Status of the batch. */
+  /** Output only. The status of the batch. */
   status?: BatchStatus | undefined;
-  /** Output only. Time the batch was created. */
+  /** Output only. The time when the batch was created. */
   createTime?: Temporal.Instant | undefined;
-  /** Output only. Request counts. Returned when one batch is read, not when batches are listed. */
+  /**
+   * Output only. The number of requests in the batch, by result. Returned when you get a batch, not when you list
+   * batches.
+   */
   requestCounts?: BatchRequestCounts | undefined;
   /**
-   * Output only. Percentage of the requests that finished, from 0 to 100. Returned when one batch
-   * is read, not when batches are listed.
+   * Output only. The percentage of requests that are processed, from 0 to 100. Returned when you get a batch, not when you
+   * list batches.
    */
   percentComplete?: number | undefined;
 }
 
 /** Counts of the requests in a batch. */
 export interface BatchRequestCounts {
-  /** Output only. Number of requests in the input file. */
+  /** Output only. The number of requests in the batch. */
   total?: bigint | undefined;
-  /** Output only. Number of requests that finished successfully. */
+  /** Output only. The number of requests that were processed successfully. */
   succeeded?: bigint | undefined;
-  /** Output only. Number of requests that failed and will not be retried. */
+  /** Output only. The number of requests that failed. The service does not retry them. */
   failed?: bigint | undefined;
 }
 
 export interface CancelBatchRequest {
-  /** ID of the batch, in the form `batch_<id>`. */
+  /** Resource name of the batch. Format: `batch_<id>`. */
   name?: string | undefined;
 }
 
@@ -407,21 +412,21 @@ export interface CreateBatchRequest {
 }
 
 export interface GetBatchRequest {
-  /** ID of the batch, in the form `batch_<id>`. */
+  /** Resource name of the batch. Format: `batch_<id>`. */
   name?: string | undefined;
 }
 
 export interface ListBatchesRequest {
   /** Maximum number of batches to return in one page. */
   pageSize?: number | undefined;
-  /** Page token from an earlier response. Omit it to read the first page. */
+  /** A page token from a previous call to list batches. Omit it to get the first page. */
   pageToken?: string | undefined;
 }
 
 export interface ListBatchesResponse {
   /** The batches in this page. */
   batches?: Batch[] | undefined;
-  /** Token that reads the next page. It is empty on the last page. */
+  /** A token to get the next page. It is empty on the last page. */
   nextPageToken?: string | undefined;
 }
 

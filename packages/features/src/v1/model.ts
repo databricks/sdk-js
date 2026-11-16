@@ -1097,7 +1097,7 @@ export interface CustomUdf {
 
 /** Specifies the data source backing a feature. Exactly one source type must be set. */
 export interface DataSource {
-  /** (-- Next ID: 8. --) */
+  /** (-- Next ID: 9. --) */
   dataSource?:
     | {
         $case: 'deltaTableSource';
@@ -1128,6 +1128,11 @@ export interface DataSource {
         $case: 'sdpSource';
         /** A Spark Declarative Pipeline data source. */
         sdpSource: SdpSource;
+      }
+    | {
+        $case: 'icebergTableSource';
+        /** A Unity Catalog managed or foreign Iceberg table source. */
+        icebergTableSource: IcebergTableSource;
       }
     | undefined;
   /**
@@ -1200,11 +1205,14 @@ export interface DeltaTableSource {
   fullName?: string | undefined;
   entityColumns?: string[] | undefined;
   timeseriesColumn?: string | undefined;
-  /** Single WHERE clause to filter delta table before applying transformations. Will be row-wise evaluated, so should only include conditionals and projections. */
+  /**
+   * A single WHERE clause to filter the Delta table before applying transformations.
+   * The predicate is evaluated for each row.
+   */
   filterCondition?: string | undefined;
   /**
    * A single SQL SELECT expression applied after filter_condition.
-   * Should contains all the columns needed (eg. "SELECT *, col_a + col_b AS col_c FROM x.y.z WHERE col_a > 0" would have `transformation_sql` "*, col_a + col_b AS col_c")
+   * The expression must contain all required columns (e.g., "*, col_a + col_b AS col_c").
    * If transformation_sql is not provided, all columns of the delta table are present in the DataSource dataframe.
    */
   transformationSql?: string | undefined;
@@ -1529,6 +1537,32 @@ export interface GetOperationRequest {
 export interface GetStreamRequest {
   /** Full three-part name (catalog.schema.stream) of the Stream to get. */
   name?: string | undefined;
+}
+
+/**
+ * A Unity Catalog managed or foreign Iceberg table, in Iceberg v2 or v3 format.
+ * Table identity, format, schema, and permissions are resolved through Unity Catalog.
+ */
+export interface IcebergTableSource {
+  /** Full three-part name of the source table. May be omitted on reads when inaccessible. */
+  fullName?: string | undefined;
+  /**
+   * A single WHERE clause to filter the Iceberg table before applying transformations.
+   * The predicate is evaluated for each row.
+   */
+  filterCondition?: string | undefined;
+  /**
+   * A single SQL SELECT expression applied after filter_condition.
+   * The expression must contain all required columns (e.g., "*, col_a + col_b AS col_c").
+   * If transformation_sql is not provided, all columns of the Iceberg table are present in the DataSource dataframe.
+   */
+  transformationSql?: string | undefined;
+  /**
+   * Schema of the resulting dataframe after transformations, in Spark StructType JSON format (from df.schema.json()).
+   * Required if transformation_sql is specified.
+   * Example: {"type":"struct","fields":[{"name":"col_a","type":"integer","nullable":true,"metadata":{}},{"name":"col_c","type":"integer","nullable":true,"metadata":{}}]}
+   */
+  dataframeSchema?: string | undefined;
 }
 
 /**
@@ -3283,6 +3317,9 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
       .lazy(() => unmarshalFeatureViewSourceSchema)
       .optional(),
     sdp_source: z.lazy(() => unmarshalSdpSourceSchema).optional(),
+    iceberg_table_source: z
+      .lazy(() => unmarshalIcebergTableSourceSchema)
+      .optional(),
     lateness: z
       .lazy(() => unmarshalSourceLatenessSchema)
       .nullish()
@@ -3308,7 +3345,12 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
                   }
                 : d.sdp_source !== undefined
                   ? {$case: 'sdpSource' as const, sdpSource: d.sdp_source}
-                  : undefined,
+                  : d.iceberg_table_source !== undefined
+                    ? {
+                        $case: 'icebergTableSource' as const,
+                        icebergTableSource: d.iceberg_table_source,
+                      }
+                    : undefined,
     lateness: d.lateness,
   }));
 
@@ -3659,6 +3701,21 @@ export const unmarshalFunctionExtraParameterSchema: z.ZodType<FunctionExtraParam
     .transform(d => ({
       key: d.key,
       value: d.value,
+    }));
+
+export const unmarshalIcebergTableSourceSchema: z.ZodType<IcebergTableSource> =
+  z
+    .object({
+      full_name: z.string().optional(),
+      filter_condition: z.string().optional(),
+      transformation_sql: z.string().optional(),
+      dataframe_schema: z.string().optional(),
+    })
+    .transform(d => ({
+      fullName: d.full_name,
+      filterCondition: d.filter_condition,
+      transformationSql: d.transformation_sql,
+      dataframeSchema: d.dataframe_schema,
     }));
 
 export const unmarshalIngestionConfigSchema: z.ZodType<IngestionConfig> = z
@@ -5230,6 +5287,10 @@ export const marshalDataSourceSchema: z.ZodType = z
           $case: z.literal('sdpSource'),
           sdpSource: z.lazy(() => marshalSdpSourceSchema),
         }),
+        z.object({
+          $case: z.literal('icebergTableSource'),
+          icebergTableSource: z.lazy(() => marshalIcebergTableSourceSchema),
+        }),
       ])
       .optional(),
     lateness: z.lazy(() => marshalSourceLatenessSchema).optional(),
@@ -5252,6 +5313,9 @@ export const marshalDataSourceSchema: z.ZodType = z
     }),
     ...(d.dataSource?.$case === 'sdpSource' && {
       sdp_source: d.dataSource.sdpSource,
+    }),
+    ...(d.dataSource?.$case === 'icebergTableSource' && {
+      iceberg_table_source: d.dataSource.icebergTableSource,
     }),
     lateness: d.lateness,
   }));
@@ -5583,6 +5647,20 @@ export const marshalFunctionExtraParameterSchema: z.ZodType = z
   .transform(d => ({
     key: d.key,
     value: d.value,
+  }));
+
+export const marshalIcebergTableSourceSchema: z.ZodType = z
+  .object({
+    fullName: z.string().optional(),
+    filterCondition: z.string().optional(),
+    transformationSql: z.string().optional(),
+    dataframeSchema: z.string().optional(),
+  })
+  .transform(d => ({
+    full_name: d.fullName,
+    filter_condition: d.filterCondition,
+    transformation_sql: d.transformationSql,
+    dataframe_schema: d.dataframeSchema,
   }));
 
 export const marshalIngestionConfigSchema: z.ZodType = z
@@ -6673,6 +6751,10 @@ const dataSourceFieldMaskSchema: FieldMaskSchema = {
     wire: 'feature_view_source',
     children: () => featureViewSourceFieldMaskSchema,
   },
+  icebergTableSource: {
+    wire: 'iceberg_table_source',
+    children: () => icebergTableSourceFieldMaskSchema,
+  },
   kafkaSource: {
     wire: 'kafka_source',
     children: () => kafkaSourceFieldMaskSchema,
@@ -6776,6 +6858,13 @@ const functionFieldMaskSchema: FieldMaskSchema = {
   customUdf: {wire: 'custom_udf', children: () => customUdfFieldMaskSchema},
   extraParameters: {wire: 'extra_parameters'},
   functionType: {wire: 'function_type'},
+};
+
+const icebergTableSourceFieldMaskSchema: FieldMaskSchema = {
+  dataframeSchema: {wire: 'dataframe_schema'},
+  filterCondition: {wire: 'filter_condition'},
+  fullName: {wire: 'full_name'},
+  transformationSql: {wire: 'transformation_sql'},
 };
 
 const ingestionConfigFieldMaskSchema: FieldMaskSchema = {

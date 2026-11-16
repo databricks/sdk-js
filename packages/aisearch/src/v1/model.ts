@@ -287,10 +287,9 @@ export interface CreateIndexRequest {
    */
   index?: Index | undefined;
   /**
-   * The user-supplied Unity Catalog table name for the Index, per AIP-133. The server
-   * composes the full `Index.name` as `{parent}/indexes/{index_id}`. AIP-133 does not
-   * list `index_id` as a fields-may-be-required entry, so we annotate it OPTIONAL on the
-   * wire; the server still rejects empty values with INVALID_PARAMETER_VALUE.
+   * Three-level Unity Catalog table name for the new index, in the form `catalog.schema.name`.
+   * The server composes the full `Index.name` as `{parent}/indexes/{index_id}` and rejects an
+   * empty value.
    */
   indexId?: string | undefined;
 }
@@ -331,49 +330,64 @@ export interface DeleteIndexRequest {
 
 /** Specification for a Delta Sync index — the index is kept in sync with a source Delta table. */
 export interface DeltaSyncIndexSpec {
-  /** The full name of the source Delta table. */
+  /** Three-level Unity Catalog name of the source Delta table, in the form `catalog.schema.table`. */
   sourceTable?: string | undefined;
-  /** The columns that contain the embedding source. */
+  /**
+   * Columns whose text Databricks embeds during sync, using the model endpoint named on each
+   * column. Set either this field or `embedding_vector_columns`, not both.
+   */
   embeddingSourceColumns?: EmbeddingSourceColumn[] | undefined;
-  /** The columns that contain the embedding vectors. */
+  /**
+   * Columns of the source table that already hold precomputed embedding vectors. Set either this
+   * field or `embedding_source_columns`, not both.
+   */
   embeddingVectorColumns?: EmbeddingVectorColumn[] | undefined;
-  /** [Optional] Name of the Delta table to sync the index contents and computed embeddings to. */
+  /**
+   * Three-level name of a Delta table to write the synced rows and computed embeddings to. It
+   * applies only when embeddings are computed from `embedding_source_columns`, and the table must
+   * not already exist.
+   */
   embeddingWritebackTable?: string | undefined;
   /**
-   * [Optional] Select the columns to sync with the index. If left blank, all columns
-   * from the source table are synced. The primary key column and embedding source or
-   * vector column are always synced.
+   * Columns of the source table to include in the index. When empty, all columns are synced. The
+   * primary key and the embedding source or vector column are always synced. Only synced columns
+   * can be returned in query results or used in filters.
    */
   columnsToSync?: string[] | undefined;
   /** The ID of the pipeline that is used to sync the index. */
   pipelineId?: string | undefined;
   /**
-   * Pipeline execution mode. Required on create — the backend rejects an unset value.
-   * Storage Optimized endpoints accept only `TRIGGERED`; Standard endpoints accept both.
-   * No explicit `stage` — a REQUIRED field staged below its service would be dropped from
-   * combined specs while remaining in `required`, tripping the OpenAPI required-vs-properties
-   * consistency check. The field inherits the service's launch stage.
+   * Sync mode of the pipeline that keeps the index up to date. `TRIGGERED` syncs at creation and
+   * then each time SyncIndex is called; `CONTINUOUS` processes source changes as they arrive.
+   * Storage Optimized endpoints accept only `TRIGGERED`, and an unset value is rejected.
    */
   pipelineType?: PipelineType | undefined;
 }
 
 /** Specification for a Direct Access index — the customer manages vectors and metadata directly. */
 export interface DirectAccessIndexSpec {
-  /** The columns that contain the embedding vectors. */
+  /**
+   * Columns that hold precomputed embedding vectors. A single vector column is supported, and it
+   * cannot be the primary key.
+   */
   embeddingVectorColumns?: EmbeddingVectorColumn[] | undefined;
   /**
-   * The schema of the index in JSON format. Supported types are `integer`, `long`,
-   * `float`, `double`, `boolean`, `string`, `date`, `timestamp`. Supported types for
-   * vector columns: `array<float>`, `array<double>`.
+   * The schema of the index in JSON format, mapping each column name to its type. Supported
+   * types are `integer`, `long`, `float`, `double`, `boolean`, `string`, `date`, `timestamp`.
+   * Supported types for vector columns: `array<float>`, `array<double>`. The schema must include
+   * the primary key column and the embedding vector column.
    */
   schemaJson?: string | undefined;
-  /** The columns that contain the embedding source. */
+  /**
+   * Columns that contain the text to embed, each with the model endpoint that computes its
+   * embeddings.
+   */
   embeddingSourceColumns?: EmbeddingSourceColumn[] | undefined;
 }
 
 /** Name of an embedding source column and its associated embedding model endpoint. */
 export interface EmbeddingSourceColumn {
-  /** Name of the source column. */
+  /** Name of the column whose text is embedded. */
   name?: string | undefined;
   /** Name of the embedding model endpoint, used by default for both ingestion and querying. */
   embeddingModelEndpoint?: string | undefined;
@@ -383,9 +397,9 @@ export interface EmbeddingSourceColumn {
 
 /** Name and dimension of an embedding vector column. */
 export interface EmbeddingVectorColumn {
-  /** Name of the column. */
+  /** Name of the column that holds the precomputed embedding vectors. */
   name?: string | undefined;
-  /** Dimension of the embedding vector. */
+  /** Number of elements in each embedding vector. It must be positive. */
   embeddingDimension?: number | undefined;
 }
 
@@ -562,9 +576,17 @@ export interface Index {
    * taken from `CreateIndexRequest.parent`; populated only on output.
    */
   endpoint?: string | undefined;
-  /** Primary key of the index. Set on create and immutable thereafter. */
+  /**
+   * Name of the column that uniquely identifies each row. It must exist in the source table
+   * (Delta Sync) or in `schema_json` (Direct Access) and cannot be the embedding source or vector
+   * column. Set on create and immutable thereafter.
+   */
   primaryKey?: string | undefined;
-  /** Type of index. Required on create and immutable thereafter. */
+  /**
+   * Type of index. A `DELTA_SYNC` index is kept in sync with a source Delta table; a
+   * `DIRECT_ACCESS` index holds rows that you write through UpsertData and RemoveData. Set on
+   * create and immutable thereafter.
+   */
   indexType?: IndexType | undefined;
   /**
    * Configuration of the index, dependent on `index_type`. Set on create and immutable
@@ -586,7 +608,11 @@ export interface Index {
   status?: IndexStatus | undefined;
   /** Creator of the index. */
   creator?: string | undefined;
-  /** The subtype of the index. Set on create and immutable thereafter. */
+  /**
+   * Subtype of the index. Use `HYBRID` for vector and hybrid search, or `FULL_TEXT` for
+   * keyword-only search without embeddings; `VECTOR` is not a supported create value. Set on
+   * create and immutable thereafter.
+   */
   indexSubtype?: IndexSubtype | undefined;
 }
 
@@ -599,7 +625,10 @@ export interface IndexStatus {
   message?: string | undefined;
   /** Number of rows indexed. */
   indexedRowCount?: bigint | undefined;
-  /** Whether the index is ready for search. */
+  /**
+   * Whether the index is ready to serve queries. After CreateIndex, poll GetIndex until this is
+   * true; `message` describes the current state in the meantime.
+   */
   ready?: boolean | undefined;
   /** Index API URL used to perform operations on the index. */
   indexUrl?: string | undefined;
@@ -637,11 +666,7 @@ export interface ListIndexesRequest {
    * Format: `workspaces/{workspace_id}/endpoints/{endpoint_id}`
    */
   parent?: string | undefined;
-  /**
-   * Best-effort upper bound on the number of results to return. Honored as an upper
-   * bound by the shim: `page_size` only narrows the legacy backend's response, never
-   * widens it, so the practical cap is `min(page_size, legacy_fixed_page_size)`.
-   */
+  /** Maximum number of indexes to return. When unset, every index on the endpoint is returned. */
   pageSize?: number | undefined;
   /** Page token from a previous response. If not provided, returns the first page. */
   pageToken?: string | undefined;
@@ -671,24 +696,45 @@ export interface QueryIndexRequest {
    * Format: `workspaces/{workspace_id}/endpoints/{endpoint_id}/indexes/{index_id}`
    */
   name?: string | undefined;
-  /** Column names to include in each result row. */
+  /**
+   * Columns to include in each result row. Only columns that are part of the index can be
+   * returned.
+   */
   columns?: string[] | undefined;
   /**
    * Query vector. Required for Direct Access indexes and Delta Sync indexes with self-managed
    * vectors.
    */
   queryVector?: number[] | undefined;
-  /** Query text. Required for Delta Sync indexes that compute embeddings from a model endpoint. */
+  /**
+   * Query text. Required for Delta Sync indexes that compute embeddings from a model endpoint, and
+   * for `HYBRID` and `FULL_TEXT` queries.
+   */
   queryText?: string | undefined;
-  /** JSON string describing query filters (e.g. `{"id >": 5}`). */
+  /**
+   * JSON object of filters to apply, serialized as a string. Each key is a column name with an
+   * optional operator suffix such as `<`, `>=`, `NOT`, or `OR`, and each value is the value to
+   * compare against. Only columns that are part of the index can be filtered. See
+   * https://docs.databricks.com/aws/en/ai-search/query-ai-search#filters for the supported
+   * operators.
+   */
   filtersJson?: string | undefined;
-  /** Score threshold for the approximate nearest-neighbor search. Defaults to 0.0. */
+  /**
+   * Score threshold for the approximate nearest-neighbor search; results that score below it are
+   * not returned. Defaults to 0.0.
+   */
   scoreThreshold?: number | undefined;
-  /** Query type: `ANN`, `HYBRID`, or `FULL_TEXT`. Defaults to `ANN`. */
+  /**
+   * Query type: `ANN` for vector similarity search, `HYBRID` for combined vector and keyword
+   * search, or `FULL_TEXT` for keyword search without embeddings. Defaults to `ANN`.
+   */
   queryType?: string | undefined;
   /** Columns whose values are sent to the reranker. */
   columnsToRerank?: string[] | undefined;
-  /** If set, results are reranked before being returned. */
+  /**
+   * If set, results are reranked before being returned. See
+   * https://docs.databricks.com/aws/en/ai-search/query-ai-search#rerank for details.
+   */
   reranker?: RerankerConfig | undefined;
   /** Text columns to search for `query_text`. When empty, all text columns are searched. */
   queryColumns?: string[] | undefined;
@@ -697,8 +743,8 @@ export interface QueryIndexRequest {
   /** Facets to compute over the matched results (e.g. `"category TOP 5"`). */
   facets?: string[] | undefined;
   /**
-   * Maximum number of results to return (the legacy `num_results`). Defaults to 10.
-   * Prefer `page_size`; when both are set, `page_size` takes precedence.
+   * Maximum number of results to return. Defaults to 10. It corresponds to `num_results` in the
+   * Vector Search API.
    */
   maxResults?: number | undefined;
 }
@@ -730,7 +776,10 @@ export interface RemoveDataRequest {
 
 /** Response for RemoveData. */
 export interface RemoveDataResponse {
-  /** Overall status of the delete. */
+  /**
+   * Overall status of the delete: `SUCCESS` when every row was removed, `PARTIAL_SUCCESS` when
+   * some rows failed (see `result.failed_primary_keys`), or `FAILURE` when the operation failed.
+   */
   status?: DataModificationStatus | undefined;
   /** Per-row outcome of the delete. */
   result?: DataModificationResult | undefined;
@@ -786,7 +835,7 @@ export interface ScanIndexRequest {
    * Format: `workspaces/{workspace_id}/endpoints/{endpoint_id}/indexes/{index_id}`
    */
   name?: string | undefined;
-  /** Maximum number of rows to return in this page. */
+  /** Maximum number of rows to return in this page. Defaults to 10. */
   pageSize?: number | undefined;
   /** Page token from a previous response; if unset, scanning starts from the beginning. */
   pageToken?: string | undefined;
@@ -794,7 +843,10 @@ export interface ScanIndexRequest {
 
 /** Response for ScanIndex carrying a page of rows and an optional continuation token. */
 export interface ScanIndexResponse {
-  /** The rows in this page, each a struct of column name to value. */
+  /**
+   * Rows in this page, ordered by primary key. Each row is a JSON object that maps column names to
+   * values.
+   */
   data?: JsonObject[] | undefined;
   /** Token for the next page; empty when the scan is exhausted. */
   nextPageToken?: string | undefined;
@@ -840,13 +892,21 @@ export interface UpsertDataRequest {
    * Format: `workspaces/{workspace_id}/endpoints/{endpoint_id}/indexes/{index_id}`
    */
   name?: string | undefined;
-  /** JSON document describing the rows to upsert. */
+  /**
+   * JSON array of the rows to insert or update, serialized as a string. Each element is an object
+   * that maps column names to values and must include the primary key column; vector columns are
+   * given as arrays of numbers. A row whose primary key already exists is overwritten. The array
+   * must not be empty.
+   */
   inputsJson?: string | undefined;
 }
 
 /** Response for UpsertData. */
 export interface UpsertDataResponse {
-  /** Overall status of the upsert. */
+  /**
+   * Overall status of the upsert: `SUCCESS` when every row was written, `PARTIAL_SUCCESS` when
+   * some rows failed (see `result.failed_primary_keys`), or `FAILURE` when the operation failed.
+   */
   status?: DataModificationStatus | undefined;
   /** Per-row outcome of the upsert. */
   result?: DataModificationResult | undefined;

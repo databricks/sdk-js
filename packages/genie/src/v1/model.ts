@@ -1002,7 +1002,7 @@ export interface ExternalLink {
   nextChunkInternalLink?: string | undefined;
 }
 
-/** Genie AI Response */
+/** One part of Genie's response to a message. Exactly one of the attachment fields is set. */
 export interface GenieAttachment {
   attachment?:
     | {
@@ -1029,7 +1029,10 @@ export interface GenieAttachment {
         viz: GenieVizAttachment;
       }
     | undefined;
-  /** Attachment ID */
+  /**
+   * The ID of the attachment. The attachment query-result, execute-query, download, and
+   * visualization endpoints take this ID.
+   */
   attachmentId?: string | undefined;
 }
 
@@ -1058,19 +1061,23 @@ export interface GenieConversation {
   spaceId?: string | undefined;
   /** ID of the user who created the conversation */
   userId?: bigint | undefined;
-  /** Timestamp when the message was created */
+  /** Time when the conversation was created, in milliseconds since the Unix epoch. */
   createdTimestamp?: bigint | undefined;
-  /** Timestamp when the message was last updated */
+  /** Time when the conversation was last updated, in milliseconds since the Unix epoch. */
   lastUpdatedTimestamp?: bigint | undefined;
-  /** Conversation title */
+  /** Title of the conversation. Genie sets it to the text of the first message, truncated to 255 characters. */
   title?: string | undefined;
   /** Conversation ID */
   conversationId?: string | undefined;
 }
 
+/** A summary of a conversation, as returned when listing the conversations in a space. */
 export interface GenieConversationSummary {
+  /** The ID of the conversation. */
   conversationId?: string | undefined;
+  /** The title of the conversation. */
   title?: string | undefined;
+  /** Time when the conversation was created, in milliseconds since the Unix epoch. */
   createdTimestamp?: bigint | undefined;
   /**
    * Whether this is a classic chat or an agent-mode conversation. Allows callers to
@@ -1109,19 +1116,22 @@ export interface GenieCreateMessageCommentRequest {
 }
 
 export interface GenieCreateSpaceRequest {
-  /** Warehouse to associate with the new space */
+  /**
+   * ID of the SQL warehouse that runs the queries Genie generates for the space, as a 16-character
+   * hexadecimal string.
+   */
   warehouseId?: string | undefined;
-  /** Parent folder path where the space will be registered */
+  /** Path of the workspace folder in which to create the space. */
   parentPath?: string | undefined;
   /**
-   * The contents of the Genie Space in serialized string form.
-   * Use the [Get Genie Space](:method:genie/getspace) API to retrieve an example response, which includes the `serialized_space` field.
-   * This field provides the structure of the JSON string that represents the space's layout and components.
+   * Configuration of the new space as a JSON string. To copy an existing space, use the value that
+   * [Get Genie Space](:method:genie/getspace) returns when `include_serialized_space` is true. For the
+   * JSON format and its validation rules, see https://docs.databricks.com/aws/en/genie-agents/conversation-api.
    */
   serializedSpace?: string | undefined;
-  /** Optional title override */
+  /** Display name of the new space. A default name is assigned when omitted. */
   title?: string | undefined;
-  /** Optional description */
+  /** Description of the space, up to 16384 bytes. */
   description?: string | undefined;
 }
 
@@ -1380,8 +1390,8 @@ export interface GenieGetSpaceRequest {
   /** The ID associated with the Genie space */
   spaceId?: string | undefined;
   /**
-   * Whether to include the serialized space export in the response.
-   * Requires at least CAN EDIT permission on the space.
+   * Whether to include the serialized space export in the response. When true, the response also
+   * carries the configuration `etag`. Requires at least CAN EDIT permission on the space.
    */
   includeSerializedSpace?: boolean | undefined;
 }
@@ -1523,14 +1533,17 @@ export interface GenieMessage {
   conversationId?: string | undefined;
   /** ID of the user who created the message */
   userId?: bigint | undefined;
-  /** Timestamp when the message was created */
+  /** Time when the message was created, in milliseconds since the Unix epoch. */
   createdTimestamp?: bigint | undefined;
-  /** Timestamp when the message was last updated */
+  /** Time when the message was last updated, in milliseconds since the Unix epoch. */
   lastUpdatedTimestamp?: bigint | undefined;
   status?: MessageStatus_MessageStatus | undefined;
   /** User message content */
   content?: string | undefined;
-  /** AI-generated response to the message */
+  /**
+   * Genie's response to the message. Each attachment holds one part of the response, such as a
+   * text answer or a SQL query.
+   */
   attachments?: GenieAttachment[] | undefined;
   /**
    * The result of SQL query if the message includes a query attachment.
@@ -1572,6 +1585,7 @@ export interface GenieQueryAttachment {
   description?: string | undefined;
   /** Time when the user updated the query last */
   lastUpdatedTimestamp?: bigint | undefined;
+  /** The parameters of the SQL query, when the query is parameterized. */
   parameters?: QueryAttachmentParameter[] | undefined;
   id?: string | undefined;
   /** Statement Execution API statement id. Use [Get status, manifest, and result first chunk](:method:statementexecution/getstatement) to get the full result data. */
@@ -1602,6 +1616,11 @@ export interface GenieSendMessageFeedbackRequest {
   comment?: string | undefined;
 }
 
+/**
+ * A Genie space that business users query in natural language. Its configuration (data sources,
+ * instructions, sample questions and benchmarks) travels as a JSON string in `serialized_space`;
+ * the other fields are metadata about the space.
+ */
 export interface GenieSpace {
   /** Genie space ID */
   spaceId?: string | undefined;
@@ -1609,15 +1628,15 @@ export interface GenieSpace {
   title?: string | undefined;
   /** Description of the Genie Space */
   description?: string | undefined;
-  /** Warehouse associated with the Genie Space */
+  /** ID of the SQL warehouse that runs the queries Genie generates for this space. */
   warehouseId?: string | undefined;
-  /** Parent folder path of the Genie Space */
+  /** Path of the workspace folder that contains the space. */
   parentPath?: string | undefined;
   /**
-   * The contents of the Genie Space in serialized string form.
-   * This field is excluded in List Genie spaces responses.
-   * Use the [Get Genie Space](:method:genie/getspace) API to retrieve an example response, which includes the `serialized_space` field.
-   * This field provides the structure of the JSON string that represents the space's layout and components.
+   * Configuration of the space (data sources, instructions, sample questions and benchmarks) as a JSON string.
+   * [Get Genie Space](:method:genie/getspace) returns it only when `include_serialized_space` is true, and
+   * List Genie spaces never returns it. For the JSON format and its validation rules, see
+   * https://docs.databricks.com/aws/en/genie-agents/conversation-api.
    */
   serializedSpace?: string | undefined;
   /**
@@ -1643,9 +1662,11 @@ export interface GenieStartConversationRequest {
 export interface GenieStartConversationResponse {
   /** Message ID */
   messageId?: string | undefined;
+  /** The first message of the conversation, in its initial state. */
   message?: GenieMessage | undefined;
   /** Conversation ID */
   conversationId?: string | undefined;
+  /** The newly created conversation. */
   conversation?: GenieConversation | undefined;
 }
 
@@ -1664,16 +1685,17 @@ export interface GenieUpdateSpaceRequest {
   /** Genie space ID */
   spaceId?: string | undefined;
   /**
-   * The contents of the Genie Space in serialized string form (full replacement).
-   * Use the [Get Genie Space](:method:genie/getspace) API to retrieve an example response, which includes the `serialized_space` field.
-   * This field provides the structure of the JSON string that represents the space's layout and components.
+   * New configuration of the space as a JSON string. It replaces the whole configuration; when omitted,
+   * the current configuration is kept. Start from the value that [Get Genie Space](:method:genie/getspace)
+   * returns when `include_serialized_space` is true. For the JSON format and its validation rules, see
+   * https://docs.databricks.com/aws/en/genie-agents/conversation-api.
    */
   serializedSpace?: string | undefined;
-  /** Optional title override */
+  /** New display name for the space. Cannot be empty or contain a slash. */
   title?: string | undefined;
-  /** Optional description */
+  /** New description for the space, up to 16384 bytes. */
   description?: string | undefined;
-  /** Optional warehouse override */
+  /** ID of the SQL warehouse that runs the queries Genie generates for the space. */
   warehouseId?: string | undefined;
   /**
    * ETag returned by a previous GET or UPDATE. When set, the update will fail if the space
@@ -1696,7 +1718,9 @@ export interface GenieVizAttachment {
 }
 
 export interface MessageError {
+  /** A human-readable description of the error. */
   error?: string | undefined;
+  /** The category of the error. */
   type?: MessageError_Type | undefined;
 }
 
@@ -1723,8 +1747,11 @@ export interface PolicyFunctionArgument {
 }
 
 export interface QueryAttachmentParameter {
+  /** The name of the parameter as referenced in the SQL query. */
   keyword?: string | undefined;
+  /** The value bound to the parameter. */
   value?: string | undefined;
+  /** The SQL type of the parameter value. */
   sqlType?: string | undefined;
 }
 
@@ -1803,6 +1830,11 @@ export interface Schema {
   columns?: ColumnInfo[] | undefined;
 }
 
+/**
+ * Statement Execution works with all SQL warehouse types, including Lakehouse//RT. Statement Execution
+ * (Lakehouse//RT) is optimized for Lakehouse//RT warehouses, with lower latency and higher concurrency, and
+ * takes `warehouse_id` as a path parameter.
+ */
 export interface StatementResponse {
   /**
    * The statement ID is returned upon successfully submitting a SQL statement, and is a required

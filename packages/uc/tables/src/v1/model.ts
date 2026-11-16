@@ -691,11 +691,14 @@ export interface RowFilter {
   inputArguments?: PolicyFunctionArgument[] | undefined;
 }
 
-/** Manifest of a specific securable kind. */
+/**
+ * Manifest of a specific securable kind, or of an Atlas-native securable type,
+ * which has no kinds.
+ */
 export interface SecurableKindManifest {
   /** Securable Type of the kind. */
   securableType?: SecurableType | undefined;
-  /** Securable kind to get manifest of. */
+  /** Securable kind to get manifest of. Unset for Atlas-native securable types. */
   securableKind?: SecurableKind | undefined;
   /** Privileges that can be assigned to the securable. */
   assignablePrivileges?: string[] | undefined;

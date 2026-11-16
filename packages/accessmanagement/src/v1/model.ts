@@ -131,6 +131,29 @@ export interface ConsistencyToken {
   value?: string | undefined;
 }
 
+/** Request to add a workspace group to the workspace's restricted list. */
+export interface CreateRestrictedSharingGroupRequest {
+  /**
+   * The id of the workspace group to restrict: the numeric id of an existing and
+   * non-system workspace group.
+   */
+  restrictedSharingGroupId?: string | undefined;
+  /**
+   * The restricted sharing group to create. It has no client-set fields; the
+   * group is identified by restricted_sharing_group_id.
+   */
+  restrictedSharingGroup?: RestrictedSharingGroup | undefined;
+}
+
+/** Request to remove a group from the workspace's restricted list. */
+export interface DeleteRestrictedSharingGroupRequest {
+  /**
+   * The name of the restricted sharing group to delete.
+   * Format: `restricted-sharing-groups/{restricted_sharing_group_id}`
+   */
+  name?: string | undefined;
+}
+
 /** Removes all permission assignments for a workspace given a principal. */
 export interface DeleteWorkspacePermissionAssignmentRequest {
   /** The account ID. */
@@ -149,6 +172,15 @@ export interface GetObjectPermissionsRequest {
   requestObjectType?: string | undefined;
   /** The id of the request object. */
   requestObjectId?: string | undefined;
+}
+
+/** Request to get a restricted sharing group in the caller's workspace. */
+export interface GetRestrictedSharingGroupRequest {
+  /**
+   * The name of the restricted sharing group to get.
+   * Format: `restricted-sharing-groups/{restricted_sharing_group_id}`
+   */
+  name?: string | undefined;
 }
 
 export interface GetRuleSetRequest {
@@ -223,6 +255,32 @@ export interface ListPermissionLevelsRequest {
 export interface ListPermissionLevelsResponse {
   /** Specific permission levels */
   permissionLevels?: PermissionsDescription[] | undefined;
+}
+
+/** Request to list the restricted sharing groups in the caller's workspace. */
+export interface ListRestrictedSharingGroupsRequest {
+  /**
+   * The maximum number of groups to return. The service may return fewer.
+   * If unspecified or 0, at most 100 groups are returned. Values above 100 are
+   * coerced to 100. Negative values are rejected.
+   */
+  pageSize?: number | undefined;
+  /**
+   * A page token from a previous ListRestrictedSharingGroups call. Provide
+   * this to retrieve the subsequent page.
+   */
+  pageToken?: string | undefined;
+}
+
+/** A page of restricted sharing groups in the caller's workspace. */
+export interface ListRestrictedSharingGroupsResponse {
+  /** The restricted sharing groups in the workspace. */
+  restrictedSharingGroups?: RestrictedSharingGroup[] | undefined;
+  /**
+   * A token that can be sent as page_token to retrieve the next page. If this
+   * field is omitted, there are no subsequent pages.
+   */
+  nextPageToken?: string | undefined;
 }
 
 /** Gets all the permission assignments for a workspace, given an account and a workspace. */
@@ -322,6 +380,27 @@ export interface ResourceInfo {
   parentResourceInfo?: ResourceInfo | undefined;
   /** The legacy acl path of the current resource. */
   legacyAclPath?: string | undefined;
+}
+
+/**
+ * A RestrictedSharingGroup is a workspace group whose members cannot grant or
+ * revoke permissions on workspace assets while they have assumed the group or
+ * one of its child groups. Users acting as themselves are not affected.
+ */
+export interface RestrictedSharingGroup {
+  /**
+   * The resource name of the restricted sharing group.
+   * Format: `restricted-sharing-groups/{restricted_sharing_group_id}`
+   * Example: `restricted-sharing-groups/123`
+   */
+  name?: string | undefined;
+  /**
+   * The id of the restricted workspace group: the numeric id of an existing and
+   * non-system workspace group.
+   */
+  restrictedSharingGroupId?: string | undefined;
+  /** The display name of the restricted workspace group. */
+  groupDisplayName?: string | undefined;
 }
 
 export interface Role {
@@ -497,6 +576,19 @@ export const unmarshalListPermissionLevelsResponseSchema: z.ZodType<ListPermissi
       permissionLevels: d.permission_levels,
     }));
 
+export const unmarshalListRestrictedSharingGroupsResponseSchema: z.ZodType<ListRestrictedSharingGroupsResponse> =
+  z
+    .object({
+      restricted_sharing_groups: z
+        .array(z.lazy(() => unmarshalRestrictedSharingGroupSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      restrictedSharingGroups: d.restricted_sharing_groups,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalListWorkspacePermissionAssignmentsResponseSchema: z.ZodType<ListWorkspacePermissionAssignmentsResponse> =
   z
     .object({
@@ -602,6 +694,19 @@ export const unmarshalPrincipalOutputSchema: z.ZodType<PrincipalOutput> = z
     principalId: d.principal_id,
     displayName: d.display_name,
   }));
+
+export const unmarshalRestrictedSharingGroupSchema: z.ZodType<RestrictedSharingGroup> =
+  z
+    .object({
+      name: z.string().optional(),
+      restricted_sharing_group_id: z.string().optional(),
+      group_display_name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      restrictedSharingGroupId: d.restricted_sharing_group_id,
+      groupDisplayName: d.group_display_name,
+    }));
 
 export const unmarshalRoleSchema: z.ZodType<Role> = z
   .object({
@@ -720,6 +825,18 @@ export const marshalResourceInfoSchema: z.ZodType = z
     id: d.id,
     parent_resource_info: d.parentResourceInfo,
     legacy_acl_path: d.legacyAclPath,
+  }));
+
+export const marshalRestrictedSharingGroupSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    restrictedSharingGroupId: z.string().optional(),
+    groupDisplayName: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    restricted_sharing_group_id: d.restrictedSharingGroupId,
+    group_display_name: d.groupDisplayName,
   }));
 
 export const marshalRuleSetUpdateRequestSchema: z.ZodType = z

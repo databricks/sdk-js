@@ -336,7 +336,7 @@ export class OAuthClient {
     return resp;
   }
 
-  /** Get the list of custom OAuth app integrations for the specified <Account> */
+  /** Get the list of custom OAuth app integrations for the specified <Databricks> account. */
   async listCustomOAuthAppIntegrations(
     req: ListCustomOAuthAppIntegrationsRequest,
     options?: CallOptions

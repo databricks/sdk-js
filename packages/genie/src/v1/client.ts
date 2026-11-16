@@ -235,6 +235,8 @@ export class GenieClient {
   /**
    * Sends a new message in a chat-mode [conversation](:method:genie/startconversation).
    * The AI response uses all previously created messages in the conversation to respond.
+   * The message is processed asynchronously. Poll [Get a conversation message](:method:genie/getmessage)
+   * until its `status` is `COMPLETED`, `FAILED`, or `CANCELLED`.
    */
   private async genieCreateConversationMessageBase(
     req: GenieCreateConversationMessageRequest,
@@ -271,6 +273,8 @@ export class GenieClient {
   /**
    * Sends a new message in a chat-mode [conversation](:method:genie/startconversation).
    * The AI response uses all previously created messages in the conversation to respond.
+   * The message is processed asynchronously. Poll [Get a conversation message](:method:genie/getmessage)
+   * until its `status` is `COMPLETED`, `FAILED`, or `CANCELLED`.
    */
   async genieCreateConversationMessage(
     req: GenieCreateConversationMessageRequest,
@@ -361,7 +365,10 @@ export class GenieClient {
     return resp;
   }
 
-  /** Delete a conversation. */
+  /**
+   * Deletes a conversation and all of its messages. Users can delete their own conversations.
+   * Deleting another user's conversation requires at least CAN MANAGE permission on the space.
+   */
   async genieDeleteConversation(
     req: GenieDeleteConversationRequest,
     options?: CallOptions
@@ -684,8 +691,8 @@ export class GenieClient {
   }
 
   /**
-   * Get the result of SQL query if the message has a query attachment.
-   * This is only available if a message has a query attachment and the message status is `EXECUTING_QUERY` OR `COMPLETED`.
+   * Gets the result of the SQL query in a message's query attachment.
+   * The result is available only while the message status is `EXECUTING_QUERY` or `COMPLETED`.
    */
   async genieGetMessageAttachmentQueryResult(
     req: GenieGetMessageAttachmentQueryResultRequest,
@@ -906,7 +913,11 @@ export class GenieClient {
     return resp;
   }
 
-  /** Get a list of conversations in a Genie Space. */
+  /**
+   * Lists the conversations in a Genie space. By default the list contains only the caller's own
+   * conversations, ordered by most recent activity. With `include_all`, it contains every user's
+   * conversations in the space, ordered by creation time with the newest first.
+   */
   async genieListConversations(
     req: GenieListConversationsRequest,
     options?: CallOptions
@@ -1070,7 +1081,7 @@ export class GenieClient {
     return resp;
   }
 
-  /** Get list of Genie Spaces. */
+  /** Lists the Genie spaces that the caller can access, most recently updated first. */
   async genieListSpaces(
     req: GenieListSpacesRequest,
     options?: CallOptions
@@ -1135,7 +1146,11 @@ export class GenieClient {
     await executeCall(call, options);
   }
 
-  /** Starts a new chat-mode conversation and sends its first message. */
+  /**
+   * Starts a new chat-mode conversation and sends its first message.
+   * The message is processed asynchronously. Poll [Get a conversation message](:method:genie/getmessage)
+   * until its `status` is `COMPLETED`, `FAILED`, or `CANCELLED`.
+   */
   private async genieStartConversationBase(
     req: GenieStartConversationRequest,
     options?: CallOptions
@@ -1171,7 +1186,11 @@ export class GenieClient {
     return resp;
   }
 
-  /** Starts a new chat-mode conversation and sends its first message. */
+  /**
+   * Starts a new chat-mode conversation and sends its first message.
+   * The message is processed asynchronously. Poll [Get a conversation message](:method:genie/getmessage)
+   * until its `status` is `COMPLETED`, `FAILED`, or `CANCELLED`.
+   */
   async genieStartConversation(
     req: GenieStartConversationRequest,
     options?: CallOptions
@@ -1221,7 +1240,11 @@ export class GenieClient {
     await executeCall(call, options);
   }
 
-  /** Updates a Genie space with a serialized payload. */
+  /**
+   * Updates a Genie space. Replaces the whole configuration when `serialized_space` is set and
+   * changes the title, description, warehouse or folder when those fields are set; omitted fields
+   * keep their current values.
+   */
   async updateSpace(
     req: GenieUpdateSpaceRequest,
     options?: CallOptions

@@ -1,9 +1,14 @@
 {
   "name": "@databricks/sdk-statementexecution",
-  "version": "0.53.1",
+  "version": "0.53.2",
   "description": "",
   "type": "module",
   "exports": {
+    "./v2": {
+      "types": "./dist/v2/index.d.ts",
+      "import": "./dist/v2/index.js",
+      "default": "./dist/v2/index.js"
+    },
     "./v1": {
       "types": "./dist/v1/index.d.ts",
       "import": "./dist/v1/index.js",

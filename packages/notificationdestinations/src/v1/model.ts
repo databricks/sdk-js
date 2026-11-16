@@ -2,33 +2,64 @@
 
 import {z} from 'zod';
 
+/** The kind of destination that notifications are sent to. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const DestinationType = {
+  /** Notifications are sent to a Slack incoming webhook. */
   SLACK: 'SLACK',
+  /** Notifications are sent to email addresses. */
   EMAIL: 'EMAIL',
+  /** Notifications are sent to a generic HTTPS webhook. */
   WEBHOOK: 'WEBHOOK',
+  /** Notifications are sent to a PagerDuty service. */
   PAGERDUTY: 'PAGERDUTY',
+  /** Notifications are sent to a Microsoft Teams incoming webhook. */
   MICROSOFT_TEAMS: 'MICROSOFT_TEAMS',
+  /** Notifications are sent to a Slack channel through the Databricks Genie app for Slack. */
   DATABRICKS_APP_SLACK: 'DATABRICKS_APP_SLACK',
+  /** Notifications are sent to a Microsoft Teams channel through the Databricks Genie app for Microsoft Teams. */
   DATABRICKS_APP_TEAMS: 'DATABRICKS_APP_TEAMS',
 } as const;
 export type DestinationType =
   | (typeof DestinationType)[keyof typeof DestinationType]
   | (string & {});
 
+/** Holds the destination-specific configuration. Exactly one of the nested configs is set. */
 export interface Config {
   config?:
-    | {$case: 'slack'; slack: SlackConfig}
-    | {$case: 'email'; email: EmailConfig}
-    | {$case: 'genericWebhook'; genericWebhook: GenericWebhookConfig}
-    | {$case: 'pagerduty'; pagerduty: PagerdutyConfig}
-    | {$case: 'microsoftTeams'; microsoftTeams: MicrosoftTeamsConfig}
+    | {
+        $case: 'slack';
+        /** Configures a Slack incoming webhook destination. */
+        slack: SlackConfig;
+      }
+    | {
+        $case: 'email';
+        /** Configures an email destination. */
+        email: EmailConfig;
+      }
+    | {
+        $case: 'genericWebhook';
+        /** Configures a generic HTTPS webhook destination. */
+        genericWebhook: GenericWebhookConfig;
+      }
+    | {
+        $case: 'pagerduty';
+        /** Configures a PagerDuty destination. */
+        pagerduty: PagerdutyConfig;
+      }
+    | {
+        $case: 'microsoftTeams';
+        /** Configures a Microsoft Teams incoming webhook destination. */
+        microsoftTeams: MicrosoftTeamsConfig;
+      }
     | {
         $case: 'databricksAppSlack';
+        /** Configures a Slack channel reached through the Databricks Genie app for Slack. */
         databricksAppSlack: DatabricksAppSlackConfig;
       }
     | {
         $case: 'databricksAppTeams';
+        /** Configures a Microsoft Teams channel reached through the Databricks Genie app for Microsoft Teams. */
         databricksAppTeams: DatabricksAppTeamsConfig;
       }
     | undefined;
@@ -76,116 +107,156 @@ export interface DatabricksAppTeamsConfig {
 }
 
 export interface DeleteNotificationDestinationRequest {
+  /** A UUID identifying the notification destination. */
   id?: string | undefined;
 }
 
+/** Configures an email destination. */
 export interface EmailConfig {
-  /** Email addresses to notify. */
+  /** Email addresses to notify. At least one address is required. */
   addresses?: string[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface Empty {}
 
+/**
+ * Configures a generic webhook destination. Notifications are delivered as HTTPS POST requests
+ * to url, optionally authenticated with HTTP Basic authentication.
+ */
 export interface GenericWebhookConfig {
-  /** [Input-Only] URL for webhook. */
+  /** [Input-Only] HTTPS URL that notifications are posted to. */
   url?: string | undefined;
   /** [Output-Only] Whether URL is set. */
   urlSet?: boolean | undefined;
-  /** [Input-Only][Optional] Username for webhook. */
+  /** [Input-Only][Optional] Username for HTTP Basic authentication. Set it together with password. */
   username?: string | undefined;
   /** [Output-Only] Whether username is set. */
   usernameSet?: boolean | undefined;
-  /** [Input-Only][Optional] Password for webhook. */
+  /** [Input-Only][Optional] Password for HTTP Basic authentication. Set it together with username. */
   password?: string | undefined;
   /** [Output-Only] Whether password is set. */
   passwordSet?: boolean | undefined;
 }
 
 export interface GetNotificationDestinationRequest {
+  /** A UUID identifying the notification destination. */
   id?: string | undefined;
 }
 
 export interface ListNotificationDestinationsRequest {
+  /** Opaque token returned as next_page_token by a previous call. Omit it to request the first page. */
   pageToken?: string | undefined;
+  /** Maximum number of notification destinations to return per page. Defaults to 20. */
   pageSize?: bigint | undefined;
 }
 
 export interface ListNotificationDestinationsResponse {
+  /** Notification destinations in the current page. */
   results?: ListNotificationDestinationsResult[] | undefined;
-  /** Page token for next of results. */
+  /** Token to pass as page_token to fetch the next page of results. Absent when there are no more results. */
   nextPageToken?: string | undefined;
 }
 
+/**
+ * A reusable definition of where a workspace sends notifications, such as a Slack channel, a set
+ * of email addresses, a PagerDuty service, a Microsoft Teams channel or a generic webhook. Job
+ * notifications, SQL alerts and other workspace features reference a destination by its id. Only
+ * workspace admins can create, update and delete destinations; once created, a destination is
+ * available to all users in the workspace. Secret values such as webhook URLs and tokens are
+ * write-only: responses report whether each one is set, never its value.
+ */
 export interface ListNotificationDestinationsResult {
-  /** UUID identifying notification destination. */
+  /** A UUID identifying the notification destination. */
   id?: string | undefined;
   /** The display name for the notification destination. */
   displayName?: string | undefined;
-  /** [Output-only] The type of the notification destination. The type can not be changed once set. */
+  /** [Output-only] The type of the notification destination, determined by which nested config was provided on creation. The type can not be changed once set. */
   destinationType?: DestinationType | undefined;
-  /** The configuration for the notification destination. Will be exactly one of the nested configs. Only returns for users with workspace admin permissions. */
+  /** The configuration for the notification destination. Will be exactly one of the nested configs. Only returned to users with workspace admin permissions. */
   config?: Config | undefined;
 }
 
+/**
+ * Configures a Microsoft Teams destination. Notifications are posted to the incoming webhook
+ * url, which is required. The app_id, auth_secret, channel_url and tenant_id fields can optionally
+ * be set together to post through a Microsoft Teams app.
+ */
 export interface MicrosoftTeamsConfig {
-  /** [Input-Only] URL for Microsoft Teams webhook. */
+  /** [Input-Only] Microsoft Teams incoming webhook URL that notifications are posted to. Must be an HTTPS URL. The URL is required even when the app fields are set. */
   url?: string | undefined;
   /** [Output-Only] Whether URL is set. */
   urlSet?: boolean | undefined;
-  /** [Input-Only] App ID for Microsoft Teams App. */
+  /** [Input-Only] Application (client) ID of the Microsoft Teams app, as a UUID. Optional; set it together with auth_secret, channel_url and tenant_id. */
   appId?: string | undefined;
   /** [Output-Only] Whether App ID is set. */
   appIdSet?: boolean | undefined;
-  /** [Input-Only] Secret for Microsoft Teams App authentication. */
+  /** [Input-Only] Client secret of the Microsoft Teams app. Optional; set it together with app_id, channel_url and tenant_id. */
   authSecret?: string | undefined;
   /** [Output-Only] Whether secret is set. */
   authSecretSet?: boolean | undefined;
-  /** [Input-Only] Channel URL for Microsoft Teams App. */
+  /** [Input-Only] URL of the Microsoft Teams channel that the app posts to. Optional; set it together with app_id, auth_secret and tenant_id. */
   channelUrl?: string | undefined;
   /** [Output-Only] Whether Channel URL is set. */
   channelUrlSet?: boolean | undefined;
-  /** [Input-Only] Tenant ID for Microsoft Teams App. */
+  /** [Input-Only] Microsoft Entra tenant ID of the Microsoft Teams app, as a UUID. Optional; set it together with app_id, auth_secret and channel_url. */
   tenantId?: string | undefined;
   /** [Output-Only] Whether Tenant ID is set. */
   tenantIdSet?: boolean | undefined;
 }
 
+/**
+ * A reusable definition of where a workspace sends notifications, such as a Slack channel, a set
+ * of email addresses, a PagerDuty service, a Microsoft Teams channel or a generic webhook. Job
+ * notifications, SQL alerts and other workspace features reference a destination by its id. Only
+ * workspace admins can create, update and delete destinations; once created, a destination is
+ * available to all users in the workspace. Secret values such as webhook URLs and tokens are
+ * write-only: responses report whether each one is set, never its value.
+ */
 export interface NotificationDestination {
-  /** UUID identifying notification destination. */
+  /** A UUID identifying the notification destination. */
   id?: string | undefined;
   /** The display name for the notification destination. */
   displayName?: string | undefined;
-  /** [Output-only] The type of the notification destination. The type can not be changed once set. */
+  /** [Output-only] The type of the notification destination, determined by which nested config was provided on creation. The type can not be changed once set. */
   destinationType?: DestinationType | undefined;
-  /** The configuration for the notification destination. Will be exactly one of the nested configs. Only returns for users with workspace admin permissions. */
+  /** The configuration for the notification destination. Will be exactly one of the nested configs. Only returned to users with workspace admin permissions. */
   config?: Config | undefined;
 }
 
+/**
+ * Configures a PagerDuty destination. Notifications are sent as events to the PagerDuty Events
+ * API v2.
+ */
 export interface PagerdutyConfig {
-  /** [Input-Only] Integration key for PagerDuty. */
+  /** [Input-Only] Integration key from an Events API v2 integration on the PagerDuty service that receives the notifications. */
   integrationKey?: string | undefined;
   /** [Output-Only] Whether integration key is set. */
   integrationKeySet?: boolean | undefined;
 }
 
+/**
+ * Configures a Slack destination. Notifications are posted to the incoming webhook url, which is
+ * required. A bot oauth_token and channel_id can optionally be set together to post to the channel
+ * through the Slack API.
+ */
 export interface SlackConfig {
-  /** [Input-Only] URL for Slack destination. */
+  /** [Input-Only] Slack incoming webhook URL that notifications are posted to. Must be an HTTPS URL. The URL is required even when oauth_token and channel_id are set. */
   url?: string | undefined;
   /** [Output-Only] Whether URL is set. */
   urlSet?: boolean | undefined;
-  /** [Input-Only] OAuth token for Slack authentication. */
+  /** [Input-Only] Slack bot OAuth token (xoxb-...). Optional; when set together with channel_id, notifications are posted to that channel through the Slack API. */
   oauthToken?: string | undefined;
   /** [Output-Only] Whether OAuth token is set. */
   oauthTokenSet?: boolean | undefined;
-  /** [Input-Only] Slack channel ID for notifications. */
+  /** [Input-Only] ID of the Slack channel that notifications are posted to through the Slack API. Optional; set it together with oauth_token. */
   channelId?: string | undefined;
   /** [Output-Only] Whether channel ID is set. */
   channelIdSet?: boolean | undefined;
 }
 
 export interface UpdateNotificationDestinationRequest {
-  /** UUID identifying notification destination. */
+  /** A UUID identifying the notification destination. */
   id?: string | undefined;
   /** The display name for the notification destination. */
   displayName?: string | undefined;

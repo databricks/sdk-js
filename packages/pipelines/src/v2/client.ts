@@ -335,7 +335,10 @@ export class PipelinesClient {
     }
   }
 
-  /** Get a pipeline. */
+  /**
+   * Returns the details of a pipeline, including its settings, current state, and the status of its
+   * most recent updates.
+   */
   async get(
     req: GetPipelineRequest,
     options?: CallOptions

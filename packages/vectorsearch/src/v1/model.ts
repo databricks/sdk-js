@@ -163,16 +163,24 @@ export interface ColumnInfo {
 }
 
 export interface CreateEndpointRequest {
-  /** Name of the AI Search endpoint */
+  /**
+   * Name of the AI Search endpoint. The name must be unique within the workspace, have at most 50
+   * characters, contain only lowercase letters, digits, hyphens, underscores and periods, and start
+   * and end with a letter or digit.
+   */
   name?: string | undefined;
-  /** Type of endpoint */
+  /**
+   * Type of endpoint to create. STANDARD endpoints are optimized for low-latency queries and support
+   * Target QPS scaling. STORAGE_OPTIMIZED endpoints hold much larger indexes and index faster, with
+   * higher query latency. See https://docs.databricks.com/aws/en/ai-search/ai-search#endpoint-options.
+   */
   endpointType?: EndpointType | undefined;
-  /** The budget policy id to be applied */
+  /** Budget policy to attribute the endpoint's usage to. If omitted, the default budget policy applies. */
   budgetPolicyId?: string | undefined;
   /** The usage policy id to be applied once we've migrated to usage policies */
   usagePolicyId?: string | undefined;
   /**
-   * Target QPS for the endpoint. Mutually exclusive with num_replicas.
+   * Target queries per second (QPS) for the endpoint. Supported for STANDARD endpoints only.
    * The actual replica count is calculated at index creation/sync time based on this value.
    * Best-effort target; the system does not guarantee this QPS will be achieved.
    */
@@ -343,15 +351,21 @@ export interface EmbeddingVectorColumn {
 export interface Endpoint {
   /** Name of the AI Search endpoint */
   name?: string | undefined;
-  /** Creator of the endpoint */
+  /**
+   * User or service principal that created the endpoint. Users are identified by username and
+   * service principals by application ID.
+   */
   creator?: string | undefined;
-  /** Timestamp of endpoint creation */
+  /** Time at which the endpoint was created, in milliseconds since the Unix epoch. */
   creationTimestamp?: bigint | undefined;
-  /** Timestamp of last update to the endpoint */
+  /** Time at which the endpoint was last updated, in milliseconds since the Unix epoch. */
   lastUpdatedTimestamp?: bigint | undefined;
-  /** Type of endpoint */
+  /**
+   * Type of the endpoint. See https://docs.databricks.com/aws/en/ai-search/ai-search#endpoint-options
+   * for how the types differ.
+   */
   endpointType?: EndpointType | undefined;
-  /** User who last updated the endpoint */
+  /** User or service principal that last updated the endpoint, in the same form as creator. */
   lastUpdatedUser?: string | undefined;
   /** Unique identifier of the endpoint */
   id?: string | undefined;
@@ -361,11 +375,17 @@ export interface Endpoint {
   numIndexes?: number | undefined;
   /** The user-selected budget policy id for the endpoint. */
   budgetPolicyId?: string | undefined;
-  /** The budget policy id applied to the endpoint */
+  /**
+   * Budget policy ID in effect for the endpoint. This is the policy set on the endpoint when one was
+   * set, and otherwise the default budget policy.
+   */
   effectiveBudgetPolicyId?: string | undefined;
   /** The custom tags assigned to the endpoint */
   customTags?: CustomTag[] | undefined;
-  /** Scaling information for the endpoint */
+  /**
+   * Scaling information for the endpoint. Present only for STANDARD endpoints that have a Target QPS
+   * set.
+   */
   scalingInfo?: EndpointScalingInfo | undefined;
 }
 
@@ -415,7 +435,10 @@ export interface EndpointScalingInfo {
 export interface EndpointStatus {
   /** Current state of the endpoint */
   state?: EndpointStatus_State | undefined;
-  /** Additional status message */
+  /**
+   * Additional detail about the state, such as the reason the endpoint is OFFLINE. Absent when there
+   * is nothing to report.
+   */
   message?: string | undefined;
 }
 
@@ -551,6 +574,7 @@ export interface PatchEndpointBudgetPolicyRequest {
 }
 
 export interface PatchEndpointBudgetPolicyResponse {
+  /** The requested budget policy ID, returned when the endpoint was already using it. */
   budgetPolicyId?: string | undefined;
   /** The budget policy applied to the AI Search endpoint. */
   effectiveBudgetPolicyId?: string | undefined;
@@ -561,7 +585,7 @@ export interface PatchEndpointRequest {
   name?: string | undefined;
   /**
    * Target QPS for the endpoint. Best-effort; the system does not guarantee this QPS
-   * will be achieved.
+   * will be achieved. Set to -1 to clear the Target QPS, as if it had never been set.
    */
   targetQps?: bigint | undefined;
 }

@@ -463,7 +463,10 @@ export class VectorSearchClient {
     }
   }
 
-  /** Update an endpoint */
+  /**
+   * Update the Target QPS of a STANDARD endpoint. The response is the updated endpoint; its
+   * scaling_info shows whether the resulting scaling change is applied or still in progress.
+   */
   async patchEndpoint(
     req: PatchEndpointRequest,
     options?: CallOptions
@@ -493,7 +496,7 @@ export class VectorSearchClient {
     return resp;
   }
 
-  /** Update the budget policy of an endpoint */
+  /** Update the budget policy that the endpoint's usage is attributed to. */
   async patchEndpointBudgetPolicy(
     req: PatchEndpointBudgetPolicyRequest,
     options?: CallOptions

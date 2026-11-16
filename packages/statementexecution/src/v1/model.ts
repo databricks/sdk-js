@@ -119,7 +119,10 @@ export interface CancelStatementRequest {
    * reference for all subsequent calls.
    */
   statementId?: string | undefined;
-  /** For warehouse statement URLs, this field contains the warehouse_id path parameter. */
+  /**
+   * The ID of the warehouse that ran the statement. The Statement Execution (Lakehouse//RT) API takes it
+   * as a path parameter. The Statement Execution API doesn't use it.
+   */
   warehouseId?: string | undefined;
 }
 
@@ -402,7 +405,10 @@ export interface GetResultDataRequest {
    */
   statementId?: string | undefined;
   chunkIndex?: number | undefined;
-  /** For warehouse statement URLs, this field contains the warehouse_id path parameter. */
+  /**
+   * The ID of the warehouse that ran the statement. The Statement Execution (Lakehouse//RT) API takes it
+   * as a path parameter. The Statement Execution API doesn't use it.
+   */
   warehouseId?: string | undefined;
 }
 
@@ -412,7 +418,10 @@ export interface GetStatementResultRequest {
    * reference for all subsequent calls.
    */
   statementId?: string | undefined;
-  /** For warehouse statement URLs, this field contains the warehouse_id path parameter. */
+  /**
+   * The ID of the warehouse that ran the statement. The Statement Execution (Lakehouse//RT) API takes it
+   * as a path parameter. The Statement Execution API doesn't use it.
+   */
   warehouseId?: string | undefined;
 }
 
@@ -511,6 +520,11 @@ export interface StatementParameter {
   type?: string | undefined;
 }
 
+/**
+ * Statement Execution works with all SQL warehouse types, including Lakehouse//RT. Statement Execution
+ * (Lakehouse//RT) is optimized for Lakehouse//RT warehouses, with lower latency and higher concurrency, and
+ * takes `warehouse_id` as a path parameter.
+ */
 export interface StatementResponse {
   /**
    * The statement ID is returned upon successfully submitting a SQL statement, and is a required

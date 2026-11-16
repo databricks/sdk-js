@@ -1315,7 +1315,7 @@ export interface AiRuntimeTask {
   mlflowArtifactLocation?: string | undefined;
   /**
    * Scheduling priority class for the workload. May only be set together with
-   * a pre-provisioned capacity reservation (a deployment's
+   * a GPU Pool (a deployment's `compute.accelerator_pool_id` or legacy
    * `compute.provisioned_capacity_id`); it is rejected on a workload that runs
    * on on-demand capacity.
    */
@@ -2071,10 +2071,8 @@ export interface ComputeSpec {
    */
   acceleratorCount?: number | undefined;
   /**
-   * Optional ID of a pre-provisioned accelerator capacity reservation to run
-   * this AI Runtime workload on. When set, the workload is scheduled onto the
-   * referenced reserved capacity instead of the on-demand capacity shared among
-   * all <Databricks> customers.
+   * Legacy alias for `accelerator_pool_id`. Use `accelerator_pool_id` for new
+   * configurations. If both fields are set, they must contain the same ID.
    */
   provisionedCapacityId?: string | undefined;
 }
@@ -2632,6 +2630,13 @@ export interface Environment {
    * or any other environment-source fields. Set the environment version and dependencies in `pyproject.toml` instead.
    */
   projectEnvironment?: string | undefined;
+  /**
+   * Customer-provided container image to use as the whole environment for this workload, stored in
+   * Databricks Artifact Registry and named by its Unity Catalog name and tag, as
+   * `catalog.schema.artifact:tag`. Cannot be combined with `environment_version` or
+   * `base_environment`.
+   */
+  imageUri?: string | undefined;
 }
 
 /** Retrieves the export of a job run task. */
@@ -7453,6 +7458,7 @@ export const unmarshalEnvironmentSchema: z.ZodType<Environment> = z
     environment_version: z.string().optional(),
     java_dependencies: z.array(z.string()).optional(),
     project_environment: z.string().optional(),
+    image_uri: z.string().optional(),
   })
   .transform(d => ({
     client: d.client,
@@ -7461,6 +7467,7 @@ export const unmarshalEnvironmentSchema: z.ZodType<Environment> = z
     environmentVersion: d.environment_version,
     javaDependencies: d.java_dependencies,
     projectEnvironment: d.project_environment,
+    imageUri: d.image_uri,
   }));
 
 export const unmarshalExportRunResponseSchema: z.ZodType<ExportRunResponse> = z
@@ -11448,6 +11455,7 @@ export const marshalEnvironmentSchema: z.ZodType = z
     environmentVersion: z.string().optional(),
     javaDependencies: z.array(z.string()).optional(),
     projectEnvironment: z.string().optional(),
+    imageUri: z.string().optional(),
   })
   .transform(d => ({
     client: d.client,
@@ -11456,6 +11464,7 @@ export const marshalEnvironmentSchema: z.ZodType = z
     environment_version: d.environmentVersion,
     java_dependencies: d.javaDependencies,
     project_environment: d.projectEnvironment,
+    image_uri: d.imageUri,
   }));
 
 export const marshalFileArrivalTriggerConfigurationSchema: z.ZodType = z

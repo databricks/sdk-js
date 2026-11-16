@@ -41,6 +41,11 @@ export type AlertConfigurationScopeType =
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AlertConfigurationTimePeriod = {
   MONTH: 'MONTH',
+  /**
+   * UTC calendar day. Only supported on per-user alerts (`scope_type` set to
+   * `ALERT_CONFIGURATION_SCOPE_TYPE_PER_USER`) of Unity Gateway budgets.
+   */
+  DAY: 'DAY',
 } as const;
 export type AlertConfigurationTimePeriod =
   | (typeof AlertConfigurationTimePeriod)[keyof typeof AlertConfigurationTimePeriod]
