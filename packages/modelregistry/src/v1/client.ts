@@ -1360,7 +1360,7 @@ export class ModelRegistryClient {
     return resp;
   }
 
-  /** Updates the model version. */
+  /** Updates the description of a model version. */
   async updateModelVersion(
     req: UpdateModelVersionRequest,
     options?: CallOptions

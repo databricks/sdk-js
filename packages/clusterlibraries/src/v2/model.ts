@@ -61,6 +61,7 @@ export interface InstallLibrariesRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface InstallLibrariesResponse {}
 
+/** A library to install on a cluster. Exactly one of the library-type fields must be set. */
 export interface Library {
   lib?:
     | {
@@ -76,13 +77,17 @@ export interface Library {
       }
     | {
         $case: 'egg';
-        /** Deprecated. URI of the egg library to install. Installing Python egg files is deprecated and is not supported in Databricks Runtime 14.0 and above. */
+        /**
+         * Deprecated: Installing Python egg files is not supported in Databricks Runtime 14.0 and above.
+         * Use a wheel (`whl`) or a PyPI package (`pypi`) instead. The value is the URI of the egg file
+         * to install.
+         */
         egg: string;
       }
     | {
         $case: 'pypi';
         /**
-         * Specification of a PyPi library to be installed. For example:
+         * Specification of a PyPI library to be installed. For example:
          * `{ "package": "simplejson" }`
          */
         pypi: PythonPyPiLibrary;
@@ -97,7 +102,7 @@ export interface Library {
       }
     | {
         $case: 'cran';
-        /** Specification of a CRAN library to be installed as part of the library */
+        /** Specification of a CRAN library to be installed. */
         cran: RCranLibrary;
       }
     | {
@@ -115,7 +120,8 @@ export interface Library {
         $case: 'requirements';
         /**
          * URI of the requirements.txt file to install. Only Workspace paths and Unity Catalog Volumes paths are supported.
-         * For example: `{ "requirements": "/Workspace/path/to/requirements.txt" }` or `{ "requirements" : "/Volumes/path/to/requirements.txt" }`
+         * For example: `{ "requirements": "/Workspace/path/to/requirements.txt" }` or `{ "requirements" : "/Volumes/path/to/requirements.txt" }`.
+         * Installing a requirements file requires Databricks Runtime 15.0 or above.
          */
         requirements: string;
       }
@@ -124,9 +130,15 @@ export interface Library {
 
 /** The status of the library on a specific cluster. */
 export interface LibraryFullStatus {
-  /** Unique identifier for the library. */
+  /** The library whose status is reported. */
   library?: Library | undefined;
-  /** Status of installing the library on the cluster. */
+  /**
+   * Status of installing the library on the cluster. The status starts at PENDING and ends at
+   * INSTALLED, FAILED or SKIPPED. Intermediate states are not always reported. A library stays
+   * UNINSTALL_ON_RESTART after an uninstall request until the cluster restarts. While the cluster
+   * is not running, libraries are reported as PENDING, and libraries marked for uninstall are
+   * omitted.
+   */
   status?: LibraryInstallStatus | undefined;
   /** All the info and warning messages that have occurred so far for this library. */
   messages?: string[] | undefined;
@@ -151,7 +163,7 @@ export interface MavenLibrary {
    */
   repo?: string | undefined;
   /**
-   * List of dependences to exclude. For example: `["slf4j:slf4j", "*:hadoop-client"]`.
+   * List of dependencies to exclude. For example: `["slf4j:slf4j", "*:hadoop-client"]`.
    *
    * Maven dependency exclusions:
    * https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html.
@@ -161,7 +173,7 @@ export interface MavenLibrary {
 
 export interface PythonPyPiLibrary {
   /**
-   * The name of the pypi package to install. An optional exact version specification is also
+   * The name of the PyPI package to install. An optional exact version specification is also
    * supported. Examples: "simplejson" and "simplejson==3.8.0".
    */
   package?: string | undefined;

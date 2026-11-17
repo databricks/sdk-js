@@ -3,7 +3,7 @@
 import {z} from 'zod';
 
 export interface DisableSystemSchemaRequest {
-  /** Full name of the system schema. */
+  /** Name of the system schema, without the catalog prefix. */
   schema?: string | undefined;
   /** The metastore ID under which the system schema lives. */
   metastoreId?: string | undefined;
@@ -13,11 +13,14 @@ export interface DisableSystemSchemaRequest {
 export interface DisableSystemSchemaResponse {}
 
 export interface EnableSystemSchemaRequest {
-  /** Full name of the system schema. */
+  /** Name of the system schema, without the catalog prefix. */
   schema?: string | undefined;
   /** The metastore ID under which the system schema lives. */
   metastoreId?: string | undefined;
-  /** the catalog for which the system schema is to enabled in */
+  /**
+   * Name of the catalog in which to enable the system schema. The supported values are `system` and `samples`. If not
+   * set, the system schema is enabled in the `system` catalog.
+   */
   catalogName?: string | undefined;
 }
 
@@ -49,12 +52,19 @@ export interface ListSystemSchemasResponse {
   nextPageToken?: string | undefined;
 }
 
+/**
+ * A system schema of a metastore, with its current enablement state. System schemas hold Databricks-provided system
+ * tables, such as audit logs and billing usage. They live in the `system` catalog unless they are enabled in another
+ * supported catalog. See https://docs.databricks.com/aws/en/admin/system-tables/.
+ */
 export interface SystemSchemaInfo {
-  /** Name of the system schema. */
+  /** Name of the system schema, without the catalog prefix. */
   schema: string;
   /**
-   * The current state of enablement for the system schema. An empty string means the system schema is available and ready for opt-in.
-   * Possible values: AVAILABLE | ENABLE_INITIALIZED | ENABLE_COMPLETED | DISABLE_INITIALIZED | UNAVAILABLE | MANAGED
+   * The current enablement state of the system schema. Possible values are `AVAILABLE` (the schema can be enabled),
+   * `ENABLE_INITIALIZED` (enablement is in progress), `ENABLE_COMPLETED` (the schema is enabled), `DISABLE_INITIALIZED`
+   * (disablement is in progress), `UNAVAILABLE` (the schema cannot be enabled at the moment) and `MANAGED` (Databricks
+   * enables the schema automatically).
    */
   state: string;
 }

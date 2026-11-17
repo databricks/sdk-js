@@ -369,6 +369,13 @@ export type PartitionSpecification_Partition_PartitionValue_PartitionValueOp =
   | (typeof PartitionSpecification_Partition_PartitionValue_PartitionValueOp)[keyof typeof PartitionSpecification_Partition_PartitionValue_PartitionValueOp]
   | (string & {});
 
+/**
+ * A clean room is a secure, Databricks-managed environment where collaborators from one or more
+ * Unity Catalog metastores share tables, views, volumes and notebooks and run approved analyses
+ * without seeing each other's data. Each collaborator sees the clean room as a securable in their
+ * own metastore, while the analyses run in a central clean room in the cloud and region chosen at
+ * creation.
+ */
 export interface CleanRoom {
   /**
    * The name of the clean room.
@@ -381,8 +388,15 @@ export interface CleanRoom {
    * This field will not be filled in the ListCleanRooms call.
    */
   remoteDetailedInfo?: CleanRoomRemoteDetail | undefined;
-  /** This is the <Databricks> username of the owner of the local clean room securable for permission management. */
+  /**
+   * This is the <Databricks> username of the owner of the local clean room securable for permission management.
+   * When creating a clean room, leave it empty or set it to the caller.
+   */
   owner?: string | undefined;
+  /**
+   * Free-form description of the clean room. Comments are local to the caller's metastore and are
+   * not shared with the other collaborators.
+   */
   comment?: string | undefined;
   /** When the clean room was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
@@ -766,6 +780,7 @@ export interface CleanRoomNotebookTaskRun {
 }
 
 export interface CleanRoomOutputCatalog {
+  /** Status of the output catalog for the calling collaborator. */
   status?: CleanRoomOutputCatalog_OutputCatalogStatus | undefined;
   /**
    * The name of the output catalog in UC.
@@ -784,7 +799,7 @@ export interface CleanRoomRemoteDetail {
   /** Region of the central clean room. */
   region?: string | undefined;
   /**
-   * Collaborators in the central clean room. There should one and only one collaborator
+   * Collaborators in the central clean room. There should be one and only one collaborator
    * in the list that satisfies the owner condition:
    *
    * 1. It has the creator's global_metastore_id (determined by caller of CreateCleanRoom).
@@ -794,8 +809,18 @@ export interface CleanRoomRemoteDetail {
   collaborators?: CleanRoomCollaborator[] | undefined;
   /** Collaborator who creates the clean room. */
   creator?: CleanRoomCollaborator | undefined;
-  /** Egress network policy to apply to the central clean room workspace. */
+  /**
+   * Egress network policy to apply to the central clean room workspace. Only
+   * internet_access.restriction_mode (FULL_ACCESS or RESTRICTED_ACCESS) and
+   * internet_access.allowed_internet_destinations can be set. When omitted, internet access is
+   * restricted with no allowed destinations.
+   */
   egressNetworkPolicy?: EgressNetworkPolicy | undefined;
+  /**
+   * Compliance security profile of the central clean room. It is taken from the creator's workspace
+   * when the clean room is created; a collaborator whose workspace profile differs sees
+   * access_restricted set to CSP_MISMATCH.
+   */
   complianceSecurityProfile?: ComplianceSecurityProfile | undefined;
   /**
    * Whether to enable shared output for the central clean room.
@@ -883,6 +908,10 @@ export interface ColumnInfo {
   name?: string | undefined;
   /** Full data type specification as SQL/catalogString text. */
   typeText?: string | undefined;
+  /**
+   * The name of the column's data type, for example STRING, DECIMAL or STRUCT. The complete type, including
+   * parameters such as the precision of a decimal or the element type of an array, is in type_text.
+   */
   typeName?: ColumnTypeName | undefined;
   /** Ordinal position of column (starting at position 0). */
   position?: number | undefined;
@@ -900,6 +929,11 @@ export interface ColumnInfo {
   nullable?: boolean | undefined;
   /** Partition index for column. */
   partitionIndex?: number | undefined;
+  /**
+   * The column mask function applied to this column, if any. A column mask is a SQL user-defined function
+   * that transforms the values a query returns for the column. See
+   * https://docs.databricks.com/aws/en/tables/row-and-column-filters for details.
+   */
   mask?: ColumnMask | undefined;
 }
 
@@ -975,6 +1009,7 @@ export interface CreateCleanRoomOutputCatalogRequest {
 }
 
 export interface CreateCleanRoomOutputCatalogResponse {
+  /** The output catalog that was created. */
   outputCatalog?: CleanRoomOutputCatalog | undefined;
 }
 
@@ -1103,6 +1138,7 @@ export interface GetCleanRoomAutoApprovalRuleRequest {
 }
 
 export interface GetCleanRoomRequest {
+  /** Name of the clean room. */
   name?: string | undefined;
 }
 
@@ -1309,6 +1345,11 @@ export interface UpdateCleanRoomAutoApprovalRuleRequest {
 export interface UpdateCleanRoomRequest {
   /** Name of the clean room. */
   name?: string | undefined;
+  /**
+   * Clean room fields to update. Only mutable fields such as owner, comment and
+   * enable_shared_output can be changed; remote_detailed_info, status, created_at and updated_at
+   * must be omitted.
+   */
   cleanRoom?: CleanRoom | undefined;
 }
 

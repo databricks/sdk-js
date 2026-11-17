@@ -638,6 +638,9 @@ export class SharingClient {
     if (req.notebookMaxResults !== undefined) {
       params.append('notebook_max_results', String(req.notebookMaxResults));
     }
+    if (req.skillMaxResults !== undefined) {
+      params.append('skill_max_results', String(req.skillMaxResults));
+    }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListProviderShareAssetsResponse | undefined;

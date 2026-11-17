@@ -712,7 +712,7 @@ export interface Operation {
 /** Request message for RefreshWorkspaceBaseEnvironments. */
 export interface RefreshWorkspaceBaseEnvironmentRequest {
   /**
-   * Required. The resource name of the workspace base environment to delete.
+   * Required. The resource name of the workspace base environment to refresh.
    * Format: workspace-base-environments/{workspace_base_environment}
    */
   name?: string | undefined;
@@ -735,10 +735,16 @@ export interface UpdateDefaultWorkspaceBaseEnvironmentRequest {
 
 /** Request message for UpdateWorkspaceBaseEnvironment. */
 export interface UpdateWorkspaceBaseEnvironmentRequest {
+  /**
+   * The resource name of the workspace base environment to update.
+   * Format: workspace-base-environments/{workspace_base_environment}
+   */
   name?: string | undefined;
   /**
-   * Required. The workspace base environment with updated fields.
-   * The name field is used to identify the environment to update.
+   * The workspace base environment with its new configuration.
+   * The `name` path parameter identifies the environment to update. Set `display_name` and `filepath` on every
+   * update, even when they do not change. An update keeps the stored `base_environment_type`, but the YAML file is
+   * validated against the type in the request, which defaults to `CPU`, so also set it for a GPU environment.
    */
   workspaceBaseEnvironment?: WorkspaceBaseEnvironment | undefined;
 }
@@ -751,11 +757,16 @@ export interface WorkspaceBaseEnvironment {
   /**
    * The resource name of the workspace base environment.
    * Format: workspace-base-environments/{workspace-base-environment}
+   * The server ignores this field on create and builds the name from `workspace_base_environment_id`, or from
+   * `display_name` plus a random suffix when no ID is given.
    */
   name?: string | undefined;
   /** Human-readable display name for the workspace base environment. */
   displayName?: string | undefined;
-  /** The WSFS or UC Volumes path to the environment YAML file. */
+  /**
+   * The workspace file or Unity Catalog volume path to the YAML file that defines the environment version and
+   * dependencies. The file name must end in `.yaml` or `.yml`. Create and update requests must set this field.
+   */
   filepath?: string | undefined;
   /** User ID of the creator. */
   creatorUserId?: string | undefined;
@@ -765,15 +776,21 @@ export interface WorkspaceBaseEnvironment {
   lastUpdatedUserId?: string | undefined;
   /** Timestamp when the environment was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The status of the materialized workspace base environment. */
+  /**
+   * The status of the materialized workspace base environment, which the server builds from the YAML file.
+   * The status is `CREATED` once the build has succeeded.
+   */
   status?: WorkspaceBaseEnvironmentCache_Status | undefined;
-  /** Status message providing additional details about the environment status. */
+  /**
+   * Status message providing additional details about the environment status.
+   * When the status is `FAILED`, the message contains the build error.
+   */
   message?: string | undefined;
   /** Whether this is the default environment for the workspace. */
   isDefault?: boolean | undefined;
-  /** The type of base environment (CPU or GPU). */
+  /** The type of base environment (CPU or GPU). The default is `CPU`. */
   baseEnvironmentType?: BaseEnvironmentType | undefined;
-  /** The environment specification containing version and dependencies. */
+  /** The environment specification containing version and dependencies, read from the YAML file at `filepath`. */
   spec?: EnvironmentSpec | undefined;
 }
 

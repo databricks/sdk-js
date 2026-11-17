@@ -2135,6 +2135,8 @@ export interface MaterializedFeature {
    * Unset for a materialized feature that is not part of a set.
    */
   materializationSetId?: string | undefined;
+  /** Operations associated with this materialized feature. */
+  operations?: MaterializedFeatureOperations | undefined;
 }
 
 /** Why one materialization set member could not be changed. */
@@ -2145,6 +2147,12 @@ export interface MaterializedFeatureChangeFailure {
   errorCode?: string | undefined;
   /** The failure's message. */
   message?: string | undefined;
+}
+
+/** References to operations on a materialized feature. */
+export interface MaterializedFeatureOperations {
+  /** Name of the latest entity purge operation. Format: operations/{operation_id}. */
+  latestEntityPurgeOperation?: string | undefined;
 }
 
 /** Computes the maximum value. */
@@ -4203,6 +4211,10 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
         .nullish()
         .transform(v => v ?? undefined),
       materialization_set_id: z.string().optional(),
+      operations: z
+        .lazy(() => unmarshalMaterializedFeatureOperationsSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       materializedFeatureId: d.materialized_feature_id,
@@ -4250,6 +4262,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
       jobId: d.job_id,
       notifications: d.notifications,
       materializationSetId: d.materialization_set_id,
+      operations: d.operations,
     }));
 
 export const unmarshalMaterializedFeatureChangeFailureSchema: z.ZodType<MaterializedFeatureChangeFailure> =
@@ -4263,6 +4276,15 @@ export const unmarshalMaterializedFeatureChangeFailureSchema: z.ZodType<Material
       materializedFeatureId: d.materialized_feature_id,
       errorCode: d.error_code,
       message: d.message,
+    }));
+
+export const unmarshalMaterializedFeatureOperationsSchema: z.ZodType<MaterializedFeatureOperations> =
+  z
+    .object({
+      latest_entity_purge_operation: z.string().optional(),
+    })
+    .transform(d => ({
+      latestEntityPurgeOperation: d.latest_entity_purge_operation,
     }));
 
 export const unmarshalMaxFunctionSchema: z.ZodType<MaxFunction> = z
@@ -5976,6 +5998,9 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
       .lazy(() => marshalMaterializationNotificationsSchema)
       .optional(),
     materializationSetId: z.string().optional(),
+    operations: z
+      .lazy(() => marshalMaterializedFeatureOperationsSchema)
+      .optional(),
   })
   .transform(d => ({
     materialized_feature_id: d.materializedFeatureId,
@@ -6010,6 +6035,15 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     job_id: d.jobId,
     notifications: d.notifications,
     materialization_set_id: d.materializationSetId,
+    operations: d.operations,
+  }));
+
+export const marshalMaterializedFeatureOperationsSchema: z.ZodType = z
+  .object({
+    latestEntityPurgeOperation: z.string().optional(),
+  })
+  .transform(d => ({
+    latest_entity_purge_operation: d.latestEntityPurgeOperation,
   }));
 
 export const marshalMaxFunctionSchema: z.ZodType = z
@@ -7049,6 +7083,10 @@ const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
     wire: 'online_store_config',
     children: () => onlineStoreConfigFieldMaskSchema,
   },
+  operations: {
+    wire: 'operations',
+    children: () => materializedFeatureOperationsFieldMaskSchema,
+  },
   pipelineId: {wire: 'pipeline_id'},
   pipelineScheduleState: {wire: 'pipeline_schedule_state'},
   streamingMode: {
@@ -7071,6 +7109,10 @@ export function materializedFeatureFieldMask(
     materializedFeatureFieldMaskSchema
   );
 }
+
+const materializedFeatureOperationsFieldMaskSchema: FieldMaskSchema = {
+  latestEntityPurgeOperation: {wire: 'latest_entity_purge_operation'},
+};
 
 const maxFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},

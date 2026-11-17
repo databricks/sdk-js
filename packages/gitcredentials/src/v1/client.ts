@@ -210,7 +210,10 @@ export class GitCredentialsClient {
     return resp;
   }
 
-  /** Updates the specified Git credential. */
+  /**
+   * Updates the specified Git credential.
+   * Fields that are omitted keep their current values.
+   */
   async updateCredentials(
     req: UpdateCredentialsRequest,
     options?: CallOptions

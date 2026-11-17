@@ -1,6 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import type {Temporal} from '@js-temporal/polyfill';
+import {Temporal} from '@js-temporal/polyfill';
 import type {JsonValue} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
@@ -23,6 +23,44 @@ export const EndpointType = {
 } as const;
 export type EndpointType =
   | (typeof EndpointType)[keyof typeof EndpointType]
+  | (string & {});
+
+/** Lifecycle and ingestion state of an index. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const IndexStatus = {
+  /** Provisioning the index; a more specific state is not yet available. */
+  PROVISIONING: 'PROVISIONING',
+  /** Provisioning the serving endpoint. */
+  PROVISIONING_ENDPOINT: 'PROVISIONING_ENDPOINT',
+  /** Setting up a direct access index. */
+  PROVISIONING_INDEX: 'PROVISIONING_INDEX',
+  /** Acquiring compute resources for the ingestion pipeline. */
+  PROVISIONING_PIPELINE_RESOURCES: 'PROVISIONING_PIPELINE_RESOURCES',
+  /** Syncing the initial snapshot of the source Delta table. */
+  PROVISIONING_INITIAL_SNAPSHOT: 'PROVISIONING_INITIAL_SNAPSHOT',
+  /** The index can serve queries; more specific ingestion status is unavailable. */
+  ONLINE: 'ONLINE',
+  /** The index can serve queries while the continuous pipeline processes updates. */
+  ONLINE_CONTINUOUS_UPDATE: 'ONLINE_CONTINUOUS_UPDATE',
+  /** The index can serve queries while a triggered update is in progress. */
+  ONLINE_TRIGGERED_UPDATE: 'ONLINE_TRIGGERED_UPDATE',
+  /** The index can serve queries and no triggered update is currently reported as active. */
+  ONLINE_NO_PENDING_UPDATE: 'ONLINE_NO_PENDING_UPDATE',
+  /** The direct access index can serve queries. */
+  ONLINE_DIRECT_ACCESS: 'ONLINE_DIRECT_ACCESS',
+  /** The index cannot currently serve queries. */
+  OFFLINE: 'OFFLINE',
+  /** The index cannot serve queries because of a failure. */
+  OFFLINE_FAILED: 'OFFLINE_FAILED',
+  /** The latest pipeline update failed, but the index can still serve previously indexed data. */
+  ONLINE_PIPELINE_FAILED: 'ONLINE_PIPELINE_FAILED',
+  /** The index can serve queries while its pipeline restarts and acquires compute resources. */
+  ONLINE_UPDATING_PIPELINE_RESOURCES: 'ONLINE_UPDATING_PIPELINE_RESOURCES',
+  /** Downloading index data onto serving compute. */
+  DOWNLOADING: 'DOWNLOADING',
+} as const;
+export type IndexStatus =
+  | (typeof IndexStatus)[keyof typeof IndexStatus]
   | (string & {});
 
 /**
@@ -450,6 +488,21 @@ export interface FacetResultData {
   facetArray?: JsonValue[][] | undefined;
 }
 
+/** Failure details for an index or its latest ingestion update. */
+export interface FailedStatus {
+  /** Error message, when available. */
+  errorMessage?: string | undefined;
+  /** Last source Delta table version fully processed while the index is still queryable. */
+  lastProcessedCommitVersion?: bigint | undefined;
+  /**
+   * [Standard endpoint] timestamp when the last processed commit was committed to the source table.
+   * [Storage Optimized endpoint] timestamp when the last processed commit was processed by the pipeline.
+   */
+  lastProcessedCommitTimestamp?: Temporal.Instant | undefined;
+  /** Error code associated with the error message, when available. */
+  errorCode?: string | undefined;
+}
+
 export interface GetEndpointRequest {
   /** Name of the endpoint */
   name?: string | undefined;
@@ -842,11 +895,23 @@ export interface VectorIndex {
 }
 
 export interface VectorIndexStatus {
+  /** Lifecycle and ingestion state. An online index can still have a failed update. */
+  detailedState?: IndexStatus | undefined;
   /** Message associated with the index status */
   message?: string | undefined;
   /** Number of rows indexed */
   indexedRowCount?: bigint | undefined;
-  /** Whether the index is ready for search */
+  detailedStatus?:
+    | {
+        $case: 'failedStatus';
+        /** Failure details, when available, for OFFLINE_FAILED or ONLINE_PIPELINE_FAILED. */
+        failedStatus: FailedStatus;
+      }
+    | undefined;
+  /**
+   * Whether the index can serve queries. This does not mean the latest update succeeded
+   * or that all source-table changes have been indexed; check detailed_state for update failures.
+   */
   ready?: boolean | undefined;
   /** Index API Url to be used to perform operations on the index */
   indexUrl?: string | undefined;
@@ -1059,6 +1124,26 @@ export const unmarshalFacetResultDataSchema: z.ZodType<FacetResultData> = z
   .transform(d => ({
     facetRowCount: d.facet_row_count,
     facetArray: d.facet_array,
+  }));
+
+export const unmarshalFailedStatusSchema: z.ZodType<FailedStatus> = z
+  .object({
+    error_message: z.string().optional(),
+    last_processed_commit_version: z
+      .union([z.number(), z.bigint(), z.string()])
+      .transform(v => BigInt(v))
+      .optional(),
+    last_processed_commit_timestamp: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    error_code: z.string().optional(),
+  })
+  .transform(d => ({
+    errorMessage: d.error_message,
+    lastProcessedCommitVersion: d.last_processed_commit_version,
+    lastProcessedCommitTimestamp: d.last_processed_commit_timestamp,
+    errorCode: d.error_code,
   }));
 
 export const unmarshalListEndpointResponseSchema: z.ZodType<ListEndpointResponse> =
@@ -1401,17 +1486,24 @@ export const unmarshalVectorIndexSchema: z.ZodType<VectorIndex> = z
 
 export const unmarshalVectorIndexStatusSchema: z.ZodType<VectorIndexStatus> = z
   .object({
+    detailed_state: z.string().optional(),
     message: z.string().optional(),
     indexed_row_count: z
       .union([z.number(), z.bigint(), z.string()])
       .transform(v => BigInt(v))
       .optional(),
+    failed_status: z.lazy(() => unmarshalFailedStatusSchema).optional(),
     ready: z.boolean().optional(),
     index_url: z.string().optional(),
   })
   .transform(d => ({
+    detailedState: d.detailed_state,
     message: d.message,
     indexedRowCount: d.indexed_row_count,
+    detailedStatus:
+      d.failed_status !== undefined
+        ? {$case: 'failedStatus' as const, failedStatus: d.failed_status}
+        : undefined,
     ready: d.ready,
     indexUrl: d.index_url,
   }));

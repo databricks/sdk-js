@@ -17,6 +17,7 @@ export {
   EndpointScalingInfo_DelayReason,
   EndpointScalingInfo_Phase,
   EndpointStatus_State,
+  IndexStatus_State,
   RerankerConfig_ModelType,
 } from './model';
 

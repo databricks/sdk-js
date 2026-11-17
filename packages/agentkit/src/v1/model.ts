@@ -135,7 +135,8 @@ export interface CreateManagedMemoryStoreRequest {
   /**
    * Caller-provided, workspace-unique memory store ID. It must be 3-56 characters, begin
    * with a lowercase letter, contain only lowercase letters, digits, and hyphens, and end with a
-   * letter or digit.
+   * letter or digit. It becomes the last segment of the store's `name` and cannot be changed
+   * after creation.
    */
   managedMemoryStoreId?: string | undefined;
 }
@@ -309,7 +310,11 @@ export interface GrantMemoryStorePermissionRequest {
   name?: string | undefined;
   /** Principal to grant the permission to. */
   principal?: StorePrincipal | undefined;
-  /** Permission level to grant. */
+  /**
+   * Permission level to grant. `WRITE` includes `READ`. Grants are additive: granting `READ` to a
+   * principal that already holds `WRITE` does not lower its access. To downgrade a principal,
+   * revoke its grants and grant again.
+   */
   permission?: PermissionLevel | undefined;
 }
 
@@ -379,7 +384,7 @@ export interface ListManagedMemoryStoresRequest {
    * Defaults to 10; must be between 1 and 100.
    */
   pageSize?: number | undefined;
-  /** Opaque pagination token from a previous ListManagedMemoryStores response. */
+  /** Opaque pagination token, taken from the `next_page_token` of a previous response. */
   pageToken?: string | undefined;
 }
 
@@ -529,8 +534,7 @@ export interface ManagedMemoryEntry {
   description?: string | undefined;
   /**
    * Which writer created this entry. Caller sets this on Create; immutable after creation.
-   * While the workspace's default-source-type rollout flag is on, omitted or UNSPECIFIED is stored
-   * as AGENT. While it is off, omitted is stored unset and UNSPECIFIED as UNSPECIFIED.
+   * The server may store an omitted or UNSPECIFIED value as AGENT.
    */
   sourceType?: ManagedMemoryEntrySourceType | undefined;
   /** Time when the entry was created. */
@@ -547,7 +551,12 @@ export interface ManagedMemoryEntrySearchResult {
   score?: number | undefined;
 }
 
-/** A workspace-scoped memory store backed by service-managed storage. */
+/**
+ * A workspace-scoped memory store backed by service-managed storage. A store is the container for
+ * an agent's memory entries and the boundary at which access is granted; creating one provisions
+ * its Lakebase storage automatically. See
+ * https://docs.databricks.com/aws/en/agents/agent-memory/managed-memory for an overview.
+ */
 export interface ManagedMemoryStore {
   /** Resource name in the form `memory-stores/{managed_memory_store_id}`. */
   name?: string | undefined;
@@ -772,7 +781,11 @@ export interface SessionStorePermission {
 export interface StorageBackend {
   /** Type of the storage backend. */
   backendType?: StorageBackendType | undefined;
-  /** Backend-specific identifier. For Lakebase, this is the project ID. */
+  /**
+   * Backend-specific identifier. For Lakebase, this is the resource name of the database that
+   * holds the store's entries, in the form
+   * `projects/{project_id}/branches/{branch_id}/databases/{database_id}`.
+   */
   backendId?: string | undefined;
 }
 
@@ -781,8 +794,15 @@ export interface StorageBackend {
  * identifier: a user's email or a service principal's application (client) id.
  */
 export interface StorePrincipal {
+  /**
+   * Identifier of the principal: the email address of a user, or the application (client) ID of
+   * a service principal. Groups are not supported.
+   */
   name?: string | undefined;
-  /** The kind of principal. Required unless the deprecated type alias is supplied. */
+  /**
+   * The kind of principal, which determines how `name` is interpreted. A principal without a
+   * type is rejected.
+   */
   principalType?: PrincipalType | undefined;
 }
 
@@ -798,7 +818,10 @@ export interface UpdateManagedMemoryEntryRequest {
 export interface UpdateManagedMemoryStoreRequest {
   /** The memory store to update. `name` is taken from the URL. */
   managedMemoryStore?: ManagedMemoryStore | undefined;
-  /** Only `description` and `metadata` may be updated. Selecting `metadata` replaces the entire map. */
+  /**
+   * Only `description` and `metadata` may be updated. Selecting `description` while leaving it
+   * unset clears it. Selecting `metadata` replaces the entire map.
+   */
   updateMask?: FieldMask<ManagedMemoryStore> | undefined;
 }
 

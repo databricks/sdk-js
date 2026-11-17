@@ -23,11 +23,18 @@ export interface CreateCredentialsRequest {
    * [Learn more](https://docs.databricks.com/repos/get-access-tokens-from-git-provider.html).
    */
   personalAccessToken?: string | undefined;
-  /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
+  /** The ID of the service principal for which the credential will be created. Only service principal managers can perform this action. */
   principalId?: bigint | undefined;
-  /** the name of the git credential, used for identification and ease of lookup */
+  /**
+   * The name of the Git credential, used for identification and ease of lookup. It must not
+   * exceed 100 characters.
+   */
   name?: string | undefined;
-  /** if the credential is the default for the given provider */
+  /**
+   * Set to true to make the new credential the default for its Git provider, replacing the
+   * current default. The first credential created for a provider becomes the default
+   * regardless of this value.
+   */
   isDefaultForProvider?: boolean | undefined;
   /**
    * The authenticating email associated with your Git provider user account.
@@ -50,9 +57,12 @@ export interface CreateCredentialsResponse {
    * Required for AWS CodeCommit.
    */
   gitUsername?: string | undefined;
-  /** the name of the git credential, used for identification and ease of lookup */
+  /** The name of the Git credential, used for identification and ease of lookup. */
   name?: string | undefined;
-  /** if the credential is the default for the given provider */
+  /**
+   * Whether this credential is the default for its Git provider. The default credential is the
+   * fallback that is used when no specific credential is selected.
+   */
   isDefaultForProvider?: boolean | undefined;
   /**
    * The authenticating email associated with your Git provider user account.
@@ -63,6 +73,11 @@ export interface CreateCredentialsResponse {
   gitEmail?: string | undefined;
 }
 
+/**
+ * A Git credential that Databricks uses to authenticate to a Git provider on behalf of a user
+ * or service principal. Each user has one default credential per Git provider, which is used
+ * when no specific credential is selected.
+ */
 export interface Credential {
   /** ID of the credential object in the workspace. */
   credentialId?: bigint | undefined;
@@ -80,9 +95,13 @@ export interface Credential {
    * Required for AWS CodeCommit.
    */
   gitUsername?: string | undefined;
-  /** the name of the git credential, used for identification and ease of lookup */
+  /** The name of the Git credential, used for identification and ease of lookup. */
   name?: string | undefined;
-  /** if the credential is the default for the given provider */
+  /**
+   * Whether this credential is the default for its Git provider. The default credential is the
+   * fallback that is used when no specific credential is selected. See
+   * https://docs.databricks.com/aws/en/repos/repos-setup#how-default-credentials-work.
+   */
   isDefaultForProvider?: boolean | undefined;
   /**
    * The authenticating email associated with your Git provider user account.
@@ -96,7 +115,7 @@ export interface Credential {
 export interface DeleteCredentialsRequest {
   /** The ID for the corresponding credential to access. */
   id?: bigint | undefined;
-  /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
+  /** The ID of the service principal whose credential will be deleted. Only service principal managers can perform this action. */
   principalId?: bigint | undefined;
 }
 
@@ -106,7 +125,7 @@ export interface DeleteCredentialsResponse {}
 export interface GetCredentialsRequest {
   /** The ID for the corresponding credential to access. */
   id?: bigint | undefined;
-  /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
+  /** The ID of the service principal whose credential will be returned. Only service principal managers can perform this action. */
   principalId?: bigint | undefined;
 }
 
@@ -122,9 +141,12 @@ export interface GetCredentialsResponse {
    * Required for AWS CodeCommit.
    */
   gitUsername?: string | undefined;
-  /** the name of the git credential, used for identification and ease of lookup */
+  /** The name of the Git credential, used for identification and ease of lookup. */
   name?: string | undefined;
-  /** if the credential is the default for the given provider */
+  /**
+   * Whether this credential is the default for its Git provider. The default credential is the
+   * fallback that is used when no specific credential is selected.
+   */
   isDefaultForProvider?: boolean | undefined;
   /**
    * The authenticating email associated with your Git provider user account.
@@ -159,6 +181,7 @@ export interface UpdateCredentialsRequest {
    * `bitbucketCloud`, `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including
    * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
    * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`.
+   * Must match the Git provider of the existing credential; the provider cannot be changed.
    */
   gitProvider?: string | undefined;
   /**
@@ -170,9 +193,15 @@ export interface UpdateCredentialsRequest {
   gitUsername?: string | undefined;
   /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
   principalId?: bigint | undefined;
-  /** the name of the git credential, used for identification and ease of lookup */
+  /**
+   * The name of the Git credential, used for identification and ease of lookup. It must not
+   * exceed 100 characters.
+   */
   name?: string | undefined;
-  /** if the credential is the default for the given provider */
+  /**
+   * Set to true to make this credential the default for its Git provider, replacing the
+   * current default. Cannot be set to false; make another credential the default instead.
+   */
   isDefaultForProvider?: boolean | undefined;
   /**
    * The authenticating email associated with your Git provider user account.

@@ -1411,8 +1411,8 @@ export interface CreateDatabaseRequest {
    * The ID used to identify and manage the Database resource through the API.
    * The Postgres database name is specified in `spec.postgres_database`.
    *
-   * This value should be 4-63 characters, and only use characters available in DNS names,
-   * as defined by RFC-1123
+   * This value should be 3-63 characters, start with a lowercase letter, end with a lowercase
+   * letter or digit, and contain only lowercase letters, digits, and hyphens.
    *
    * If database_id is not specified in the request, it is generated automatically.
    */
@@ -1421,7 +1421,8 @@ export interface CreateDatabaseRequest {
   database?: Database | undefined;
   /**
    * If true, update the database if it already exists instead of returning an
-   * error.
+   * error. This requires `database_id` to be set. Without `database_id`, the request
+   * follows the normal create path and fails if the database name already exists.
    */
   replaceExisting?: boolean | undefined;
 }
@@ -1516,11 +1517,17 @@ export interface CreateSnapshotRequest {
    * Format: projects/{project_id}
    */
   parent?: string | undefined;
-  /** The snapshot to create. */
+  /**
+   * The snapshot to create. Only `spec` is read from this message; the system
+   * sets the other fields.
+   */
   snapshot?: Snapshot | undefined;
   /**
    * Client-chosen ID for the snapshot. It becomes the final segment of the
-   * snapshot resource name and cannot be changed after creation.
+   * snapshot resource name and cannot be changed after creation. The ID must be
+   * 3 to 63 characters long, start with a lowercase letter, end with a
+   * lowercase letter or digit, and contain only lowercase letters, digits, and
+   * hyphens.
    */
   snapshotId?: string | undefined;
 }
@@ -1679,6 +1686,7 @@ export interface Database_DatabaseSpec {
    * The name of the role that owns the database.
    * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
    *
+   * The role must be in the same branch as the database.
    * To change the owner, pass valid existing Role name when updating the Database
    *
    * Required when creating the Database.
@@ -2988,7 +2996,10 @@ export interface ScheduleCadence {
 
 /**
  * An immutable, point-in-time copy of a branch's data within a project. It
- * remains available after the source branch is deleted.
+ * remains available after the source branch is deleted. To restore a snapshot,
+ * create a new branch with `spec.source_snapshot` set to the snapshot's
+ * resource name. For an overview, see
+ * https://docs.databricks.com/aws/en/oltp/projects/snapshots.
  */
 export interface Snapshot {
   /**
@@ -3000,7 +3011,10 @@ export interface Snapshot {
   uid?: string | undefined;
   /** When the snapshot was created. */
   createTime?: Temporal.Instant | undefined;
-  /** Client-provided configuration of the snapshot. */
+  /**
+   * Client-provided configuration of the snapshot. When you create a snapshot,
+   * set exactly one of `expire_time`, `ttl`, or `no_expiry`.
+   */
   spec?: SnapshotSpec | undefined;
   /** Server-observed state of the snapshot. */
   status?: SnapshotStatus | undefined;
@@ -3040,7 +3054,8 @@ export interface SnapshotScheduleOperationMetadata {}
 /** Client-provided configuration of the snapshot. */
 export interface SnapshotSpec {
   /**
-   * The source branch to snapshot.
+   * The source branch to snapshot. The branch must belong to the same project
+   * as the snapshot.
    * Format: projects/{project_id}/branches/{branch_id}
    */
   sourceBranch?: string | undefined;
@@ -3054,16 +3069,18 @@ export interface SnapshotSpec {
     | {
         $case: 'sourceBranchLsn';
         /**
-         * LSN to snapshot from, e.g. `16/B374D848`.
-         * Mutually exclusive with `source_branch_time`.
+         * Postgres log sequence number (LSN) to snapshot from. It must fall within
+         * the project's history retention window. If neither this field nor
+         * `source_branch_time` is set, the snapshot captures the current head of
+         * the source branch. Mutually exclusive with `source_branch_time`.
          */
         sourceBranchLsn: string;
       }
     | {
         $case: 'sourceBranchTime';
         /**
-         * Timestamp to snapshot from.
-         * Mutually exclusive with `source_branch_lsn`.
+         * Timestamp to snapshot from. It must fall within the project's history
+         * retention window. Mutually exclusive with `source_branch_lsn`.
          */
         sourceBranchTime: Temporal.Instant;
       }
@@ -3073,15 +3090,16 @@ export interface SnapshotSpec {
     | {
         $case: 'expireTime';
         /**
-         * Absolute time at which the snapshot is deleted.
-         * Mutually exclusive with `ttl` and `no_expiry`.
+         * Absolute time at which the snapshot is deleted. It must not be in the
+         * past. Mutually exclusive with `ttl` and `no_expiry`.
          */
         expireTime: Temporal.Instant;
       }
     | {
         $case: 'ttl';
         /**
-         * Time-to-live. The snapshot expires this long after it is created.
+         * Time-to-live, as a positive duration in seconds with an `s` suffix. The
+         * snapshot expires this long after it is created.
          * Mutually exclusive with `expire_time` and `no_expiry`. Reads report the
          * resolved absolute `expire_time` instead.
          */
@@ -3090,7 +3108,8 @@ export interface SnapshotSpec {
     | {
         $case: 'noExpiry';
         /**
-         * If true, the snapshot never expires.
+         * If true, the snapshot never expires. The value `false` is rejected; set
+         * `expire_time` or `ttl` instead.
          * Mutually exclusive with `ttl` and `expire_time`.
          */
         noExpiry: boolean;
@@ -3390,7 +3409,10 @@ export interface UpdateDatabaseRequest {
    * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
    */
   database?: Database | undefined;
-  /** The list of fields to update. */
+  /**
+   * The list of fields to update. The updatable fields are `spec.role` and
+   * `spec.postgres_database`.
+   */
   updateMask?: FieldMask<Database> | undefined;
 }
 

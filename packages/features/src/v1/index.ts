@@ -127,6 +127,7 @@ export type {
   MaterializationSuccessNotification,
   MaterializedFeature,
   MaterializedFeatureChangeFailure,
+  MaterializedFeatureOperations,
   MaxFunction,
   MinFunction,
   MtlsConfig,

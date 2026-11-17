@@ -220,6 +220,45 @@ export type EndpointStatus_State =
   | (typeof EndpointStatus_State)[keyof typeof EndpointStatus_State]
   | (string & {});
 
+/** Detailed lifecycle state of the index. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
+export const IndexStatus_State = {
+  /** Default Provisioning state, returned on create before the sync pipeline triggers. */
+  PROVISIONING: 'PROVISIONING',
+  /** Provisioning the serving endpoint. */
+  PROVISIONING_ENDPOINT: 'PROVISIONING_ENDPOINT',
+  /** Setting up a direct access index. */
+  PROVISIONING_INDEX: 'PROVISIONING_INDEX',
+  /** Setting up the Spark cluster for the sync pipeline. */
+  PROVISIONING_PIPELINE_RESOURCES: 'PROVISIONING_PIPELINE_RESOURCES',
+  /** Syncing the initial snapshot of a Delta Sync source table. */
+  PROVISIONING_INITIAL_SNAPSHOT: 'PROVISIONING_INITIAL_SNAPSHOT',
+  /** Default Online state, if a more detailed state cannot be determined. */
+  ONLINE: 'ONLINE',
+  /** Index is ready and the sync pipeline is running in continuous mode. */
+  ONLINE_CONTINUOUS_UPDATE: 'ONLINE_CONTINUOUS_UPDATE',
+  /** Index is ready and the sync pipeline is running in triggered mode with an active update. */
+  ONLINE_TRIGGERED_UPDATE: 'ONLINE_TRIGGERED_UPDATE',
+  /** Index is ready and the sync pipeline is running in triggered mode with no active update. */
+  ONLINE_NO_PENDING_UPDATE: 'ONLINE_NO_PENDING_UPDATE',
+  /** Index is ready for direct access; no sync pipeline status details are needed. */
+  ONLINE_DIRECT_ACCESS: 'ONLINE_DIRECT_ACCESS',
+  /** Index is offline. */
+  OFFLINE: 'OFFLINE',
+  /** Index is offline because of a failure. */
+  OFFLINE_FAILED: 'OFFLINE_FAILED',
+  /** The latest pipeline update failed, but the index can still serve previously indexed data. */
+  ONLINE_PIPELINE_FAILED: 'ONLINE_PIPELINE_FAILED',
+  /** Index is online, but the pipeline is restarting and acquiring resources. */
+  ONLINE_UPDATING_PIPELINE_RESOURCES: 'ONLINE_UPDATING_PIPELINE_RESOURCES',
+  /** Downloading index data onto serving compute. */
+  DOWNLOADING: 'DOWNLOADING',
+} as const;
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export type IndexStatus_State =
+  | (typeof IndexStatus_State)[keyof typeof IndexStatus_State]
+  | (string & {});
+
 /** How the `model` field is interpreted. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const RerankerConfig_ModelType = {
@@ -261,10 +300,10 @@ export interface CreateEndpointRequest {
    */
   endpoint?: Endpoint | undefined;
   /**
-   * The user-supplied short name for the Endpoint, per AIP-133. The server composes the
-   * full `Endpoint.name` as `{parent}/endpoints/{endpoint_id}`. AIP-133 does not list
-   * `endpoint_id` as a fields-may-be-required entry, so we annotate it OPTIONAL on the
-   * wire; the server still rejects empty values with INVALID_PARAMETER_VALUE.
+   * Short name of the endpoint, which becomes the last segment of `name`. The server rejects
+   * a request without it. The name can have at most 50 characters, can contain only lowercase
+   * letters, digits, hyphens, periods, and underscores, and must start and end with a letter
+   * or digit.
    */
   endpointId?: string | undefined;
 }
@@ -410,13 +449,15 @@ export interface EmbeddingVectorColumn {
  */
 export interface Endpoint {
   /**
-   * Name of the AI Search endpoint. Server-assigned full resource path
-   * (`workspaces/{workspace}/endpoints/{endpoint}`) on output. On create, the
-   * user-supplied short name is conveyed via `CreateEndpointRequest.endpoint_id`;
-   * the server composes the full `name` and returns it on the response.
+   * Full resource name of the endpoint, in the form
+   * `workspaces/{workspace_id}/endpoints/{endpoint_id}`. On create, the server composes it
+   * from `parent` and `endpoint_id` and ignores any value supplied in the request body.
    */
   name?: string | undefined;
-  /** Creator of the endpoint */
+  /**
+   * User name of the principal that created the endpoint. For a user, it is the user's email
+   * address; for any other principal, it is the principal's unique name.
+   */
   creator?: string | undefined;
   /** Time the endpoint was created. */
   createTime?: Temporal.Instant | undefined;
@@ -424,25 +465,36 @@ export interface Endpoint {
   updateTime?: Temporal.Instant | undefined;
   /** Type of endpoint. Required on create and immutable thereafter. */
   endpointType?: EndpointType | undefined;
-  /** User who last updated the endpoint */
+  /** User name of the principal that last updated the endpoint, in the same format as `creator`. */
   lastUpdatedUser?: string | undefined;
-  /** Unique identifier of the endpoint */
+  /** System-generated UUID that uniquely identifies the endpoint. */
   id?: string | undefined;
-  /** Current status of the endpoint */
+  /** Current lifecycle state of the endpoint, with an optional message that explains it. */
   endpointStatus?: EndpointStatus | undefined;
   /** Number of indexes on the endpoint */
   indexCount?: number | undefined;
-  /** The user-selected budget policy id for the endpoint. */
+  /**
+   * ID of the serverless budget policy to apply to the endpoint. The caller must have
+   * permission to use the policy. Set either this field or `usage_policy_id`, not both.
+   * Responses do not echo this field; they report the applied policy in
+   * `effective_budget_policy_id`.
+   */
   budgetPolicyId?: string | undefined;
-  /** The budget policy id applied to the endpoint */
+  /** ID of the budget policy that is currently applied to the endpoint. */
   effectiveBudgetPolicyId?: string | undefined;
-  /** The custom tags assigned to the endpoint */
+  /**
+   * Custom tags assigned to the endpoint. On update, the list replaces all of the endpoint's
+   * existing tags.
+   */
   customTags?: CustomTag[] | undefined;
   /** Throughput information for the endpoint */
   throughputInfo?: EndpointThroughputInfo | undefined;
   /** Scaling information for the endpoint */
   scalingInfo?: EndpointScalingInfo | undefined;
-  /** The usage policy id applied to the endpoint. */
+  /**
+   * ID of the usage policy to apply to the endpoint. The server treats it as the same setting
+   * as `budget_policy_id`, so set only one of the two.
+   */
   usagePolicyId?: string | undefined;
   /**
    * The client-supplied desired number of replicas for the endpoint, applied at
@@ -451,7 +503,8 @@ export interface Endpoint {
   replicaCount?: number | undefined;
   /**
    * Target QPS for the endpoint. Mutually exclusive with `replica_count`. Best-effort;
-   * the system does not guarantee this QPS will be achieved.
+   * the system does not guarantee this QPS will be achieved. Responses report the requested
+   * value in `scaling_info.requested_target_qps`.
    */
   targetQps?: number | undefined;
 }
@@ -621,13 +674,15 @@ export interface Index {
  * detail about that state and basic indexing progress.
  */
 export interface IndexStatus {
+  /** Lifecycle and ingestion state. An online index can still have a failed update. */
+  detailedState?: IndexStatus_State | undefined;
   /** Human-readable detail about the index's current state. */
   message?: string | undefined;
   /** Number of rows indexed. */
   indexedRowCount?: bigint | undefined;
   /**
-   * Whether the index is ready to serve queries. After CreateIndex, poll GetIndex until this is
-   * true; `message` describes the current state in the meantime.
+   * Whether the index can serve queries. After CreateIndex, poll GetIndex until true; message describes progress.
+   * This does not guarantee freshness or update success; check detailed_state for update failures.
    */
   ready?: boolean | undefined;
   /** Index API URL used to perform operations on the index. */
@@ -642,9 +697,8 @@ export interface ListEndpointsRequest {
    */
   parent?: string | undefined;
   /**
-   * Best-effort upper bound on the number of results to return. Honored as an upper
-   * bound by the shim: `page_size` only narrows the legacy backend's response, never
-   * widens it, so the practical cap is `min(page_size, legacy_fixed_page_size)`.
+   * Maximum number of endpoints to return in one page. The server applies its own page size
+   * limit, so a page can hold fewer endpoints than `page_size` even when more remain.
    */
   pageSize?: number | undefined;
   /** Page token from a previous response. If not provided, returns the first page. */
@@ -881,7 +935,11 @@ export interface SyncIndexResponse {}
 export interface UpdateEndpointRequest {
   /** The Endpoint resource to update. `endpoint.name` carries the full resource path. */
   endpoint?: Endpoint | undefined;
-  /** The list of fields to update. */
+  /**
+   * Comma-separated list of `Endpoint` fields to update. The updatable fields are
+   * `budget_policy_id`, `usage_policy_id`, `custom_tags`, `replica_count`, and `target_qps`.
+   * The server rejects nested paths and unknown fields.
+   */
   updateMask?: FieldMask<Endpoint> | undefined;
 }
 
@@ -1186,6 +1244,7 @@ export const unmarshalIndexSchema: z.ZodType<Index> = z
 
 export const unmarshalIndexStatusSchema: z.ZodType<IndexStatus> = z
   .object({
+    detailed_state: z.string().optional(),
     message: z.string().optional(),
     indexed_row_count: z
       .union([z.number(), z.bigint(), z.string()])
@@ -1195,6 +1254,7 @@ export const unmarshalIndexStatusSchema: z.ZodType<IndexStatus> = z
     index_url: z.string().optional(),
   })
   .transform(d => ({
+    detailedState: d.detailed_state,
     message: d.message,
     indexedRowCount: d.indexed_row_count,
     ready: d.ready,
@@ -1533,12 +1593,14 @@ export const marshalIndexSchema: z.ZodType = z
 
 export const marshalIndexStatusSchema: z.ZodType = z
   .object({
+    detailedState: z.string().optional(),
     message: z.string().optional(),
     indexedRowCount: z.bigint().optional(),
     ready: z.boolean().optional(),
     indexUrl: z.string().optional(),
   })
   .transform(d => ({
+    detailed_state: d.detailedState,
     message: d.message,
     indexed_row_count: d.indexedRowCount,
     ready: d.ready,

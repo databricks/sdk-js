@@ -43,6 +43,13 @@ export interface ListTagAssignmentsResponse {
   nextPageToken?: string | undefined;
 }
 
+/**
+ * A tag assignment attaches a tag, which is a key with an optional value, to a workspace object such
+ * as a dashboard, notebook, Genie space or app. An object can have at most one assignment for each tag
+ * key. If the key belongs to a governed tag, the caller needs the ASSIGN permission on that governed
+ * tag, and the value must be one of its allowed values. See
+ * https://docs.databricks.com/aws/en/admin/governed-tags/.
+ */
 export interface TagAssignment {
   /** The type of entity to which the tag is assigned. Allowed values are apps, dashboards, geniespaces, notebooks */
   entityType?: string | undefined;
@@ -50,12 +57,16 @@ export interface TagAssignment {
   entityId?: string | undefined;
   /** The key of the tag. The characters , . : / - = and leading/trailing spaces are not allowed */
   tagKey?: string | undefined;
-  /** The value of the tag */
+  /** The value of the tag. If the value is omitted, the tag is assigned with its key only. */
   tagValue?: string | undefined;
 }
 
 export interface UpdateTagAssignmentRequest {
   tagAssignment?: TagAssignment | undefined;
+  /**
+   * The comma-separated list of fields to update. Only `tag_value` can be updated, because the entity
+   * type, entity ID and tag key identify the tag assignment.
+   */
   updateMask?: FieldMask<TagAssignment> | undefined;
 }
 

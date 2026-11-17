@@ -148,18 +148,23 @@ export const ViewType = {
 export type ViewType = (typeof ViewType)[keyof typeof ViewType] | (string & {});
 
 export interface CreateExperimentRequest {
-  /** Experiment name. */
+  /**
+   * Name of the experiment, as an absolute path in the workspace. Experiments cannot be created
+   * under `/Repos`.
+   */
   name?: string | undefined;
   /**
-   * Location where all artifacts for the experiment are stored.
-   * If not provided, the remote server will select an appropriate default.
+   * URI of the location where the artifacts of the experiment's runs are stored, such as a Unity
+   * Catalog volume path of the form `dbfs:/Volumes/<catalog>/<schema>/<volume>/<path>`. The URI
+   * must have a scheme other than `file` and must not point under the MLflow-managed prefix
+   * `dbfs:/databricks/mlflow-tracking`. If omitted, artifacts are stored in MLflow-managed
+   * storage. See https://docs.databricks.com/aws/en/mlflow/experiments for the supported
+   * locations.
    */
   artifactLocation?: string | undefined;
   /**
-   * A collection of tags to set on the experiment. Maximum tag size and number of tags per request
-   * depends on the storage backend. All storage backends are guaranteed to support tag keys up
-   * to 250 bytes in size and tag values up to 5000 bytes in size. All storage backends are also
-   * guaranteed to support up to 20 tags per request.
+   * Tags to set on the new experiment, as key-value pairs. A request can include at most 100
+   * tags.
    */
   tags?: ExperimentTag[] | undefined;
   /**
@@ -340,20 +345,31 @@ export interface DeleteTagResponse {}
 export interface Experiment {
   /** Unique identifier for the experiment. */
   experimentId?: string | undefined;
-  /** Human readable name that identifies the experiment. */
+  /**
+   * Name of the experiment. A workspace experiment is named by its absolute path in the
+   * workspace; a notebook experiment has the path of its notebook.
+   */
   name?: string | undefined;
-  /** Location where artifacts for the experiment are stored. */
+  /**
+   * URI of the location where the artifacts of the experiment's runs are stored. Experiments
+   * created without an explicit location use MLflow-managed storage under
+   * `dbfs:/databricks/mlflow-tracking/<experiment_id>`.
+   */
   artifactLocation?: string | undefined;
   /**
-   * Current life cycle stage of the experiment: "active" or "deleted".
-   * Deleted experiments are not returned by APIs.
+   * Current life cycle stage of the experiment: `active` or `deleted`. Deleted experiments are
+   * excluded from list and search results unless `view_type` requests them, and can be restored
+   * until they are permanently deleted.
    */
   lifecycleStage?: string | undefined;
-  /** Last update time */
+  /** Time when the experiment metadata was last updated, as a Unix timestamp in milliseconds. */
   lastUpdateTime?: bigint | undefined;
-  /** Creation time */
+  /** Time when the experiment was created, as a Unix timestamp in milliseconds. */
   creationTime?: bigint | undefined;
-  /** Tags: Additional metadata key-value pairs. */
+  /**
+   * Tags set on the experiment, as key-value pairs, including system tags such as
+   * `mlflow.ownerId` that MLflow maintains.
+   */
   tags?: ExperimentTag[] | undefined;
   /**
    * The location where the experiment's traces are stored. Unset when traces
@@ -365,9 +381,9 @@ export interface Experiment {
 
 /** A tag for an experiment. */
 export interface ExperimentTag {
-  /** The tag key. */
+  /** The tag key. Keys are at most 255 characters long. */
   key?: string | undefined;
-  /** The tag value. */
+  /** The tag value. Values are at most 65535 characters long. */
   value?: string | undefined;
 }
 
@@ -612,7 +628,7 @@ export interface ListExperimentsRequest {
    * page_token to iterate through experiments.
    */
   maxResults?: bigint | undefined;
-  /** Token indicating the page of experiments to fetch */
+  /** Page token returned as `next_page_token` by a previous call. Omit it to fetch the first page. */
   pageToken?: string | undefined;
 }
 
@@ -988,16 +1004,25 @@ export interface RunTag {
 }
 
 export interface SearchExperimentsRequest {
-  /** Maximum number of experiments desired. Max threshold is 3000. */
+  /**
+   * Maximum number of experiments to return per page. Larger values are capped by the server, so
+   * use `page_token` to retrieve further pages.
+   */
   maxResults?: bigint | undefined;
-  /** Token indicating the page of experiments to fetch */
+  /** Page token returned as `next_page_token` by a previous call. Omit it to fetch the first page. */
   pageToken?: string | undefined;
-  /** String representing a SQL filter condition (e.g. "name ILIKE 'my-experiment%'") */
+  /**
+   * Filter condition on the experiment name and tags. The `name` attribute and `tags.<key>`
+   * support the operators `=`, `!=`, `LIKE` and `ILIKE` (case-insensitive `LIKE`), string values
+   * are wrapped in single quotes, and several conditions can be combined with `AND`. No wildcard
+   * is added automatically, so include `%` in a `LIKE` pattern where you need one.
+   */
   filter?: string | undefined;
   /**
-   * List of columns for ordering search results, which can include experiment name and last updated
-   * timestamp with an optional "DESC" or "ASC" annotation, where "ASC" is the default.
-   * Tiebreaks are done by experiment id DESC.
+   * Columns to order the results by, each given as `name`, `basename` (the last segment of the
+   * name), `experiment_id`, `creation_time` or `last_update_time` with an optional `ASC` or `DESC`
+   * suffix, where `ASC` is the default. If omitted, results are ordered by last update time with
+   * the most recently updated experiment first. Tiebreaks are done by experiment id DESC.
    */
   orderBy?: string[] | undefined;
   /**
@@ -1172,9 +1197,13 @@ export interface SearchRunsResponse {
 export interface SetExperimentTagRequest {
   /** ID of the experiment under which to log the tag. Must be provided. */
   experimentId?: string | undefined;
-  /** Name of the tag. Keys up to 250 bytes in size are supported. */
+  /**
+   * Key of the tag. Keys are at most 255 characters long. Setting a key that already exists
+   * replaces its value. System tags such as `mlflow.ownerId`, `mlflow.ownerEmail` and
+   * `mlflow.experimentType` cannot be set.
+   */
   key?: string | undefined;
-  /** String value of the tag being logged. Values up to 64KB in size are supported. */
+  /** Value of the tag. Values are at most 65535 characters long. */
   value?: string | undefined;
 }
 
@@ -1236,7 +1265,10 @@ export interface UcTraceLocation {
 export interface UpdateExperimentRequest {
   /** ID of the associated experiment. */
   experimentId?: string | undefined;
-  /** If provided, the experiment's name is changed to the new name. The new name must be unique. */
+  /**
+   * New name for the experiment, as an absolute path in the workspace. The new name must be
+   * unique.
+   */
   newName?: string | undefined;
 }
 

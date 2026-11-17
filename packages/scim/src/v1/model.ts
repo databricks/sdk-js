@@ -155,29 +155,60 @@ export type PasswordPermission_Level =
   | (string & {});
 
 export interface AccountComplexValue {
+  /** Provides a human-readable name for the value, such as the display name of a group member. */
   display?: string | undefined;
+  /**
+   * Indicates whether this is the primary or preferred value of a multi-valued attribute. At most
+   * one value can be primary.
+   */
   primary?: boolean | undefined;
+  /**
+   * References the resource that the value refers to by its URI, such as the user, service
+   * principal or group entry of a group member.
+   */
   ref?: string | undefined;
+  /** Indicates the function or kind of the value within a multi-valued attribute. */
   type?: string | undefined;
+  /**
+   * Holds the value of the attribute. For references to other resources, such as group members,
+   * this is the ID of the referenced resource.
+   */
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface AccountGetSortOrder {}
 
+/**
+ * Represents a group of users, service principals and other groups in the Databricks account.
+ * Members inherit the permissions that are granted to the group.
+ */
 export interface AccountGroup {
-  /** String that represents a human-readable group name */
+  /**
+   * Identifies the group by a human-readable name. The name must be unique within the account and
+   * must not exceed 255 characters.
+   */
   displayName?: string | undefined;
-  /** external_id should be unique for identifying groups */
+  /**
+   * Identifies the group in an external identity provider. Identity providers use it to match the
+   * groups they manage to Databricks groups, so it should be unique among the groups in the account.
+   */
   externalId?: string | undefined;
-  /** <Databricks> group ID */
+  /** Identifies the group within Databricks. Databricks generates the ID when the group is created. */
   id?: string | undefined;
+  /**
+   * Lists the members of the group. Each entry identifies a user, service principal or group in the
+   * account by its ID in the value sub-attribute.
+   */
   members?: AccountComplexValue[] | undefined;
   /** Container for the group identifier. Workspace local versus account. */
   meta?: AccountResourceMeta | undefined;
-  /** Indicates if the group has the admin role. */
+  /**
+   * Lists the account roles that are assigned to the group. The only supported role value is
+   * `account_admin`.
+   */
   roles?: AccountComplexValue[] | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account that the group belongs to. */
   accountId?: string | undefined;
 }
 
@@ -198,9 +229,18 @@ export interface AccountName {
 export interface AccountPatch {
   /** Type of patch operation. */
   op?: AccountPatchOp_PatchOp | undefined;
-  /** Selection of patch operation */
+  /**
+   * Specifies the attribute that the operation targets, optionally with a filter that selects one
+   * value of a multi-valued attribute. The path is required for remove operations. When it is
+   * omitted, the operation applies to the resource itself and the value holds the attributes to add
+   * or replace.
+   */
   path?: string | undefined;
-  /** Value to modify */
+  /**
+   * Holds the value that the operation adds or sets. Depending on the target, it is a single value,
+   * a list of entries for a multi-valued attribute, or an object with the attributes to change when
+   * the path is omitted. Remove operations do not need a value.
+   */
   value?: JsonValue | undefined;
 }
 
@@ -215,19 +255,40 @@ export interface AccountResourceMeta {
   resourceType?: string | undefined;
 }
 
+/**
+ * Represents a service principal in the Databricks account. Service principals are identities for
+ * jobs, automated tools and systems such as scripts, apps and CI/CD platforms.
+ */
 export interface AccountServicePrincipal {
-  /** If this user is active */
+  /**
+   * Indicates whether the service principal is active. A deactivated service principal cannot
+   * authenticate or access Databricks APIs, but it keeps its permissions.
+   */
   active?: boolean | undefined;
-  /** UUID relating to the service principal */
+  /**
+   * Identifies the service principal when it authenticates to Databricks. Databricks generates
+   * the application ID, except on Azure, where it can be the application ID of a Microsoft Entra
+   * ID service principal.
+   */
   applicationId?: string | undefined;
-  /** String that represents a concatenation of given and family names. */
+  /** Identifies the service principal by a human-readable name. */
   displayName?: string | undefined;
+  /**
+   * Identifies the service principal in an external identity provider. Identity providers use it
+   * to match the service principals they manage to Databricks service principals.
+   */
   externalId?: string | undefined;
-  /** <Databricks> service principal ID. */
+  /**
+   * Identifies the service principal within Databricks. Databricks generates the ID when the
+   * service principal is created.
+   */
   id?: string | undefined;
-  /** Indicates if the group has the admin role. */
+  /**
+   * Lists the account roles that are assigned to the service principal. The only supported role
+   * value is `account_admin`.
+   */
   roles?: AccountComplexValue[] | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account that the service principal belongs to. */
   accountId?: string | undefined;
 }
 
@@ -260,33 +321,58 @@ export interface ComplexValue {
 }
 
 export interface CreateAccountGroupRequest {
-  /** String that represents a human-readable group name */
+  /**
+   * Sets the human-readable name of the group. The name must be unique within the account and must
+   * not exceed 255 characters.
+   */
   displayName?: string | undefined;
+  /** Sets the identifier of the group in an external identity provider. */
   externalId?: string | undefined;
-  /** <Databricks> group ID */
+  /** Identifies the group within Databricks. */
   id?: string | undefined;
+  /**
+   * Lists the members of the group. Each entry identifies a user, service principal or group in the
+   * account by its ID in the value sub-attribute.
+   */
   members?: AccountComplexValue[] | undefined;
   /** Container  for the group identifier. Workspace local versus account. */
   meta?: AccountResourceMeta | undefined;
-  /** Indicates if the group has the admin role. */
+  /**
+   * Lists the account roles that are assigned to the group. The only supported role value is
+   * `account_admin`.
+   */
   roles?: AccountComplexValue[] | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account. */
   accountId?: string | undefined;
 }
 
 export interface CreateAccountServicePrincipalRequest {
-  /** If this user is active */
+  /**
+   * Indicates whether the service principal is active. A deactivated service principal cannot
+   * authenticate or access Databricks APIs, but it keeps its permissions.
+   */
   active?: boolean | undefined;
-  /** UUID relating to the service principal */
+  /**
+   * Sets the application ID of a Microsoft Entra ID service principal. Only Azure accepts this
+   * field. On AWS and GCP, Databricks generates the application ID and rejects requests that set
+   * it.
+   */
   applicationId?: string | undefined;
-  /** String that represents a concatenation of given and family names. */
+  /**
+   * Sets the human-readable name of the service principal. The name is required unless the
+   * request sets `applicationId`.
+   */
   displayName?: string | undefined;
+  /** Sets the identifier of the service principal in an external identity provider. */
   externalId?: string | undefined;
-  /** <Databricks> service principal ID. */
+  /** Identifies the service principal within Databricks. */
   id?: string | undefined;
-  /** Indicates if the group has the admin role. */
+  /**
+   * Lists the account roles that are assigned to the service principal. The only supported role
+   * value is `account_admin`.
+   */
   roles?: AccountComplexValue[] | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account. */
   accountId?: string | undefined;
 }
 
@@ -372,9 +458,9 @@ export interface CreateUserRequest {
 
 /** Delete a group */
 export interface DeleteAccountGroupRequest {
-  /** Unique ID for a group in the <Databricks> account. */
+  /** Unique ID for a group in the Databricks account. */
   id?: string | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account. */
   accountId?: string | undefined;
 }
 
@@ -382,7 +468,7 @@ export interface DeleteAccountGroupRequest {
 export interface DeleteAccountServicePrincipalRequest {
   /** Unique ID for a service principal in the <Databricks> account. */
   id?: string | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account. */
   accountId?: string | undefined;
 }
 
@@ -414,9 +500,9 @@ export interface DeleteUserRequest {
 
 /** Get group details */
 export interface GetAccountGroupRequest {
-  /** Unique ID for a group in the <Databricks> account. */
+  /** Unique ID for a group in the Databricks account. */
   id?: string | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account. */
   accountId?: string | undefined;
 }
 
@@ -424,7 +510,7 @@ export interface GetAccountGroupRequest {
 export interface GetAccountServicePrincipalRequest {
   /** Unique ID for a service principal in the <Databricks> account. */
   id?: string | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account. */
   accountId?: string | undefined;
 }
 
@@ -515,7 +601,7 @@ export interface Group {
 
 /** List group details */
 export interface ListAccountGroupsRequest {
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account. */
   accountId?: string | undefined;
   /** Query by which the results have to be filtered. Supported operators are equals(`eq`), contains(`co`), starts with(`sw`) and not equals(`ne`). Additionally, simple expressions can be formed using logical operators - `and` and `or`. The [SCIM RFC](https://tools.ietf.org/html/rfc7644#section-3.4.2.2) has more details but we currently only support simple expressions. */
   filter?: string | undefined;
@@ -525,7 +611,7 @@ export interface ListAccountGroupsRequest {
   excludedAttributes?: string | undefined;
   /** Specifies the index of the first result. First item is number 1. */
   startIndex?: bigint | undefined;
-  /** Desired number of results per page. Default is 10000. */
+  /** Specifies the number of results per page. When omitted, the server uses its default page size. */
   count?: bigint | undefined;
   /** Attribute to sort the results. */
   sortBy?: string | undefined;
@@ -536,7 +622,7 @@ export interface ListAccountGroupsRequest {
 export interface ListAccountGroupsResponse {
   /** Total results returned in the response. */
   itemsPerPage?: number | undefined;
-  /** User objects returned in the response. */
+  /** Group objects returned in the response. */
   resources?: AccountGroup[] | undefined;
   /** Starting index of all the results that matched the request filters. First item is number 1. */
   startIndex?: bigint | undefined;
@@ -560,14 +646,14 @@ export interface ListAccountServicePrincipalsRequest {
   sortOrder?: AccountListSort_Order | undefined;
   /** Specifies the index of the first result. First item is number 1. */
   startIndex?: bigint | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account. */
   accountId?: string | undefined;
 }
 
 export interface ListAccountServicePrincipalsResponse {
   /** Total results returned in the response. */
   itemsPerPage?: number | undefined;
-  /** User objects returned in the response. */
+  /** Lists the service principals that are returned in the response. */
   resources?: AccountServicePrincipal[] | undefined;
   /** Starting index of all the results that matched the request filters. First item is number 1. */
   startIndex?: bigint | undefined;
@@ -777,22 +863,24 @@ export interface Patch {
 }
 
 export interface PatchAccountGroupRequest {
-  /** Unique ID in the <Databricks> workspace. */
+  /** Unique ID for a group in the Databricks account. */
   id?: string | undefined;
+  /** Lists the patch operations to apply to the group. */
   operations?: AccountPatch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
   schemas?: AccountPatchSchema_PatchSchema[] | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account. */
   accountId?: string | undefined;
 }
 
 export interface PatchAccountServicePrincipalRequest {
-  /** Unique ID in the <Databricks> workspace. */
+  /** Unique ID for a service principal in the Databricks account. */
   id?: string | undefined;
+  /** Lists the patch operations to apply to the service principal. */
   operations?: AccountPatch[] | undefined;
   /** The schema of the patch request. Must be ["urn:ietf:params:scim:api:messages:2.0:PatchOp"]. */
   schemas?: AccountPatchSchema_PatchSchema[] | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account. */
   accountId?: string | undefined;
 }
 
@@ -855,33 +943,58 @@ export interface ServicePrincipal {
 }
 
 export interface UpdateAccountGroupRequest {
-  /** String that represents a human-readable group name */
+  /**
+   * Sets the human-readable name of the group. The name must be unique within the account and must
+   * not exceed 255 characters.
+   */
   displayName?: string | undefined;
+  /** Sets the identifier of the group in an external identity provider. */
   externalId?: string | undefined;
-  /** <Databricks> group ID */
+  /** Identifies the group within Databricks. */
   id?: string | undefined;
+  /**
+   * Lists the members of the group. Each entry identifies a user, service principal or group in the
+   * account by its ID in the value sub-attribute.
+   */
   members?: AccountComplexValue[] | undefined;
   /** Container  for the group identifier. Workspace local versus account. */
   meta?: AccountResourceMeta | undefined;
-  /** Indicates if the group has the admin role. */
+  /**
+   * Lists the account roles that are assigned to the group. The only supported role value is
+   * `account_admin`.
+   */
   roles?: AccountComplexValue[] | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account. */
   accountId?: string | undefined;
 }
 
 export interface UpdateAccountServicePrincipalRequest {
-  /** If this user is active */
+  /**
+   * Indicates whether the service principal is active. A deactivated service principal cannot
+   * authenticate or access Databricks APIs, but it keeps its permissions.
+   */
   active?: boolean | undefined;
-  /** UUID relating to the service principal */
+  /**
+   * Sets the application ID of a Microsoft Entra ID service principal. Only Azure accepts this
+   * field. On AWS and GCP, Databricks generates the application ID and rejects requests that set
+   * it.
+   */
   applicationId?: string | undefined;
-  /** String that represents a concatenation of given and family names. */
+  /**
+   * Sets the human-readable name of the service principal. The name is required unless the
+   * request sets `applicationId`.
+   */
   displayName?: string | undefined;
+  /** Sets the identifier of the service principal in an external identity provider. */
   externalId?: string | undefined;
-  /** <Databricks> service principal ID. */
+  /** Identifies the service principal within Databricks. */
   id?: string | undefined;
-  /** Indicates if the group has the admin role. */
+  /**
+   * Lists the account roles that are assigned to the service principal. The only supported role
+   * value is `account_admin`.
+   */
   roles?: AccountComplexValue[] | undefined;
-  /** <Databricks> account ID */
+  /** Identifies the Databricks account. */
   accountId?: string | undefined;
 }
 
