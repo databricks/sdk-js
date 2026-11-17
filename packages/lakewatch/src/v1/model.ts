@@ -301,6 +301,74 @@ export interface AutoLoader {
 }
 
 /**
+ * A Databricks-authored parser, shared by every customer.
+ *
+ * Same container-plus-versions shape as the custom `Parser`, and
+ * addressed the same way, by UUID. Built-ins are global rather than
+ * catalog-scoped, so they carry no owning catalog or schema.
+ */
+export interface BuiltinParser {
+  /** Resource name. Format: `builtin-parsers/{parser_id}`. */
+  name?: string | undefined;
+  /**
+   * The parser's UUID, authored into the built-in's published definition rather
+   * than minted per customer, so every workspace addresses the same built-in by
+   * the same id. It is the leaf of `name`.
+   */
+  parserId?: string | undefined;
+  /**
+   * The built-in's own leaf name, as published in content-marketplace. Stable and
+   * human-readable, which is what a UI shows; `name` addresses the resource by id.
+   */
+  parserName?: string | undefined;
+  /**
+   * Key/value tags describing this parser, e.g.
+   * `cloud_provider=aws` or `log_source=cloudtrail`. A parser may carry up to
+   * 32. Filterable on list.
+   */
+  tags?: ParserTag[] | undefined;
+  /** Newest published version number. */
+  latestVersion?: bigint | undefined;
+}
+
+/**
+ * One published version of a built-in parser, carrying the spec.
+ *
+ * The content pipeline owns versioning, so unlike the custom version there is no
+ * authoring principal and no append timestamp here.
+ */
+export interface BuiltinParserVersion {
+  /**
+   * Resource name. Format:
+   * `builtin-parsers/{parser_id}/versions/{version}`.
+   */
+  name?: string | undefined;
+  /** Version number. */
+  version?: bigint | undefined;
+  /**
+   * The parser spec: the field definitions for this log source, as
+   * a YAML document. Read-only; built-in specs are authored by Databricks, so
+   * no client-facing size cap is enforced here.
+   */
+  spec?: string | undefined;
+  /**
+   * The parent built-in's published leaf name, copied from the container on read.
+   * Denormalized so a caller that needs identity alongside the spec reads the
+   * version alone rather than the container as well. Populated by
+   * `GetBuiltinParserVersion`; List omits it, as List omits `spec`.
+   */
+  parserName?: string | undefined;
+  /**
+   * The parent built-in's tags, copied from the container on read. Rendering reads
+   * these for connector-specific details, such as the source table a Lakeflow
+   * Connect parser reads.
+   */
+  tags?: ParserTag[] | undefined;
+  /** Free-form description of this parser, authored by Databricks. */
+  description?: string | undefined;
+}
+
+/**
  * Unwraps an AWS CloudWatch Logs delivery envelope: each element of `logEvents`
  * becomes its own row, with the element's `message` parsed as the event body.
  */
@@ -352,6 +420,23 @@ export interface ContentPackReference {
 
 export interface CreateDatasourceRequest {
   datasource?: Datasource | undefined;
+}
+
+/** Request to create a parser and its first version in one call. */
+export interface CreateParserRequest {
+  /** The parser to create. `spec` and `description` become version 1. */
+  parser?: Parser | undefined;
+}
+
+/** Request to append a new immutable version to a parser. */
+export interface CreateParserVersionRequest {
+  /**
+   * Resource name of the parser to append a version to. Format:
+   * `parsers/{parser_id}`.
+   */
+  parent?: string | undefined;
+  /** The version to append. */
+  parserVersion?: ParserVersion | undefined;
 }
 
 export interface CreateRuleRequest {
@@ -567,6 +652,27 @@ export interface DeleteDatasourceRequest {
   name?: string | undefined;
 }
 
+/** Request to delete a parser and all of its versions. */
+export interface DeleteParserRequest {
+  /**
+   * Resource name of the parser. Format:
+   * `parsers/{parser_id}`.
+   */
+  name?: string | undefined;
+}
+
+/** Request to delete one version of a parser. */
+export interface DeleteParserVersionRequest {
+  /**
+   * Resource name of the version. Format:
+   * `parsers/{parser_id}/versions/{version}`,
+   * where `{version}` is a version number written without sign or leading zeros,
+   * such as `3`. Unlike GetParserVersion, the alias `latest` and forms such as
+   * `007` or `+3` are rejected, so a delete always names one fixed version.
+   */
+  name?: string | undefined;
+}
+
 export interface DeleteRuleRequest {
   /** Resource name of the rule to delete. Format: `rules/{rule_id}`. */
   name?: string | undefined;
@@ -662,6 +768,22 @@ export interface GetAlertConfigRequest {
   name?: string | undefined;
 }
 
+/** Request for one built-in parser's identity and latest-version pointer. */
+export interface GetBuiltinParserRequest {
+  /** Resource name. Format: `builtin-parsers/{parser_id}`. */
+  name?: string | undefined;
+}
+
+/** Request for one version of a built-in parser, including its spec. */
+export interface GetBuiltinParserVersionRequest {
+  /**
+   * Resource name of the version. Format:
+   * `builtin-parsers/{parser_id}/versions/{version}`,
+   * where `{version}` is either a version number or the alias `latest`.
+   */
+  name?: string | undefined;
+}
+
 export interface GetCommonConfigRequest {
   name?: string | undefined;
 }
@@ -671,6 +793,26 @@ export interface GetDatasourceConfigRequest {
 }
 
 export interface GetDatasourceRequest {
+  name?: string | undefined;
+}
+
+/** Request for one parser's identity and latest-version pointer. */
+export interface GetParserRequest {
+  /**
+   * Resource name of the parser. Format:
+   * `parsers/{parser_id}`.
+   */
+  name?: string | undefined;
+}
+
+/** Request for one version of a parser, including its spec. */
+export interface GetParserVersionRequest {
+  /**
+   * Resource name of the version. Format:
+   * `parsers/{parser_id}/versions/{version}`,
+   * where `{version}` is either a version number or the alias `latest`. `latest`
+   * is NOT_FOUND when every version of the parser has been deleted.
+   */
   name?: string | undefined;
 }
 
@@ -714,6 +856,72 @@ export interface JsonArrayEnvelope {
   path?: string | undefined;
 }
 
+/** Request to list a built-in parser's published versions. */
+export interface ListBuiltinParserVersionsRequest {
+  /**
+   * Resource name of the built-in parser whose versions are listed.
+   * Format: `builtin-parsers/{parser_id}`.
+   */
+  parent?: string | undefined;
+  /**
+   * Maximum number of results to return in one page. If unset or 0, at most 100 versions
+   * are returned. The maximum allowed value is 1000.
+   */
+  pageSize?: number | undefined;
+  /**
+   * Page token from a previous `ListBuiltinParserVersions` response, used to fetch the
+   * next page of results.
+   */
+  pageToken?: string | undefined;
+}
+
+/** A page of built-in version metadata, without the specs. */
+export interface ListBuiltinParserVersionsResponse {
+  /** Version metadata only, oldest first, without the spec. */
+  builtinParserVersions?: BuiltinParserVersion[] | undefined;
+  /**
+   * Opaque token for fetching the next page; pass it as `page_token` on the next call.
+   * It is empty when there are no more results.
+   */
+  nextPageToken?: string | undefined;
+}
+
+/** Request to list the built-in parsers Databricks publishes. */
+export interface ListBuiltinParsersRequest {
+  /**
+   * Maximum number of results to return in one page. This is a best-effort upper
+   * bound, not a guarantee: the server may return fewer items than requested (even
+   * zero) while more results still exist. If unset or 0, the server picks a default.
+   */
+  pageSize?: number | undefined;
+  /**
+   * Page token from a previous `ListBuiltinParsers` response, used to fetch the next
+   * page of results.
+   */
+  pageToken?: string | undefined;
+  /**
+   * AIP-160 filter expression. Built-ins are filterable by their `tags`; the
+   * exact tag-filter grammar is defined by the server.
+   */
+  filter?: string | undefined;
+}
+
+/** A page of built-in parsers, without their specs. */
+export interface ListBuiltinParsersResponse {
+  /**
+   * Summary rows: the container fields only, without the spec. Read a spec with
+   * `GetBuiltinParserVersion`.
+   */
+  builtinParsers?: BuiltinParser[] | undefined;
+  /**
+   * Opaque token for fetching the next page; pass it as `page_token` on the next
+   * call. It is empty only when there are no more results. Page size is best-effort,
+   * so a short or even empty page does not mean the end; keep paging until this
+   * token is empty, which is the only reliable end-of-results signal.
+   */
+  nextPageToken?: string | undefined;
+}
+
 export interface ListDatasourcesRequest {
   /**
    * Maximum number of results to return in one page. This is a best-effort upper
@@ -749,6 +957,93 @@ export interface ListDatasourcesRequest {
 
 export interface ListDatasourcesResponse {
   datasources?: Datasource[] | undefined;
+  /**
+   * Opaque token for fetching the next page; pass it as `page_token` on the next
+   * call. It is empty only when there are no more results. Page size is best-effort,
+   * so a short or even empty page does not mean the end; keep paging until this
+   * token is empty, which is the only reliable end-of-results signal.
+   */
+  nextPageToken?: string | undefined;
+}
+
+/** Request to list a parser's versions. */
+export interface ListParserVersionsRequest {
+  /**
+   * Resource name of the parser whose versions are listed. Format:
+   * `parsers/{parser_id}`.
+   */
+  parent?: string | undefined;
+  /**
+   * Maximum number of results to return in one page. This is a best-effort upper
+   * bound, not a guarantee: the server may return fewer items than requested (even
+   * zero) while more results still exist. If unset or 0, the server picks a default.
+   */
+  pageSize?: number | undefined;
+  /**
+   * Page token from a previous `ListParserVersions` response, used to fetch the next
+   * page of results. Send the same `parent` when requesting later pages; a token from a
+   * request for a different parser is rejected.
+   */
+  pageToken?: string | undefined;
+}
+
+/** A page of version metadata, without the specs. */
+export interface ListParserVersionsResponse {
+  /**
+   * Version metadata only, oldest first, without the spec. Each row's
+   * `create_time` and `created_by` are that version's own.
+   */
+  parserVersions?: ParserVersion[] | undefined;
+  /**
+   * Opaque token for fetching the next page; pass it as `page_token` on the next
+   * call. It is empty only when there are no more results. Page size is best-effort,
+   * so a short or even empty page does not mean the end; keep paging until this
+   * token is empty, which is the only reliable end-of-results signal.
+   */
+  nextPageToken?: string | undefined;
+}
+
+/**
+ * Request to list the parsers in a UC catalog, optionally narrowed by schema
+ * and/or an exact `parser_name` filter.
+ */
+export interface ListParsersRequest {
+  /**
+   * Maximum number of results to return in one page. This is a best-effort upper
+   * bound, not a guarantee: the server may return fewer items than requested (even
+   * zero) while more results still exist. If unset or 0, the server picks a default.
+   */
+  pageSize?: number | undefined;
+  /**
+   * Page token from a previous `ListParsers` response, used to fetch the next page of
+   * results. Send the other request fields unchanged when requesting later pages; a
+   * token from a request with different fields is rejected.
+   */
+  pageToken?: string | undefined;
+  /** AIP-160 filter expression. Parsers are filterable by `parser_name`. */
+  filter?: string | undefined;
+  /**
+   * Name of the parent UC catalog to list parsers from. Required:
+   * List is scoped to a single catalog, mirroring the Unity Catalog
+   * tables/functions APIs, which take catalog_name as a request field (bound to
+   * a query parameter) rather than a catalog path segment.
+   */
+  catalogName?: string | undefined;
+  /**
+   * Name of the parent UC schema. Optional: when set, results are narrowed to
+   * this schema; when omitted, parsers across all schemas in
+   * `catalog_name` are returned.
+   */
+  schemaName?: string | undefined;
+}
+
+/** A page of parsers, without their specs. */
+export interface ListParsersResponse {
+  /**
+   * Summary rows: the container fields only, without the spec. Read a spec with
+   * `GetParserVersion`.
+   */
+  parsers?: Parser[] | undefined;
   /**
    * Opaque token for fetching the next page; pass it as `page_token` on the next
    * call. It is empty only when there are no more results. Page size is best-effort,
@@ -800,6 +1095,87 @@ export interface ListRulesResponse {
 }
 
 /**
+ * A customer-authored, versioned contract describing the fields of an ingested
+ * log source.
+ *
+ * The parser is a container: it carries the identity and a pointer to the
+ * newest version. Specs live on the immutable `ParserVersion` children, so one
+ * parser can be attached to many data sources and each attachment pins a
+ * version.
+ */
+export interface Parser {
+  /**
+   * Resource name. Format: `parsers/{parser_id}`, where the leaf is the
+   * immutable server-assigned UUID. Create-time placement names are stored
+   * separately and do not affect the resource name.
+   */
+  name?: string | undefined;
+  /**
+   * The parser's server-assigned UUID. It is not currently a UC securable ID,
+   * is immutable for the life of the resource, is the leaf of `name`, and is
+   * returned by CreateParser.
+   */
+  parserId?: string | undefined;
+  /**
+   * Name of the parent UC catalog, set on create. Reads return the value as
+   * supplied; the current UC catalog name is reported in
+   * `effective_catalog_name`.
+   */
+  catalogName?: string | undefined;
+  /**
+   * Name of the parent UC schema, set on create. Reads return the value as
+   * supplied; the current UC schema name is reported in `effective_schema_name`.
+   */
+  schemaName?: string | undefined;
+  /**
+   * Client-supplied parser name, stored as supplied and fixed at create time.
+   * Must be a valid UC identifier. A custom parser is not currently a UC securable
+   * and this field has no rename path.
+   */
+  parserName?: string | undefined;
+  /**
+   * Newest version of this parser. Read its spec by passing this to
+   * `GetParserVersion`, or by using the `latest` alias. Absent when every version
+   * has been deleted.
+   */
+  latestVersion?: bigint | undefined;
+  /** When the parser was created. */
+  createTime?: Temporal.Instant | undefined;
+  /**
+   * The principal that created this parser. Each version records its own
+   * `created_by`.
+   */
+  createdBy?: Principal | undefined;
+  /**
+   * The principal that owns this parser. Server-set from the authenticated
+   * creator, never supplied by the client. Beta reads by UUID perform no
+   * authorization. Owner-gated write RPCs are outside this API's current
+   * implementation scope.
+   */
+  owner?: Principal | undefined;
+  /**
+   * The current name of the parser's UC catalog. Tracks UC renames; when the
+   * current name cannot be looked up, the name as of the parser's last write.
+   */
+  effectiveCatalogName?: string | undefined;
+  /**
+   * The current name of the parser's UC schema. Tracks UC renames; when the
+   * current name cannot be looked up, the name as of the parser's last write.
+   */
+  effectiveSchemaName?: string | undefined;
+  /**
+   * Spec of version 1, as a YAML document. Accepted only by `CreateParser`; read
+   * a version's spec with `GetParserVersion`.
+   */
+  spec?: string | undefined;
+  /**
+   * Description of version 1. Accepted only by `CreateParser`; read a version's
+   * description with `GetParserVersion`.
+   */
+  description?: string | undefined;
+}
+
+/**
  * Reference to a parser that the datasource uses. Each parser defines the schema of the
  * parsed table that it writes.
  */
@@ -821,6 +1197,56 @@ export interface ParserRef {
    * responses with the resolved table.
    */
   effectiveTargetTable?: TableName | undefined;
+}
+
+/**
+ * A key/value tag on a built-in parser, e.g. `key = "cloud_provider"`,
+ * `value = "aws"`. Key/value pairs match the tag shape used across Databricks
+ * (MLflow, model-serving endpoints, clusters) rather than a bare string list.
+ */
+export interface ParserTag {
+  /**
+   * The tag key, e.g. `cloud_provider`. Required: a keyless tag cannot be
+   * filtered on and is meaningless.
+   */
+  key?: string | undefined;
+  /** The tag value, e.g. `aws`. */
+  value?: string | undefined;
+}
+
+/**
+ * One immutable version of a parser, carrying the spec.
+ *
+ * Immutable: an edit creates a new version rather than mutating an existing
+ * one, so a data source that pins a version is never affected. Version numbers
+ * are never reused, including after a delete.
+ */
+export interface ParserVersion {
+  /**
+   * Resource name. Format:
+   * `parsers/{parser_id}/versions/{version}`.
+   */
+  name?: string | undefined;
+  /** Version number, assigned by the server when the version is appended. */
+  version?: bigint | undefined;
+  /**
+   * The field definitions for this log source, as a YAML document. Validated on
+   * write, so an invalid spec is never stored.
+   */
+  spec?: string | undefined;
+  /** When this version was appended. */
+  createTime?: Temporal.Instant | undefined;
+  /** The principal that appended this version. */
+  createdBy?: Principal | undefined;
+  /** Free-form description of this version, set when the version is created. */
+  description?: string | undefined;
+  /**
+   * The parent parser's name, copied from the container on read. Denormalized so a
+   * caller that needs identity alongside the spec reads the version alone rather
+   * than the container as well. Populated by `GetParserVersion`; List omits it, as
+   * List omits `spec`.
+   */
+  parserName?: string | undefined;
 }
 
 /**
@@ -1566,6 +1992,47 @@ export const unmarshalAutoLoaderSchema: z.ZodType<AutoLoader> = z
     effectiveIncludeExistingFiles: d.effective_include_existing_files,
   }));
 
+export const unmarshalBuiltinParserSchema: z.ZodType<BuiltinParser> = z
+  .object({
+    name: z.string().optional(),
+    parser_id: z.string().optional(),
+    parser_name: z.string().optional(),
+    tags: z.array(z.lazy(() => unmarshalParserTagSchema)).optional(),
+    latest_version: z
+      .union([z.number(), z.bigint(), z.string()])
+      .transform(v => BigInt(v))
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    parserId: d.parser_id,
+    parserName: d.parser_name,
+    tags: d.tags,
+    latestVersion: d.latest_version,
+  }));
+
+export const unmarshalBuiltinParserVersionSchema: z.ZodType<BuiltinParserVersion> =
+  z
+    .object({
+      name: z.string().optional(),
+      version: z
+        .union([z.number(), z.bigint(), z.string()])
+        .transform(v => BigInt(v))
+        .optional(),
+      spec: z.string().optional(),
+      parser_name: z.string().optional(),
+      tags: z.array(z.lazy(() => unmarshalParserTagSchema)).optional(),
+      description: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      version: d.version,
+      spec: d.spec,
+      parserName: d.parser_name,
+      tags: d.tags,
+      description: d.description,
+    }));
+
 export const unmarshalCloudWatchLogsEnvelopeSchema: z.ZodType<CloudWatchLogsEnvelope> =
   z
     .object({
@@ -1846,6 +2313,32 @@ export const unmarshalJsonArrayEnvelopeSchema: z.ZodType<JsonArrayEnvelope> = z
     path: d.path,
   }));
 
+export const unmarshalListBuiltinParserVersionsResponseSchema: z.ZodType<ListBuiltinParserVersionsResponse> =
+  z
+    .object({
+      builtin_parser_versions: z
+        .array(z.lazy(() => unmarshalBuiltinParserVersionSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      builtinParserVersions: d.builtin_parser_versions,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalListBuiltinParsersResponseSchema: z.ZodType<ListBuiltinParsersResponse> =
+  z
+    .object({
+      builtin_parsers: z
+        .array(z.lazy(() => unmarshalBuiltinParserSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      builtinParsers: d.builtin_parsers,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalListDatasourcesResponseSchema: z.ZodType<ListDatasourcesResponse> =
   z
     .object({
@@ -1857,6 +2350,30 @@ export const unmarshalListDatasourcesResponseSchema: z.ZodType<ListDatasourcesRe
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalListParserVersionsResponseSchema: z.ZodType<ListParserVersionsResponse> =
+  z
+    .object({
+      parser_versions: z
+        .array(z.lazy(() => unmarshalParserVersionSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      parserVersions: d.parser_versions,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalListParsersResponseSchema: z.ZodType<ListParsersResponse> =
+  z
+    .object({
+      parsers: z.array(z.lazy(() => unmarshalParserSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      parsers: d.parsers,
+      nextPageToken: d.next_page_token,
+    }));
+
 export const unmarshalListRulesResponseSchema: z.ZodType<ListRulesResponse> = z
   .object({
     rules: z.array(z.lazy(() => unmarshalRuleSchema)).optional(),
@@ -1865,6 +2382,50 @@ export const unmarshalListRulesResponseSchema: z.ZodType<ListRulesResponse> = z
   .transform(d => ({
     rules: d.rules,
     nextPageToken: d.next_page_token,
+  }));
+
+export const unmarshalParserSchema: z.ZodType<Parser> = z
+  .object({
+    name: z.string().optional(),
+    parser_id: z.string().optional(),
+    catalog_name: z.string().optional(),
+    schema_name: z.string().optional(),
+    parser_name: z.string().optional(),
+    latest_version: z
+      .union([z.number(), z.bigint(), z.string()])
+      .transform(v => BigInt(v))
+      .optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    created_by: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    owner: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    effective_catalog_name: z.string().optional(),
+    effective_schema_name: z.string().optional(),
+    spec: z.string().optional(),
+    description: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    parserId: d.parser_id,
+    catalogName: d.catalog_name,
+    schemaName: d.schema_name,
+    parserName: d.parser_name,
+    latestVersion: d.latest_version,
+    createTime: d.create_time,
+    createdBy: d.created_by,
+    owner: d.owner,
+    effectiveCatalogName: d.effective_catalog_name,
+    effectiveSchemaName: d.effective_schema_name,
+    spec: d.spec,
+    description: d.description,
   }));
 
 export const unmarshalParserRefSchema: z.ZodType<ParserRef> = z
@@ -1885,6 +2446,45 @@ export const unmarshalParserRefSchema: z.ZodType<ParserRef> = z
     version: d.version,
     targetTable: d.target_table,
     effectiveTargetTable: d.effective_target_table,
+  }));
+
+export const unmarshalParserTagSchema: z.ZodType<ParserTag> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const unmarshalParserVersionSchema: z.ZodType<ParserVersion> = z
+  .object({
+    name: z.string().optional(),
+    version: z
+      .union([z.number(), z.bigint(), z.string()])
+      .transform(v => BigInt(v))
+      .optional(),
+    spec: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    created_by: z
+      .lazy(() => unmarshalPrincipalSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    description: z.string().optional(),
+    parser_name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+    spec: d.spec,
+    createTime: d.create_time,
+    createdBy: d.created_by,
+    description: d.description,
+    parserName: d.parser_name,
   }));
 
 export const unmarshalPrincipalSchema: z.ZodType<Principal> = z
@@ -2649,6 +3249,41 @@ export const marshalJsonArrayEnvelopeSchema: z.ZodType = z
     path: d.path,
   }));
 
+export const marshalParserSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    parserId: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    parserName: z.string().optional(),
+    latestVersion: z.bigint().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    createdBy: z.lazy(() => marshalPrincipalSchema).optional(),
+    owner: z.lazy(() => marshalPrincipalSchema).optional(),
+    effectiveCatalogName: z.string().optional(),
+    effectiveSchemaName: z.string().optional(),
+    spec: z.string().optional(),
+    description: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    parser_id: d.parserId,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    parser_name: d.parserName,
+    latest_version: d.latestVersion,
+    create_time: d.createTime,
+    created_by: d.createdBy,
+    owner: d.owner,
+    effective_catalog_name: d.effectiveCatalogName,
+    effective_schema_name: d.effectiveSchemaName,
+    spec: d.spec,
+    description: d.description,
+  }));
+
 export const marshalParserRefSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
@@ -2661,6 +3296,29 @@ export const marshalParserRefSchema: z.ZodType = z
     version: d.version,
     target_table: d.targetTable,
     effective_target_table: d.effectiveTargetTable,
+  }));
+
+export const marshalParserVersionSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    version: z.bigint().optional(),
+    spec: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    createdBy: z.lazy(() => marshalPrincipalSchema).optional(),
+    description: z.string().optional(),
+    parserName: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+    spec: d.spec,
+    create_time: d.createTime,
+    created_by: d.createdBy,
+    description: d.description,
+    parser_name: d.parserName,
   }));
 
 export const marshalPrincipalSchema: z.ZodType = z

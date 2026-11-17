@@ -72,7 +72,10 @@ export class SoftwareArtifactsClient {
     return this.config;
   }
 
-  /** Gets a software artifact. */
+  /**
+   * Gets a software artifact by its resource name. Returns `NOT_FOUND` if the artifact does not
+   * exist.
+   */
   async getSoftwareArtifact(
     req: GetSoftwareArtifactRequest,
     options?: CallOptions
@@ -101,7 +104,10 @@ export class SoftwareArtifactsClient {
     return resp;
   }
 
-  /** Gets a software artifact version. */
+  /**
+   * Gets a software artifact version by its resource name. Returns `NOT_FOUND` if the version does
+   * not exist.
+   */
   async getSoftwareArtifactVersion(
     req: GetSoftwareArtifactVersionRequest,
     options?: CallOptions
@@ -249,7 +255,10 @@ export class SoftwareArtifactsClient {
     }
   }
 
-  /** Resolves a software artifact version from its tag alias. */
+  /**
+   * Resolves a software artifact version from its tag alias. Returns `NOT_FOUND` if the artifact or
+   * the alias does not exist.
+   */
   async resolveSoftwareArtifactVersion(
     req: ResolveSoftwareArtifactVersionRequest,
     options?: CallOptions

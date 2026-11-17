@@ -482,7 +482,9 @@ export interface GetStatementResultRequest {
  * QueryTag is the user-facing representation.
  */
 export interface QueryTag {
+  /** The key of the tag. */
   key?: string | undefined;
+  /** The value of the tag. Key-only tags have no value. */
   value?: string | undefined;
 }
 

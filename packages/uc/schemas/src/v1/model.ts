@@ -21,13 +21,26 @@ export interface CreateSchemaRequest {
   name?: string | undefined;
   /** Name of parent catalog. */
   catalogName?: string | undefined;
-  /** Username of current owner of schema. */
+  /**
+   * The user or group that owns the schema. The creator becomes the owner, and the owner can be changed
+   * only through the update method.
+   */
   owner?: string | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
-  /** Storage root URL for managed tables within schema. */
+  /**
+   * Managed tables and volumes in the schema are stored under this storage root URL. The path must be
+   * inside an external location on which the caller has the CREATE MANAGED STORAGE privilege. If omitted,
+   * managed data is stored under the parent catalog's storage root, or under the metastore's root storage
+   * location when the catalog has none. Schemas in Delta Sharing catalogs cannot have a storage root, and
+   * schemas in a federated Hive metastore catalog must set one.
+   */
   storageRoot?: string | undefined;
-  /** Whether predictive optimization should be enabled for this object and objects under it. */
+  /**
+   * Whether predictive optimization is enabled for this schema and the objects under it. Valid values are
+   * ENABLE, DISABLE, and INHERIT, where INHERIT applies the parent catalog's setting. New schemas start as
+   * INHERIT. It cannot be set when creating a schema; use the update method instead.
+   */
   enablePredictiveOptimization?: string | undefined;
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
@@ -37,22 +50,33 @@ export interface CreateSchemaRequest {
   createdAt?: bigint | undefined;
   /** Username of schema creator. */
   createdBy?: string | undefined;
-  /** Time at which this schema was created, in epoch milliseconds. */
+  /** Time at which this schema was last modified, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** Username of user who last modified schema. */
   updatedBy?: string | undefined;
-  /** The type of the parent catalog. */
+  /** The type of the parent catalog, which the server copies from the catalog. */
   catalogType?: CatalogType | undefined;
-  /** Storage location for managed tables within schema. */
+  /**
+   * The server derives this full storage location URL for managed tables and volumes within the schema
+   * from storage_root and the schema ID. It is absent when the schema has no storage root of its own.
+   */
   storageLocation?: string | undefined;
+  /**
+   * Indicates the predictive optimization setting that is in effect for the schema once inherited values
+   * are resolved.
+   */
   effectivePredictiveOptimizationFlag?:
     | EffectivePredictiveOptimizationFlag
     | undefined;
-  /** The unique identifier of the schema. */
+  /** The unique identifier (UUID) that the server assigns to the schema when it is created. */
   schemaId?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
-  /** Custom maximum retention period in hours for the schema. */
+  /**
+   * Dropped objects in the schema remain recoverable for this number of hours before they are permanently
+   * purged. The value must be 0 or within the range allowed for the metastore. Schemas that do not set
+   * their own value inherit the parent catalog's value.
+   */
   customMaxRetentionHours?: bigint | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
@@ -61,7 +85,7 @@ export interface CreateSchemaRequest {
 }
 
 export interface DeleteSchemaRequest {
-  /** Full name of the schema. */
+  /** Full name of the schema, in the form catalog_name.schema_name. */
   fullNameArg?: string | undefined;
   /** Force deletion even if the schema is not empty. */
   force?: boolean | undefined;
@@ -80,9 +104,12 @@ export interface EffectivePredictiveOptimizationFlag {
 }
 
 export interface GetSchemaRequest {
-  /** Full name of the schema. */
+  /** Full name of the schema, in the form catalog_name.schema_name. */
   fullNameArg?: string | undefined;
-  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
+  /**
+   * Whether to return the schema when the principal can only access selective metadata for it through the
+   * BROWSE privilege. The response then has browse_only set to true.
+   */
   includeBrowse?: boolean | undefined;
 }
 
@@ -99,7 +126,10 @@ export interface ListSchemasRequest {
   maxResults?: number | undefined;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string | undefined;
-  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
+  /**
+   * Whether to include schemas for which the principal can only access selective metadata through the
+   * BROWSE privilege. Such schemas are returned with browse_only set to true.
+   */
   includeBrowse?: boolean | undefined;
 }
 
@@ -113,18 +143,37 @@ export interface ListSchemasResponse {
   nextPageToken?: string | undefined;
 }
 
+/**
+ * A schema (also called a database) is the second layer of Unity Catalog's three-level namespace and
+ * groups the tables, views, volumes, models, and functions under its parent catalog. Managed tables and
+ * volumes in the schema are stored under the schema's storage root when it has one, and otherwise under
+ * the storage of the parent catalog or the metastore.
+ */
 export interface SchemaInfo {
   /** Name of schema, relative to parent catalog. */
   name?: string | undefined;
   /** Name of parent catalog. */
   catalogName?: string | undefined;
-  /** Username of current owner of schema. */
+  /**
+   * The user or group that owns the schema. The creator becomes the owner, and the owner can be changed
+   * only through the update method.
+   */
   owner?: string | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
-  /** Storage root URL for managed tables within schema. */
+  /**
+   * Managed tables and volumes in the schema are stored under this storage root URL. The path must be
+   * inside an external location on which the caller has the CREATE MANAGED STORAGE privilege. If omitted,
+   * managed data is stored under the parent catalog's storage root, or under the metastore's root storage
+   * location when the catalog has none. Schemas in Delta Sharing catalogs cannot have a storage root, and
+   * schemas in a federated Hive metastore catalog must set one.
+   */
   storageRoot?: string | undefined;
-  /** Whether predictive optimization should be enabled for this object and objects under it. */
+  /**
+   * Whether predictive optimization is enabled for this schema and the objects under it. Valid values are
+   * ENABLE, DISABLE, and INHERIT, where INHERIT applies the parent catalog's setting. New schemas start as
+   * INHERIT. It cannot be set when creating a schema; use the update method instead.
+   */
   enablePredictiveOptimization?: string | undefined;
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
@@ -134,22 +183,33 @@ export interface SchemaInfo {
   createdAt?: bigint | undefined;
   /** Username of schema creator. */
   createdBy?: string | undefined;
-  /** Time at which this schema was created, in epoch milliseconds. */
+  /** Time at which this schema was last modified, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** Username of user who last modified schema. */
   updatedBy?: string | undefined;
-  /** The type of the parent catalog. */
+  /** The type of the parent catalog, which the server copies from the catalog. */
   catalogType?: CatalogType | undefined;
-  /** Storage location for managed tables within schema. */
+  /**
+   * The server derives this full storage location URL for managed tables and volumes within the schema
+   * from storage_root and the schema ID. It is absent when the schema has no storage root of its own.
+   */
   storageLocation?: string | undefined;
+  /**
+   * Indicates the predictive optimization setting that is in effect for the schema once inherited values
+   * are resolved.
+   */
   effectivePredictiveOptimizationFlag?:
     | EffectivePredictiveOptimizationFlag
     | undefined;
-  /** The unique identifier of the schema. */
+  /** The unique identifier (UUID) that the server assigns to the schema when it is created. */
   schemaId?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
-  /** Custom maximum retention period in hours for the schema. */
+  /**
+   * Dropped objects in the schema remain recoverable for this number of hours before they are permanently
+   * purged. The value must be 0 or within the range allowed for the metastore. Schemas that do not set
+   * their own value inherit the parent catalog's value.
+   */
   customMaxRetentionHours?: bigint | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
@@ -158,7 +218,7 @@ export interface SchemaInfo {
 }
 
 export interface UpdateSchemaRequest {
-  /** Full name of the schema. */
+  /** Full name of the schema, in the form catalog_name.schema_name. */
   fullNameArg?: string | undefined;
   /** New name for the schema. */
   newName?: string | undefined;
@@ -166,13 +226,26 @@ export interface UpdateSchemaRequest {
   name?: string | undefined;
   /** Name of parent catalog. */
   catalogName?: string | undefined;
-  /** Username of current owner of schema. */
+  /**
+   * The user or group that owns the schema. The creator becomes the owner, and the owner can be changed
+   * only through the update method.
+   */
   owner?: string | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
-  /** Storage root URL for managed tables within schema. */
+  /**
+   * Managed tables and volumes in the schema are stored under this storage root URL. The path must be
+   * inside an external location on which the caller has the CREATE MANAGED STORAGE privilege. If omitted,
+   * managed data is stored under the parent catalog's storage root, or under the metastore's root storage
+   * location when the catalog has none. Schemas in Delta Sharing catalogs cannot have a storage root, and
+   * schemas in a federated Hive metastore catalog must set one.
+   */
   storageRoot?: string | undefined;
-  /** Whether predictive optimization should be enabled for this object and objects under it. */
+  /**
+   * Whether predictive optimization is enabled for this schema and the objects under it. Valid values are
+   * ENABLE, DISABLE, and INHERIT, where INHERIT applies the parent catalog's setting. New schemas start as
+   * INHERIT. It cannot be set when creating a schema; use the update method instead.
+   */
   enablePredictiveOptimization?: string | undefined;
   /** Unique identifier of parent metastore. */
   metastoreId?: string | undefined;
@@ -182,22 +255,33 @@ export interface UpdateSchemaRequest {
   createdAt?: bigint | undefined;
   /** Username of schema creator. */
   createdBy?: string | undefined;
-  /** Time at which this schema was created, in epoch milliseconds. */
+  /** Time at which this schema was last modified, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** Username of user who last modified schema. */
   updatedBy?: string | undefined;
-  /** The type of the parent catalog. */
+  /** The type of the parent catalog, which the server copies from the catalog. */
   catalogType?: CatalogType | undefined;
-  /** Storage location for managed tables within schema. */
+  /**
+   * The server derives this full storage location URL for managed tables and volumes within the schema
+   * from storage_root and the schema ID. It is absent when the schema has no storage root of its own.
+   */
   storageLocation?: string | undefined;
+  /**
+   * Indicates the predictive optimization setting that is in effect for the schema once inherited values
+   * are resolved.
+   */
   effectivePredictiveOptimizationFlag?:
     | EffectivePredictiveOptimizationFlag
     | undefined;
-  /** The unique identifier of the schema. */
+  /** The unique identifier (UUID) that the server assigns to the schema when it is created. */
   schemaId?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
-  /** Custom maximum retention period in hours for the schema. */
+  /**
+   * Dropped objects in the schema remain recoverable for this number of hours before they are permanently
+   * purged. The value must be 0 or within the range allowed for the metastore. Schemas that do not set
+   * their own value inherit the parent catalog's value.
+   */
   customMaxRetentionHours?: bigint | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;

@@ -69,7 +69,7 @@ export class BudgetPolicyClient {
     return this.config;
   }
 
-  /** Creates a new policy. */
+  /** Creates a new usage policy. The creator is granted the manager role on the new policy. */
   async createBudgetPolicy(
     req: CreateBudgetPolicyRequest,
     options?: CallOptions
@@ -96,7 +96,7 @@ export class BudgetPolicyClient {
     return resp;
   }
 
-  /** Deletes a policy */
+  /** Deletes a usage policy. */
   async deleteBudgetPolicy(
     req: DeleteBudgetPolicyRequest,
     options?: CallOptions
@@ -116,7 +116,7 @@ export class BudgetPolicyClient {
     await executeCall(call, options);
   }
 
-  /** Retrieves a policy by it's ID. */
+  /** Retrieves a usage policy by its ID. */
   async getBudgetPolicy(
     req: GetBudgetPolicyRequest,
     options?: CallOptions
@@ -142,7 +142,10 @@ export class BudgetPolicyClient {
     return resp;
   }
 
-  /** Lists all policies. Policies are returned in the alphabetically ascending order of their names. */
+  /**
+   * Lists the usage policies that the caller has permission to view. Policies are sorted by name
+   * in ascending order unless `sort_spec` requests a different order.
+   */
   async listBudgetPolicies(
     req: ListBudgetPoliciesRequest,
     options?: CallOptions
@@ -208,7 +211,10 @@ export class BudgetPolicyClient {
     }
   }
 
-  /** Updates a policy */
+  /**
+   * Updates a usage policy. Changes apply only to serverless usage that starts after the update,
+   * not to workloads that are already running.
+   */
   async updateBudgetPolicy(
     req: UpdateBudgetPolicyRequest,
     options?: CallOptions

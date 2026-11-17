@@ -462,6 +462,7 @@ export class ExperimentsClient {
   /**
    * Marks an experiment and associated metadata, runs, metrics, params, and tags for deletion.
    * If the experiment uses FileStore, artifacts associated with the experiment are also deleted.
+   * Only workspace experiments can be deleted through this method.
    */
   async deleteExperiment(
     req: DeleteExperimentRequest,
@@ -902,7 +903,7 @@ export class ExperimentsClient {
     }
   }
 
-  /** Gets a list of all experiments. */
+  /** Gets a list of all experiments, ordered by creation time with the newest first. */
   async listExperiments(
     req: ListExperimentsRequest,
     options?: CallOptions
@@ -1299,6 +1300,8 @@ export class ExperimentsClient {
    * associated metadata, runs, metrics, params, and tags. If experiment uses FileStore, underlying
    * artifacts associated with experiment are also restored.
    *
+   * Only workspace experiments can be restored through this method.
+   *
    * Throws `RESOURCE_DOES_NOT_EXIST` if experiment was never created or was permanently deleted.
    */
   async restoreExperiment(
@@ -1618,7 +1621,10 @@ export class ExperimentsClient {
     return resp;
   }
 
-  /** Updates experiment metadata. */
+  /**
+   * Updates experiment metadata. Only workspace experiments can be updated; a notebook experiment
+   * takes its name from its notebook.
+   */
   async updateExperiment(
     req: UpdateExperimentRequest,
     options?: CallOptions

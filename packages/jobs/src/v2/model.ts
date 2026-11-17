@@ -1430,6 +1430,11 @@ export interface AwsAttributes {
    * cluster size and cannot currently be mutated over the lifetime of a cluster.
    */
   firstOnDemand?: number | undefined;
+  /**
+   * Availability type used for all subsequent nodes past the `first_on_demand` ones.
+   *
+   * Note: If `first_on_demand` is zero, this availability type will be used for the entire cluster.
+   */
   availability?: AwsAvailability | undefined;
   /**
    * Identifier for the availability zone/datacenter in which the cluster resides.
@@ -1500,7 +1505,10 @@ export interface AwsAttributes {
 
 /** Attributes set during cluster creation which are related to Microsoft Azure. */
 export interface AzureAttributes {
-  /** Defines values necessary to configure and run Azure Log Analytics agent */
+  /**
+   * Defines values necessary to configure and run Azure Log Analytics agent.
+   * Both `log_analytics_workspace_id` and `log_analytics_primary_key` must be set, or neither.
+   */
   logAnalyticsInfo?: LogAnalyticsInfo | undefined;
   /**
    * The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.
@@ -1951,7 +1959,10 @@ export interface ClusterSpec_NewCluster {
    * If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.
    */
   initScripts?: InitScriptInfo[] | undefined;
-  /** Custom docker image BYOC */
+  /**
+   * Custom Docker image for the cluster's nodes, used with
+   * [Databricks Container Services](https://docs.databricks.com/compute/custom-containers.html).
+   */
   dockerImage?: DockerImage | undefined;
   /** The optional ID of the instance pool to which the cluster belongs. */
   instancePoolId?: string | undefined;
@@ -1967,7 +1978,33 @@ export interface ClusterSpec_NewCluster {
    * assigned.
    */
   driverInstancePoolId?: string | undefined;
+  /**
+   * Types of workloads that can use the cluster, such as notebooks or jobs.
+   * If omitted, the cluster can be used for both notebooks and jobs.
+   */
   workloadType?: WorkloadType | undefined;
+  /**
+   * Data security mode decides what data governance model to use when accessing data
+   * from a cluster.
+   *
+   * * `DATA_SECURITY_MODE_AUTO`: <Databricks> will choose the most appropriate access mode depending on your compute configuration.
+   * * `DATA_SECURITY_MODE_STANDARD`: A secure cluster that can be shared by multiple users. Cluster users are fully isolated so that they cannot see each other's data and credentials. Most data governance features are supported in this mode. But programming languages and cluster features might be limited.
+   * * `DATA_SECURITY_MODE_DEDICATED`: A secure cluster that can only be exclusively used by a single user specified in `single_user_name`. Most programming languages, cluster features and data governance features are available in this mode.
+   * * `NONE`: No security isolation for multiple users sharing the cluster. Data governance features are not available in this mode.
+   *
+   * The following modes are legacy aliases for the above modes:
+   *
+   * * `USER_ISOLATION`: Legacy alias for `DATA_SECURITY_MODE_STANDARD`.
+   * * `SINGLE_USER`: Legacy alias for `DATA_SECURITY_MODE_DEDICATED`.
+   *
+   * The following modes are deprecated starting with Databricks Runtime 15.0 and
+   * will be removed for future Databricks Runtime versions:
+   *
+   * * `LEGACY_TABLE_ACL`: This mode is for users migrating from legacy Table ACL clusters.
+   * * `LEGACY_PASSTHROUGH`: This mode is for users migrating from legacy Passthrough on high concurrency clusters.
+   * * `LEGACY_SINGLE_USER`: This mode is for users migrating from legacy Passthrough on standard clusters.
+   * * `LEGACY_SINGLE_USER_STANDARD`: This mode provides a way that doesn't have UC or passthrough enabled.
+   */
   dataSecurityMode?: DataSecurityMode | undefined;
   /**
    * Determines the cluster's runtime engine, either standard or Photon.
@@ -1979,6 +2016,17 @@ export interface ClusterSpec_NewCluster {
    * contains -photon-, in which case Photon will be used.
    */
   runtimeEngine?: RuntimeEngine | undefined;
+  /**
+   * The kind of compute described by this compute specification.
+   *
+   * Depending on `kind`, different validations and default values will be applied.
+   *
+   * Clusters with `kind = CLASSIC_PREVIEW` support the following fields, whereas clusters with no specified `kind` do not.
+   * * [is_single_node](https://docs.databricks.com/api/workspace/clusters/create#is_single_node)
+   * * [use_ml_runtime](https://docs.databricks.com/api/workspace/clusters/create#use_ml_runtime)
+   *
+   * By using the [simple form](https://docs.databricks.com/compute/simple-form.html), your clusters are automatically using `kind = CLASSIC_PREVIEW`.
+   */
   kind?: ComputeKind | undefined;
   /**
    * This field can only be used when `kind = CLASSIC_PREVIEW`.
@@ -2512,9 +2560,9 @@ export interface DeploymentSpec {
 }
 
 export interface DockerBasicAuth {
-  /** Name of the user */
+  /** User name for authenticating to the Docker registry that hosts the image. */
   username?: string | undefined;
-  /** Password of the user */
+  /** Password for authenticating to the Docker registry that hosts the image. */
   password?: string | undefined;
 }
 
@@ -3606,6 +3654,7 @@ export interface JobsHealthRules {
   rules?: JobsHealthRule[] | undefined;
 }
 
+/** A library to install on a cluster. Exactly one of the library-type fields must be set. */
 export interface Library {
   lib?:
     | {
@@ -3621,13 +3670,17 @@ export interface Library {
       }
     | {
         $case: 'egg';
-        /** Deprecated. URI of the egg library to install. Installing Python egg files is deprecated and is not supported in Databricks Runtime 14.0 and above. */
+        /**
+         * Deprecated: Installing Python egg files is not supported in Databricks Runtime 14.0 and above.
+         * Use a wheel (`whl`) or a PyPI package (`pypi`) instead. The value is the URI of the egg file
+         * to install.
+         */
         egg: string;
       }
     | {
         $case: 'pypi';
         /**
-         * Specification of a PyPi library to be installed. For example:
+         * Specification of a PyPI library to be installed. For example:
          * `{ "package": "simplejson" }`
          */
         pypi: PythonPyPiLibrary;
@@ -3642,7 +3695,7 @@ export interface Library {
       }
     | {
         $case: 'cran';
-        /** Specification of a CRAN library to be installed as part of the library */
+        /** Specification of a CRAN library to be installed. */
         cran: RCranLibrary;
       }
     | {
@@ -3660,7 +3713,8 @@ export interface Library {
         $case: 'requirements';
         /**
          * URI of the requirements.txt file to install. Only Workspace paths and Unity Catalog Volumes paths are supported.
-         * For example: `{ "requirements": "/Workspace/path/to/requirements.txt" }` or `{ "requirements" : "/Volumes/path/to/requirements.txt" }`
+         * For example: `{ "requirements": "/Workspace/path/to/requirements.txt" }` or `{ "requirements" : "/Volumes/path/to/requirements.txt" }`.
+         * Installing a requirements file requires Databricks Runtime 15.0 or above.
          */
         requirements: string;
       }
@@ -3820,7 +3874,9 @@ export interface LocalFileInfo {
 }
 
 export interface LogAnalyticsInfo {
+  /** ID of the Azure Log Analytics workspace that the Log Analytics agent on the cluster's nodes reports to. */
   logAnalyticsWorkspaceId?: string | undefined;
+  /** Primary key of the Azure Log Analytics workspace. The agent uses it to authenticate when reporting to the workspace. */
   logAnalyticsPrimaryKey?: string | undefined;
 }
 
@@ -3850,7 +3906,7 @@ export interface MavenLibrary {
    */
   repo?: string | undefined;
   /**
-   * List of dependences to exclude. For example: `["slf4j:slf4j", "*:hadoop-client"]`.
+   * List of dependencies to exclude. For example: `["slf4j:slf4j", "*:hadoop-client"]`.
    *
    * Maven dependency exclusions:
    * https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html.
@@ -4102,7 +4158,7 @@ export interface PythonOperatorTask_Parameter {
 
 export interface PythonPyPiLibrary {
   /**
-   * The name of the pypi package to install. An optional exact version specification is also
+   * The name of the PyPI package to install. An optional exact version specification is also
    * supported. Examples: "simplejson" and "simplejson==3.8.0".
    */
   package?: string | undefined;
@@ -5406,7 +5462,10 @@ export interface SparseCheckout {
 export interface SqlAlertState {}
 
 export interface SqlConditionConfiguration {
-  /** The ID of the SQL query to evaluate as the trigger condition. */
+  /**
+   * The ID of the SQL query to evaluate as the trigger condition.
+   * Exactly one of `sql_query_id` or `file` must be set.
+   */
   sqlQueryId?: string | undefined;
   /** The canonical identifier of the SQL warehouse to run the condition query against. */
   warehouseId?: string | undefined;

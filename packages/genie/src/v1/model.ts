@@ -892,6 +892,10 @@ export interface ColumnInfo {
   name?: string | undefined;
   /** Full data type specification as SQL/catalogString text. */
   typeText?: string | undefined;
+  /**
+   * The name of the column's data type, for example STRING, DECIMAL or STRUCT. The complete type, including
+   * parameters such as the precision of a decimal or the element type of an array, is in type_text.
+   */
   typeName?: ColumnTypeName | undefined;
   /** Ordinal position of column (starting at position 0). */
   position?: number | undefined;
@@ -909,6 +913,11 @@ export interface ColumnInfo {
   nullable?: boolean | undefined;
   /** Partition index for column. */
   partitionIndex?: number | undefined;
+  /**
+   * The column mask function applied to this column, if any. A column mask is a SQL user-defined function
+   * that transforms the values a query returns for the column. See
+   * https://docs.databricks.com/aws/en/tables/row-and-column-filters for details.
+   */
   mask?: ColumnMask | undefined;
 }
 

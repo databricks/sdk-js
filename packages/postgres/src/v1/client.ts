@@ -835,7 +835,11 @@ export class PostgresClient {
     );
   }
 
-  /** Creates a snapshot, an immutable point-in-time copy of a branch's data, within the project. */
+  /**
+   * Creates a snapshot, an immutable point-in-time copy of a branch's data, within the project.
+   * Returns a long-running operation. Poll it until done is true; its response holds the new
+   * snapshot.
+   */
   private async createSnapshotBase(
     req: CreateSnapshotRequest,
     options?: CallOptions
@@ -877,7 +881,11 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Creates a snapshot, an immutable point-in-time copy of a branch's data, within the project. */
+  /**
+   * Creates a snapshot, an immutable point-in-time copy of a branch's data, within the project.
+   * Returns a long-running operation. Poll it until done is true; its response holds the new
+   * snapshot.
+   */
   async createSnapshot(
     req: CreateSnapshotRequest,
     options?: CallOptions
@@ -1129,7 +1137,7 @@ export class PostgresClient {
     );
   }
 
-  /** Delete a Database. */
+  /** Deletes the specified Postgres database. */
   private async deleteDatabaseBase(
     req: DeleteDatabaseRequest,
     options?: CallOptions
@@ -1158,7 +1166,7 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Delete a Database. */
+  /** Deletes the specified Postgres database. */
   async deleteDatabase(
     req: DeleteDatabaseRequest,
     options?: CallOptions
@@ -1355,7 +1363,10 @@ export class PostgresClient {
     );
   }
 
-  /** Deletes the specified snapshot. */
+  /**
+   * Deletes the specified snapshot. A deleted snapshot cannot be recovered. Returns a long-running
+   * operation. Poll it until done is true.
+   */
   private async deleteSnapshotBase(
     req: DeleteSnapshotRequest,
     options?: CallOptions
@@ -1384,7 +1395,10 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Deletes the specified snapshot. */
+  /**
+   * Deletes the specified snapshot. A deleted snapshot cannot be recovered. Returns a long-running
+   * operation. Poll it until done is true.
+   */
   async deleteSnapshot(
     req: DeleteSnapshotRequest,
     options?: CallOptions
@@ -1651,7 +1665,7 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Get a Database. */
+  /** Retrieves information about the specified Postgres database. */
   async getDatabase(
     req: GetDatabaseRequest,
     options?: CallOptions
@@ -2143,7 +2157,7 @@ export class PostgresClient {
     }
   }
 
-  /** List Databases. */
+  /** Returns a list of Postgres databases in the branch. */
   async listDatabases(
     req: ListDatabasesRequest,
     options?: CallOptions
@@ -2798,7 +2812,7 @@ export class PostgresClient {
     );
   }
 
-  /** Update a Database. */
+  /** Updates the specified Postgres database. Only the fields named in `update_mask` change. */
   private async updateDatabaseBase(
     req: UpdateDatabaseRequest,
     options?: CallOptions
@@ -2840,7 +2854,7 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Update a Database. */
+  /** Updates the specified Postgres database. Only the fields named in `update_mask` change. */
   async updateDatabase(
     req: UpdateDatabaseRequest,
     options?: CallOptions

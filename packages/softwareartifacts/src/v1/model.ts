@@ -31,7 +31,8 @@ export interface GetSoftwareArtifactRequest {
 export interface GetSoftwareArtifactVersionRequest {
   /**
    * Resource name of the version, of the form
-   * `software-artifacts/{catalog}.{schema}.{artifact}/versions/{version}`.
+   * `software-artifacts/{catalog}.{schema}.{artifact}/versions/{version}`, where `{version}` is the
+   * version's content digest.
    */
   name?: string | undefined;
 }
@@ -89,9 +90,16 @@ export interface ListSoftwareArtifactsResponse {
 
 /** Request to resolve a software artifact version from its tag alias. */
 export interface ResolveSoftwareArtifactVersionRequest {
-  /** Resource name of the software artifact containing the alias. */
+  /**
+   * Resource name of the software artifact containing the alias, of the form
+   * `software-artifacts/{catalog}.{schema}.{artifact}`.
+   */
   parent?: string | undefined;
-  /** Image tag alias selecting the version. */
+  /**
+   * Image tag alias selecting the version. The alias must be a valid OCI image tag of at most 128
+   * characters, made of letters, digits, underscores, periods, and hyphens, and must not start with
+   * a period or hyphen.
+   */
   alias?: string | undefined;
 }
 
@@ -101,20 +109,29 @@ export interface ResolveSoftwareArtifactVersionResponse {
   softwareArtifactVersion?: SoftwareArtifactVersion | undefined;
 }
 
-/** A software artifact in a Unity Catalog schema. */
+/**
+ * A software artifact is a named container image stored in a Unity Catalog schema and governed by
+ * Unity Catalog privileges. Images are pushed through Databricks Artifact Registry; each pushed
+ * image digest becomes an immutable version of the artifact, exposed as a SoftwareArtifactVersion.
+ * See https://docs.databricks.com/aws/en/artifact-registry/ for concepts, naming rules, and the
+ * privileges each operation requires.
+ */
 export interface SoftwareArtifact {
   /**
    * Resource name of the artifact, of the form
    * `software-artifacts/{catalog}.{schema}.{artifact}`.
    */
   name?: string | undefined;
-  /** Principal name (a user, service principal, or group) that owns this artifact. */
+  /**
+   * Principal that owns the artifact, given as a user's email address, a service principal's
+   * application ID, or a group name.
+   */
   owner?: string | undefined;
-  /** Time at which this software artifact was created. */
+  /** Time at which the artifact was created, formatted as an RFC 3339 timestamp in JSON. */
   createTime?: Temporal.Instant | undefined;
   /** Principal name of the software artifact creator. */
   createdBy?: string | undefined;
-  /** Time at which this software artifact was last updated. */
+  /** Time at which the artifact was last updated, formatted as an RFC 3339 timestamp in JSON. */
   updateTime?: Temporal.Instant | undefined;
   /** Principal name that last updated this software artifact. */
   updatedBy?: string | undefined;
@@ -122,11 +139,12 @@ export interface SoftwareArtifact {
 
 /** An immutable version of a software artifact, identified by its content digest. */
 export interface SoftwareArtifactVersion {
-  /** Content digest of the version, for example `sha256:...`. */
+  /** Content digest of the version's image manifest, of the form `{algorithm}:{hex}`. */
   digest?: string | undefined;
   /**
    * Resource name of the version, of the form
-   * `software-artifacts/{catalog}.{schema}.{artifact}/versions/{version}`.
+   * `software-artifacts/{catalog}.{schema}.{artifact}/versions/{version}`, where `{version}` is the
+   * version's content digest.
    */
   name?: string | undefined;
   /**
@@ -136,11 +154,17 @@ export interface SoftwareArtifactVersion {
   tags?: string[] | undefined;
   /** Image acceleration information for this version. */
   imageAccelerationDetails?: ImageAccelerationDetail | undefined;
-  /** Time at which this software artifact version was created. */
+  /**
+   * Time at which this software artifact version was created, formatted as an RFC 3339 timestamp in
+   * JSON.
+   */
   createTime?: Temporal.Instant | undefined;
   /** Principal name of the software artifact version creator. */
   createdBy?: string | undefined;
-  /** Time at which this software artifact version was last updated. */
+  /**
+   * Time at which this software artifact version was last updated, formatted as an RFC 3339
+   * timestamp in JSON.
+   */
   updateTime?: Temporal.Instant | undefined;
   /** Principal name that last updated this software artifact version. */
   updatedBy?: string | undefined;

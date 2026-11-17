@@ -376,7 +376,10 @@ export interface PrincipalOutput {
 export interface ResourceInfo {
   /** Id of the current resource. */
   id?: string | undefined;
-  /** Parent resource info for the current resource. The parent may have another parent. */
+  /**
+   * Deprecated: use `contributing_resources`.
+   * Parent resource info for the current resource. The parent may have another parent.
+   */
   parentResourceInfo?: ResourceInfo | undefined;
   /** The legacy acl path of the current resource. */
   legacyAclPath?: string | undefined;

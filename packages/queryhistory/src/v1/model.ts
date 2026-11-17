@@ -121,6 +121,7 @@ export interface ExternalQuerySource {
   notebookId?: string | undefined;
   /** The canonical identifier for this SQL query */
   sqlQueryId?: string | undefined;
+  /** Identifiers of the job, job run, and task run that executed this statement, when it ran as part of a job. */
   jobInfo?: ExternalQuerySource_JobInfo | undefined;
   /** The canonical identifier for this Genie space */
   genieSpaceId?: string | undefined;
@@ -144,14 +145,14 @@ export interface ExternalQuerySource_JobInfo {
  */
 export interface ListQueriesRequest {
   /**
-   * An optional filter object to limit query history results. Accepts parameters such as user IDs, endpoint IDs, and statuses to narrow the returned data.
+   * An optional filter object to limit query history results. Accepts parameters such as user IDs, warehouse IDs, and statuses to narrow the returned data.
    * In a URL, the parameters of this filter are specified with dot notation. For example: `filter_by.statement_ids`.
    */
   filterBy?: QueryFilter | undefined;
-  /** Limit the number of results returned in one page. Must be less than 1000 and the default is 100. */
+  /** Limit the number of results returned in one page. Must be no more than 1000; the default is 100. */
   maxResults?: number | undefined;
   /**
-   * A token that can be used to get the next page of results. The token can contains characters that need to be encoded before using it in a URL.
+   * A token that can be used to get the next page of results. The token can contain characters that need to be encoded before using it in a URL.
    * For example, the character '+' needs to be replaced by %2B. This field is optional.
    */
   pageToken?: string | undefined;
@@ -190,10 +191,13 @@ export interface QueryFilter {
 }
 
 export interface QueryInfo {
-  /** The query ID. */
+  /**
+   * The UUID that uniquely identifies the query execution. It matches the statement ID shown in the Query History UI
+   * and the values accepted by the `statement_ids` filter.
+   */
   queryId?: string | undefined;
   /**
-   * Query status with one the following values:
+   * Query status with one of the following values:
    *
    * - `QUEUED`: Query has been received and queued.
    * - `RUNNING`: Query has started.
@@ -204,11 +208,11 @@ export interface QueryInfo {
   status?: QueryStatus | undefined;
   /** The text of the query. */
   queryText?: string | undefined;
-  /** The time the query started. */
+  /** The time the query started, in milliseconds since the Unix epoch. */
   queryStartTimeMs?: bigint | undefined;
-  /** The time execution of the query ended. */
+  /** The time execution of the query ended, in milliseconds since the Unix epoch. */
   executionEndTimeMs?: bigint | undefined;
-  /** The time the query ended. */
+  /** The time the query ended, in milliseconds since the Unix epoch. */
   queryEndTimeMs?: bigint | undefined;
   /** The ID of the user who ran the query. */
   userId?: bigint | undefined;
@@ -224,7 +228,7 @@ export interface QueryInfo {
   errorMessage?: string | undefined;
   /** A key that can be used to look up query details. */
   lookupKey?: string | undefined;
-  /** Metrics about query execution. */
+  /** Metrics about query execution. Only returned when `include_metrics` is true in the request. */
   metrics?: QueryMetrics | undefined;
   /** The ID of the user whose credentials were used to run the query. */
   executedAsUserId?: bigint | undefined;
@@ -235,7 +239,7 @@ export interface QueryInfo {
    * This is either the Spark Connect, DBSQL, or SDP session ID.
    */
   sessionId?: string | undefined;
-  /** Whether more updates for the query are expected. */
+  /** Whether the query has reached a final state, so no further updates to this record are expected. */
   isFinal?: boolean | undefined;
   /** SQL Warehouse channel information at the time of query execution */
   channelUsed?: ChannelInfo | undefined;
@@ -243,10 +247,10 @@ export interface QueryInfo {
   plansState?: PlansState | undefined;
   /** Type of statement for this query */
   statementType?: QueryStatementType | undefined;
-  /** Warehouse ID. */
+  /** ID of the warehouse that ran the query. */
   warehouseId?: string | undefined;
   /**
-   * Total time of the statement execution. This value does not include the time taken to retrieve the results, which
+   * Total time of the statement execution, in milliseconds. This value does not include the time taken to retrieve the results, which
    * can result in a discrepancy between this value and the start-to-finish wall-clock time.
    */
   duration?: bigint | undefined;
@@ -261,9 +265,12 @@ export interface QueryInfo {
    * of this statement, such as jobs, notebooks, or dashboards. This field only records <Databricks> entities.
    */
   querySource?: ExternalQuerySource | undefined;
-  /** The ID of the cached query if this result retrieved from cache */
+  /** The ID of the query whose cached result was returned, if this result was retrieved from the cache. */
   cacheQueryId?: string | undefined;
-  /** A query execution can be optionally annotated with query tags */
+  /**
+   * Key-value tags attached to the query execution, for example with the `SET QUERY_TAGS` statement, for grouping
+   * and filtering. See https://docs.databricks.com/aws/en/sql/user/queries/query-tags.
+   */
   queryTags?: QueryTag[] | undefined;
 }
 
@@ -284,7 +291,7 @@ export interface QueryMetrics {
   executionTimeMs?: bigint | undefined;
   /** Size of persistent data read from cloud object storage on your cloud tenant, in bytes. */
   readRemoteBytes?: bigint | undefined;
-  /** Size pf persistent data written to cloud object storage in your cloud tenant, in bytes. */
+  /** Size of persistent data written to cloud object storage in your cloud tenant, in bytes. */
   writeRemoteBytes?: bigint | undefined;
   /** Size of persistent data read from the cache, in bytes. */
   readCacheBytes?: bigint | undefined;
@@ -311,16 +318,16 @@ export interface QueryMetrics {
   /** Total number of files from all tables not read due to pruning */
   prunedFilesCount?: bigint | undefined;
   /**
-   * Timestamp of when the query was enqueued waiting for a cluster to be provisioned for the warehouse.
+   * Timestamp of when the query was enqueued waiting for a cluster to be provisioned for the warehouse, in milliseconds since the Unix epoch.
    * This field is optional and will not appear if the query skipped the provisioning queue.
    */
   provisioningQueueStartTimestamp?: bigint | undefined;
   /**
-   * Timestamp of when the query was enqueued waiting while the warehouse was at max load.
+   * Timestamp of when the query was enqueued waiting while the warehouse was at max load, in milliseconds since the Unix epoch.
    * This field is optional and will not appear if the query skipped the overloading queue.
    */
   overloadingQueueStartTimestamp?: bigint | undefined;
-  /** Timestamp of when the underlying compute started compilation of the query. */
+  /** Timestamp of when the underlying compute started compilation of the query, in milliseconds since the Unix epoch. */
   queryCompilationStartTimestamp?: bigint | undefined;
   /**
    * sum of task times completed in a range of wall clock time, approximated to a configurable number of points
@@ -328,13 +335,13 @@ export interface QueryMetrics {
    */
   taskTimeOverTimeRange?: TaskTimeOverRange | undefined;
   /**
-   * remaining work to be done across all stages in the query, calculated by autoscaler StatementAnalysis.scala, in milliseconds
-   * deprecated: using projected_remaining_task_total_time_ms instead
+   * Deprecated: use `projected_remaining_task_total_time_ms` instead.
+   * Remaining work to be done across all stages in the query, in milliseconds.
    */
   workToBeDone?: bigint | undefined;
   /**
-   * number of remaining tasks to complete, calculated by autoscaler StatementAnalysis.scala
-   * deprecated: use remaining_task_count instead
+   * Deprecated: use `remaining_task_count` instead.
+   * Number of remaining tasks to complete.
    */
   runnableTasks?: bigint | undefined;
   /** projected remaining work to be done aggregated across all stages in the query, in milliseconds */
@@ -356,11 +363,14 @@ export interface QueryMetrics {
  * QueryTag is the user-facing representation.
  */
 export interface QueryTag {
+  /** The key of the tag. */
   key?: string | undefined;
+  /** The value of the tag. Key-only tags have no value. */
   value?: string | undefined;
 }
 
 export interface TaskTimeOverRange {
+  /** Each entry covers one consecutive time bucket of length `interval`, starting at `query_start_time_ms`. */
   entries?: TaskTimeOverRangeEntry[] | undefined;
   /**
    * interval length for all entries (difference in start time and end time of an entry range)
@@ -376,9 +386,9 @@ export interface TaskTimeOverRangeEntry {
 }
 
 export interface TimeRange {
-  /** The start time in milliseconds. */
+  /** Start of the range, in milliseconds since the Unix epoch. */
   startTimeMs?: bigint | undefined;
-  /** The end time in milliseconds. */
+  /** End of the range, in milliseconds since the Unix epoch. */
   endTimeMs?: bigint | undefined;
 }
 

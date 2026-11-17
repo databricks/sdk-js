@@ -83,6 +83,7 @@ export type {
   SharedDataObject,
   SharedDataObject_HistoryDataSharingStatus,
   SharedDataObject_Status,
+  Skill,
   Table,
   TableDependency,
   TagKeyValue,

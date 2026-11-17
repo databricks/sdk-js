@@ -34,32 +34,29 @@ export type SchedulePauseStatus =
 
 export interface AuthorizationDetails {
   /**
-   * The type of authorization downscoping policy.
-   * Ex: `workspace_rule_set` defines access rules for a specific workspace resource
+   * The type of authorization downscoping policy. A `workspace_rule_set` policy defines access
+   * rules for a specific workspace resource.
    */
   type?: string | undefined;
   /**
    * The resource name to which the authorization rule applies.
-   * This field is specific to `workspace_rule_set` constraint.
-   * Format: `workspaces/{workspace_id}/dashboards/{dashboard_id}`
+   * This field is specific to the `workspace_rule_set` constraint.
+   * Format: `workspaces/{workspace_id}` for a workspace-level rule, or
+   * `workspaces/{workspace_id}/dashboards/{dashboard_id}` for a rule on a dashboard.
    */
   resourceName?: string | undefined;
-  /** The acl path of the tree store resource resource. */
+  /** The legacy ACL path of the workspace object that the rule applies to. */
   resourceLegacyAclPath?: string | undefined;
   /**
    * Represents downscoped permission rules with specific access rights.
-   * This field is specific to `workspace_rule_set` constraint.
+   * This field is specific to the `workspace_rule_set` constraint.
    */
   grantRules?: AuthorizationDetails_GrantRule[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AuthorizationDetails_GrantRule {
-  /**
-   * Permission sets for dashboard are defined in
-   * iam-common/rbac-common/permission-sets/definitions/TreeStoreBasePermissionSets
-   * Ex: `permissionSets/dashboard.runner`
-   */
+  /** The permission set that the rule grants on the resource. */
   permissionSet?: string | undefined;
 }
 
@@ -91,8 +88,8 @@ export interface CreateSubscriptionRequest {
 
 export interface CronSchedule {
   /**
-   * A cron expression using quartz syntax. EX: `0 0 8 * * ?` represents everyday at 8am.
-   * See [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for details.
+   * A cron expression in Quartz syntax that defines when the schedule runs.
+   * See the [Quartz cron trigger tutorial](https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for the syntax.
    */
   quartzCronExpression?: string | undefined;
   /**
@@ -213,13 +210,13 @@ export interface DeleteScheduleRequest {
 export interface DeleteSubscriptionRequest {
   /** UUID identifying the subscription. */
   subscriptionId?: string | undefined;
-  /** UUID identifying the schedule which the subscription belongs. */
+  /** UUID identifying the schedule to which the subscription belongs. */
   scheduleId?: string | undefined;
-  /** UUID identifying the dashboard which the subscription belongs. */
+  /** UUID identifying the dashboard to which the subscription belongs. */
   dashboardId?: string | undefined;
   /**
-   * The etag for the subscription. Can be optionally provided to ensure that the subscription has not been
-   * modified since the last read.
+   * The etag of the subscription, as returned when it was read. If it is provided and no longer
+   * matches, the request fails with ABORTED and the subscription is not deleted.
    */
   etag?: string | undefined;
 }
@@ -237,24 +234,31 @@ export interface GetPublishedDashboardRequest {
 export interface GetPublishedDashboardTokenInfoRequest {
   /** UUID identifying the published dashboard. */
   dashboardId?: string | undefined;
-  /** Provided external value to be included in the custom claim. */
+  /**
+   * Value to carry in the token for this viewer, such as a tenant or region key. Dashboard dataset
+   * queries can reference it as `__aibi_external_value` to filter data per viewer. The combined size
+   * of `external_value` and `external_viewer_id` must be less than 1 KB.
+   */
   externalValue?: string | undefined;
-  /** Provided external viewer id to be included in the custom claim. */
+  /**
+   * Identifier of the viewer in the external application. It is recorded in dashboard audit logs, so
+   * it should be unique per viewer and must not contain personally identifiable information.
+   */
   externalViewerId?: string | undefined;
 }
 
 export interface GetPublishedDashboardTokenInfoResponse {
   /**
-   * Custom claim generated from external_value and external_viewer_id.
+   * Custom claim that carries `external_value` and `external_viewer_id` into the minted token. It is
+   * only present when at least one of those query parameters was provided.
    * Format: `urn:aibi:external_data:<external_value>:<external_viewer_id>:<dashboard_id>`
    */
   customClaim?: string | undefined;
-  /** Scope defining access permissions. */
+  /** The space-separated OAuth scopes to request when minting the token. */
   scope?: string | undefined;
   /**
-   * Authorization constraints for accessing the published dashboard.
-   * Currently includes `workspace_rule_set` and could be enriched with `unity_catalog_privileges` before
-   * oAuth token generation.
+   * Authorization constraints that restrict the minted token to viewing the published dashboard.
+   * Pass them to the OAuth token endpoint serialized as a JSON array.
    */
   authorizationDetails?: AuthorizationDetails[] | undefined;
 }
@@ -269,9 +273,9 @@ export interface GetScheduleRequest {
 export interface GetSubscriptionRequest {
   /** UUID identifying the subscription. */
   subscriptionId?: string | undefined;
-  /** UUID identifying the schedule which the subscription belongs. */
+  /** UUID identifying the schedule to which the subscription belongs. */
   scheduleId?: string | undefined;
-  /** UUID identifying the dashboard which the subscription belongs. */
+  /** UUID identifying the dashboard to which the subscription belongs. */
   dashboardId?: string | undefined;
 }
 
@@ -302,7 +306,7 @@ export interface ListDashboardsResponse {
 }
 
 export interface ListSchedulesRequest {
-  /** UUID identifying the dashboard to which the schedules belongs. */
+  /** UUID identifying the dashboard to which the schedules belong. */
   dashboardId?: string | undefined;
   /** The number of schedules to return per page. */
   pageSize?: number | undefined;
@@ -323,9 +327,9 @@ export interface ListSchedulesResponse {
 }
 
 export interface ListSubscriptionsRequest {
-  /** UUID identifying the dashboard which the subscriptions belongs. */
+  /** UUID identifying the dashboard to which the subscriptions belong. */
   dashboardId?: string | undefined;
-  /** UUID identifying the schedule which the subscriptions belongs. */
+  /** UUID identifying the schedule to which the subscriptions belong. */
   scheduleId?: string | undefined;
   /** The number of subscriptions to return per page. */
   pageSize?: number | undefined;
@@ -378,11 +382,21 @@ export interface PublishDashboardRequest {
 export interface PublishedDashboard {
   /** The display name of the published dashboard. */
   displayName?: string | undefined;
-  /** The warehouse ID used to run the published dashboard. */
+  /**
+   * The ID of the SQL warehouse that runs the published dashboard's queries. It is the warehouse
+   * given when the dashboard was published, or the draft's warehouse if none was given.
+   */
   warehouseId?: string | undefined;
-  /** Indicates whether credentials are embedded in the published dashboard. */
+  /**
+   * Whether the publisher's credentials are embedded in the published dashboard. When true, viewers
+   * run the dashboard's queries with the publisher's data permissions (shared data permissions);
+   * when false, each viewer runs them with their own data permissions.
+   */
   embedCredentials?: boolean | undefined;
-  /** The timestamp of when the published dashboard was last revised. */
+  /**
+   * The timestamp of when the current published version was created, that is, when the dashboard
+   * was last published.
+   */
   revisionCreateTime?: Temporal.Instant | undefined;
 }
 
@@ -391,8 +405,8 @@ export interface RevertDashboardRequest {
   /** UUID identifying the dashboard. */
   dashboardId?: string | undefined;
   /**
-   * The etag for the dashboard. Optionally, it can be provided to verify that the dashboard
-   * has not been modified from its last retrieval.
+   * The etag of the draft dashboard, as returned by the get dashboard API. When provided, the
+   * request fails with ABORTED if the draft has been modified since that etag was read.
    */
   etag?: string | undefined;
 }
@@ -403,16 +417,25 @@ export interface RevertDashboardResponse {
   dashboard?: Dashboard | undefined;
 }
 
+/**
+ * A schedule periodically runs a dashboard on a cron cadence. Each run executes the dashboard's
+ * queries to refresh its cached data and sends a snapshot of the dashboard to the schedule's
+ * subscribers. See [Manage scheduled dashboard updates and subscriptions](https://docs.databricks.com/dashboards/share/schedule-subscribe)
+ * for details.
+ */
 export interface Schedule {
   /** UUID identifying the schedule. */
   scheduleId?: string | undefined;
   /** UUID identifying the dashboard to which the schedule belongs. */
   dashboardId?: string | undefined;
-  /** The cron expression describing the frequency of the periodic refresh for this schedule. */
+  /** The cron expression and time zone that define when the schedule runs. */
   cronSchedule?: CronSchedule | undefined;
-  /** The status indicates whether this schedule is paused or not. */
+  /**
+   * Whether the schedule is paused. A paused schedule keeps its configuration and subscribers, but
+   * the dashboard is not refreshed and no notifications are sent until the schedule is unpaused.
+   */
   pauseStatus?: SchedulePauseStatus | undefined;
-  /** The display name for schedule. */
+  /** The name of the schedule, as shown in the dashboard's list of schedules. */
   displayName?: string | undefined;
   /**
    * The etag for the schedule. Must be left empty on create, must be provided on updates to ensure
@@ -423,29 +446,50 @@ export interface Schedule {
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the schedule was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The warehouse id to run the dashboard with for the schedule. */
+  /**
+   * The ID of the SQL warehouse that runs the dashboard's queries during scheduled refreshes. If
+   * omitted, the warehouse of the published dashboard is used.
+   */
   warehouseId?: string | undefined;
 }
 
+/**
+ * A schedule periodically runs a dashboard on a cron cadence. Each run executes the dashboard's
+ * queries to refresh its cached data and sends a snapshot of the dashboard to the schedule's
+ * subscribers. See [Manage scheduled dashboard updates and subscriptions](https://docs.databricks.com/dashboards/share/schedule-subscribe)
+ * for details.
+ */
 export interface ScheduleCreate {
   /** UUID identifying the schedule. */
   scheduleId?: string | undefined;
   /** UUID identifying the dashboard to which the schedule belongs. */
   dashboardId?: string | undefined;
-  /** The cron expression describing the frequency of the periodic refresh for this schedule. */
+  /** The cron expression and time zone that define when the schedule runs. */
   cronSchedule?: CronSchedule | undefined;
-  /** The status indicates whether this schedule is paused or not. */
+  /**
+   * Whether the schedule is paused. A paused schedule keeps its configuration and subscribers, but
+   * the dashboard is not refreshed and no notifications are sent until the schedule is unpaused.
+   */
   pauseStatus?: SchedulePauseStatus | undefined;
-  /** The display name for schedule. */
+  /** The name of the schedule, as shown in the dashboard's list of schedules. */
   displayName?: string | undefined;
   /** A timestamp indicating when the schedule was created. */
   createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the schedule was last updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** The warehouse id to run the dashboard with for the schedule. */
+  /**
+   * The ID of the SQL warehouse that runs the dashboard's queries during scheduled refreshes. If
+   * omitted, the warehouse of the published dashboard is used.
+   */
   warehouseId?: string | undefined;
 }
 
+/**
+ * A subscription registers a workspace user or a notification destination as a subscriber of a
+ * dashboard schedule. Each time the schedule runs, the subscriber receives a snapshot of the
+ * published dashboard, unless the subscription is refresh-only. See
+ * [Manage scheduled dashboard updates and subscriptions](https://docs.databricks.com/dashboards/share/schedule-subscribe).
+ */
 export interface Subscription {
   /** UUID identifying the subscription. */
   subscriptionId?: string | undefined;
@@ -453,13 +497,16 @@ export interface Subscription {
   scheduleId?: string | undefined;
   /** UUID identifying the dashboard to which the subscription belongs. */
   dashboardId?: string | undefined;
-  /** Subscriber details for users and destinations to be added as subscribers to the schedule. */
+  /**
+   * The subscriber that receives the dashboard snapshot. Exactly one of `user_subscriber` and
+   * `destination_subscriber` must be set.
+   */
   subscriber?: Subscription_Subscriber | undefined;
   /** UserId of the user who adds subscribers (users or notification destinations) to the dashboard's schedule. */
   createdByUserId?: bigint | undefined;
   /**
-   * The etag for the subscription. Must be left empty on create, can be optionally provided on delete
-   * to ensure that the subscription has not been deleted since the last read.
+   * The etag of the subscription. It must be left empty on create. It can be passed as the `etag`
+   * parameter of the delete method to make sure the subscription has not changed since it was read.
    */
   etag?: string | undefined;
   /** A timestamp indicating when the subscription was created. */
@@ -467,38 +514,48 @@ export interface Subscription {
   /** A timestamp indicating when the subscription was last updated. */
   updateTime?: Temporal.Instant | undefined;
   /**
-   * Controls whether notifications are sent to the subscriber for scheduled dashboard refreshes.
-   * If not defined, defaults to false in the backend to match the current behavior (refresh and notify)
+   * Whether the subscription is refresh-only. When true, each scheduled run refreshes the dashboard
+   * data for the subscriber without sending a notification. Defaults to false. Refresh-only
+   * subscriptions are only allowed on dashboards published without embedded credentials.
    */
   skipNotify?: boolean | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Subscription_Subscriber {
-  /**
-   * The user to receive the subscription email.
-   * This parameter is mutually exclusive with `destination_subscriber`.
-   */
+  /** The workspace user who receives the subscription. */
   userSubscriber?: Subscription_Subscriber_User | undefined;
   /**
-   * The destination to receive the subscription email.
-   * This parameter is mutually exclusive with `user_subscriber`.
+   * The notification destination that receives the subscription, such as an email list or a
+   * Slack or Microsoft Teams channel. Workspace admins configure notification destinations.
    */
   destinationSubscriber?: Subscription_Subscriber_Destination | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Subscription_Subscriber_Destination {
-  /** The canonical identifier of the destination to receive email notification. */
+  /**
+   * The UUID of the notification destination that receives the subscription, as returned by the
+   * [Notification Destinations API](https://docs.databricks.com/api/workspace/notificationdestinations).
+   */
   destinationId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Subscription_Subscriber_User {
-  /** UserId of the subscriber. */
+  /**
+   * The ID of the workspace user who receives the subscription, as returned by the
+   * [Workspace Users API](https://docs.databricks.com/api/workspace/users).
+   */
   userId?: bigint | undefined;
 }
 
+/**
+ * A subscription registers a workspace user or a notification destination as a subscriber of a
+ * dashboard schedule. Each time the schedule runs, the subscriber receives a snapshot of the
+ * published dashboard, unless the subscription is refresh-only. See
+ * [Manage scheduled dashboard updates and subscriptions](https://docs.databricks.com/dashboards/share/schedule-subscribe).
+ */
 export interface SubscriptionCreate {
   /** UUID identifying the subscription. */
   subscriptionId?: string | undefined;
@@ -506,7 +563,10 @@ export interface SubscriptionCreate {
   scheduleId?: string | undefined;
   /** UUID identifying the dashboard to which the subscription belongs. */
   dashboardId?: string | undefined;
-  /** Subscriber details for users and destinations to be added as subscribers to the schedule. */
+  /**
+   * The subscriber that receives the dashboard snapshot. Exactly one of `user_subscriber` and
+   * `destination_subscriber` must be set.
+   */
   subscriber?: Subscription_Subscriber | undefined;
   /** UserId of the user who adds subscribers (users or notification destinations) to the dashboard's schedule. */
   createdByUserId?: bigint | undefined;
@@ -515,8 +575,9 @@ export interface SubscriptionCreate {
   /** A timestamp indicating when the subscription was last updated. */
   updateTime?: Temporal.Instant | undefined;
   /**
-   * Controls whether notifications are sent to the subscriber for scheduled dashboard refreshes.
-   * If not defined, defaults to false in the backend to match the current behavior (refresh and notify)
+   * Whether the subscription is refresh-only. When true, each scheduled run refreshes the dashboard
+   * data for the subscriber without sending a notification. Defaults to false. Refresh-only
+   * subscriptions are only allowed on dashboards published without embedded credentials.
    */
   skipNotify?: boolean | undefined;
 }

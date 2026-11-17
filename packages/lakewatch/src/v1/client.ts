@@ -18,23 +18,43 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   AlertConfig,
+  BuiltinParser,
+  BuiltinParserVersion,
   CommonConfig,
   CreateDatasourceRequest,
+  CreateParserRequest,
+  CreateParserVersionRequest,
   CreateRuleRequest,
   Datasource,
   DatasourceConfig,
   DeleteDatasourceRequest,
+  DeleteParserRequest,
+  DeleteParserVersionRequest,
   DeleteRuleRequest,
   GetAlertConfigRequest,
+  GetBuiltinParserRequest,
+  GetBuiltinParserVersionRequest,
   GetCommonConfigRequest,
   GetDatasourceConfigRequest,
   GetDatasourceRequest,
+  GetParserRequest,
+  GetParserVersionRequest,
   GetRuleConfigRequest,
   GetRuleRequest,
+  ListBuiltinParserVersionsRequest,
+  ListBuiltinParserVersionsResponse,
+  ListBuiltinParsersRequest,
+  ListBuiltinParsersResponse,
   ListDatasourcesRequest,
   ListDatasourcesResponse,
+  ListParserVersionsRequest,
+  ListParserVersionsResponse,
+  ListParsersRequest,
+  ListParsersResponse,
   ListRulesRequest,
   ListRulesResponse,
+  Parser,
+  ParserVersion,
   Rule,
   RuleConfig,
   UpdateAlertConfigRequest,
@@ -49,14 +69,24 @@ import {
   marshalCommonConfigSchema,
   marshalDatasourceConfigSchema,
   marshalDatasourceSchema,
+  marshalParserSchema,
+  marshalParserVersionSchema,
   marshalRuleConfigSchema,
   marshalRuleSchema,
   unmarshalAlertConfigSchema,
+  unmarshalBuiltinParserSchema,
+  unmarshalBuiltinParserVersionSchema,
   unmarshalCommonConfigSchema,
   unmarshalDatasourceConfigSchema,
   unmarshalDatasourceSchema,
+  unmarshalListBuiltinParserVersionsResponseSchema,
+  unmarshalListBuiltinParsersResponseSchema,
   unmarshalListDatasourcesResponseSchema,
+  unmarshalListParserVersionsResponseSchema,
+  unmarshalListParsersResponseSchema,
   unmarshalListRulesResponseSchema,
+  unmarshalParserSchema,
+  unmarshalParserVersionSchema,
   unmarshalRuleConfigSchema,
   unmarshalRuleSchema,
 } from './model';
@@ -92,6 +122,189 @@ export class LakewatchClient {
   private resolveConfig(): Promise<ResolvedClientConfig> {
     this.config ??= resolveClientConfig(this.options);
     return this.config;
+  }
+
+  /**
+   * Returns a built-in parser's identity and latest-version
+   * pointer. Does not return the spec.
+   */
+  async getBuiltinParser(
+    req: GetBuiltinParserRequest,
+    options?: CallOptions
+  ): Promise<BuiltinParser> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    let resp: BuiltinParser | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalBuiltinParserSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Returns one version of a built-in parser, including its spec. */
+  async getBuiltinParserVersion(
+    req: GetBuiltinParserVersionRequest,
+    options?: CallOptions
+  ): Promise<BuiltinParserVersion> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    let resp: BuiltinParserVersion | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalBuiltinParserVersionSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Lists a built-in parser's published versions, oldest first
+   * (ascending 1..resource_revision), without their specs.
+   */
+  async listBuiltinParserVersions(
+    req: ListBuiltinParserVersionsRequest,
+    options?: CallOptions
+  ): Promise<ListBuiltinParserVersionsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/lakewatch/${req.parent ?? ''}/versions`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListBuiltinParserVersionsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListBuiltinParserVersionsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listBuiltinParserVersionsIter(
+    req: ListBuiltinParserVersionsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<BuiltinParserVersion> {
+    const pageReq: ListBuiltinParserVersionsRequest = {...req};
+    for (;;) {
+      const resp = await this.listBuiltinParserVersions(pageReq, options);
+      for (const item of resp.builtinParserVersions ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /**
+   * Lists the built-in parsers Databricks publishes, without their
+   * specs.
+   */
+  async listBuiltinParsers(
+    req: ListBuiltinParsersRequest,
+    options?: CallOptions
+  ): Promise<ListBuiltinParsersResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/lakewatch/builtin-parsers`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.filter !== undefined) {
+      params.append('filter', req.filter);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListBuiltinParsersResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListBuiltinParsersResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listBuiltinParsersIter(
+    req: ListBuiltinParsersRequest,
+    options?: CallOptions
+  ): AsyncGenerator<BuiltinParser> {
+    const pageReq: ListBuiltinParsersRequest = {...req};
+    for (;;) {
+      const resp = await this.listBuiltinParsers(pageReq, options);
+      for (const item of resp.builtinParsers ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
   }
 
   /** Returns the alert delivery configuration for a catalog. */
@@ -589,6 +802,304 @@ export class LakewatchClient {
       throw new Error('operation completed without a result.');
     }
     return resp;
+  }
+
+  /** Creates a parser and its first version in one call. */
+  async createParser(
+    req: CreateParserRequest,
+    options?: CallOptions
+  ): Promise<Parser> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/lakewatch/parsers`;
+    const body = marshalRequest(req.parser, marshalParserSchema);
+    let resp: Parser | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalParserSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Appends a new immutable version, advancing the parser's latest-version
+   * pointer. This is how a parser is edited; versions are never
+   * changed in place.
+   */
+  async createParserVersion(
+    req: CreateParserVersionRequest,
+    options?: CallOptions
+  ): Promise<ParserVersion> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/lakewatch/${req.parent ?? ''}/versions`;
+    const body = marshalRequest(req.parserVersion, marshalParserVersionSchema);
+    let resp: ParserVersion | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalParserVersionSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Deletes a parser and all of its versions. Refused while any
+   * data source references it.
+   */
+  async deleteParser(
+    req: DeleteParserRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /**
+   * Deletes one version of a parser. Returns NOT_FOUND when the parser or the
+   * version does not exist, and a conflict (HTTP 409) only while a data source
+   * references the version. Deleting the last version leaves the parser in place
+   * with no versions.
+   */
+  async deleteParserVersion(
+    req: DeleteParserVersionRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /**
+   * Returns a parser's identity and latest-version pointer. Does
+   * not return the spec; read a spec with GetParserVersion.
+   */
+  async getParser(
+    req: GetParserRequest,
+    options?: CallOptions
+  ): Promise<Parser> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    let resp: Parser | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalParserSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Returns one version of a parser, including its spec. */
+  async getParserVersion(
+    req: GetParserVersionRequest,
+    options?: CallOptions
+  ): Promise<ParserVersion> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    let resp: ParserVersion | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalParserVersionSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Lists a parser's versions, oldest first, without their specs. */
+  async listParserVersions(
+    req: ListParserVersionsRequest,
+    options?: CallOptions
+  ): Promise<ListParserVersionsResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/lakewatch/${req.parent ?? ''}/versions`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListParserVersionsResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListParserVersionsResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listParserVersionsIter(
+    req: ListParserVersionsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<ParserVersion> {
+    const pageReq: ListParserVersionsRequest = {...req};
+    for (;;) {
+      const resp = await this.listParserVersions(pageReq, options);
+      for (const item of resp.parserVersions ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Lists parsers in a catalog, without their specs. */
+  async listParsers(
+    req: ListParsersRequest,
+    options?: CallOptions
+  ): Promise<ListParsersResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.0/lakewatch/parsers`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.filter !== undefined) {
+      params.append('filter', req.filter);
+    }
+    if (req.catalogName !== undefined) {
+      params.append('catalog_name', req.catalogName);
+    }
+    if (req.schemaName !== undefined) {
+      params.append('schema_name', req.schemaName);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListParsersResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListParsersResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listParsersIter(
+    req: ListParsersRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Parser> {
+    const pageReq: ListParsersRequest = {...req};
+    for (;;) {
+      const resp = await this.listParsers(pageReq, options);
+      for (const item of resp.parsers ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
   }
 
   /** Creates a new rule. */

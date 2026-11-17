@@ -141,7 +141,7 @@ export class ScimClient {
     return this.config;
   }
 
-  /** Creates a group in the <Databricks> account with a unique name, using the supplied group details. */
+  /** Creates a group in the Databricks account with a unique name, using the supplied group details. */
   async createAccountGroup(
     req: CreateAccountGroupRequest,
     options?: CallOptions
@@ -168,7 +168,7 @@ export class ScimClient {
     return resp;
   }
 
-  /** Deletes a group from the <Databricks> account. */
+  /** Deletes a group from the Databricks account. */
   async deleteAccountGroup(
     req: DeleteAccountGroupRequest,
     options?: CallOptions
@@ -188,7 +188,7 @@ export class ScimClient {
     await executeCall(call, options);
   }
 
-  /** Gets the information for a specific group in the <Databricks> account. */
+  /** Gets the information for a specific group in the Databricks account. */
   async getAccountGroup(
     req: GetAccountGroupRequest,
     options?: CallOptions
@@ -215,7 +215,7 @@ export class ScimClient {
   }
 
   /**
-   * Gets all details of the groups associated with the <Databricks> account. As of 08/22/2025,
+   * Gets all details of the groups associated with the Databricks account. As of 08/22/2025,
    * this endpoint will no longer return members. Instead, members should be retrieved by
    * iterating through `Get group details`. Existing accounts that rely on this attribute
    * will not be impacted and will continue receiving member data as before.
@@ -359,7 +359,7 @@ export class ScimClient {
     return resp;
   }
 
-  /** Delete a single service principal in the <Databricks> account. */
+  /** Deletes a single service principal from the <Databricks> account. */
   async deleteAccountServicePrincipal(
     req: DeleteAccountServicePrincipalRequest,
     options?: CallOptions
@@ -379,7 +379,7 @@ export class ScimClient {
     await executeCall(call, options);
   }
 
-  /** Gets the details for a single service principal define in the <Databricks> account. */
+  /** Gets the details for a single service principal in the <Databricks> account. */
   async getAccountServicePrincipal(
     req: GetAccountServicePrincipalRequest,
     options?: CallOptions
@@ -503,7 +503,7 @@ export class ScimClient {
   /**
    * Updates the details of a single service principal.
    *
-   * This action replaces the existing service principal with the same name.
+   * This action replaces the existing service principal that has the given ID.
    */
   async updateAccountServicePrincipal(
     req: UpdateAccountServicePrincipalRequest,

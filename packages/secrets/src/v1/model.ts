@@ -115,7 +115,10 @@ export interface GetSecretRequest {
 export interface GetSecretResponse {
   /** A unique name to identify the secret. */
   key?: string | undefined;
-  /** The value of the secret in its byte representation. */
+  /**
+   * The secret value, base64-encoded. A secret written with ``string_value`` is returned
+   * as the base64 encoding of its UTF-8 bytes.
+   */
   value?: Uint8Array | undefined;
 }
 
@@ -160,19 +163,19 @@ export interface PutAclRequest {
 export interface PutAclResponse {}
 
 export interface PutSecretRequest {
-  /** The name of the scope to which the secret will be associated with. */
+  /** The name of the scope to store the secret in. */
   scope?: string | undefined;
   /** A unique name to identify the secret. */
   key?: string | undefined;
   value?:
     | {
         $case: 'stringValue';
-        /** If specified, note that the value will be stored in UTF-8 (MB4) form. */
+        /** The secret value as text. The server stores it as the UTF-8 encoding of the string. */
         stringValue: string;
       }
     | {
         $case: 'bytesValue';
-        /** If specified, value will be stored as bytes. */
+        /** The secret value as raw bytes. The bytes must be base64-encoded in the JSON request body. */
         bytesValue: Uint8Array;
       }
     | undefined;
@@ -188,7 +191,7 @@ export interface PutSecretResponse {}
 export interface SecretMetadata {
   /** A unique name to identify the secret. */
   key?: string | undefined;
-  /** The last updated timestamp (in milliseconds) for the secret. */
+  /** The time the secret was last written, in milliseconds since the Unix epoch. */
   lastUpdatedTimestamp?: bigint | undefined;
 }
 

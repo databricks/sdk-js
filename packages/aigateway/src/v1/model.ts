@@ -216,7 +216,11 @@ export interface CreateMcpServiceRequest {
    * Each `{...}` component is capped at 255 characters individually.
    */
   parent?: string | undefined;
-  /** Name for the MCP service, e.g. "my_mcp_service". */
+  /**
+   * Name of the MCP service within the parent schema. The name must not
+   * contain periods, spaces, forward slashes, percent signs, or control characters,
+   * and it is stored in lowercase.
+   */
   mcpServiceId?: string | undefined;
   /**
    * The MCP service to create. Do not set `name`; the server derives it from
@@ -246,7 +250,12 @@ export interface CreateModelProviderServiceRequest {
    * Each `{...}` component is capped at 255 characters individually.
    */
   parent?: string | undefined;
-  /** Name for the model provider service, e.g. "openai_prod". */
+  /**
+   * Name of the model provider service within the parent schema. The name must
+   * not contain periods, spaces, forward slashes, percent signs, or control
+   * characters, must not end in `_DO_NOT_MODIFY`, and must not exceed 241
+   * characters. It is stored in lowercase.
+   */
   modelProviderServiceId?: string | undefined;
   /**
    * The model provider service to create. Do not set `name`; the server derives
@@ -621,21 +630,25 @@ export interface McpService {
    * Resource name of the MCP service.
    * Format: `mcp-services/{catalog}.{schema}.{mcp_service}`.
    * Each `{...}` component is capped at 255 characters individually.
-   * Server-derived on Create from `parent` +
-   * `mcp_service_id`; required and immutable on Update/Get/Delete.
+   * The server derives the name on Create from
+   * `parent` and `mcp_service_id`; it is required and immutable on Update,
+   * Get, and Delete.
    */
   name?: string | undefined;
-  /** Owner of the MCP service. */
+  /** Username, group name, or service principal application ID of the MCP service owner. */
   effectiveOwner?: string | undefined;
-  /** Metastore hosting the MCP service. */
+  /** Unique identifier of the metastore that contains the MCP service. */
   metastoreId?: string | undefined;
   /** Time the MCP service was created. */
   createTime?: Temporal.Instant | undefined;
-  /** Creator identity. */
+  /** Username or service principal application ID of the principal that created the MCP service. */
   createdBy?: string | undefined;
   /** Time the MCP service was last modified. */
   updateTime?: Temporal.Instant | undefined;
-  /** Identity of the last updater. */
+  /**
+   * Username or service principal application ID of the principal that last updated the MCP
+   * service.
+   */
   updatedBy?: string | undefined;
   /** User-provided description. */
   comment?: string | undefined;
@@ -766,21 +779,22 @@ export interface ModelProviderService {
    * Resource name of the provider service.
    * Format: `model-provider-services/{catalog}.{schema}.{model_provider_service}`.
    * Each `{...}` component is capped at 255 characters individually.
-   * Server-derived on Create from `parent` +
-   * `model_provider_service_id`; required and immutable on Update/Get/Delete.
+   * The server derives the name on Create from
+   * `parent` and `model_provider_service_id`; it is required and immutable on
+   * Update, Get, and Delete.
    */
   name?: string | undefined;
-  /** Owner of the model provider service. */
+  /** Username or group name of the model provider service owner. */
   effectiveOwner?: string | undefined;
-  /** Metastore hosting the provider service. */
+  /** Unique identifier of the metastore that contains the model provider service. */
   metastoreId?: string | undefined;
   /** Time the provider service was created. */
   createTime?: Temporal.Instant | undefined;
-  /** Creator identity. */
+  /** Username of the user who created the model provider service. */
   createdBy?: string | undefined;
   /** Time the provider service was last modified. */
   updateTime?: Temporal.Instant | undefined;
-  /** Identity of the last updater. */
+  /** Username of the user who last updated the model provider service. */
   updatedBy?: string | undefined;
   /** User-provided description. */
   comment?: string | undefined;
@@ -841,30 +855,69 @@ export interface ModelProviderServiceConfig {
    * on Create. --)
    */
   provider?:
-    | {$case: 'openai'; openai: ModelProviderServiceConfig_OpenAiProviderConfig}
+    | {
+        $case: 'openai';
+        /**
+         * Configuration for OpenAI. Set this field when `provider_type` is
+         * `EXTERNAL_MODEL_PROVIDER_TYPE_OPENAI`.
+         */
+        openai: ModelProviderServiceConfig_OpenAiProviderConfig;
+      }
     | {
         $case: 'azureOpenai';
+        /**
+         * Configuration for Azure OpenAI. Set this field when `provider_type` is
+         * `EXTERNAL_MODEL_PROVIDER_TYPE_AZURE_OPENAI`.
+         */
         azureOpenai: ModelProviderServiceConfig_AzureOpenAiProviderConfig;
       }
     | {
         $case: 'anthropic';
+        /**
+         * Configuration for Anthropic. Set this field when `provider_type` is
+         * `EXTERNAL_MODEL_PROVIDER_TYPE_ANTHROPIC`.
+         */
         anthropic: ModelProviderServiceConfig_AnthropicProviderConfig;
       }
     | {
         $case: 'amazonBedrock';
+        /**
+         * Configuration for Amazon Bedrock. Set this field when `provider_type` is
+         * `EXTERNAL_MODEL_PROVIDER_TYPE_AMAZON_BEDROCK`.
+         */
         amazonBedrock: ModelProviderServiceConfig_AmazonBedrockProviderConfig;
       }
-    | {$case: 'custom'; custom: ModelProviderServiceConfig_CustomProviderConfig}
+    | {
+        $case: 'custom';
+        /**
+         * Configuration for a custom OpenAI-compatible provider. Set this field when
+         * `provider_type` is `EXTERNAL_MODEL_PROVIDER_TYPE_CUSTOM`.
+         */
+        custom: ModelProviderServiceConfig_CustomProviderConfig;
+      }
     | {
         $case: 'microsoftFoundry';
+        /**
+         * Configuration for Microsoft Foundry. Set this field when
+         * `provider_type` is `EXTERNAL_MODEL_PROVIDER_TYPE_MICROSOFT_FOUNDRY`.
+         */
         microsoftFoundry: ModelProviderServiceConfig_MicrosoftFoundryProviderConfig;
       }
     | {
         $case: 'geminiEnterprise';
+        /**
+         * Configuration for Google Gemini Enterprise. Set this field when
+         * `provider_type` is `EXTERNAL_MODEL_PROVIDER_TYPE_GEMINI_ENTERPRISE`.
+         */
         geminiEnterprise: ModelProviderServiceConfig_GeminiEnterpriseProviderConfig;
       }
     | {
         $case: 'bedrockMantle';
+        /**
+         * Configuration for Amazon Bedrock Mantle, with the same fields as
+         * `amazon_bedrock`. Set this field when `provider_type` is
+         * `EXTERNAL_MODEL_PROVIDER_TYPE_BEDROCK_MANTLE`.
+         */
         bedrockMantle: ModelProviderServiceConfig_AmazonBedrockProviderConfig;
       }
     | undefined;
@@ -1156,7 +1209,7 @@ export interface ModelProviderServiceConfig_CustomProviderApiKeyHeaderAuth {
   apiKeyName?: string | undefined;
   /**
    * Secret value forwarded under the `api_key_name` header on outbound
-   * requests. Supplied as inline plaintext via `ProviderSecret.plaintext`.
+   * requests. Supply the value in `api_key_value.plaintext`.
    */
   apiKeyValue?: ModelProviderServiceConfig_ProviderSecret | undefined;
 }
@@ -1483,9 +1536,10 @@ export interface ModelProviderServiceConfig_ProviderSecret {
     | {
         $case: 'plaintext';
         /**
-         * Inline plaintext credential. INPUT_ONLY: the value never round-trips on
-         * reads. Get and List responses omit `plaintext`; the enclosing secret
-         * object remains present to indicate that a secret is configured.
+         * Inline plaintext credential. The value is write-only and never
+         * round-trips on reads. Get and List responses omit `plaintext`; the
+         * enclosing secret object remains present to indicate that a secret is
+         * configured.
          */
         plaintext: string;
       }

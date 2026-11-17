@@ -8,6 +8,7 @@ export {VectorSearchClient, CreateEndpointWaiter} from './client';
 
 export {
   EndpointType,
+  IndexStatus,
   IndexSubtype,
   PipelineType,
   ScalingChangeState,
@@ -38,6 +39,7 @@ export type {
   EndpointScalingInfo,
   EndpointStatus,
   FacetResultData,
+  FailedStatus,
   GetEndpointRequest,
   GetVectorIndexRequest,
   ListEndpointResponse,

@@ -480,6 +480,8 @@ export interface ListProviderShareAssetsRequest {
   volumeMaxResults?: number | undefined;
   /** Maximum number of notebooks to return. */
   notebookMaxResults?: number | undefined;
+  /** Maximum number of skills to return. */
+  skillMaxResults?: number | undefined;
 }
 
 /** Response to ListProviderShareAssets, which contains the list of assets of a share. */
@@ -492,6 +494,8 @@ export interface ListProviderShareAssetsResponse {
   notebooks?: NotebookFile[] | undefined;
   /** The list of volumes in the share. */
   volumes?: Volume[] | undefined;
+  /** The list of skills in the share. */
+  skills?: Skill[] | undefined;
   /** The metadata of the share. */
   share?: Share | undefined;
 }
@@ -1058,6 +1062,29 @@ export interface SharedDataObject_HistoryDataSharingStatus {}
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface SharedDataObject_Status {}
 
+/** An agent skill shared through a Delta Sharing share, as served to a recipient. */
+export interface Skill {
+  /** The name of the skill. */
+  name?: string | undefined;
+  /**
+   * The shared-object ID that recipients match replicas on. For a skill shared through its
+   * schema, which has no shared-object row, this is derived from the shared schema and the skill.
+   */
+  id?: string | undefined;
+  /** The name of the schema that the skill belongs to. */
+  schema?: string | undefined;
+  /** The name of the share that the skill belongs to. */
+  share?: string | undefined;
+  /** The id of the share that the skill belongs to. */
+  shareId?: string | undefined;
+  /** The comment of the skill. */
+  comment?: string | undefined;
+  /** The bundle description parsed from the skill bundle's SKILL.md frontmatter. */
+  description?: string | undefined;
+  /** The name from the skill bundle frontmatter, which may differ from the resource name. */
+  bundleName?: string | undefined;
+}
+
 export interface Table {
   /** The name of the table. */
   name?: string | undefined;
@@ -1481,6 +1508,7 @@ export const unmarshalListProviderShareAssetsResponseSchema: z.ZodType<ListProvi
       functions: z.array(z.lazy(() => unmarshalFunctionSchema)).optional(),
       notebooks: z.array(z.lazy(() => unmarshalNotebookFileSchema)).optional(),
       volumes: z.array(z.lazy(() => unmarshalVolumeSchema)).optional(),
+      skills: z.array(z.lazy(() => unmarshalSkillSchema)).optional(),
       share: z
         .lazy(() => unmarshalShareSchema)
         .nullish()
@@ -1491,6 +1519,7 @@ export const unmarshalListProviderShareAssetsResponseSchema: z.ZodType<ListProvi
       functions: d.functions,
       notebooks: d.notebooks,
       volumes: d.volumes,
+      skills: d.skills,
       share: d.share,
     }));
 
@@ -1900,6 +1929,28 @@ export const unmarshalSharedDataObjectSchema: z.ZodType<SharedDataObject> = z
     content: d.content,
     stringSharedAs: d.string_shared_as,
     partitions: d.partitions,
+  }));
+
+export const unmarshalSkillSchema: z.ZodType<Skill> = z
+  .object({
+    name: z.string().optional(),
+    id: z.string().optional(),
+    schema: z.string().optional(),
+    share: z.string().optional(),
+    share_id: z.string().optional(),
+    comment: z.string().optional(),
+    description: z.string().optional(),
+    bundle_name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    id: d.id,
+    schema: d.schema,
+    share: d.share,
+    shareId: d.share_id,
+    comment: d.comment,
+    description: d.description,
+    bundleName: d.bundle_name,
   }));
 
 export const unmarshalTableSchema: z.ZodType<Table> = z

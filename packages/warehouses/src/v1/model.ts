@@ -835,7 +835,8 @@ export interface CreateWarehouseRequest {
    * RUNNING queries) before it is automatically stopped.
    *
    * Supported values:
-   * - Must be == 0 or >= 10 mins
+   * - Must be == 0 or >= 1 min for serverless warehouses.
+   * - Must be == 0 or >= 10 mins for classic and pro warehouses.
    * - 0 indicates no autostop.
    *
    * Defaults to 120 mins
@@ -1003,7 +1004,8 @@ export interface EditWarehouseRequest {
    * RUNNING queries) before it is automatically stopped.
    *
    * Supported values:
-   * - Must be == 0 or >= 10 mins
+   * - Must be == 0 or >= 1 min for serverless warehouses.
+   * - Must be == 0 or >= 10 mins for classic and pro warehouses.
    * - 0 indicates no autostop.
    *
    * Defaults to 120 mins
@@ -1143,7 +1145,8 @@ export interface EndpointInfo {
    * RUNNING queries) before it is automatically stopped.
    *
    * Supported values:
-   * - Must be == 0 or >= 10 mins
+   * - Must be == 0 or >= 1 min for serverless warehouses.
+   * - Must be == 0 or >= 10 mins for classic and pro warehouses.
    * - 0 indicates no autostop.
    *
    * Defaults to 120 mins
@@ -1299,7 +1302,8 @@ export interface GetWarehouseResponse {
    * RUNNING queries) before it is automatically stopped.
    *
    * Supported values:
-   * - Must be == 0 or >= 10 mins
+   * - Must be == 0 or >= 1 min for serverless warehouses.
+   * - Must be == 0 or >= 10 mins for classic and pro warehouses.
    * - 0 indicates no autostop.
    *
    * Defaults to 120 mins

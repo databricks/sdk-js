@@ -257,9 +257,9 @@ export interface DiskType {
 }
 
 export interface DockerBasicAuth {
-  /** Name of the user */
+  /** User name for authenticating to the Docker registry that hosts the image. */
   username?: string | undefined;
-  /** Password of the user */
+  /** Password for authenticating to the Docker registry that hosts the image. */
   password?: string | undefined;
 }
 
