@@ -663,8 +663,6 @@ export const MigrationType = {
   MIGRATION_TYPE_UNSPECIFIED: 'MIGRATION_TYPE_UNSPECIFIED',
   /** Intended for a single copy of the source data, without ongoing replication. */
   MIGRATION_TYPE_ONE_TIME_COPY: 'MIGRATION_TYPE_ONE_TIME_COPY',
-  /** Intended for an initial copy followed by ongoing replication of source changes. */
-  MIGRATION_TYPE_ONLINE: 'MIGRATION_TYPE_ONLINE',
 } as const;
 export type MigrationType =
   | (typeof MigrationType)[keyof typeof MigrationType]
@@ -1547,6 +1545,10 @@ export interface CreateSyncedTableRequest {
    * 2. Postgres table named "{table}" in schema "{schema}" in the connected Postgres database
    */
   syncedTableId?: string | undefined;
+  /**
+   * The synced table to create. Its configuration is read from spec, and its name comes from
+   * synced_table_id.
+   */
   syncedTable?: SyncedTable | undefined;
 }
 
@@ -3158,14 +3160,19 @@ export interface StartMigrationResponse {
   migration?: Migration | undefined;
 }
 
+/**
+ * A synced table is a read-only Postgres table that Databricks keeps up to date from a Unity Catalog
+ * source table through a managed pipeline. It is also registered in Unity Catalog under its
+ * three-part name. See https://docs.databricks.com/aws/en/oltp/projects/sync-tables.
+ */
 export interface SyncedTable {
   /**
-   * Output only. The Full resource name of the synced table in Postgres
-   * where (catalog, schema, table) are the UC entity names.
+   * The full resource name of the synced table, where (catalog, schema, table) are the Unity Catalog
+   * names of the synced table.
    *
-   * Format "synced_tables/{catalog}.{schema}.{table}"
+   * Format: "synced_tables/{catalog}.{schema}.{table}".
    *
-   * For the corresponding source table in the Unity catalog look for the "source_table_full_name" attribute.
+   * For the corresponding source table in Unity Catalog, look for the "source_table_full_name" attribute.
    */
   name?: string | undefined;
   /** The Unity Catalog table ID for this synced table. */
@@ -3174,29 +3181,36 @@ export interface SyncedTable {
   spec?: SyncedTable_SyncedTableSpec | undefined;
   /** Synced Table data synchronization status. */
   status?: SyncedTable_SyncedTableStatus | undefined;
+  /** The time when the synced table was created. */
   createTime?: Temporal.Instant | undefined;
-  /** The part of the name, chosen by the user when the resource was created. */
+  /**
+   * The three-part Unity Catalog name of the synced table, in the format "{catalog}.{schema}.{table}".
+   * It is the synced_table_id that was used to create the synced table and the last component of name.
+   */
   syncedTableId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SyncedTable_SyncedTableSpec {
   /**
-   * The Postgres database name where the synced table will be created in.
-   *
-   * If this synced table is created inside a Lakebase Catalog, this attribute can be omitted on creation and is inferred
-   * from the postgres_database associated with the Lakebase Catalog. If specified when inside a Lakebase Catalog, the value must match.
-   *
-   * A value must be specified when creating a synced table inside a Standard Catalog.
+   * The name of the Postgres database where the synced table is created. A value must be specified
+   * on creation. If the synced table is created inside a Lakebase catalog, the value must match the
+   * Postgres database of that catalog.
    */
   postgresDatabase?: string | undefined;
   /**
-   * The full resource name the branch associated with the table.
+   * The full resource name of the branch that contains the synced table.
    *
    * Format: "projects/{project_id}/branches/{branch_id}".
+   *
+   * A value must be specified when creating a synced table inside a standard catalog. Inside a
+   * Lakebase catalog it can be omitted, and if specified it must match the branch of that catalog.
    */
   branch?: string | undefined;
-  /** Scheduling policy of the underlying pipeline. */
+  /**
+   * Scheduling policy of the underlying pipeline. A value must be specified on creation. See
+   * https://docs.databricks.com/aws/en/oltp/projects/sync-tables for how to choose a sync mode.
+   */
   schedulingPolicy?:
     | SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy
     | undefined;
@@ -3209,15 +3223,19 @@ export interface SyncedTable_SyncedTableSpec {
    * * "name" consisting of "synced_tables/" prefix and the full name of the destination table.
    */
   sourceTableFullName?: string | undefined;
-  /** Primary Key columns to be used for data insert/update in the destination. */
+  /**
+   * Primary Key columns to be used for data insert/update in the destination. At least one column
+   * must be specified.
+   */
   primaryKeyColumns?: string[] | undefined;
   /** Time series key to deduplicate (tie-break) rows with the same primary key. */
   timeseriesKey?: string | undefined;
   /**
-   * ID of an existing pipeline to bin-pack this synced table into.
+   * ID of an existing pipeline to bin-pack this synced table into. The pipeline must be a synced
+   * table pipeline that runs continuously if and only if scheduling_policy is CONTINUOUS.
    * At most one of existing_pipeline_id and new_pipeline_spec should be defined.
    *
-   * The pipeline used for the synced table is returned via the top level pipeline_id attribute.
+   * The pipeline used for the synced table is returned in status.pipeline_id.
    */
   existingPipelineId?: string | undefined;
   /**
@@ -3232,7 +3250,7 @@ export interface SyncedTable_SyncedTableSpec {
    * Specification for creating a new pipeline.
    * At most one of existing_pipeline_id and new_pipeline_spec should be defined.
    *
-   * The pipeline used for the synced table is returned via the top level pipeline_id attribute.
+   * The pipeline used for the synced table is returned in status.pipeline_id.
    */
   newPipelineSpec?: NewPipelineSpec | undefined;
   /**
@@ -3287,6 +3305,10 @@ export interface SyncedTable_SyncedTableStatus {
   detailedState?: SyncedTableState | undefined;
   /** Summary of the last successful synchronization from source to destination. */
   lastSync?: SyncedTablePosition | undefined;
+  /**
+   * Progress of the sync that is currently running, either the initial data load or an update of a
+   * triggered or snapshot synced table.
+   */
   ongoingSyncProgress?: SyncedTablePipelineProgress | undefined;
   /** The current phase of the data synchronization pipeline. */
   provisioningPhase?: ProvisioningPhase | undefined;
@@ -3345,7 +3367,11 @@ export interface SyncedTablePosition {
   syncEndTime?: Temporal.Instant | undefined;
   /** Information about the source system at the time of the last sync. */
   sourceSyncInfo?:
-    | {$case: 'deltaTableSyncInfo'; deltaTableSyncInfo: DeltaTableSyncInfo}
+    | {
+        $case: 'deltaTableSyncInfo';
+        /** The source Delta table version that the last successful sync read. */
+        deltaTableSyncInfo: DeltaTableSyncInfo;
+      }
     | undefined;
 }
 

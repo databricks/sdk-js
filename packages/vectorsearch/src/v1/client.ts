@@ -163,7 +163,11 @@ export class VectorSearchClient {
     return new CreateEndpointWaiter(this, resp.name);
   }
 
-  /** Create a new index. */
+  /**
+   * Create a new index on an endpoint. Creating a Delta Sync index also creates the pipeline that
+   * populates it from the source table; a Direct Vector Access index starts empty and is populated
+   * through Upsert data into an index.
+   */
   async createVectorIndex(
     req: CreateVectorIndexRequest,
     options?: CallOptions
@@ -193,7 +197,10 @@ export class VectorSearchClient {
     return resp;
   }
 
-  /** Handles the deletion of data from a specified vector index. */
+  /**
+   * Delete rows from a Direct Vector Access index by primary key. The response reports how many
+   * rows were deleted and the primary keys of the rows that failed.
+   */
   async deleteDataVectorIndex(
     req: DeleteDataVectorIndexRequest,
     options?: CallOptions
@@ -260,7 +267,7 @@ export class VectorSearchClient {
     return resp;
   }
 
-  /** Delete an index. */
+  /** Delete an index and the data it holds. The source table of a Delta Sync index is not affected. */
   async deleteVectorIndex(
     req: DeleteVectorIndexRequest,
     options?: CallOptions
@@ -532,7 +539,10 @@ export class VectorSearchClient {
     return resp;
   }
 
-  /** Query the specified vector index. */
+  /**
+   * Query an index with a vector, text, or both, and return the requested columns of the
+   * best-matching rows.
+   */
   async queryVectorIndex(
     req: QueryVectorIndexRequest,
     options?: CallOptions
@@ -595,7 +605,10 @@ export class VectorSearchClient {
     return resp;
   }
 
-  /** Retrieve user-visible metrics for an endpoint */
+  /**
+   * Retrieve time series of usage and health metrics for an endpoint and its indexes, such as
+   * request counts, request latency percentiles and endpoint utilization.
+   */
   async retrieveUserVisibleMetrics(
     req: RetrieveUserVisibleMetricsRequest,
     options?: CallOptions
@@ -631,7 +644,10 @@ export class VectorSearchClient {
     return resp;
   }
 
-  /** Scan the specified vector index and return the first `num_results` entries after the exclusive `primary_key`. */
+  /**
+   * Scan an index and return the first `num_results` rows after the exclusive `last_primary_key`.
+   * Repeat the call with the returned `last_primary_key` to read the whole index.
+   */
   async scanVectorIndex(
     req: ScanVectorIndexRequest,
     options?: CallOptions
@@ -724,7 +740,10 @@ export class VectorSearchClient {
     return resp;
   }
 
-  /** Triggers a synchronization process for a specified vector index. */
+  /**
+   * Start a sync of a Delta Sync index with a `TRIGGERED` pipeline from its source table. An index
+   * with a `CONTINUOUS` pipeline syncs automatically and rejects manual syncs.
+   */
   async syncVectorIndex(
     req: SyncVectorIndexRequest,
     options?: CallOptions
@@ -790,7 +809,11 @@ export class VectorSearchClient {
     return resp;
   }
 
-  /** Handles the upserting of data into a specified vector index. */
+  /**
+   * Insert rows into a Direct Vector Access index, replacing existing rows that have the same
+   * primary key. The response reports how many rows succeeded and the primary keys of the rows that
+   * failed.
+   */
   async upsertDataVectorIndex(
     req: UpsertDataVectorIndexRequest,
     options?: CallOptions

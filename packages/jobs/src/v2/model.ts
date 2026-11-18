@@ -1944,7 +1944,7 @@ export interface ClusterSpec_NewCluster {
   /**
    * Automatically terminates the cluster after it is inactive for this time in minutes. If not set,
    * this cluster will not be automatically terminated. If specified, the threshold must be between
-   * 10 and 10000 minutes.
+   * 10 and 43200 minutes (30 days).
    * Users can also set this value to 0 to explicitly disable automatic termination.
    */
   autoterminationMinutes?: number | undefined;
@@ -2165,8 +2165,11 @@ export interface ContinuousTriggerConfiguration {
 }
 
 export interface ContinuousTriggerState {
+  /** The number of consecutive unsuccessful runs. Resets to `0` after a healthy run and determines the exponential backoff before the next run. */
   consecutiveFailures?: number | undefined;
+  /** The time at which the trigger next attempts to start a run, in epoch milliseconds. */
   nextAttemptMs?: bigint | undefined;
+  /** Whether the trigger is delaying the next run with exponential backoff after repeated failures. */
   isBackingOff?: boolean | undefined;
 }
 
@@ -2185,6 +2188,7 @@ export interface CreateJobRequest {
   notificationSettings?: NotificationSettings | undefined;
   /** An optional timeout applied to each run of this job. A value of `0` means no timeout. */
   timeoutSeconds?: number | undefined;
+  /** An optional set of health rules that can be defined for this job. */
   health?: JobsHealthRules | undefined;
   /** An optional periodic schedule for this job. The default behavior is that the job only runs when triggered by clicking “Run Now” in the Jobs UI or sending an API request to `runNow`. */
   schedule?: CronSchedule | undefined;
@@ -3177,9 +3181,11 @@ export interface GitSource {
         gitCommit: string;
       }
     | undefined;
+  /** Read-only state of the remote repository at the time the job was run. This field is only included on job runs. */
   gitSnapshot?: GitMetadataSnapshot | undefined;
   /** The source of the job specification in the remote repository when the job is source controlled. */
   jobSource?: JobSource | undefined;
+  /** Sparse checkout settings for the repository. When set, only the directories listed in `patterns` are checked out. */
   sparseCheckout?: SparseCheckout | undefined;
 }
 
@@ -3294,7 +3300,6 @@ export interface JobCompletionTriggerConfiguration_MonitoredJob {
    * The ID of the workspace containing the upstream job.
    * This can differ from the caller's workspace and downstream services enforce
    * correct entitlements and CAN_VIEW permissions for the user + job combination.
-   * SDR: https://databricks.atlassian.net/browse/SDR-5267
    */
   workspaceId?: string | undefined;
   /** The ID of the upstream job. */
@@ -3394,6 +3399,7 @@ export interface JobEmailNotifications {
 export interface JobEnvironment {
   /** The key of an environment. It has to be unique within a job. */
   environmentKey?: string | undefined;
+  /** The environment specification, including the environment version and the dependencies to install before a task runs. */
   spec?: Environment | undefined;
 }
 
@@ -3499,6 +3505,7 @@ export interface JobSettings {
   notificationSettings?: NotificationSettings | undefined;
   /** An optional timeout applied to each run of this job. A value of `0` means no timeout. */
   timeoutSeconds?: number | undefined;
+  /** An optional set of health rules that can be defined for this job. */
   health?: JobsHealthRules | undefined;
   /** An optional periodic schedule for this job. The default behavior is that the job only runs when triggered by clicking “Run Now” in the Jobs UI or sending an API request to `runNow`. */
   schedule?: CronSchedule | undefined;
@@ -3643,7 +3650,17 @@ export interface JobSource {
 }
 
 export interface JobsHealthRule {
+  /**
+   * Specifies the health metric that is being evaluated for a particular health rule.
+   *
+   * * `RUN_DURATION_SECONDS`: Expected total time for a run in seconds.
+   * * `STREAMING_BACKLOG_BYTES`: An estimate of the maximum bytes of data waiting to be consumed across all streams. This metric is in Public Preview.
+   * * `STREAMING_BACKLOG_RECORDS`: An estimate of the maximum offset lag across all streams. This metric is in Public Preview.
+   * * `STREAMING_BACKLOG_SECONDS`: An estimate of the maximum consumer delay across all streams. This metric is in Public Preview.
+   * * `STREAMING_BACKLOG_FILES`: An estimate of the maximum number of outstanding files across all streams. This metric is in Public Preview.
+   */
   metric?: JobsHealthMetric | undefined;
+  /** Specifies the operator used to compare the health metric value with the specified threshold. */
   op?: JobsHealthOperator | undefined;
   /** Specifies the threshold value that the health metric should obey to satisfy the health rule. */
   value?: bigint | undefined;
@@ -3651,6 +3668,7 @@ export interface JobsHealthRule {
 
 /** An optional set of health rules that can be defined for this job. */
 export interface JobsHealthRules {
+  /** The health rules to evaluate for each run. */
   rules?: JobsHealthRule[] | undefined;
 }
 
@@ -4033,13 +4051,41 @@ export interface PerTriggerState {
    * matching the trigger's type in `TriggerConfiguration`.
    */
   triggerType?:
-    | {$case: 'periodic'; periodic: PeriodicTriggerState}
-    | {$case: 'schedule'; schedule: ScheduleTriggerState}
-    | {$case: 'continuous'; continuous: ContinuousTriggerState}
-    | {$case: 'fileArrival'; fileArrival: FileArrivalTriggerState}
-    | {$case: 'tableUpdate'; tableUpdate: TableTriggerState}
-    | {$case: 'model'; model: ModelTriggerState}
-    | {$case: 'jobCompletion'; jobCompletion: JobCompletionTriggerState}
+    | {
+        $case: 'periodic';
+        /** State of the periodic trigger. */
+        periodic: PeriodicTriggerState;
+      }
+    | {
+        $case: 'schedule';
+        /** State of the cron schedule trigger. */
+        schedule: ScheduleTriggerState;
+      }
+    | {
+        $case: 'continuous';
+        /** State of the continuous trigger. */
+        continuous: ContinuousTriggerState;
+      }
+    | {
+        $case: 'fileArrival';
+        /** State of the file arrival trigger. */
+        fileArrival: FileArrivalTriggerState;
+      }
+    | {
+        $case: 'tableUpdate';
+        /** State of the table update trigger. */
+        tableUpdate: TableTriggerState;
+      }
+    | {
+        $case: 'model';
+        /** State of the model trigger. */
+        model: ModelTriggerState;
+      }
+    | {
+        $case: 'jobCompletion';
+        /** State of the job completion trigger. */
+        jobCompletion: JobCompletionTriggerState;
+      }
     | undefined;
   /** State for SQL condition evaluation, can coexist with other trigger states. */
   sqlCondition?: SqlConditionState | undefined;
@@ -4058,6 +4104,7 @@ export interface PeriodicTriggerConfiguration {
 }
 
 export interface PeriodicTriggerState {
+  /** The time of the next scheduled run, in epoch milliseconds. Only set while the trigger is not paused. */
   nextRunTime?: bigint | undefined;
 }
 
@@ -4705,7 +4752,7 @@ export interface RunLifecycleStateV2 {}
 export interface RunNowRequest {
   /** The ID of the job to be executed */
   jobId?: bigint | undefined;
-  /** Job-level parameters used in the run. for example `"param": "overriding_val"` */
+  /** Job-level parameters used in the run, for example `"param": "overriding_val"`. */
   jobParameters?: Record<string, string> | undefined;
   /**
    * An optional token to guarantee the idempotency of job run requests. If a run with the provided token already exists,
@@ -5454,7 +5501,7 @@ export interface SparkSubmitTask {
 }
 
 export interface SparseCheckout {
-  /** List of patterns to include for sparse checkout. */
+  /** List of patterns to include for sparse checkout. Each pattern is the path of a directory relative to the repository root. */
   patterns?: string[] | undefined;
 }
 
@@ -5961,6 +6008,7 @@ export interface TableTriggerConfiguration {
 }
 
 export interface TableTriggerState {
+  /** The last observed state of each monitored table. */
   lastSeenTableStates?: TableState[] | undefined;
   /** Indicates whether the trigger is using scalable monitoring. */
   usingScalableMonitoring?: boolean | undefined;
@@ -5998,6 +6046,7 @@ export interface TaskSettings {
   runIf?: TaskDependencyType | undefined;
   /** An optional timeout applied to each run of this job task. A value of `0` means no timeout. */
   timeoutSeconds?: number | undefined;
+  /** An optional set of health rules that can be defined for this task. */
   health?: JobsHealthRules | undefined;
   /** An optional set of email addresses that is notified when runs of this task begin or complete as well as when this task is deleted. The default behavior is to not send any emails. */
   emailNotifications?: JobEmailNotifications | undefined;
@@ -6265,7 +6314,11 @@ export interface TriggerSettings {
         /** Periodic trigger settings. */
         periodic: PeriodicTriggerConfiguration;
       }
-    | {$case: 'tableUpdate'; tableUpdate: TableTriggerConfiguration}
+    | {
+        $case: 'tableUpdate';
+        /** Table update trigger settings. */
+        tableUpdate: TableTriggerConfiguration;
+      }
     | {$case: 'model'; model: ModelTriggerConfiguration}
     | {
         $case: 'jobCompletion';
@@ -6283,9 +6336,21 @@ export interface TriggerSettings {
 export interface TriggerState {
   /** (-- Next ID: 8. --) */
   triggerType?:
-    | {$case: 'table'; table: TableTriggerState}
-    | {$case: 'fileArrival'; fileArrival: FileArrivalTriggerState}
-    | {$case: 'jobCompletion'; jobCompletion: JobCompletionTriggerState}
+    | {
+        $case: 'table';
+        /** State of the table update trigger. */
+        table: TableTriggerState;
+      }
+    | {
+        $case: 'fileArrival';
+        /** State of the file arrival trigger. */
+        fileArrival: FileArrivalTriggerState;
+      }
+    | {
+        $case: 'jobCompletion';
+        /** State of the job completion trigger. */
+        jobCompletion: JobCompletionTriggerState;
+      }
     | undefined;
   /** State for SQL condition evaluation, can coexist with other trigger states. */
   sqlCondition?: SqlConditionState | undefined;
@@ -6346,6 +6411,7 @@ export interface VolumesStorageInfo {
 }
 
 export interface Webhook {
+  /** The ID of the notification destination to call. Must be a UUID. */
   id?: string | undefined;
 }
 

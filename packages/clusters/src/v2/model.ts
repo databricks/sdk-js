@@ -1384,7 +1384,7 @@ export interface ClusterAttributes {
   /**
    * Automatically terminates the cluster after it is inactive for this time in minutes. If not set,
    * this cluster will not be automatically terminated. If specified, the threshold must be between
-   * 10 and 10000 minutes.
+   * 10 and 43200 minutes (30 days).
    * Users can also set this value to 0 to explicitly disable automatic termination.
    */
   autoterminationMinutes?: number | undefined;
@@ -1685,7 +1685,7 @@ export interface ClusterInfo {
   /**
    * Automatically terminates the cluster after it is inactive for this time in minutes. If not set,
    * this cluster will not be automatically terminated. If specified, the threshold must be between
-   * 10 and 10000 minutes.
+   * 10 and 43200 minutes (30 days).
    * Users can also set this value to 0 to explicitly disable automatic termination.
    */
   autoterminationMinutes?: number | undefined;
@@ -1919,7 +1919,7 @@ export interface ClusterInfo_ComputeSpec {
   /**
    * Automatically terminates the cluster after it is inactive for this time in minutes. If not set,
    * this cluster will not be automatically terminated. If specified, the threshold must be between
-   * 10 and 10000 minutes.
+   * 10 and 43200 minutes (30 days).
    * Users can also set this value to 0 to explicitly disable automatic termination.
    */
   autoterminationMinutes?: number | undefined;
@@ -2231,7 +2231,7 @@ export interface CreateClusterRequest {
   /**
    * Automatically terminates the cluster after it is inactive for this time in minutes. If not set,
    * this cluster will not be automatically terminated. If specified, the threshold must be between
-   * 10 and 10000 minutes.
+   * 10 and 43200 minutes (30 days).
    * Users can also set this value to 0 to explicitly disable automatic termination.
    */
   autoterminationMinutes?: number | undefined;
@@ -2498,7 +2498,7 @@ export interface EditClusterRequest {
   /**
    * Automatically terminates the cluster after it is inactive for this time in minutes. If not set,
    * this cluster will not be automatically terminated. If specified, the threshold must be between
-   * 10 and 10000 minutes.
+   * 10 and 43200 minutes (30 days).
    * Users can also set this value to 0 to explicitly disable automatic termination.
    */
   autoterminationMinutes?: number | undefined;
@@ -2741,7 +2741,7 @@ export interface EnforcePolicyComplianceForClusterResponse_ClusterSettings {
   /**
    * Automatically terminates the cluster after it is inactive for this time in minutes. If not set,
    * this cluster will not be automatically terminated. If specified, the threshold must be between
-   * 10 and 10000 minutes.
+   * 10 and 43200 minutes (30 days).
    * Users can also set this value to 0 to explicitly disable automatic termination.
    */
   autoterminationMinutes?: number | undefined;
@@ -3815,7 +3815,7 @@ export interface UpdateClusterRequest_UpdateClusterResource {
   /**
    * Automatically terminates the cluster after it is inactive for this time in minutes. If not set,
    * this cluster will not be automatically terminated. If specified, the threshold must be between
-   * 10 and 10000 minutes.
+   * 10 and 43200 minutes (30 days).
    * Users can also set this value to 0 to explicitly disable automatic termination.
    */
   autoterminationMinutes?: number | undefined;

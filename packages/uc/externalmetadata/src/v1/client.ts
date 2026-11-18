@@ -101,7 +101,8 @@ export class ExternalMetadataClient {
   }
 
   /**
-   * Deletes the external metadata object that matches the supplied name.
+   * Deletes the external metadata object that matches the supplied name. Every external lineage relationship in
+   * which the object is the source or the target is deleted with it.
    * The caller must be a metastore admin, the owner of the external metadata object, or a user that has the **MANAGE** privilege.
    */
   async deleteExternalMetadataV2(
