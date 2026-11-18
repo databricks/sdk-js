@@ -896,7 +896,10 @@ export class PostgresClient {
     );
   }
 
-  /** Create a Synced Table. */
+  /**
+   * Create a Synced Table. Creates the synced table in Unity Catalog and the Postgres table on the
+   * branch, and starts the pipeline that loads the initial data from the source table.
+   */
   private async createSyncedTableBase(
     req: CreateSyncedTableRequest,
     options?: CallOptions
@@ -938,7 +941,10 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Create a Synced Table. */
+  /**
+   * Create a Synced Table. Creates the synced table in Unity Catalog and the Postgres table on the
+   * branch, and starts the pipeline that loads the initial data from the source table.
+   */
   async createSyncedTable(
     req: CreateSyncedTableRequest,
     options?: CallOptions
@@ -1409,7 +1415,10 @@ export class PostgresClient {
     );
   }
 
-  /** Delete a Synced Table. */
+  /**
+   * Delete a Synced Table. Drops the Postgres table, removes the synced table from its pipeline, and
+   * deletes it from Unity Catalog. The pipeline itself is deleted when no other synced table uses it.
+   */
   private async deleteSyncedTableBase(
     req: DeleteSyncedTableRequest,
     options?: CallOptions
@@ -1438,7 +1447,10 @@ export class PostgresClient {
     return resp;
   }
 
-  /** Delete a Synced Table. */
+  /**
+   * Delete a Synced Table. Drops the Postgres table, removes the synced table from its pipeline, and
+   * deletes it from Unity Catalog. The pipeline itself is deleted when no other synced table uses it.
+   */
   async deleteSyncedTable(
     req: DeleteSyncedTableRequest,
     options?: CallOptions

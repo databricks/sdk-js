@@ -85,16 +85,23 @@ export type BudgetConfigurationFilter_Operator =
   | (string & {});
 
 export interface ActionConfiguration {
-  /** <Databricks> action configuration ID. */
+  /** Databricks action configuration ID. */
   actionConfigurationId?: string | undefined;
-  /** The type of the action. */
+  /**
+   * The action to take when the alert enters a triggered state. `EMAIL_NOTIFICATION` sends an email and
+   * `BLOCK_USAGE` blocks further usage. `BLOCK_USAGE` is only supported on Unity AI Gateway budgets, with
+   * `resource_type` set to `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`.
+   */
   actionType?: ActionConfigurationType | undefined;
-  /** Target for the action. For example, an email address. */
+  /**
+   * Target of the action. For `EMAIL_NOTIFICATION`, the email address that receives the alert, up to 256
+   * characters. Must be omitted for `BLOCK_USAGE`.
+   */
   target?: string | undefined;
 }
 
 export interface AlertConfiguration {
-  /** <Databricks> alert configuration ID. */
+  /** Databricks alert configuration ID. */
   alertConfigurationId?: string | undefined;
   /** The time window of usage data for the budget. */
   timePeriod?: AlertConfigurationTimePeriod | undefined;
@@ -102,9 +109,15 @@ export interface AlertConfiguration {
   triggerType?: AlertConfigurationTriggerType | undefined;
   /** The way to calculate cost for this budget alert. This is what `quantity_threshold` is measured in. */
   quantityType?: AlertConfigurationQuantityType | undefined;
-  /** The threshold for the budget alert to determine if it is in a triggered state. The number is evaluated based on `quantity_type`. */
+  /**
+   * The threshold for the budget alert to determine if it is in a triggered state. The number is evaluated based on `quantity_type`.
+   * A decimal number passed as a string, from 0 to 1,000,000,000.
+   */
   quantityThreshold?: string | undefined;
-  /** Configured actions for this alert. These define what happens when an alert enters a triggered state. */
+  /**
+   * Configured actions for this alert. These define what happens when an alert enters a triggered state.
+   * An alert can have up to 10 actions.
+   */
   actionConfigurations?: ActionConfiguration[] | undefined;
   /** How the alert threshold is evaluated. Determines whether spend is tracked in aggregate or per individual user. */
   scopeType?: AlertConfigurationScopeType | undefined;
@@ -145,14 +158,19 @@ export interface AlertSpendStatus {
   percentConsumed?: string | undefined;
 }
 
+/**
+ * A budget tracks the spend of your account, or of the workspaces and custom tags selected by its
+ * filter, against one or more alert thresholds. Spend is measured in US dollars at list price. For an
+ * overview, see https://docs.databricks.com/en/admin/account-settings/budgets.html.
+ */
 export interface BudgetConfiguration {
-  /** <Databricks> budget configuration ID. */
+  /** Databricks budget configuration ID. */
   budgetConfigurationId?: string | undefined;
-  /** <Databricks> account ID. */
+  /** Databricks account ID. */
   accountId?: string | undefined;
-  /** Creation time of this budget configuration. */
+  /** Creation time of this budget configuration, in milliseconds since the Unix epoch. */
   createTime?: bigint | undefined;
-  /** Update time of this budget configuration. */
+  /** Time of the most recent update to this budget configuration, in milliseconds since the Unix epoch. */
   updateTime?: bigint | undefined;
   /**
    * Alerts to configure when this budget is in a triggered state. Budgets must have at least one alert configuration.
@@ -166,12 +184,13 @@ export interface BudgetConfiguration {
   /**
    * Configured filters for this budget. These are applied to your account's usage to limit the scope of what is considered for this budget.
    * Leave empty to include all usage for this account. All provided filters must be matched for usage to be included.
+   * The filter cannot be changed after the budget is created. To change it, delete the budget and create a new one.
    */
   filter?: BudgetConfigurationFilter | undefined;
   /** Human-readable name of budget configuration. Max Length: 128 */
   displayName?: string | undefined;
   /**
-   * Whether this budget tracks external pass-through spend (third-party costs billed through a <Databricks> product) in addition to internal <Databricks> spend.
+   * Whether this budget tracks external pass-through spend (third-party costs billed through a Databricks product) in addition to internal Databricks spend.
    * Only applicable to Unity Gateway budgets, i.e. when `resource_type` is `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`. This field is immutable after create.
    */
   includeExternalSpend?: boolean | undefined;
@@ -180,7 +199,7 @@ export interface BudgetConfiguration {
 }
 
 export interface BudgetConfigurationFilter {
-  /** If provided, usage must match with the provided <Databricks> workspace IDs. */
+  /** If provided, usage must match with the provided Databricks workspace IDs. */
   workspaceId?: BudgetConfigurationFilter_WorkspaceIdClause | undefined;
   /**
    * A list of tag keys and values that will limit the budget to usage that includes those specific custom tags.
@@ -191,19 +210,34 @@ export interface BudgetConfigurationFilter {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface BudgetConfigurationFilter_Clause {
+  /** How usage is compared with `values`. `IN` matches usage whose value is one of `values`. */
   operator?: BudgetConfigurationFilter_Operator | undefined;
+  /** Values to match. A clause can list up to 30 values. */
   values?: string[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface BudgetConfigurationFilter_TagClause {
+  /**
+   * The custom tag key to match, exactly as it appears in your usage data. A key can appear in at
+   * most one clause per operator.
+   */
   key?: string | undefined;
+  /**
+   * The tag values to match for `key`. Usage is included when its value for `key` is one of the
+   * listed values.
+   */
   value?: BudgetConfigurationFilter_Clause | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface BudgetConfigurationFilter_WorkspaceIdClause {
+  /** How usage is compared with `values`. `IN` matches usage from any of the listed workspaces. */
   operator?: BudgetConfigurationFilter_Operator | undefined;
+  /**
+   * IDs of the workspaces whose usage is included. A clause can list up to 30 workspaces, all of
+   * which must belong to this account.
+   */
   values?: bigint[] | undefined;
 }
 
@@ -222,8 +256,13 @@ export interface BudgetSpendStatus {
   alertSpendStatuses?: AlertSpendStatus[] | undefined;
 }
 
+/**
+ * A budget tracks the spend of your account, or of the workspaces and custom tags selected by its
+ * filter, against one or more alert thresholds. Spend is measured in US dollars at list price. For an
+ * overview, see https://docs.databricks.com/en/admin/account-settings/budgets.html.
+ */
 export interface CreateBudgetConfigurationBudget {
-  /** <Databricks> account ID. */
+  /** Databricks account ID. */
   accountId?: string | undefined;
   /**
    * Alerts to configure when this budget is in a triggered state. Budgets must have at least one alert configuration.
@@ -239,12 +278,13 @@ export interface CreateBudgetConfigurationBudget {
   /**
    * Configured filters for this budget. These are applied to your account's usage to limit the scope of what is considered for this budget.
    * Leave empty to include all usage for this account. All provided filters must be matched for usage to be included.
+   * The filter cannot be changed after the budget is created. To change it, delete the budget and create a new one.
    */
   filter?: BudgetConfigurationFilter | undefined;
   /** Human-readable name of budget configuration. Max Length: 128 */
   displayName?: string | undefined;
   /**
-   * Whether this budget tracks external pass-through spend (third-party costs billed through a <Databricks> product) in addition to internal <Databricks> spend.
+   * Whether this budget tracks external pass-through spend (third-party costs billed through a Databricks product) in addition to internal Databricks spend.
    * Only applicable to Unity Gateway budgets, i.e. when `resource_type` is `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`. This field is immutable after create.
    */
   includeExternalSpend?: boolean | undefined;
@@ -253,9 +293,16 @@ export interface CreateBudgetConfigurationBudget {
 }
 
 export interface CreateBudgetConfigurationBudgetActionConfigurations {
-  /** The type of the action. */
+  /**
+   * The action to take when the alert enters a triggered state. `EMAIL_NOTIFICATION` sends an email and
+   * `BLOCK_USAGE` blocks further usage. `BLOCK_USAGE` is only supported on Unity AI Gateway budgets, with
+   * `resource_type` set to `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`.
+   */
   actionType?: ActionConfigurationType | undefined;
-  /** Target for the action. For example, an email address. */
+  /**
+   * Target of the action. For `EMAIL_NOTIFICATION`, the email address that receives the alert, up to 256
+   * characters. Must be omitted for `BLOCK_USAGE`.
+   */
   target?: string | undefined;
 }
 
@@ -266,9 +313,15 @@ export interface CreateBudgetConfigurationBudgetAlertConfigurations {
   triggerType?: AlertConfigurationTriggerType | undefined;
   /** The way to calculate cost for this budget alert. This is what `quantity_threshold` is measured in. */
   quantityType?: AlertConfigurationQuantityType | undefined;
-  /** The threshold for the budget alert to determine if it is in a triggered state. The number is evaluated based on `quantity_type`. */
+  /**
+   * The threshold for the budget alert to determine if it is in a triggered state. The number is evaluated based on `quantity_type`.
+   * A decimal number passed as a string, from 0 to 1,000,000,000.
+   */
   quantityThreshold?: string | undefined;
-  /** Configured actions for this alert. These define what happens when an alert enters a triggered state. */
+  /**
+   * Configured actions for this alert. These define what happens when an alert enters a triggered state.
+   * An alert can have up to 10 actions.
+   */
   actionConfigurations?:
     | CreateBudgetConfigurationBudgetActionConfigurations[]
     | undefined;
@@ -293,9 +346,9 @@ export interface CreateBudgetConfigurationResponse {
  * Delete budget
  */
 export interface DeleteBudgetConfigurationRequest {
-  /** The <Databricks> budget configuration ID. */
+  /** The Databricks budget configuration ID. */
   budgetId?: string | undefined;
-  /** <Databricks> account ID. */
+  /** Databricks account ID. */
   accountId?: string | undefined;
 }
 
@@ -305,11 +358,12 @@ export interface DeleteBudgetConfigurationResponse {}
 export interface GetBudgetConfigurationRequest {
   /** The budget configuration ID */
   budgetId?: string | undefined;
-  /** <Databricks> account ID. */
+  /** Databricks account ID. */
   accountId?: string | undefined;
 }
 
 export interface GetBudgetConfigurationResponse {
+  /** The requested budget configuration. */
   budget?: BudgetConfiguration | undefined;
 }
 
@@ -324,7 +378,7 @@ export interface GetBudgetSpendStatusRequest {
 }
 
 export interface ListBudgetConfigurationsRequest {
-  /** <Databricks> account ID. */
+  /** Databricks account ID. */
   accountId?: string | undefined;
   /**
    * A page token received from a previous get all budget configurations call. This token can be used to retrieve the subsequent page.
@@ -387,10 +441,15 @@ export interface PrincipalOverride {
   overrideThreshold?: string | undefined;
 }
 
+/**
+ * A budget tracks the spend of your account, or of the workspaces and custom tags selected by its
+ * filter, against one or more alert thresholds. Spend is measured in US dollars at list price. For an
+ * overview, see https://docs.databricks.com/en/admin/account-settings/budgets.html.
+ */
 export interface UpdateBudgetConfigurationBudget {
-  /** <Databricks> budget configuration ID. */
+  /** Databricks budget configuration ID. */
   budgetConfigurationId?: string | undefined;
-  /** <Databricks> account ID. */
+  /** Databricks account ID. */
   accountId?: string | undefined;
   /**
    * Alerts to configure when this budget is in a triggered state. Budgets must have at least one alert configuration.
@@ -404,12 +463,13 @@ export interface UpdateBudgetConfigurationBudget {
   /**
    * Configured filters for this budget. These are applied to your account's usage to limit the scope of what is considered for this budget.
    * Leave empty to include all usage for this account. All provided filters must be matched for usage to be included.
+   * The filter cannot be changed after the budget is created. To change it, delete the budget and create a new one.
    */
   filter?: BudgetConfigurationFilter | undefined;
   /** Human-readable name of budget configuration. Max Length: 128 */
   displayName?: string | undefined;
   /**
-   * Whether this budget tracks external pass-through spend (third-party costs billed through a <Databricks> product) in addition to internal <Databricks> spend.
+   * Whether this budget tracks external pass-through spend (third-party costs billed through a Databricks product) in addition to internal Databricks spend.
    * Only applicable to Unity Gateway budgets, i.e. when `resource_type` is `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`. This field is immutable after create.
    */
   includeExternalSpend?: boolean | undefined;
@@ -418,9 +478,13 @@ export interface UpdateBudgetConfigurationBudget {
 }
 
 export interface UpdateBudgetConfigurationRequest {
-  /** The <Databricks> budget configuration ID. */
+  /** The Databricks budget configuration ID. */
   budgetId?: string | undefined;
-  /** The updated budget. This will overwrite the budget specified by the budget ID. */
+  /**
+   * The updated budget. This will overwrite the budget specified by the budget ID.
+   * Alerts and actions are matched by ID: those omitted from the request are removed, and those
+   * without an ID are created.
+   */
   budget?: UpdateBudgetConfigurationBudget | undefined;
 }
 

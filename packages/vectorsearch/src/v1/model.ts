@@ -226,12 +226,17 @@ export interface CreateEndpointRequest {
 }
 
 export interface CreateVectorIndexRequest {
-  /** Name of the index */
+  /** Three-level Unity Catalog name of the index to create. */
   name?: string | undefined;
   /** Name of the endpoint to be used for serving the index */
   endpointName?: string | undefined;
-  /** Primary key of the index */
+  /**
+   * Name of the column that uniquely identifies each row. For a Delta Sync index it is a column of
+   * the source table; for a Direct Vector Access index it must be declared in `schema_json`. It
+   * cannot be the embedding source or embedding vector column.
+   */
   primaryKey?: string | undefined;
+  /** Type of index to create, which determines which spec field is required. */
   indexType?: VectorIndexType | undefined;
   indexSpec?:
     | {
@@ -260,7 +265,7 @@ export interface CustomTag {
 export interface DeleteDataVectorIndexRequest {
   /** Name of the vector index where data is to be deleted. Must be a Direct Vector Access Index. */
   name?: string | undefined;
-  /** List of primary keys for the data to be deleted. */
+  /** Primary keys of the rows to delete. At least one key is required. */
   primaryKeys?: string[] | undefined;
 }
 
@@ -280,7 +285,7 @@ export interface DeleteEndpointRequest {
 export interface DeleteEndpointResponse {}
 
 export interface DeleteVectorIndexRequest {
-  /** Name of the index */
+  /** Three-level Unity Catalog name of the index. */
   name?: string | undefined;
 }
 
@@ -288,11 +293,19 @@ export interface DeleteVectorIndexRequest {
 export interface DeleteVectorIndexResponse {}
 
 export interface DeltaSyncVectorIndexSpec {
-  /** The name of the source table. */
+  /** Three-level Unity Catalog name of the source table that the index is synced from. */
   sourceTable?: string | undefined;
-  /** The columns that contain the embedding source. */
+  /**
+   * The source table column whose text Databricks embeds, together with the embedding model
+   * endpoint to use. Set this for an index with Databricks-managed embeddings. Exactly one of
+   * `embedding_source_columns` or `embedding_vector_columns` must be specified unless the index
+   * subtype is `FULL_TEXT`, and only one column is supported.
+   */
   embeddingSourceColumns?: EmbeddingSourceColumn[] | undefined;
-  /** The columns that contain the embedding vectors. */
+  /**
+   * The source table column that contains precomputed embedding vectors. Set this instead of
+   * `embedding_source_columns` for an index with self-managed embeddings.
+   */
   embeddingVectorColumns?: EmbeddingVectorColumn[] | undefined;
   /**
    * Pipeline execution mode.
@@ -320,11 +333,19 @@ export interface DeltaSyncVectorIndexSpec {
 }
 
 export interface DeltaSyncVectorIndexSpecRequest {
-  /** The name of the source table. */
+  /** Three-level Unity Catalog name of the source table that the index is synced from. */
   sourceTable?: string | undefined;
-  /** The columns that contain the embedding source. */
+  /**
+   * The source table column whose text Databricks embeds, together with the embedding model
+   * endpoint to use. Set this for an index with Databricks-managed embeddings. Exactly one of
+   * `embedding_source_columns` or `embedding_vector_columns` must be specified unless the index
+   * subtype is `FULL_TEXT`, and only one column is supported.
+   */
   embeddingSourceColumns?: EmbeddingSourceColumn[] | undefined;
-  /** The columns that contain the embedding vectors. */
+  /**
+   * The source table column that contains precomputed embedding vectors. Set this instead of
+   * `embedding_source_columns` for an index with self-managed embeddings.
+   */
   embeddingVectorColumns?: EmbeddingVectorColumn[] | undefined;
   /**
    * Pipeline execution mode.
@@ -352,20 +373,28 @@ export interface DeltaSyncVectorIndexSpecRequest {
 }
 
 export interface DirectAccessVectorIndexSpec {
-  /** The columns that contain the embedding vectors. The format should be array[double]. */
+  /**
+   * The column that holds the embedding vectors you write to the index. Exactly one column must be
+   * specified, and `schema_json` must declare it as `array<float>` or `array<double>`.
+   */
   embeddingVectorColumns?: EmbeddingVectorColumn[] | undefined;
   /**
-   * The schema of the index in JSON format.
+   * JSON object that maps each column name of the index to its type, serialized to a string. The
+   * primary key and the embedding vector column must be present.
    * Supported types are `integer`, `long`, `float`, `double`, `boolean`, `string`, `date`, `timestamp`.
-   * Supported types for vector column: `array<float>`, `array<double>`,`.
+   * Supported types for vector column: `array<float>`, `array<double>`.
    */
   schemaJson?: string | undefined;
-  /** The columns that contain the embedding source. The format should be array[double]. */
+  /**
+   * Embedding source configuration used to embed `query_text` when the index is queried with text,
+   * naming the embedding model endpoint to use. The index stores the vectors you supply through
+   * upsert; this setting never computes embeddings for them.
+   */
   embeddingSourceColumns?: EmbeddingSourceColumn[] | undefined;
 }
 
 export interface EmbeddingSourceColumn {
-  /** Name of the column */
+  /** Name of the column that contains the text to embed. */
   name?: string | undefined;
   /** TODO: clean up ai gateway related code. It's deprecated on ModelServing side. */
   embeddingConfig?:
@@ -380,7 +409,7 @@ export interface EmbeddingSourceColumn {
 }
 
 export interface EmbeddingVectorColumn {
-  /** Name of the column */
+  /** Name of the column that contains the embedding vectors. */
   name?: string | undefined;
   /** Dimension of the embedding vector */
   embeddingDimension?: number | undefined;
@@ -509,7 +538,7 @@ export interface GetEndpointRequest {
 }
 
 export interface GetVectorIndexRequest {
-  /** Name of the index */
+  /** Three-level Unity Catalog name of the index. */
   name?: string | undefined;
   /**
    * If true, the URL returned for the index is guaranteed to be compatible with the reranker.
@@ -538,13 +567,17 @@ export interface ListValue {
 }
 
 export interface ListVectorIndexRequest {
-  /** Name of the endpoint */
+  /** Name of the endpoint whose indexes to list. */
   endpointName?: string | undefined;
-  /** Token for pagination */
+  /** Page token returned by a previous call, used to get the next page of results. */
   pageToken?: string | undefined;
 }
 
 export interface ListVectorIndexResponse {
+  /**
+   * Indexes served by the endpoint. Each entry is a summary without the index specification and
+   * status; use Get an index to retrieve them.
+   */
   vectorIndexes?: MiniVectorIndex[] | undefined;
   /** A token that can be used to get the next page of results. If not present, there are no more results to show. */
   nextPageToken?: string | undefined;
@@ -560,60 +593,103 @@ export interface MapStringValueEntry {
 
 /** Metric specification */
 export interface Metric {
-  /** Metric name */
+  /**
+   * Metric name. Supported metrics include: `EndpointHealthStatus`, `EndpointConcurrency`,
+   * `IndexRequestCount`, `IndexRequestLatency`, `IndexRequestErrorSourceCount`,
+   * `IndexRequestGuidanceCount`, `IndexRequestGuidancePeakRate`, `IndexIngestedRows`, and
+   * `IndexEmbeddedRows`.
+   * An unknown name is rejected with an error that lists the available metric names.
+   */
   name?: string | undefined;
-  /** Metric labels */
+  /**
+   * Labels that restrict the metric to matching series, for example to a single index.
+   * Endpoint-level metrics do not accept labels.
+   */
   labels?: MetricLabel[] | undefined;
-  /** Percentile for the metric */
+  /**
+   * Percentile for latency metrics, such as `IndexRequestLatency`, which require it. One of 0.5,
+   * 0.75, 0.9, 0.95, or 0.99.
+   */
   percentile?: number | undefined;
 }
 
 /** Label for a metric */
 export interface MetricLabel {
-  /** Label name */
+  /**
+   * Label name, such as `error_source`, `failure_cause`, `operation`, `request_path`,
+   * `query_type`, `response_code`, or `index_name`. Supported labels depend on the metric.
+   */
   name?: string | undefined;
-  /** Label value */
+  /**
+   * Label value, as an RE2 regular expression. The label also splits the result by its values,
+   * so `.+` returns one series per value. Some labels, such as `operation`, accept only `.+`,
+   * `.*`, or listed values joined by `|`.
+   */
   value?: string | undefined;
 }
 
 /** Single metric value at a specific timestamp */
 export interface MetricValue {
-  /** Timestamp of the metric value (milliseconds since epoch) */
+  /** Timestamp of the metric value, in seconds since the Unix epoch. */
   timestamp?: bigint | undefined;
-  /** Metric value */
+  /** Value of the metric at `timestamp`. */
   value?: number | undefined;
 }
 
 /** Collection of metric values for a specific metric */
 export interface MetricValues {
-  /** Metric specification */
+  /** The metric this time series was computed for, including the labels that identify the series. */
   metric?: Metric | undefined;
-  /** Time series of metric values */
+  /** Each entry is one data point of the time series. */
   values?: MetricValue[] | undefined;
 }
 
+/**
+ * An AI Search index stores vectors and metadata on an endpoint and serves vector similarity,
+ * full-text and hybrid search queries over them. A Delta Sync index is kept in sync with a source
+ * table, with embeddings either computed by Databricks from a text column or supplied by you in a
+ * vector column; a Direct Vector Access index holds rows that you write through the upsert and
+ * delete data APIs. See https://docs.databricks.com/aws/en/ai-search/create-ai-search for how to
+ * choose between them.
+ */
 export interface MiniVectorIndex {
-  /** Name of the index */
+  /** Three-level Unity Catalog name of the index. */
   name?: string | undefined;
-  /** Name of the endpoint associated with the index */
+  /** Name of the endpoint that serves the index. */
   endpointName?: string | undefined;
-  /** Primary key of the index */
+  /** Name of the column that uniquely identifies each row of the index. */
   primaryKey?: string | undefined;
+  /**
+   * Type of the index, which determines whether `delta_sync_index_spec` or
+   * `direct_access_index_spec` describes it.
+   */
   indexType?: VectorIndexType | undefined;
   indexSpec?:
     | {
         $case: 'directAccessIndexSpec';
+        /**
+         * Specification of a Direct Vector Access index. Present only when `index_type` is
+         * `DIRECT_ACCESS`.
+         */
         directAccessIndexSpec: DirectAccessVectorIndexSpec;
       }
     | {
         $case: 'deltaSyncIndexSpec';
+        /** Specification of a Delta Sync index. Present only when `index_type` is `DELTA_SYNC`. */
         deltaSyncIndexSpec: DeltaSyncVectorIndexSpec;
       }
     | undefined;
+  /**
+   * Current status of the index, including whether it is ready to serve queries and how many rows
+   * it holds.
+   */
   status?: VectorIndexStatus | undefined;
   /** The user who created the index. */
   creator?: string | undefined;
-  /** The subtype of the index. */
+  /**
+   * Subtype of the index. A `HYBRID` index supports vector similarity, full-text and hybrid
+   * queries; a `FULL_TEXT` index has no embeddings and supports only full-text queries.
+   */
   indexSubtype?: IndexSubtype | undefined;
   /** ID of the endpoint associated with the index. */
   endpointId?: string | undefined;
@@ -647,7 +723,7 @@ export interface PatchEndpointRequest {
 export interface QueryVectorIndexNextPageRequest {
   /** Name of the vector index to query. */
   name?: string | undefined;
-  /** Name of the endpoint. */
+  /** Name of the endpoint that serves the index. */
   endpointName?: string | undefined;
   /** Page token returned from previous `QueryVectorIndex` or `QueryVectorIndexNextPage` API. */
   pageToken?: string | undefined;
@@ -656,25 +732,38 @@ export interface QueryVectorIndexNextPageRequest {
 export interface QueryVectorIndexRequest {
   /** Name of the vector index to query. */
   name?: string | undefined;
-  /** Number of results to return. Defaults to 10. */
+  /**
+   * Maximum number of results to return. It must be greater than 0 and defaults to 10. By default,
+   * a `HYBRID` query can return at most 200 results.
+   */
   numResults?: number | undefined;
-  /** List of column names to include in the response. */
+  /**
+   * Names of the columns to return for each result. At least one column is required, and only
+   * columns that are part of the index can be returned.
+   */
   columns?: string[] | undefined;
   /**
-   * JSON string representing query filters.
-   *
-   * Example filters:
-   *
-   * - `{"id <": 5}`: Filter for id less than 5.
-   * - `{"id >": 5}`: Filter for id greater than 5.
-   * - `{"id <=": 5}`: Filter for id less than equal to 5.
-   * - `{"id >=": 5}`: Filter for id greater than equal to 5.
-   * - `{"id": 5}`: Filter for id equal to 5.
+   * Filters to apply to the results, as a JSON object serialized to a string. Each key is a column
+   * name, optionally followed by a space and an operator, and each value is the value or list of
+   * values to compare the column against. A key without an operator matches the value exactly, or
+   * any of the listed values. Supported operators are `NOT`, `<`, `<=`, `>`, `>=`, `OR` and `LIKE`;
+   * see https://docs.databricks.com/aws/en/ai-search/query-ai-search for their semantics. This
+   * field is not supported on storage-optimized endpoints.
    */
   filtersJson?: string | undefined;
-  /** Query vector. Required for Direct Vector Access Index and Delta Sync Index using self-managed vectors. */
+  /**
+   * Embedding vector to search for. Use it for an index whose embeddings you compute yourself: a
+   * Direct Vector Access index or a Delta Sync index with `embedding_vector_columns`. A `HYBRID`
+   * query on a Delta Sync index with `embedding_vector_columns`, or on a Direct Vector Access index
+   * without `embedding_source_columns`, requires both `query_vector` and `query_text`. A Direct
+   * Vector Access index with `embedding_source_columns` can be queried with `query_text` alone.
+   */
   queryVector?: number[] | undefined;
-  /** Query text. Required for Delta Sync Index using model endpoint. */
+  /**
+   * Text to search for. Use it for an index with Databricks-managed embeddings, which embeds the
+   * text with the index's embedding model endpoint, and for `FULL_TEXT` queries on any index. A
+   * `HYBRID` query on an index with managed embeddings requires only `query_text`.
+   */
   queryText?: string | undefined;
   /** Threshold for the approximate nearest neighbor search. Defaults to 0.0. */
   scoreThreshold?: number | undefined;
@@ -734,6 +823,10 @@ export interface RerankerConfig {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface RerankerConfig_RerankerParameters {
+  /**
+   * Names of the columns whose values are sent to the reranker. List the most relevant column
+   * first, since the order affects the ranking.
+   */
   columnsToRerank?: string[] | undefined;
 }
 
@@ -759,25 +852,35 @@ export interface ResultManifest {
 
 /** Request to retrieve user-visible metrics */
 export interface RetrieveUserVisibleMetricsRequest {
-  /** AI Search endpoint name */
+  /** Name of the endpoint whose metrics to retrieve. */
   name?: string | undefined;
-  /** Start time for metrics query */
+  /** Start of the time range. Required. Must be within the last 169 hours. */
   startTime?: Temporal.Instant | undefined;
-  /** End time for metrics query */
+  /** End of the time range. Defaults to the current time. Must be later than `start_time`. */
   endTime?: Temporal.Instant | undefined;
-  /** Granularity in seconds */
+  /**
+   * Requested interval between data points, in seconds. Defaults to 60, which is also the minimum.
+   * The server may return a finer or coarser interval: 60 seconds only for time ranges of 1 hour or
+   * less, otherwise 300 seconds or more. Read the interval from the returned timestamps.
+   */
   granularityInSeconds?: number | undefined;
-  /** List of metrics to retrieve */
+  /**
+   * Metrics to retrieve. Each entry names a metric and optionally narrows it with labels or a
+   * percentile. An unknown metric name fails the whole request, and an empty list returns no series.
+   */
   metrics?: Metric[] | undefined;
-  /** Token for pagination */
+  /** Not used. The response returns all data points in one page. */
   pageToken?: string | undefined;
 }
 
 /** Response containing user-visible metrics */
 export interface RetrieveUserVisibleMetricsResponse {
-  /** Collection of metric values */
+  /**
+   * One time series for each requested metric and each combination of label values it was broken
+   * down by.
+   */
   metricValues?: MetricValues[] | undefined;
-  /** A token that can be used to get the next page of results. If not present, there are no more results to show. */
+  /** Not set. The response returns all data points in one page. */
   nextPageToken?: string | undefined;
 }
 
@@ -838,7 +941,11 @@ export interface UpdateEndpointCustomTagsResponse {
 export interface UpsertDataVectorIndexRequest {
   /** Name of the vector index where data is to be upserted. Must be a Direct Vector Access Index. */
   name?: string | undefined;
-  /** JSON string representing the data to be upserted. */
+  /**
+   * Rows to upsert, as a JSON array of objects serialized to a string. Each object maps column
+   * names from `schema_json` to values and must include the primary key. A row whose primary key
+   * already exists in the index is replaced.
+   */
   inputsJson?: string | undefined;
 }
 
@@ -867,28 +974,52 @@ export interface Value {
     | undefined;
 }
 
+/**
+ * An AI Search index stores vectors and metadata on an endpoint and serves vector similarity,
+ * full-text and hybrid search queries over them. A Delta Sync index is kept in sync with a source
+ * table, with embeddings either computed by Databricks from a text column or supplied by you in a
+ * vector column; a Direct Vector Access index holds rows that you write through the upsert and
+ * delete data APIs. See https://docs.databricks.com/aws/en/ai-search/create-ai-search for how to
+ * choose between them.
+ */
 export interface VectorIndex {
-  /** Name of the index */
+  /** Three-level Unity Catalog name of the index. */
   name?: string | undefined;
-  /** Name of the endpoint associated with the index */
+  /** Name of the endpoint that serves the index. */
   endpointName?: string | undefined;
-  /** Primary key of the index */
+  /** Name of the column that uniquely identifies each row of the index. */
   primaryKey?: string | undefined;
+  /**
+   * Type of the index, which determines whether `delta_sync_index_spec` or
+   * `direct_access_index_spec` describes it.
+   */
   indexType?: VectorIndexType | undefined;
   indexSpec?:
     | {
         $case: 'directAccessIndexSpec';
+        /**
+         * Specification of a Direct Vector Access index. Present only when `index_type` is
+         * `DIRECT_ACCESS`.
+         */
         directAccessIndexSpec: DirectAccessVectorIndexSpec;
       }
     | {
         $case: 'deltaSyncIndexSpec';
+        /** Specification of a Delta Sync index. Present only when `index_type` is `DELTA_SYNC`. */
         deltaSyncIndexSpec: DeltaSyncVectorIndexSpec;
       }
     | undefined;
+  /**
+   * Current status of the index, including whether it is ready to serve queries and how many rows
+   * it holds.
+   */
   status?: VectorIndexStatus | undefined;
   /** The user who created the index. */
   creator?: string | undefined;
-  /** The subtype of the index. */
+  /**
+   * Subtype of the index. A `HYBRID` index supports vector similarity, full-text and hybrid
+   * queries; a `FULL_TEXT` index has no embeddings and supports only full-text queries.
+   */
   indexSubtype?: IndexSubtype | undefined;
   /** ID of the endpoint associated with the index. */
   endpointId?: string | undefined;
@@ -897,7 +1028,7 @@ export interface VectorIndex {
 export interface VectorIndexStatus {
   /** Lifecycle and ingestion state. An online index can still have a failed update. */
   detailedState?: IndexStatus | undefined;
-  /** Message associated with the index status */
+  /** Human-readable description of the current status. */
   message?: string | undefined;
   /** Number of rows indexed */
   indexedRowCount?: bigint | undefined;

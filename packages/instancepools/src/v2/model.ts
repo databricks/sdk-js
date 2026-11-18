@@ -375,11 +375,9 @@ export interface GetInstancePoolResponse {
    *
    * - Vendor: <Databricks>
    *
-   * - InstancePoolCreator: <user_id_of_creator>
+   * - DatabricksInstancePoolCreatorId: <user_id_of_creator>
    *
-   * - InstancePoolName: <name_of_pool>
-   *
-   * - InstancePoolId: <id_of_pool>
+   * - DatabricksInstancePoolId: <id_of_pool>
    */
   defaultTags?: Record<string, string> | undefined;
   /** Current state of the instance pool. */
@@ -473,11 +471,9 @@ export interface InstancePoolAndStats {
    *
    * - Vendor: <Databricks>
    *
-   * - InstancePoolCreator: <user_id_of_creator>
+   * - DatabricksInstancePoolCreatorId: <user_id_of_creator>
    *
-   * - InstancePoolName: <name_of_pool>
-   *
-   * - InstancePoolId: <id_of_pool>
+   * - DatabricksInstancePoolId: <id_of_pool>
    */
   defaultTags?: Record<string, string> | undefined;
   /** Current state of the instance pool. */
