@@ -639,6 +639,7 @@ export interface DeleteStorageCredentialResponse {}
  * Read more at https://developers.google.com/identity/protocols/oauth2/service-account
  */
 export interface GcpOauthToken {
+  /** The OAuth 2.0 access token to pass as a bearer token to Google Cloud APIs. */
   oauthToken?: string | undefined;
 }
 
@@ -671,14 +672,31 @@ export interface GenerateTemporaryPathCredentialRequest {
 export interface GenerateTemporaryPathCredentialResponse {
   /** The temporary credential. */
   credentials?:
-    | {$case: 'awsTempCredentials'; awsTempCredentials: TemporaryAwsCredentials}
+    | {
+        $case: 'awsTempCredentials';
+        /** Temporary AWS credentials that can be used to sign AWS API requests. */
+        awsTempCredentials: TemporaryAwsCredentials;
+      }
     | {
         $case: 'azureUserDelegationSas';
+        /** An Azure user delegation shared access signature (SAS) that grants access to the requested storage path. */
         azureUserDelegationSas: AzureUserDelegationSas;
       }
-    | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
-    | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
-    | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
+    | {
+        $case: 'gcpOauthToken';
+        /** A GCP OAuth 2.0 access token that is issued for the credential's service account. */
+        gcpOauthToken: GcpOauthToken;
+      }
+    | {
+        $case: 'azureAad';
+        /** A Microsoft Entra ID (formerly Azure Active Directory) token that is issued for the credential's identity. */
+        azureAad: AzureActiveDirectoryToken;
+      }
+    | {
+        $case: 'r2TempCredentials';
+        /** Temporary Cloudflare R2 credentials that can be used with the R2 S3-compatible API. */
+        r2TempCredentials: R2Credentials;
+      }
     | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
@@ -695,10 +713,18 @@ export interface GenerateTemporaryServiceCredentialRequest {
   options?:
     | {
         $case: 'azureOptions';
+        /**
+         * Options for an Azure service credential. They are required when the service credential uses an Azure managed
+         * identity.
+         */
         azureOptions: GenerateTemporaryServiceCredentialRequest_AzureOptions;
       }
     | {
         $case: 'gcpOptions';
+        /**
+         * Options for a GCP service credential. They are required when the service credential uses a <Databricks>-managed GCP
+         * service account.
+         */
         gcpOptions: GenerateTemporaryServiceCredentialRequest_GcpOptions;
       }
     | undefined;
@@ -709,7 +735,8 @@ export interface GenerateTemporaryServiceCredentialRequest {
 export interface GenerateTemporaryServiceCredentialRequest_AzureOptions {
   /**
    * The resources to which the temporary Azure credential should apply. These resources
-   * are the scopes that are passed to the token provider (see https://learn.microsoft.com/python/api/azure-core/azure.core.credentials.tokencredential?view=azure-python)
+   * are the scopes that are passed to the token provider (see https://learn.microsoft.com/python/api/azure-core/azure.core.credentials.tokencredential?view=azure-python).
+   * Exactly one resource is supported, and its URL must end with the `.default` scope.
    */
   resources?: string[] | undefined;
 }
@@ -720,7 +747,8 @@ export interface GenerateTemporaryServiceCredentialRequest_GcpOptions {
   /**
    * The scopes to which the temporary GCP credential should apply. These resources
    * are the scopes that are passed to the token provider (see
-   * https://google-auth.readthedocs.io/en/latest/reference/google.auth.html#google.auth.credentials.Credentials)
+   * https://google-auth.readthedocs.io/en/latest/reference/google.auth.html#google.auth.credentials.Credentials).
+   * Each scope must be a Google OAuth 2.0 scope URL on the `googleapis.com` or `www.googleapis.com` host.
    */
   scopes?: string[] | undefined;
 }
@@ -738,14 +766,31 @@ export interface GenerateTemporaryTableCredentialRequest {
 export interface GenerateTemporaryTableCredentialResponse {
   /** The temporary credential. */
   credentials?:
-    | {$case: 'awsTempCredentials'; awsTempCredentials: TemporaryAwsCredentials}
+    | {
+        $case: 'awsTempCredentials';
+        /** Temporary AWS credentials that can be used to sign AWS API requests. */
+        awsTempCredentials: TemporaryAwsCredentials;
+      }
     | {
         $case: 'azureUserDelegationSas';
+        /** An Azure user delegation shared access signature (SAS) that grants access to the requested storage path. */
         azureUserDelegationSas: AzureUserDelegationSas;
       }
-    | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
-    | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
-    | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
+    | {
+        $case: 'gcpOauthToken';
+        /** A GCP OAuth 2.0 access token that is issued for the credential's service account. */
+        gcpOauthToken: GcpOauthToken;
+      }
+    | {
+        $case: 'azureAad';
+        /** A Microsoft Entra ID (formerly Azure Active Directory) token that is issued for the credential's identity. */
+        azureAad: AzureActiveDirectoryToken;
+      }
+    | {
+        $case: 'r2TempCredentials';
+        /** Temporary Cloudflare R2 credentials that can be used with the R2 S3-compatible API. */
+        r2TempCredentials: R2Credentials;
+      }
     | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
@@ -770,14 +815,31 @@ export interface GenerateTemporaryVolumeCredentialRequest {
 export interface GenerateTemporaryVolumeCredentialResponse {
   /** The temporary credential. */
   credentials?:
-    | {$case: 'awsTempCredentials'; awsTempCredentials: TemporaryAwsCredentials}
+    | {
+        $case: 'awsTempCredentials';
+        /** Temporary AWS credentials that can be used to sign AWS API requests. */
+        awsTempCredentials: TemporaryAwsCredentials;
+      }
     | {
         $case: 'azureUserDelegationSas';
+        /** An Azure user delegation shared access signature (SAS) that grants access to the requested storage path. */
         azureUserDelegationSas: AzureUserDelegationSas;
       }
-    | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
-    | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
-    | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
+    | {
+        $case: 'gcpOauthToken';
+        /** A GCP OAuth 2.0 access token that is issued for the credential's service account. */
+        gcpOauthToken: GcpOauthToken;
+      }
+    | {
+        $case: 'azureAad';
+        /** A Microsoft Entra ID (formerly Azure Active Directory) token that is issued for the credential's identity. */
+        azureAad: AzureActiveDirectoryToken;
+      }
+    | {
+        $case: 'r2TempCredentials';
+        /** Temporary Cloudflare R2 credentials that can be used with the R2 S3-compatible API. */
+        r2TempCredentials: R2Credentials;
+      }
     | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
@@ -1003,14 +1065,31 @@ export interface TemporaryAwsCredentials {
 export interface TemporaryCredentials {
   /** The temporary credential. */
   credentials?:
-    | {$case: 'awsTempCredentials'; awsTempCredentials: TemporaryAwsCredentials}
+    | {
+        $case: 'awsTempCredentials';
+        /** Temporary AWS credentials that can be used to sign AWS API requests. */
+        awsTempCredentials: TemporaryAwsCredentials;
+      }
     | {
         $case: 'azureUserDelegationSas';
+        /** An Azure user delegation shared access signature (SAS) that grants access to the requested storage path. */
         azureUserDelegationSas: AzureUserDelegationSas;
       }
-    | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
-    | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
-    | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
+    | {
+        $case: 'gcpOauthToken';
+        /** A GCP OAuth 2.0 access token that is issued for the credential's service account. */
+        gcpOauthToken: GcpOauthToken;
+      }
+    | {
+        $case: 'azureAad';
+        /** A Microsoft Entra ID (formerly Azure Active Directory) token that is issued for the credential's identity. */
+        azureAad: AzureActiveDirectoryToken;
+      }
+    | {
+        $case: 'r2TempCredentials';
+        /** Temporary Cloudflare R2 credentials that can be used with the R2 S3-compatible API. */
+        r2TempCredentials: R2Credentials;
+      }
     | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.

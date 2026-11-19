@@ -24,34 +24,49 @@ export type UsageDashboardType =
   | (string & {});
 
 export interface CreateBillingUsageDashboardRequest {
-  /** The workspace ID of the workspace in which the usage dashboard is created. */
+  /**
+   * The ID of the workspace to import the usage dashboard into. The workspace must be running, belong
+   * to the account, and not be a disaster recovery secondary.
+   */
   workspaceId?: bigint | undefined;
   /** <Databricks> account ID. */
   accountId?: string | undefined;
-  /** Workspace level usage dashboard shows usage data for the specified workspace ID. Global level usage dashboard shows usage data for all workspaces in the account. */
+  /**
+   * Workspace level usage dashboard shows usage data for the specified workspace ID. Global level usage dashboard shows usage data for all workspaces in the account.
+   * The request fails if the type is not set.
+   */
   dashboardType?: UsageDashboardType | undefined;
-  /** The major version of the usage dashboard template to use. Defaults to VERSION_1. */
+  /**
+   * The major version of the usage dashboard template to import. Version 2 adds cost forecasting and
+   * object-level cost drill-down.
+   */
   majorVersion?: UsageDashboardMajorVersion | undefined;
 }
 
 export interface CreateBillingUsageDashboardResponse {
-  /** The unique id of the usage dashboard. */
+  /** The ID of the AI/BI dashboard that was created. */
   dashboardId?: string | undefined;
 }
 
 export interface GetBillingUsageDashboardRequest {
-  /** The workspace ID of the workspace in which the usage dashboard is created. */
+  /**
+   * The ID of the workspace that contains the usage dashboard. If omitted, the most recently created
+   * dashboard of the given type across all workspaces in the account is returned.
+   */
   workspaceId?: bigint | undefined;
   /** <Databricks> account ID. */
   accountId?: string | undefined;
-  /** Workspace level usage dashboard shows usage data for the specified workspace ID. Global level usage dashboard shows usage data for all workspaces in the account. */
+  /**
+   * Workspace level usage dashboard shows usage data for the specified workspace ID. Global level usage dashboard shows usage data for all workspaces in the account.
+   * The request fails if the type is not set.
+   */
   dashboardType?: UsageDashboardType | undefined;
 }
 
 export interface GetBillingUsageDashboardResponse {
-  /** The unique id of the usage dashboard. */
+  /** The ID of the AI/BI dashboard. The ID is empty if no matching dashboard is found. */
   dashboardId?: string | undefined;
-  /** The URL of the usage dashboard. */
+  /** The URL of the dashboard in its workspace. The URL is empty if no matching dashboard is found. */
   dashboardUrl?: string | undefined;
 }
 

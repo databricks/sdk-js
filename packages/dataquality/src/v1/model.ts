@@ -130,7 +130,7 @@ export type RefreshTrigger =
 
 /** Anomaly Detection Configurations. */
 export interface AnomalyDetectionConfig {
-  /** List of fully qualified table names to exclude from anomaly detection. */
+  /** List of fully qualified table names to exclude from anomaly detection. Format: `catalog.schema.table_name`. */
   excludedTableFullNames?: string[] | undefined;
   /**
    * Who to alert when anomaly detection finds unhealthy tables in this schema. Applicable to
@@ -191,9 +191,8 @@ export interface CronSchedule {
   /** The expression that determines when to run the monitor. See [examples](https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html). */
   quartzCronExpression?: string | undefined;
   /**
-   * A Java timezone id. The schedule for a job will be resolved with respect to this timezone.
-   * See `Java TimeZone <http://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html>`_ for details.
-   * The timezone id (e.g., ``America/Los_Angeles``) in which to evaluate the quartz expression.
+   * The Java timezone ID in which the cron expression is evaluated. See
+   * [Java TimeZone](https://docs.oracle.com/javase/8/docs/api/java/util/TimeZone.html) for the supported IDs.
    */
   timezoneId?: string | undefined;
   /** Read only field that indicates whether the schedule is paused or not. */
@@ -202,62 +201,86 @@ export interface CronSchedule {
 
 /** Data Profiling Configurations. */
 export interface DataProfilingConfig {
-  /** ID of the schema where output tables are created. */
+  /**
+   * The UUID of the Unity Catalog schema where the profile and drift metrics tables
+   * are created.
+   */
   outputSchemaId?: string | undefined;
   /**
-   * Field for specifying the absolute path to a custom directory to store data-monitoring
-   * assets. Normally prepopulated to a default user location via UI and Python APIs.
+   * The absolute workspace path of the directory where the monitor's assets, such as
+   * the dashboard, are stored. The UI and the Python APIs normally prepopulate a default user location.
    */
   assetsDir?: string | undefined;
   /** (--[Create:REQ Update:REQ]--) Analysis config which is used to determine analysis logic. */
   analysisConfig?:
     | {
         $case: 'inferenceLog';
-        /** `Analysis Configuration` for monitoring inference log tables. */
+        /**
+         * Profiles an inference log table, which stores the requests and predictions of a model. Metrics are
+         * computed per time window and include model quality metrics.
+         */
         inferenceLog: InferenceLogConfig;
       }
     | {
         $case: 'timeSeries';
-        /** `Analysis Configuration` for monitoring time series tables. */
+        /**
+         * Profiles a time series table. Metrics are computed per time window, as defined by `timestamp_column`
+         * and `granularities`.
+         */
         timeSeries: TimeSeriesConfig;
       }
     | {
         $case: 'snapshot';
-        /** `Analysis Configuration` for monitoring snapshot tables. */
+        /** Profiles the full contents of the table. Metrics are computed over all rows at each refresh. */
         snapshot: SnapshotConfig;
       }
     | undefined;
   /**
    * List of column expressions to slice data with for targeted analysis. The data is grouped by
    * each expression independently, resulting in a separate slice for each predicate and its
-   * complements. For example `slicing_exprs=[“col_1”, “col_2 > 10”]` will generate the following
+   * complements. For example `slicing_exprs=["col_1", "col_2 > 10"]` will generate the following
    * slices: two slices for `col_2 > 10` (True and False), and one slice per unique value in
-   * `col1`. For high-cardinality columns, only the top 100 unique values by frequency will
+   * `col_1`. For high-cardinality columns, only the top 100 unique values by frequency will
    * generate slices.
    */
   slicingExprs?: string[] | undefined;
-  /** Custom metrics. */
+  /**
+   * Custom metrics to compute in addition to the built-in ones. See
+   * [custom metrics](https://docs.databricks.com/aws/en/data-governance/unity-catalog/data-quality-monitoring/data-profiling/custom-metrics).
+   */
   customMetrics?: DataProfilingCustomMetric[] | undefined;
   /**
-   * Baseline table name.
-   * Baseline data is used to compute drift from the data in the monitored `table_name`.
-   * The baseline table and the monitored table shall have the same schema.
+   * The fully qualified name of a baseline table. Format: `catalog.schema.table_name`.
+   * Drift metrics compare the monitored table against the baseline data, so the two tables must have the same
+   * schema.
    */
   baselineTableName?: string | undefined;
-  /** The cron schedule. */
+  /**
+   * The schedule on which the monitor refreshes its metrics. Refreshes can also be
+   * triggered on demand through the Refresh resource.
+   */
   schedule?: CronSchedule | undefined;
-  /** Field for specifying notification settings. */
+  /**
+   * Who to notify about this monitor's refreshes. Only `on_failure` with
+   * `email_addresses` is supported here.
+   */
   notificationSettings?: NotificationSettings | undefined;
   /** Whether to skip creating a default dashboard summarizing data quality metrics. */
   skipBuiltinDashboard?: boolean | undefined;
   /**
-   * Optional argument to specify the warehouse for dashboard creation. If not specified, the first running
-   * warehouse will be used.
+   * The ID of the SQL warehouse used to create the dashboard. If not specified, the first running warehouse the
+   * caller can access is used.
    */
   warehouseId?: string | undefined;
-  /** Unity Catalog table to monitor. Format: `catalog.schema.table_name` */
+  /** The fully qualified name of the monitored table. Format: `catalog.schema.table_name`. */
   monitoredTableName?: string | undefined;
-  /** The data profiling monitor status. */
+  /**
+   * The status of the monitor. `DATA_PROFILING_STATUS_PENDING` means the monitor's
+   * assets are being created or updated. `DATA_PROFILING_STATUS_ACTIVE` means the monitor is ready and can be
+   * refreshed. `DATA_PROFILING_STATUS_FAILED` and `DATA_PROFILING_STATUS_ERROR` mean the monitor is not
+   * operational, and `latest_monitor_failure_message` describes the cause when one was recorded.
+   * `DATA_PROFILING_STATUS_DELETE_PENDING` means the monitor is being deleted.
+   */
   status?: DataProfilingStatus | undefined;
   /** The latest error message for a monitor failure. */
   latestMonitorFailureMessage?: string | undefined;
@@ -266,8 +289,9 @@ export interface DataProfilingConfig {
   /** Table that stores drift metrics data. Format: `catalog.schema.table_name`. */
   driftMetricsTableName?: string | undefined;
   /**
-   * Id of dashboard that visualizes the computed metrics.
-   * This can be empty if the monitor is in PENDING state.
+   * The ID of the dashboard that visualizes the computed metrics. It is empty while
+   * the monitor is pending, when the dashboard was skipped with `skip_builtin_dashboard`, or when the caller is in
+   * a different workspace from the one where the monitor was created.
    */
   dashboardId?: string | undefined;
   /**
@@ -288,12 +312,20 @@ export interface DataProfilingCustomMetric {
   definition?: string | undefined;
   /**
    * A list of column names in the input table the metric should be computed for.
-   * Can use ``":table"`` to indicate that the metric needs information from multiple columns.
+   * Can use `":table"` to indicate that the metric needs information from multiple columns.
    */
   inputColumns?: string[] | undefined;
-  /** The output type of the custom metric. */
+  /**
+   * Specifies the Spark SQL data type of the metric value, either as a plain type name or as a JSON-encoded
+   * StructField.
+   */
   outputDataType?: string | undefined;
-  /** The type of the custom metric. */
+  /**
+   * The type of the custom metric. `DATA_PROFILING_CUSTOM_METRIC_TYPE_AGGREGATE` metrics depend only on the
+   * columns of the input table, `DATA_PROFILING_CUSTOM_METRIC_TYPE_DERIVED` metrics depend only on previously
+   * computed aggregate metrics, and `DATA_PROFILING_CUSTOM_METRIC_TYPE_DRIFT` metrics depend on previously computed
+   * aggregate or derived metrics.
+   */
   type?: DataProfilingCustomMetricType | undefined;
 }
 
@@ -375,29 +407,39 @@ export interface GetRefreshRequest {
 
 /** Inference log configuration. */
 export interface InferenceLogConfig {
-  /** Problem type the model aims to solve. */
+  /** The type of problem the model solves. It determines which model quality metrics are computed. */
   problemType?: InferenceProblemType | undefined;
-  /** Column for the timestamp. */
+  /**
+   * Column containing the timestamp of each inference request. Its type must be TIMESTAMP or convertible to a
+   * timestamp.
+   */
   timestampColumn?: string | undefined;
   /** List of granularities to use when aggregating data into time windows based on their timestamp. */
   granularities?: AggregationGranularity[] | undefined;
-  /** Column for the prediction. */
+  /** Column containing the model's predicted values. */
   predictionColumn?: string | undefined;
-  /** Column for the label. */
+  /** Column containing the ground truth for the model's predictions. */
   labelColumn?: string | undefined;
-  /** Column for the model identifier. */
+  /**
+   * Column containing the ID of the model that produced each prediction. A slice is created automatically for
+   * each distinct model ID.
+   */
   modelIdColumn?: string | undefined;
 }
 
 /** Request to list Monitors. */
 export interface ListMonitorRequest {
+  /** Pagination token from a previous response, used to fetch the next page. */
   pageToken?: string | undefined;
+  /** The maximum number of monitors to return in one page. */
   pageSize?: number | undefined;
 }
 
 /** Response for listing Monitors. */
 export interface ListMonitorResponse {
+  /** The monitors on this page. */
   monitors?: Monitor[] | undefined;
+  /** Pagination token to pass as `page_token` to fetch the next page. */
   nextPageToken?: string | undefined;
 }
 
@@ -427,7 +469,11 @@ export interface ListRefreshResponse {
   nextPageToken?: string | undefined;
 }
 
-/** Monitor for the data quality of unity catalog entities such as schema or table. */
+/**
+ * A data quality monitor on a Unity Catalog object. A `schema` monitor runs anomaly detection on the tables in the
+ * schema and is configured through `anomaly_detection_config`. A `table` monitor profiles a single table and is
+ * configured through `data_profiling_config`.
+ */
 export interface Monitor {
   /** The type of the monitored object. Can be one of the following: `schema` or `table`. */
   objectType?: string | undefined;
@@ -443,18 +489,24 @@ export interface Monitor {
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
    */
   objectId?: string | undefined;
-  /** Anomaly Detection Configuration, applicable to `schema` object types. */
+  /**
+   * Anomaly detection settings. Required when `object_type` is `schema`. When reading a `table` monitor, this holds
+   * the settings of the parent schema's monitor if the schema has one.
+   */
   anomalyDetectionConfig?: AnomalyDetectionConfig | undefined;
   /**
-   * Data Profiling Configuration, applicable to `table` object types. Exactly one `Analysis Configuration`
-   * must be present.
+   * Data profiling settings. Required when `object_type` is `table`. Exactly one of `inference_log`, `time_series`
+   * or `snapshot` must be set.
    */
   dataProfilingConfig?: DataProfilingConfig | undefined;
 }
 
 /** Destination of the data quality monitoring notification. */
 export interface NotificationDestination {
-  /** The list of email addresses to send the notification to. A maximum of 5 email addresses is supported. */
+  /**
+   * The list of email addresses to send the notification to. A maximum of 5 email addresses is supported.
+   * Only supported on table monitors, via `data_profiling_config`; rejected on schema monitors.
+   */
   emailAddresses?: string[] | undefined;
   /**
    * The notification-destination IDs (Slack / Teams / webhook / Asana / ServiceNow / AWS
@@ -472,7 +524,10 @@ export interface NotificationDestination {
 
 /** Settings for sending notifications on the data quality monitoring. */
 export interface NotificationSettings {
-  /** Destinations to send notifications on failure/timeout. */
+  /**
+   * Recipients to notify when a refresh of the monitor fails or times out. Only supported on table
+   * monitors, via `data_profiling_config`, and only `email_addresses` is accepted there.
+   */
   onFailure?: NotificationDestination | undefined;
   /**
    * Recipients to notify when anomaly detection finds unhealthy tables in the schema. Each
@@ -518,7 +573,7 @@ export interface SnapshotConfig {}
 
 /** Time series analysis configuration. */
 export interface TimeSeriesConfig {
-  /** Column for the timestamp. */
+  /** Column containing the timestamp of each row. Its type must be TIMESTAMP or convertible to a timestamp. */
   timestampColumn?: string | undefined;
   /** List of granularities to use when aggregating data into time windows based on their timestamp. */
   granularities?: AggregationGranularity[] | undefined;
@@ -540,7 +595,7 @@ export interface UpdateMonitorRequest {
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
    */
   objectId?: string | undefined;
-  /** The monitor to update. */
+  /** The new values for the monitor. Only the fields named in `update_mask` are applied. */
   monitor?: Monitor | undefined;
   /**
    * The field mask to specify which fields to update as a comma-separated list.

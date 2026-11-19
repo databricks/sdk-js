@@ -17,6 +17,8 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
+  DeleteSoftwareArtifactRequest,
+  DeleteSoftwareArtifactVersionRequest,
   GetSoftwareArtifactRequest,
   GetSoftwareArtifactVersionRequest,
   ListSoftwareArtifactVersionsRequest,
@@ -70,6 +72,58 @@ export class SoftwareArtifactsClient {
   private resolveConfig(): Promise<ResolvedClientConfig> {
     this.config ??= resolveClientConfig(this.options);
     return this.config;
+  }
+
+  /** Deletes a software artifact. Fails if the artifact still has versions unless `force` is set. */
+  async deleteSoftwareArtifact(
+    req: DeleteSoftwareArtifactRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.force !== undefined) {
+      params.append('force', String(req.force));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /** Deletes a software artifact version. */
+  async deleteSoftwareArtifactVersion(
+    req: DeleteSoftwareArtifactVersionRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      if (workspaceId !== undefined) {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
   }
 
   /**

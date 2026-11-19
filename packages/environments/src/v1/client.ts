@@ -183,6 +183,8 @@ export class EnvironmentsClient {
   /**
    * Gets the default WorkspaceBaseEnvironment configuration for the workspace.
    * Returns the current default base environment settings for both CPU and GPU compute.
+   * An unset CPU or GPU field means that compute type uses the Databricks Standard base
+   * environment.
    */
   async getDefaultWorkspaceBaseEnvironment(
     req: GetDefaultWorkspaceBaseEnvironmentRequest,
@@ -412,6 +414,9 @@ export class EnvironmentsClient {
   /**
    * Updates the default WorkspaceBaseEnvironment configuration for the workspace.
    * Sets the specified base environments as the workspace defaults for CPU and/or GPU compute.
+   * Unsetting a default makes that compute type use the Databricks Standard base environment.
+   * The Standard base environment has no resource name, so unsetting the field is the only way
+   * to select it.
    */
   async updateDefaultWorkspaceBaseEnvironment(
     req: UpdateDefaultWorkspaceBaseEnvironmentRequest,

@@ -59,16 +59,20 @@ export interface CreateCustomOAuthAppIntegrationRequest {
 export interface CreatePublishedOAuthAppIntegrationRequest {
   accountId?: string | undefined;
   /**
-   * App id of the OAuth published app integration.
-   * For example power-bi, tableau-deskop
+   * ID of the published OAuth app to enable, as returned in app_id by the list of published OAuth apps.
+   * The short legacy IDs of the original published apps, such as power-bi and tableau-desktop, are also
+   * accepted. The request fails if the app is already enabled for the account.
    */
   appId?: string | undefined;
-  /** Token access policy */
+  /**
+   * Lifetimes of the tokens issued to the app. If omitted, the app's default token lifetimes apply.
+   * If set, both TTL fields are required.
+   */
   tokenAccessPolicy?: TokenAccessPolicy | undefined;
 }
 
 export interface CreatePublishedOAuthAppIntegrationResponse {
-  /** Unique integration id for the published OAuth app */
+  /** ID of the published OAuth app integration. */
   integrationId?: string | undefined;
 }
 
@@ -136,6 +140,7 @@ export interface DeleteCustomOAuthAppIntegrationResponse {}
 
 export interface DeletePublishedOAuthAppIntegrationRequest {
   accountId?: string | undefined;
+  /** ID of the published OAuth app integration to delete. */
   integrationId?: string | undefined;
 }
 
@@ -181,6 +186,7 @@ export interface GetCustomOAuthAppIntegrationRequest {
 
 export interface GetPublishedOAuthAppIntegrationRequest {
   accountId?: string | undefined;
+  /** ID of the published OAuth app integration. */
   integrationId?: string | undefined;
 }
 
@@ -203,13 +209,16 @@ export interface ListCustomOAuthAppIntegrationsResponse {
 
 export interface ListPublishedOAuthAppIntegrationsRequest {
   accountId?: string | undefined;
+  /** Token from the next_page_token field of a previous response. Omit it to request the first page. */
   pageToken?: string | undefined;
+  /** Maximum number of integrations to return in one page, at most 1000. */
   pageSize?: number | undefined;
 }
 
 export interface ListPublishedOAuthAppIntegrationsResponse {
   /** List of Published OAuth App Integrations defined for the account. */
   apps?: PublishedOAuthAppIntegration[] | undefined;
+  /** Token for the next page of results. If not present, there are no more results to show. */
   nextPageToken?: string | undefined;
 }
 
@@ -232,7 +241,7 @@ export interface ListPublishedOAuthAppsResponse {
 export interface PublishedOAuthApp {
   /** Unique ID of the published OAuth app. */
   appId?: string | undefined;
-  /** Client ID of the published OAuth app. It is the client_id in the OAuth flow */
+  /** Client ID of the published OAuth app. The app sends it as client_id in the OAuth flow. */
   clientId?: string | undefined;
   /** The display name of the published OAuth app. */
   name?: string | undefined;
@@ -246,16 +255,25 @@ export interface PublishedOAuthApp {
   scopes?: string[] | undefined;
 }
 
+/**
+ * A published OAuth app integration enables an OAuth app published by <Databricks>, such as Power BI
+ * or Tableau Desktop, for the account. <Databricks> manages the app's client ID, redirect URLs and
+ * scopes; the integration only sets the lifetimes of the tokens issued to the app. To register your
+ * own application, use a custom OAuth app integration instead. See
+ * https://docs.databricks.com/aws/en/integrations/enable-disable-oauth.
+ */
 export interface PublishedOAuthAppIntegration {
-  /** App-id of the published app integration */
+  /** ID of the published OAuth app, as returned in app_id by the list of published OAuth apps. */
   appId?: string | undefined;
-  /** Unique integration id for the published OAuth app */
+  /** ID of the published OAuth app integration in the account. */
   integrationId?: string | undefined;
-  /** Display name of the published OAuth app */
+  /** Display name of the published OAuth app. */
   name?: string | undefined;
-  /** Token access policy */
+  /** Lifetimes of the access and refresh tokens issued to the app. */
   tokenAccessPolicy?: TokenAccessPolicy | undefined;
+  /** ID of the user who created the integration. */
   createdBy?: bigint | undefined;
+  /** Time the integration was created, as an ISO 8601 timestamp. */
   createTime?: string | undefined;
 }
 
@@ -314,8 +332,13 @@ export interface UpdateCustomOAuthAppIntegrationResponse {}
 
 export interface UpdatePublishedOAuthAppIntegrationRequest {
   accountId?: string | undefined;
+  /** ID of the published OAuth app integration to update. */
   integrationId?: string | undefined;
-  /** Token access policy to be updated in the published OAuth app integration */
+  /**
+   * New token lifetimes for the app. Both TTL fields are required when the policy is set; the
+   * single-use refresh token settings keep their current values when omitted. If the policy is
+   * omitted, the integration is left unchanged.
+   */
   tokenAccessPolicy?: TokenAccessPolicy | undefined;
 }
 

@@ -575,7 +575,10 @@ export class CleanRoomsClient {
     }
   }
 
-  /** List assets. */
+  /**
+   * List the assets in a clean room. Listed assets do not include their asset-type specific details,
+   * such as table columns or notebook content; use the get method to retrieve them.
+   */
   async listCleanRoomAssets(
     req: ListCleanRoomAssetsRequest,
     options?: CallOptions

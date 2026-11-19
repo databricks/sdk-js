@@ -9,6 +9,8 @@ export {SoftwareArtifactsClient} from './client';
 export {ImageAccelerationDetail_Status} from './model';
 
 export type {
+  DeleteSoftwareArtifactRequest,
+  DeleteSoftwareArtifactVersionRequest,
   GetSoftwareArtifactRequest,
   GetSoftwareArtifactVersionRequest,
   ImageAccelerationDetail,

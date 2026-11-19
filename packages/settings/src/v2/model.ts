@@ -205,16 +205,31 @@ export type RestrictWorkspaceAdminsMessage_Status =
   | (string & {});
 
 export interface AibiDashboardEmbeddingAccessPolicy {
+  /**
+   * Where AI/BI dashboards can be embedded: in any domain (ALLOW_ALL_DOMAINS), only in the approved
+   * domains configured for the workspace (ALLOW_APPROVED_DOMAINS), or nowhere (DENY_ALL_DOMAINS).
+   * Defaults to ALLOW_APPROVED_DOMAINS.
+   */
   accessPolicyType?:
     | AibiDashboardEmbeddingAccessPolicy_AccessPolicyType
     | undefined;
 }
 
 export interface AibiDashboardEmbeddingApprovedDomains {
+  /**
+   * Domains allowed to host embedded AI/BI dashboards. A leading wildcard allows every subdomain of a
+   * domain. The list applies, and can only be changed, while the embedding access policy is
+   * ALLOW_APPROVED_DOMAINS.
+   */
   approvedDomains?: string[] | undefined;
 }
 
 export interface AllowedAppsUserApiScopesMessage {
+  /**
+   * OAuth scopes that app developers can request when an app acts on behalf of a user. A list with
+   * the single entry * allows every supported scope and cannot be combined with other scopes. An
+   * empty list disables user authorization for apps.
+   */
   allowedScopes?: string[] | undefined;
 }
 
@@ -223,10 +238,31 @@ export interface BooleanMessage {
 }
 
 export interface ClusterAutoRestartMessage {
+  /**
+   * Whether automatic cluster update is enabled for the workspace. The effective value is always
+   * true while the compliance security profile is enabled on the workspace.
+   */
   enabled?: boolean | undefined;
+  /**
+   * Whether the workspace can change the enabled state. Databricks computes this value: it is false
+   * when the compliance security profile forces the feature on or when the workspace lacks the
+   * Enhanced Security and Compliance entitlement. A value sent in an update request has no effect.
+   */
   canToggle?: boolean | undefined;
+  /**
+   * When the maintenance window runs. When unset, it defaults to the first Sunday of every month at
+   * 01:00 UTC.
+   */
   maintenanceWindow?: ClusterAutoRestartMessage_MaintenanceWindow | undefined;
+  /**
+   * Why the feature is forced on or unavailable. Databricks sets these details for information only;
+   * they do not determine whether the feature is enabled.
+   */
   enablementDetails?: ClusterAutoRestartMessage_EnablementDetails | undefined;
+  /**
+   * Whether compute resources restart during every maintenance window even when no update is
+   * available. When false, they restart only when an update is available.
+   */
   restartEvenIfNoUpdatesAvailable?: boolean | undefined;
 }
 
@@ -242,7 +278,10 @@ export interface ClusterAutoRestartMessage {
 export interface ClusterAutoRestartMessage_EnablementDetails {
   /** The feature is unavailable if the customer doesn't have enterprise tier */
   unavailableForNonEnterpriseTier?: boolean | undefined;
-  /** The feature is unavailable if the corresponding entitlement disabled (see getShieldEntitlementEnable) */
+  /**
+   * The feature is unavailable because the workspace does not have the Enhanced Security and
+   * Compliance entitlement.
+   */
   unavailableForDisabledEntitlement?: boolean | undefined;
   /** The feature is force enabled if compliance mode is active */
   forcedForComplianceMode?: boolean | undefined;
@@ -250,6 +289,7 @@ export interface ClusterAutoRestartMessage_EnablementDetails {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ClusterAutoRestartMessage_MaintenanceWindow {
+  /** Schedule anchored to a day of the week, either every week or on given weeks of the month. */
   weekDayBasedSchedule?:
     | ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule
     | undefined;
@@ -257,10 +297,16 @@ export interface ClusterAutoRestartMessage_MaintenanceWindow {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule {
+  /**
+   * How often the maintenance window occurs: every week, or only on the listed occurrences of
+   * the day of the week within each month.
+   */
   frequency?:
     | ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency
     | undefined;
+  /** Day of the week on which the maintenance window starts. */
   dayOfWeek?: ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek | undefined;
+  /** Time of day, in UTC, at which the maintenance window starts. */
   windowStartTime?:
     | ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime
     | undefined;
@@ -268,7 +314,9 @@ export interface ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedul
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime {
+  /** Hour of the day on a 24-hour clock. */
   hours?: number | undefined;
+  /** Minute of the hour. */
   minutes?: number | undefined;
 }
 
@@ -515,7 +563,7 @@ export interface GetPublicAccountUserPreferenceRequest {
 }
 
 export interface GetPublicWorkspaceSettingRequest {
-  /** Name of the setting */
+  /** Name of the setting to retrieve. */
   name?: string | undefined;
 }
 
@@ -611,6 +659,11 @@ export interface ListWorkspaceSettingsMetadataResponse {
 }
 
 export interface OperationalEmailCustomRecipientMessage {
+  /**
+   * Email address that receives this workspace's operational emails in addition to the workspace
+   * admins. Use a distribution list address to reach several people. An empty string clears the
+   * additional recipient.
+   */
   email?: string | undefined;
 }
 
@@ -631,16 +684,30 @@ export interface PatchPublicAccountUserPreferenceRequest {
 }
 
 export interface PatchPublicWorkspaceSettingRequest {
-  /** Name of the setting */
+  /** Name of the setting to update. */
   name?: string | undefined;
   setting?: Setting | undefined;
 }
 
 export interface PersonalComputeMessage {
+  /**
+   * ON grants all users in all workspaces of the account access to the Personal Compute default
+   * policy. DELEGATE moves control to each workspace, where users or groups must be added to the
+   * policy's permissions before they can create compute with it.
+   */
   value?: PersonalComputeMessage_PersonalComputeMessageEnum | undefined;
 }
 
 export interface RestrictWorkspaceAdminsMessage {
+  /**
+   * Controls what workspace admins can do with service principal tokens and job identities. With
+   * ALLOW_ALL, workspace admins can create personal access tokens on behalf of any service principal
+   * in the workspace, change a job owner to any workspace user, and set a job's run_as identity to
+   * any workspace user or to a service principal they have the Service Principal User role on. With
+   * RESTRICT_TOKENS_AND_JOB_RUN_AS, they can only create tokens for service principals they have the
+   * Service Principal User role on, change a job owner to themselves, and set run_as to themselves
+   * or to a service principal they have that role on.
+   */
   status?: RestrictWorkspaceAdminsMessage_Status | undefined;
   /**
    * When true, workspace admins cannot create governance tags.
@@ -649,8 +716,17 @@ export interface RestrictWorkspaceAdminsMessage {
   disableGovTagCreation?: boolean | undefined;
 }
 
+/**
+ * A setting and its value at the workspace or account scope. Each setting has one value type, so
+ * one value field applies to it: a primitive wrapper (boolean_val, string_val or integer_val) or a
+ * setting-specific message. The settings metadata endpoint reports the field each setting uses.
+ * When updating a setting, set only the value field that matches its type. Responses return that
+ * field with the value configured at this scope, if one is set, together with the matching
+ * effective_* field, which holds the value in effect after Databricks applies account policies and
+ * defaults.
+ */
 export interface Setting {
-  /** Name of the setting. */
+  /** Name of the setting. The settings metadata endpoint lists the names available at each scope. */
   name?: string | undefined;
   /**
    * New fields should be added before the oneof below - unless it's a new Setting value message,
@@ -853,7 +929,15 @@ export interface UserPreference {
 
 /** Workspace label and color for display (e.g. in account console). */
 export interface WorkspaceLabelMessage {
+  /**
+   * Text of the label shown next to the workspace name in the top navigation bar. An empty string
+   * means no label is set.
+   */
   label?: string | undefined;
+  /**
+   * Color of the label badge. The supported colors are coral, lemon, lime, turquoise, indigo, purple
+   * and pink. It is an empty string when no label is set.
+   */
   color?: string | undefined;
 }
 

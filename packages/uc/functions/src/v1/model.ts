@@ -65,8 +65,8 @@ export const FunctionInfo_RoutineBody = {
   /**
    * When `EXTERNAL` is used,
    * * The language of the routine function should be specified in the `external_language` field.
-   * * The returnParams of the function cannot be used as TABLE return type is not supported.
-   * * The getSqlDataAccess must be NO_SQL.
+   * * The TABLE return type, and so return_params, is supported only when external_language is Python.
+   * * The `sql_data_access` field must be `NO_SQL`.
    */
   EXTERNAL: 'EXTERNAL',
 } as const;
@@ -101,6 +101,11 @@ export interface ConnectionDependency {
   connectionName?: string | undefined;
 }
 
+/**
+ * A user-defined function (UDF) registered in Unity Catalog. A function belongs to a schema and is referenced as
+ * catalog_name.schema_name.function_name. Its body is either a SQL expression or query, or source code in an
+ * external language such as Python. See https://docs.databricks.com/aws/en/udf/unity-catalog for an overview.
+ */
 export interface CreateFunction {
   /** Name of function, relative to parent schema. */
   name?: string | undefined;
@@ -108,35 +113,75 @@ export interface CreateFunction {
   catalogName?: string | undefined;
   /** Name of parent Schema relative to its parent Catalog. */
   schemaName?: string | undefined;
-  /** Function input parameters. */
+  /**
+   * Input parameters of the function. When it is set, parameters must contain at least
+   * one entry. A function that takes no arguments omits input_params, even though the Create request schema marks it
+   * as required.
+   */
   inputParams?: FunctionParameterInfos | undefined;
-  /** Scalar function return data type. */
+  /**
+   * Data type of the value the function returns. A table function uses TABLE_TYPE
+   * and describes its result columns in return_params, except for a polymorphic Python UDTF, which omits them.
+   */
   dataType?: ColumnTypeName | undefined;
-  /** Pretty printed function data type. */
+  /**
+   * Return data type of the function in SQL syntax, including any type parameters
+   * such as precision and scale.
+   */
   fullDataType?: string | undefined;
-  /** Function language. When **EXTERNAL** is used, the language of the routine function should be specified in the **external_language** field, and the **return_params** of the function cannot be used (as **TABLE** return type is not supported), and the **sql_data_access** field must be **NO_SQL**. */
+  /**
+   * Language of the function body. SQL means that routine_definition holds a SQL
+   * expression or query. EXTERNAL means that it holds source code in the language named by external_language, and
+   * sql_data_access must then be NO_SQL.
+   */
   routineBody?: FunctionInfo_RoutineBody | undefined;
-  /** Function body. */
+  /**
+   * Body of the function. For a SQL function it is the expression or query that
+   * computes the result; for an EXTERNAL function it is the source code of the function. It is omitted when the
+   * caller can only browse the function.
+   */
   routineDefinition?: string | undefined;
-  /** Function parameter style. **S** is the value for SQL. */
+  /**
+   * How arguments are passed to the function body. S means that each argument is
+   * passed as a single scalar value.
+   */
   parameterStyle?: FunctionInfo_ParameterStyle | undefined;
-  /** Whether the function is deterministic. */
+  /**
+   * Whether the function returns the same result for the same arguments. It
+   * corresponds to the DETERMINISTIC characteristic of CREATE FUNCTION.
+   */
   isDeterministic?: boolean | undefined;
-  /** Function SQL data access. */
+  /**
+   * How the function body interacts with SQL data. CONTAINS_SQL means that the body
+   * contains SQL but reads no table or view, READS_SQL_DATA means that it reads a table or view, and NO_SQL is
+   * required for EXTERNAL functions.
+   */
   sqlDataAccess?: FunctionInfo_SqlDataAccess | undefined;
-  /** Function null call. */
+  /**
+   * Whether the function is a null-call function in the sense of the SQL standard,
+   * which returns NULL whenever any argument is NULL.
+   */
   isNullCall?: boolean | undefined;
-  /** Function security type. */
+  /**
+   * Whose privileges the function body runs with. DEFINER runs it with the privileges
+   * of the function owner.
+   */
   securityType?: FunctionInfo_SecurityType | undefined;
-  /** Specific name of the function; Reserved for future use. */
+  /** Specific name of the function. Set it to the same value as name. */
   specificName?: string | undefined;
-  /** Table function return parameters. */
+  /**
+   * Result columns of a table function. Set it when data_type is TABLE_TYPE, except
+   * for a polymorphic Python UDTF (an EXTERNAL Python function with full_data_type "()"), which must not set it.
+   */
   returnParams?: FunctionParameterInfos | undefined;
-  /** External function name. */
+  /** Name of the function in its external language. It is reserved for future use. */
   externalName?: string | undefined;
-  /** External function language. */
+  /**
+   * Language of the function body for an EXTERNAL function. It is required when
+   * routine_body is EXTERNAL.
+   */
   externalLanguage?: string | undefined;
-  /** List of schemes whose objects can be referenced without qualification. */
+  /** List of schemas whose objects can be referenced without qualification. */
   sqlPath?: string | undefined;
   /** Username of current owner of the function. */
   owner?: string | undefined;
@@ -179,9 +224,9 @@ export interface CredentialDependency {
 }
 
 export interface DeleteFunctionRequest {
-  /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__) . */
+  /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function_name__). */
   fullNameArg?: string | undefined;
-  /** Force deletion even if the function is notempty. */
+  /** Force deletion even if the function is not empty. */
   force?: boolean | undefined;
 }
 
@@ -213,6 +258,11 @@ export interface FunctionDependency {
   functionFullName?: string | undefined;
 }
 
+/**
+ * A user-defined function (UDF) registered in Unity Catalog. A function belongs to a schema and is referenced as
+ * catalog_name.schema_name.function_name. Its body is either a SQL expression or query, or source code in an
+ * external language such as Python. See https://docs.databricks.com/aws/en/udf/unity-catalog for an overview.
+ */
 export interface FunctionInfo {
   /** Name of function, relative to parent schema. */
   name?: string | undefined;
@@ -220,35 +270,75 @@ export interface FunctionInfo {
   catalogName?: string | undefined;
   /** Name of parent Schema relative to its parent Catalog. */
   schemaName?: string | undefined;
-  /** Function input parameters. */
+  /**
+   * Input parameters of the function. When it is set, parameters must contain at least
+   * one entry. A function that takes no arguments omits input_params, even though the Create request schema marks it
+   * as required.
+   */
   inputParams?: FunctionParameterInfos | undefined;
-  /** Scalar function return data type. */
+  /**
+   * Data type of the value the function returns. A table function uses TABLE_TYPE
+   * and describes its result columns in return_params, except for a polymorphic Python UDTF, which omits them.
+   */
   dataType?: ColumnTypeName | undefined;
-  /** Pretty printed function data type. */
+  /**
+   * Return data type of the function in SQL syntax, including any type parameters
+   * such as precision and scale.
+   */
   fullDataType?: string | undefined;
-  /** Function language. When **EXTERNAL** is used, the language of the routine function should be specified in the **external_language** field, and the **return_params** of the function cannot be used (as **TABLE** return type is not supported), and the **sql_data_access** field must be **NO_SQL**. */
+  /**
+   * Language of the function body. SQL means that routine_definition holds a SQL
+   * expression or query. EXTERNAL means that it holds source code in the language named by external_language, and
+   * sql_data_access must then be NO_SQL.
+   */
   routineBody?: FunctionInfo_RoutineBody | undefined;
-  /** Function body. */
+  /**
+   * Body of the function. For a SQL function it is the expression or query that
+   * computes the result; for an EXTERNAL function it is the source code of the function. It is omitted when the
+   * caller can only browse the function.
+   */
   routineDefinition?: string | undefined;
-  /** Function parameter style. **S** is the value for SQL. */
+  /**
+   * How arguments are passed to the function body. S means that each argument is
+   * passed as a single scalar value.
+   */
   parameterStyle?: FunctionInfo_ParameterStyle | undefined;
-  /** Whether the function is deterministic. */
+  /**
+   * Whether the function returns the same result for the same arguments. It
+   * corresponds to the DETERMINISTIC characteristic of CREATE FUNCTION.
+   */
   isDeterministic?: boolean | undefined;
-  /** Function SQL data access. */
+  /**
+   * How the function body interacts with SQL data. CONTAINS_SQL means that the body
+   * contains SQL but reads no table or view, READS_SQL_DATA means that it reads a table or view, and NO_SQL is
+   * required for EXTERNAL functions.
+   */
   sqlDataAccess?: FunctionInfo_SqlDataAccess | undefined;
-  /** Function null call. */
+  /**
+   * Whether the function is a null-call function in the sense of the SQL standard,
+   * which returns NULL whenever any argument is NULL.
+   */
   isNullCall?: boolean | undefined;
-  /** Function security type. */
+  /**
+   * Whose privileges the function body runs with. DEFINER runs it with the privileges
+   * of the function owner.
+   */
   securityType?: FunctionInfo_SecurityType | undefined;
-  /** Specific name of the function; Reserved for future use. */
+  /** Specific name of the function. Set it to the same value as name. */
   specificName?: string | undefined;
-  /** Table function return parameters. */
+  /**
+   * Result columns of a table function. Set it when data_type is TABLE_TYPE, except
+   * for a polymorphic Python UDTF (an EXTERNAL Python function with full_data_type "()"), which must not set it.
+   */
   returnParams?: FunctionParameterInfos | undefined;
-  /** External function name. */
+  /** Name of the function in its external language. It is reserved for future use. */
   externalName?: string | undefined;
-  /** External function language. */
+  /**
+   * Language of the function body for an EXTERNAL function. It is required when
+   * routine_body is EXTERNAL.
+   */
   externalLanguage?: string | undefined;
-  /** List of schemes whose objects can be referenced without qualification. */
+  /** List of schemas whose objects can be referenced without qualification. */
   sqlPath?: string | undefined;
   /** Username of current owner of the function. */
   owner?: string | undefined;
@@ -282,9 +372,15 @@ export interface FunctionInfo {
 export interface FunctionParameterInfo {
   /** Name of Parameter. */
   name?: string | undefined;
-  /** Full data type spec, SQL/catalogString text. */
+  /**
+   * Data type of the parameter in SQL syntax, including any type parameters such
+   * as precision and scale.
+   */
   typeText?: string | undefined;
-  /** Full data type spec, JSON-serialized. */
+  /**
+   * Data type of the parameter as the JSON representation of a Spark SQL struct
+   * field, with name, type, nullable and metadata keys.
+   */
   typeJson?: string | undefined;
   /** Name of type (INT, STRUCT, MAP, etc.) */
   typeName?: ColumnTypeName | undefined;
@@ -292,26 +388,42 @@ export interface FunctionParameterInfo {
   typePrecision?: number | undefined;
   /** Digits to right of decimal; Required on Create for DecimalTypes. */
   typeScale?: number | undefined;
-  /** Format of IntervalType. */
+  /**
+   * Unit range of the data type for INTERVAL parameters. It is unset for other
+   * types.
+   */
   typeIntervalType?: string | undefined;
-  /** Ordinal position of column (starting at position 0). */
+  /**
+   * Zero-based position of the parameter in the parameter list. Positions must be
+   * unique and consecutive.
+   */
   position?: number | undefined;
-  /** Function parameter mode. */
+  /**
+   * Direction of the parameter. Only IN parameters, which pass a value into the
+   * function, are supported.
+   */
   parameterMode?: FunctionParameterMode | undefined;
-  /** Function parameter type. */
+  /**
+   * Whether the entry is an input parameter (PARAM) or a result column of a table
+   * function (COLUMN).
+   */
   parameterType?: FunctionParameterType | undefined;
-  /** Default value of the parameter. */
+  /**
+   * Default value of the parameter as a SQL expression, used when a call omits the
+   * argument.
+   */
   parameterDefault?: string | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
 }
 
 export interface FunctionParameterInfos {
+  /** The parameters that make up the list, ordered by position. */
   parameters?: FunctionParameterInfo[] | undefined;
 }
 
 export interface GetFunctionRequest {
-  /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__). */
+  /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function_name__). */
   fullNameArg?: string | undefined;
   /** Whether to include functions in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
@@ -353,7 +465,7 @@ export interface TableDependency {
 }
 
 export interface UpdateFunctionRequest {
-  /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__). */
+  /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function_name__). */
   fullNameArg?: string | undefined;
   /** Name of function, relative to parent schema. */
   name?: string | undefined;
@@ -361,35 +473,75 @@ export interface UpdateFunctionRequest {
   catalogName?: string | undefined;
   /** Name of parent Schema relative to its parent Catalog. */
   schemaName?: string | undefined;
-  /** Function input parameters. */
+  /**
+   * Input parameters of the function. When it is set, parameters must contain at least
+   * one entry. A function that takes no arguments omits input_params, even though the Create request schema marks it
+   * as required.
+   */
   inputParams?: FunctionParameterInfos | undefined;
-  /** Scalar function return data type. */
+  /**
+   * Data type of the value the function returns. A table function uses TABLE_TYPE
+   * and describes its result columns in return_params, except for a polymorphic Python UDTF, which omits them.
+   */
   dataType?: ColumnTypeName | undefined;
-  /** Pretty printed function data type. */
+  /**
+   * Return data type of the function in SQL syntax, including any type parameters
+   * such as precision and scale.
+   */
   fullDataType?: string | undefined;
-  /** Function language. When **EXTERNAL** is used, the language of the routine function should be specified in the **external_language** field, and the **return_params** of the function cannot be used (as **TABLE** return type is not supported), and the **sql_data_access** field must be **NO_SQL**. */
+  /**
+   * Language of the function body. SQL means that routine_definition holds a SQL
+   * expression or query. EXTERNAL means that it holds source code in the language named by external_language, and
+   * sql_data_access must then be NO_SQL.
+   */
   routineBody?: FunctionInfo_RoutineBody | undefined;
-  /** Function body. */
+  /**
+   * Body of the function. For a SQL function it is the expression or query that
+   * computes the result; for an EXTERNAL function it is the source code of the function. It is omitted when the
+   * caller can only browse the function.
+   */
   routineDefinition?: string | undefined;
-  /** Function parameter style. **S** is the value for SQL. */
+  /**
+   * How arguments are passed to the function body. S means that each argument is
+   * passed as a single scalar value.
+   */
   parameterStyle?: FunctionInfo_ParameterStyle | undefined;
-  /** Whether the function is deterministic. */
+  /**
+   * Whether the function returns the same result for the same arguments. It
+   * corresponds to the DETERMINISTIC characteristic of CREATE FUNCTION.
+   */
   isDeterministic?: boolean | undefined;
-  /** Function SQL data access. */
+  /**
+   * How the function body interacts with SQL data. CONTAINS_SQL means that the body
+   * contains SQL but reads no table or view, READS_SQL_DATA means that it reads a table or view, and NO_SQL is
+   * required for EXTERNAL functions.
+   */
   sqlDataAccess?: FunctionInfo_SqlDataAccess | undefined;
-  /** Function null call. */
+  /**
+   * Whether the function is a null-call function in the sense of the SQL standard,
+   * which returns NULL whenever any argument is NULL.
+   */
   isNullCall?: boolean | undefined;
-  /** Function security type. */
+  /**
+   * Whose privileges the function body runs with. DEFINER runs it with the privileges
+   * of the function owner.
+   */
   securityType?: FunctionInfo_SecurityType | undefined;
-  /** Specific name of the function; Reserved for future use. */
+  /** Specific name of the function. Set it to the same value as name. */
   specificName?: string | undefined;
-  /** Table function return parameters. */
+  /**
+   * Result columns of a table function. Set it when data_type is TABLE_TYPE, except
+   * for a polymorphic Python UDTF (an EXTERNAL Python function with full_data_type "()"), which must not set it.
+   */
   returnParams?: FunctionParameterInfos | undefined;
-  /** External function name. */
+  /** Name of the function in its external language. It is reserved for future use. */
   externalName?: string | undefined;
-  /** External function language. */
+  /**
+   * Language of the function body for an EXTERNAL function. It is required when
+   * routine_body is EXTERNAL.
+   */
   externalLanguage?: string | undefined;
-  /** List of schemes whose objects can be referenced without qualification. */
+  /** List of schemas whose objects can be referenced without qualification. */
   sqlPath?: string | undefined;
   /** Username of current owner of the function. */
   owner?: string | undefined;

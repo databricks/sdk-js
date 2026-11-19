@@ -369,7 +369,7 @@ export interface ExecuteStatementRequest {
    *
    * The parameters can be passed in the request body as follows:
    *
-   * `
+   * ```
    * {
    * ...,
    * "statement": "SELECT * FROM my_table WHERE name = :my_name AND date = :my_date",
@@ -378,7 +378,7 @@ export interface ExecuteStatementRequest {
    * { "name": "my_date", "value": "2020-01-01", "type": "DATE" }
    * ]
    * }
-   * `
+   * ```
    *
    * Currently, positional parameters denoted by a `?` marker are not supported by the
    * Databricks SQL Statement Execution API.

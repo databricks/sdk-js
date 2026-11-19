@@ -447,7 +447,11 @@ export interface CleanRoomAsset {
   assetType?: CleanRoomAsset_AssetType | undefined;
   /** When the asset is added to the clean room, in epoch milliseconds. */
   addedAt?: bigint | undefined;
-  /** Status of the asset */
+  /**
+   * The sharing status of the asset. `PERMISSION_DENIED` means the clean room owner no longer has
+   * the privileges needed on the underlying Unity Catalog object, so the asset is not shared into the
+   * clean room.
+   */
   status?: CleanRoomAsset_Status_Enum | undefined;
   /** The alias of the collaborator who owns this asset */
   ownerCollaboratorAlias?: string | undefined;
@@ -480,7 +484,7 @@ export interface CleanRoomAsset {
     | {
         $case: 'foreignTableLocalDetails';
         /**
-         * Local details for a foreign that are only available to its owner.
+         * Local details for a foreign table that are only available to its owner.
          * Present if and only if **asset_type** is **FOREIGN_TABLE**
          */
         foreignTableLocalDetails: CleanRoomAsset_ForeignTableLocalDetails;

@@ -494,7 +494,7 @@ export class CredentialsClient {
 
   /**
    * Returns a set of temporary credentials generated using the specified service credential.
-   * The caller must be a metastore admin or have the metastore privilege **ACCESS** on the service credential.
+   * The caller must be a metastore admin or have the **ACCESS** privilege on the service credential.
    */
   async generateTemporaryServiceCredential(
     req: GenerateTemporaryServiceCredentialRequest,

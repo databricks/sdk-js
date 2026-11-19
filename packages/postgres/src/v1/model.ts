@@ -1481,8 +1481,8 @@ export interface CreateRoleRequest {
    * The ID used to identify and manage the Role resource through the API.
    * The Postgres role name is specified in `spec.postgres_role`.
    *
-   * This value should be 4-63 characters, and valid characters
-   * are lowercase letters, numbers, and hyphens, as defined by RFC 1123.
+   * This value should be 3-63 characters, start with a lowercase letter, end with a lowercase
+   * letter or digit, and contain only lowercase letters, digits, and hyphens.
    *
    * If role_id is not specified in the request, it is generated automatically.
    */
@@ -1837,7 +1837,8 @@ export interface DeleteRoleRequest {
   name?: string | undefined;
   /**
    * Reassign objects. If this is set, all objects owned by the role are
-   * reassigned to the role specified in this parameter.
+   * reassigned to the role specified in this parameter. The role must already exist.
+   * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
    *
    * NOTE: setting this requires spinning up a compute to succeed, since it involves running
    * SQL queries.
@@ -2853,7 +2854,9 @@ export interface Role {
    * Format: projects/{project_id}/branches/{branch_id}
    */
   parent?: string | undefined;
+  /** A timestamp indicating when the role was created. */
   createTime?: Temporal.Instant | undefined;
+  /** A timestamp indicating when the role was last updated. */
   updateTime?: Temporal.Instant | undefined;
   /**
    * The spec contains the role configuration, including identity type, authentication method, and role attributes.
@@ -2877,8 +2880,11 @@ export interface Role {
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Role_Attributes {
+  /** Whether the role can create databases (the Postgres CREATEDB attribute). */
   createdb?: boolean | undefined;
+  /** Whether the role can create, alter and drop other roles (the Postgres CREATEROLE attribute). */
   createrole?: boolean | undefined;
+  /** Whether the role bypasses every row-level security policy (the Postgres BYPASSRLS attribute). */
   bypassrls?: boolean | undefined;
 }
 
@@ -2891,7 +2897,8 @@ export interface Role_RoleSpec {
    */
   membershipRoles?: Role_MembershipRole[] | undefined;
   /**
-   * The type of role.
+   * The type of Databricks identity that backs the role. Leave unset to create a native Postgres
+   * role that is not associated with a Databricks identity.
    * When specifying a managed-identity, the chosen postgres_role must be a valid:
    *
    * * application ID for SERVICE_PRINCIPAL
@@ -2901,7 +2908,7 @@ export interface Role_RoleSpec {
    * This value cannot be changed after creation.
    */
   identityType?: Role_IdentityType | undefined;
-  /** The desired API-exposed Postgres role attribute to associate with the role. Optional. */
+  /** The Postgres role attributes to grant to the role. */
   attributes?: Role_Attributes | undefined;
   /**
    * Controls how the Postgres role authenticates when a client opens a database
@@ -2940,7 +2947,7 @@ export interface Role_RoleSpec {
    *
    * 1. user email for IdentityType.USER
    * 2. app ID for IdentityType.SERVICE_PRINCIPAL
-   * 2. group name for IdentityType.GROUP
+   * 3. group name for IdentityType.GROUP
    *
    * This value cannot be changed after creation.
    */
@@ -2949,12 +2956,13 @@ export interface Role_RoleSpec {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Role_RoleStatus {
-  /** An enum value for a standard role that this role is a member of. */
+  /** The standard roles that the role is currently a member of. */
   membershipRoles?: Role_MembershipRole[] | undefined;
-  /** The type of the role. */
+  /** The type of Databricks identity that backs the role, if any. */
   identityType?: Role_IdentityType | undefined;
-  /** The PG role attributes associated with the role. */
+  /** The Postgres role attributes currently granted to the role. */
   attributes?: Role_Attributes | undefined;
+  /** How the role authenticates when it connects to Postgres. */
   authMethod?: Role_AuthMethod | undefined;
   /** The name of the Postgres role. */
   postgresRole?: string | undefined;

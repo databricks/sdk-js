@@ -118,21 +118,36 @@ export type ProvisioningInfo_State =
 export interface ConnectionInfo {
   /** Name of the connection. */
   name?: string | undefined;
-  /** The type of connection. */
+  /**
+   * The type of external data source or service that the connection reaches. The connection type
+   * determines which keys are required in options and cannot be changed after creation.
+   */
   connectionType?: ConnectionType | undefined;
-  /** Username of current owner of the connection. */
+  /**
+   * Username of the current owner of the connection. The creator becomes the owner at creation, and
+   * ownership can be transferred on update.
+   */
   owner?: string | undefined;
-  /** If the connection is read only. */
+  /**
+   * Whether the connection is read only. All connections are currently read only, so a value set on
+   * create or update is ignored.
+   */
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
-  /** [Create,Update:OPT] Connection environment settings as EnvironmentSettings object. */
+  /**
+   * Environment settings for the connection, such as the Java libraries that it needs and the
+   * environment version.
+   */
   environmentSettings?: EnvironmentSettings | undefined;
   /** Full name of connection. */
   fullName?: string | undefined;
-  /** URL of the remote data source, extracted from options. */
+  /** URL of the remote data source. The server derives it from the host, port and path options. */
   url?: string | undefined;
-  /** The type of credential. */
+  /**
+   * The type of credential that is used to authenticate to the external data source. The server
+   * derives it from the connection type and the keys present in options.
+   */
   credentialType?: CredentialType | undefined;
   /** Unique identifier of the Connection. */
   connectionId?: string | undefined;
@@ -146,7 +161,9 @@ export interface ConnectionInfo {
   updatedAt?: bigint | undefined;
   /** Username of user who last modified connection. */
   updatedBy?: string | undefined;
+  /** The type of Unity Catalog securable. This is always CONNECTION. */
   securableType?: SecurableType | undefined;
+  /** Provisioning status of the connection. */
   provisioningInfo?: ProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
@@ -167,21 +184,36 @@ export interface CreateConnectionRequest {
   parent?: string | undefined;
   /** Name of the connection. */
   name?: string | undefined;
-  /** The type of connection. */
+  /**
+   * The type of external data source or service that the connection reaches. The connection type
+   * determines which keys are required in options and cannot be changed after creation.
+   */
   connectionType?: ConnectionType | undefined;
-  /** Username of current owner of the connection. */
+  /**
+   * Username of the current owner of the connection. The creator becomes the owner at creation, and
+   * ownership can be transferred on update.
+   */
   owner?: string | undefined;
-  /** If the connection is read only. */
+  /**
+   * Whether the connection is read only. All connections are currently read only, so a value set on
+   * create or update is ignored.
+   */
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
-  /** [Create,Update:OPT] Connection environment settings as EnvironmentSettings object. */
+  /**
+   * Environment settings for the connection, such as the Java libraries that it needs and the
+   * environment version.
+   */
   environmentSettings?: EnvironmentSettings | undefined;
   /** Full name of connection. */
   fullName?: string | undefined;
-  /** URL of the remote data source, extracted from options. */
+  /** URL of the remote data source. The server derives it from the host, port and path options. */
   url?: string | undefined;
-  /** The type of credential. */
+  /**
+   * The type of credential that is used to authenticate to the external data source. The server
+   * derives it from the connection type and the keys present in options.
+   */
   credentialType?: CredentialType | undefined;
   /** Unique identifier of the Connection. */
   connectionId?: string | undefined;
@@ -195,7 +227,9 @@ export interface CreateConnectionRequest {
   updatedAt?: bigint | undefined;
   /** Username of user who last modified connection. */
   updatedBy?: string | undefined;
+  /** The type of Unity Catalog securable. This is always CONNECTION. */
   securableType?: SecurableType | undefined;
+  /** Provisioning status of the connection. */
   provisioningInfo?: ProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
@@ -264,21 +298,36 @@ export interface UpdateConnectionRequest {
   newName?: string | undefined;
   /** Name of the connection. */
   name?: string | undefined;
-  /** The type of connection. */
+  /**
+   * The type of external data source or service that the connection reaches. The connection type
+   * determines which keys are required in options and cannot be changed after creation.
+   */
   connectionType?: ConnectionType | undefined;
-  /** Username of current owner of the connection. */
+  /**
+   * Username of the current owner of the connection. The creator becomes the owner at creation, and
+   * ownership can be transferred on update.
+   */
   owner?: string | undefined;
-  /** If the connection is read only. */
+  /**
+   * Whether the connection is read only. All connections are currently read only, so a value set on
+   * create or update is ignored.
+   */
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
-  /** [Create,Update:OPT] Connection environment settings as EnvironmentSettings object. */
+  /**
+   * Environment settings for the connection, such as the Java libraries that it needs and the
+   * environment version.
+   */
   environmentSettings?: EnvironmentSettings | undefined;
   /** Full name of connection. */
   fullName?: string | undefined;
-  /** URL of the remote data source, extracted from options. */
+  /** URL of the remote data source. The server derives it from the host, port and path options. */
   url?: string | undefined;
-  /** The type of credential. */
+  /**
+   * The type of credential that is used to authenticate to the external data source. The server
+   * derives it from the connection type and the keys present in options.
+   */
   credentialType?: CredentialType | undefined;
   /** Unique identifier of the Connection. */
   connectionId?: string | undefined;
@@ -292,7 +341,9 @@ export interface UpdateConnectionRequest {
   updatedAt?: bigint | undefined;
   /** Username of user who last modified connection. */
   updatedBy?: string | undefined;
+  /** The type of Unity Catalog securable. This is always CONNECTION. */
   securableType?: SecurableType | undefined;
+  /** Provisioning status of the connection. */
   provisioningInfo?: ProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
