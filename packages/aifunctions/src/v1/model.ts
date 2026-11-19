@@ -59,7 +59,7 @@ export interface AiClassifyOptions {
 export interface AiClassifyRequest {
   /** The content to classify. It accepts a plain string or the response object of [ai_parse_document](:method:AiFunctions/AiParseDocument). */
   content?: JsonValue | undefined;
-  /** The label set to classify as. Either a JSON array of label strings (e.g. ["spam", "not_spam"]), or a JSON object mapping each label to a description (e.g. {"spam": "unsolicited bulk message", "not_spam": "a legitimate message"}). Accepts 2 to 500 labels, each 1 to 100 characters. */
+  /** The label set to classify as. Either a JSON array of label strings (e.g. ["spam", "not_spam"]), or a JSON object mapping each label to a description (e.g. {"spam": "unsolicited bulk message", "not_spam": "a legitimate message"}). Accepts 2 to 500 labels, each 1 to 100 characters. When multilabel is true, a single label is also accepted. */
   labels?: JsonValue | undefined;
   /** Function options. Omitted fields fall back to their documented defaults. */
   options?: AiClassifyOptions | undefined;
@@ -79,7 +79,7 @@ export interface AiClassifyResponseMetadata {
 
 /** ai_decide */
 export interface AiDecideOptions {
-  /** The function API version to invoke. Defaults to "1.0". Supported versions: ["1.0"]. */
+  /** The function API version to invoke. If unset, the version is inferred per row. Supported versions: ["1.0"]. */
   version?: string | undefined;
 }
 

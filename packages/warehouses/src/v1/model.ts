@@ -760,7 +760,15 @@ export type EndpointHealth_Status =
 
 /** Configures the channel name and DBSQL version of the warehouse. CHANNEL_NAME_CUSTOM should be chosen only when `dbsql_version` is specified. */
 export interface Channel {
+  /**
+   * Channel to follow. CHANNEL_NAME_CURRENT is the default, and CHANNEL_NAME_PREVIEW
+   * carries the upcoming Databricks SQL release for testing.
+   */
   name?: ChannelName | undefined;
+  /**
+   * Databricks SQL version to pin to. Set it if and only if name is
+   * CHANNEL_NAME_CUSTOM.
+   */
   dbsqlVersion?: string | undefined;
 }
 
@@ -779,11 +787,11 @@ export interface CreateDefaultWarehouseOverrideRequest {
 /** Creates a new SQL warehouse. */
 export interface CreateWarehouseRequest {
   /**
-   * Logical name for the cluster.
+   * Logical name for the warehouse.
    *
    * Supported values:
    * - Must be unique within an org.
-   * - Must be less than 100 characters.
+   * - Must be 1 to 100 characters.
    */
   name?: string | undefined;
   /**
@@ -842,7 +850,10 @@ export interface CreateWarehouseRequest {
    * Defaults to 120 mins
    */
   autoStopMins?: number | undefined;
-  /** warehouse creator name */
+  /**
+   * Name of the user who created the warehouse. Set by the server and ignored in
+   * requests.
+   */
   creatorName?: string | undefined;
   /** Deprecated. Instance profile used to pass IAM role to the cluster */
   instanceProfileArn?: string | undefined;
@@ -854,7 +865,11 @@ export interface CreateWarehouseRequest {
    * - Number of tags < 45.
    */
   tags?: EndpointTags | undefined;
-  /** Configurations whether the endpoint should use spot instances. */
+  /**
+   * Configures whether the warehouse should use spot instances. COST_OPTIMIZED uses
+   * spot instances where the cloud provider supports them, and RELIABILITY_OPTIMIZED
+   * uses on-demand instances only.
+   */
   spotInstancePolicy?: EndpointSpotInstancePolicy | undefined;
   /**
    * Configures whether the warehouse should use Photon optimized clusters.
@@ -862,7 +877,7 @@ export interface CreateWarehouseRequest {
    * Defaults to true.
    */
   enablePhoton?: boolean | undefined;
-  /** Channel Details */
+  /** Channel that determines which Databricks SQL version the warehouse runs. */
   channel?: Channel | undefined;
   /** Configures whether the warehouse should use serverless compute */
   enableServerlessCompute?: boolean | undefined;
@@ -871,7 +886,12 @@ export interface CreateWarehouseRequest {
    * you must set to `PRO` and also set the field `enable_serverless_compute` to `true`.
    */
   warehouseType?: WarehouseType | undefined;
-  /** Warehouse statement timeout in seconds. */
+  /**
+   * Maximum time in seconds that a statement can run on this warehouse before it is
+   * cancelled. Set to 0 to remove the warehouse-level timeout. Changing the value of a
+   * running warehouse restarts it. See
+   * https://docs.databricks.com/aws/en/sql/language-manual/parameters/statement_timeout.
+   */
   statementTimeout?: number | undefined;
   /**
    * Cluster size multiplier for Reyden warehouses. Scales the effective compute
@@ -948,11 +968,11 @@ export interface EditWarehouseRequest {
   /** Required. Id of the warehouse to configure. */
   id?: string | undefined;
   /**
-   * Logical name for the cluster.
+   * Logical name for the warehouse.
    *
    * Supported values:
    * - Must be unique within an org.
-   * - Must be less than 100 characters.
+   * - Must be 1 to 100 characters.
    */
   name?: string | undefined;
   /**
@@ -1011,7 +1031,10 @@ export interface EditWarehouseRequest {
    * Defaults to 120 mins
    */
   autoStopMins?: number | undefined;
-  /** warehouse creator name */
+  /**
+   * Name of the user who created the warehouse. Set by the server and ignored in
+   * requests.
+   */
   creatorName?: string | undefined;
   /** Deprecated. Instance profile used to pass IAM role to the cluster */
   instanceProfileArn?: string | undefined;
@@ -1023,7 +1046,11 @@ export interface EditWarehouseRequest {
    * - Number of tags < 45.
    */
   tags?: EndpointTags | undefined;
-  /** Configurations whether the endpoint should use spot instances. */
+  /**
+   * Configures whether the warehouse should use spot instances. COST_OPTIMIZED uses
+   * spot instances where the cloud provider supports them, and RELIABILITY_OPTIMIZED
+   * uses on-demand instances only.
+   */
   spotInstancePolicy?: EndpointSpotInstancePolicy | undefined;
   /**
    * Configures whether the warehouse should use Photon optimized clusters.
@@ -1031,7 +1058,7 @@ export interface EditWarehouseRequest {
    * Defaults to true.
    */
   enablePhoton?: boolean | undefined;
-  /** Channel Details */
+  /** Channel that determines which Databricks SQL version the warehouse runs. */
   channel?: Channel | undefined;
   /** Configures whether the warehouse should use serverless compute */
   enableServerlessCompute?: boolean | undefined;
@@ -1040,7 +1067,12 @@ export interface EditWarehouseRequest {
    * you must set to `PRO` and also set the field `enable_serverless_compute` to `true`.
    */
   warehouseType?: WarehouseType | undefined;
-  /** Warehouse statement timeout in seconds. */
+  /**
+   * Maximum time in seconds that a statement can run on this warehouse before it is
+   * cancelled. Set to 0 to remove the warehouse-level timeout. Changing the value of a
+   * running warehouse restarts it. See
+   * https://docs.databricks.com/aws/en/sql/language-manual/parameters/statement_timeout.
+   */
   statementTimeout?: number | undefined;
   /**
    * Cluster size multiplier for Reyden warehouses. Scales the effective compute
@@ -1068,7 +1100,9 @@ export interface EditWarehouseRequest {
 export interface EditWarehouseResponse {}
 
 export interface EndpointConfPair {
+  /** Name of the configuration parameter. */
   key?: string | undefined;
+  /** Value of the configuration parameter. */
   value?: string | undefined;
 }
 
@@ -1086,14 +1120,14 @@ export interface EndpointHealth {
 }
 
 export interface EndpointInfo {
-  /** unique identifier for warehouse */
+  /** Unique identifier of the warehouse. */
   id?: string | undefined;
   /**
-   * Logical name for the cluster.
+   * Logical name for the warehouse.
    *
    * Supported values:
    * - Must be unique within an org.
-   * - Must be less than 100 characters.
+   * - Must be 1 to 100 characters.
    */
   name?: string | undefined;
   /**
@@ -1152,7 +1186,10 @@ export interface EndpointInfo {
    * Defaults to 120 mins
    */
   autoStopMins?: number | undefined;
-  /** warehouse creator name */
+  /**
+   * Name of the user who created the warehouse. Set by the server and ignored in
+   * requests.
+   */
   creatorName?: string | undefined;
   /** Deprecated. Instance profile used to pass IAM role to the cluster */
   instanceProfileArn?: string | undefined;
@@ -1164,7 +1201,11 @@ export interface EndpointInfo {
    * - Number of tags < 45.
    */
   tags?: EndpointTags | undefined;
-  /** Configurations whether the endpoint should use spot instances. */
+  /**
+   * Configures whether the warehouse should use spot instances. COST_OPTIMIZED uses
+   * spot instances where the cloud provider supports them, and RELIABILITY_OPTIMIZED
+   * uses on-demand instances only.
+   */
   spotInstancePolicy?: EndpointSpotInstancePolicy | undefined;
   /**
    * Configures whether the warehouse should use Photon optimized clusters.
@@ -1172,7 +1213,7 @@ export interface EndpointInfo {
    * Defaults to true.
    */
   enablePhoton?: boolean | undefined;
-  /** Channel Details */
+  /** Channel that determines which Databricks SQL version the warehouse runs. */
   channel?: Channel | undefined;
   /** Configures whether the warehouse should use serverless compute */
   enableServerlessCompute?: boolean | undefined;
@@ -1181,7 +1222,12 @@ export interface EndpointInfo {
    * you must set to `PRO` and also set the field `enable_serverless_compute` to `true`.
    */
   warehouseType?: WarehouseType | undefined;
-  /** Warehouse statement timeout in seconds. */
+  /**
+   * Maximum time in seconds that a statement can run on this warehouse before it is
+   * cancelled. Set to 0 to remove the warehouse-level timeout. Changing the value of a
+   * running warehouse restarts it. See
+   * https://docs.databricks.com/aws/en/sql/language-manual/parameters/statement_timeout.
+   */
   statementTimeout?: number | undefined;
   /**
    * Cluster size multiplier for Reyden warehouses. Scales the effective compute
@@ -1203,13 +1249,16 @@ export interface EndpointInfo {
    * than the configured DBU limit. Actual capacity may be below this ceiling.
    */
   maxDbu?: number | undefined;
-  /** current number of clusters running for the service */
+  /**
+   * Number of clusters currently allocated to the warehouse, including clusters that
+   * are still starting.
+   */
   numClusters?: number | undefined;
   /** Deprecated. current number of active sessions for the warehouse */
   numActiveSessions?: bigint | undefined;
-  /** state of the endpoint */
+  /** Current state of the warehouse. */
   state?: EndpointState | undefined;
-  /** the jdbc connection string for this warehouse */
+  /** JDBC connection string for the warehouse. */
   jdbcUrl?: string | undefined;
   /** ODBC parameters for the SQL warehouse */
   odbcParams?: OdbcParams | undefined;
@@ -1218,11 +1267,17 @@ export interface EndpointInfo {
 }
 
 export interface EndpointTagPair {
+  /**
+   * Tag key. Keys must be unique within the warehouse and cannot use the keys that
+   * Databricks reserves for the tags it sets automatically.
+   */
   key?: string | undefined;
+  /** Tag value. Keys and values must follow the tagging rules of the cloud provider. */
   value?: string | undefined;
 }
 
 export interface EndpointTags {
+  /** User-defined tags, applied in addition to the tags Databricks sets automatically. */
   customTags?: EndpointTagPair[] | undefined;
 }
 
@@ -1243,14 +1298,14 @@ export interface GetWarehouseRequest {
 }
 
 export interface GetWarehouseResponse {
-  /** unique identifier for warehouse */
+  /** Unique identifier of the warehouse. */
   id?: string | undefined;
   /**
-   * Logical name for the cluster.
+   * Logical name for the warehouse.
    *
    * Supported values:
    * - Must be unique within an org.
-   * - Must be less than 100 characters.
+   * - Must be 1 to 100 characters.
    */
   name?: string | undefined;
   /**
@@ -1309,7 +1364,10 @@ export interface GetWarehouseResponse {
    * Defaults to 120 mins
    */
   autoStopMins?: number | undefined;
-  /** warehouse creator name */
+  /**
+   * Name of the user who created the warehouse. Set by the server and ignored in
+   * requests.
+   */
   creatorName?: string | undefined;
   /** Deprecated. Instance profile used to pass IAM role to the cluster */
   instanceProfileArn?: string | undefined;
@@ -1321,7 +1379,11 @@ export interface GetWarehouseResponse {
    * - Number of tags < 45.
    */
   tags?: EndpointTags | undefined;
-  /** Configurations whether the endpoint should use spot instances. */
+  /**
+   * Configures whether the warehouse should use spot instances. COST_OPTIMIZED uses
+   * spot instances where the cloud provider supports them, and RELIABILITY_OPTIMIZED
+   * uses on-demand instances only.
+   */
   spotInstancePolicy?: EndpointSpotInstancePolicy | undefined;
   /**
    * Configures whether the warehouse should use Photon optimized clusters.
@@ -1329,7 +1391,7 @@ export interface GetWarehouseResponse {
    * Defaults to true.
    */
   enablePhoton?: boolean | undefined;
-  /** Channel Details */
+  /** Channel that determines which Databricks SQL version the warehouse runs. */
   channel?: Channel | undefined;
   /** Configures whether the warehouse should use serverless compute */
   enableServerlessCompute?: boolean | undefined;
@@ -1338,7 +1400,12 @@ export interface GetWarehouseResponse {
    * you must set to `PRO` and also set the field `enable_serverless_compute` to `true`.
    */
   warehouseType?: WarehouseType | undefined;
-  /** Warehouse statement timeout in seconds. */
+  /**
+   * Maximum time in seconds that a statement can run on this warehouse before it is
+   * cancelled. Set to 0 to remove the warehouse-level timeout. Changing the value of a
+   * running warehouse restarts it. See
+   * https://docs.databricks.com/aws/en/sql/language-manual/parameters/statement_timeout.
+   */
   statementTimeout?: number | undefined;
   /**
    * Cluster size multiplier for Reyden warehouses. Scales the effective compute
@@ -1360,13 +1427,16 @@ export interface GetWarehouseResponse {
    * than the configured DBU limit. Actual capacity may be below this ceiling.
    */
   maxDbu?: number | undefined;
-  /** current number of clusters running for the service */
+  /**
+   * Number of clusters currently allocated to the warehouse, including clusters that
+   * are still starting.
+   */
   numClusters?: number | undefined;
   /** Deprecated. current number of active sessions for the warehouse */
   numActiveSessions?: bigint | undefined;
-  /** state of the endpoint */
+  /** Current state of the warehouse. */
   state?: EndpointState | undefined;
-  /** the jdbc connection string for this warehouse */
+  /** JDBC connection string for the warehouse. */
   jdbcUrl?: string | undefined;
   /** ODBC parameters for the SQL warehouse */
   odbcParams?: OdbcParams | undefined;
@@ -1385,8 +1455,10 @@ export interface GetWorkspaceWarehouseConfigResponse {
   /** Security policy for warehouses */
   securityPolicy?: EndpointSecurityPolicy | undefined;
   /**
-   * Spark confs for external hive metastore configuration
-   * JSON serialized size must be less than <= 512K
+   * Spark configuration applied to every warehouse in the workspace, for example to
+   * connect to an external Hive metastore or to configure access to cloud storage.
+   * Only allowlisted keys are accepted, and the JSON-serialized size must be at most
+   * 512 KB. See https://docs.databricks.com/aws/en/admin/sql/data-access-configuration.
    */
   dataAccessConfig?: EndpointConfPair[] | undefined;
   /**
@@ -1403,11 +1475,15 @@ export interface GetWorkspaceWarehouseConfigResponse {
   globalParam?: RepeatedEndpointConfPairs | undefined;
   /** Deprecated: Use sql_configuration_parameters */
   configParam?: RepeatedEndpointConfPairs | undefined;
-  /** SQL configuration parameters */
+  /**
+   * SQL configuration parameters applied to every warehouse in the workspace. Only
+   * parameters that can be set at the workspace scope are accepted. See
+   * https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-parameters.
+   */
   sqlConfigurationParameters?: RepeatedEndpointConfPairs | undefined;
   /**
-   * GCP only: Google Service Account used to pass to cluster to access Google
-   * Cloud Storage
+   * GCP only: Google service account that the warehouse clusters use to access Google
+   * Cloud Storage.
    */
   googleServiceAccount?: string | undefined;
   /**
@@ -1416,8 +1492,7 @@ export interface GetWorkspaceWarehouseConfigResponse {
    * cannot be disabled, they don't need to be specified
    * in SetWorkspaceWarehouseConfig.
    * Note: Disabling a type may cause existing warehouses to be converted to
-   * another type. Used by frontend to save specific type availability in the
-   * warehouse create and edit form UI.
+   * another type.
    */
   enabledWarehouseTypes?: WarehouseTypePair[] | undefined;
 }
@@ -1463,15 +1538,20 @@ export interface ListWarehousesResponse {
 }
 
 export interface OdbcParams {
+  /** Hostname of the workspace to connect to. */
   hostname?: string | undefined;
+  /** HTTP path of the warehouse. */
   path?: string | undefined;
+  /** The transport protocol is always https. */
   protocol?: string | undefined;
+  /** The connection port is always 443. */
   port?: number | undefined;
 }
 
 export interface RepeatedEndpointConfPairs {
   /** Deprecated: Use configuration_pairs */
   configPair?: EndpointConfPair[] | undefined;
+  /** Configuration parameters, each a key-value pair. */
   configurationPairs?: EndpointConfPair[] | undefined;
 }
 
@@ -1484,8 +1564,10 @@ export interface SetWorkspaceWarehouseConfigRequest {
   /** Security policy for warehouses */
   securityPolicy?: EndpointSecurityPolicy | undefined;
   /**
-   * Spark confs for external hive metastore configuration
-   * JSON serialized size must be less than <= 512K
+   * Spark configuration applied to every warehouse in the workspace, for example to
+   * connect to an external Hive metastore or to configure access to cloud storage.
+   * Only allowlisted keys are accepted, and the JSON-serialized size must be at most
+   * 512 KB. See https://docs.databricks.com/aws/en/admin/sql/data-access-configuration.
    */
   dataAccessConfig?: EndpointConfPair[] | undefined;
   /**
@@ -1502,11 +1584,15 @@ export interface SetWorkspaceWarehouseConfigRequest {
   globalParam?: RepeatedEndpointConfPairs | undefined;
   /** Deprecated: Use sql_configuration_parameters */
   configParam?: RepeatedEndpointConfPairs | undefined;
-  /** SQL configuration parameters */
+  /**
+   * SQL configuration parameters applied to every warehouse in the workspace. Only
+   * parameters that can be set at the workspace scope are accepted. See
+   * https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-parameters.
+   */
   sqlConfigurationParameters?: RepeatedEndpointConfPairs | undefined;
   /**
-   * GCP only: Google Service Account used to pass to cluster to access Google
-   * Cloud Storage
+   * GCP only: Google service account that the warehouse clusters use to access Google
+   * Cloud Storage.
    */
   googleServiceAccount?: string | undefined;
   /**
@@ -1515,8 +1601,7 @@ export interface SetWorkspaceWarehouseConfigRequest {
    * cannot be disabled, they don't need to be specified
    * in SetWorkspaceWarehouseConfig.
    * Note: Disabling a type may cause existing warehouses to be converted to
-   * another type. Used by frontend to save specific type availability in the
-   * warehouse create and edit form UI.
+   * another type.
    */
   enabledWarehouseTypes?: WarehouseTypePair[] | undefined;
 }
@@ -1568,6 +1653,7 @@ export interface UpdateDefaultWarehouseOverrideRequest {
  * types in the workspace.
  */
 export interface WarehouseTypePair {
+  /** Warehouse type that this entry enables or disables. */
   warehouseType?: WarehouseType | undefined;
   /**
    * If set to false the specific warehouse type will not be allowed as a

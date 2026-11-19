@@ -573,6 +573,11 @@ export interface CreateWorkspaceBaseEnvironmentRequest {
  * A singleton resource representing the default workspace base environment configuration.
  * This resource contains the workspace base environments that are used as defaults
  * for serverless notebooks and jobs in the workspace, for both CPU and GPU compute types.
+ *
+ * When cpu_workspace_base_environment or gpu_workspace_base_environment is unset, new serverless
+ * notebooks for that compute type use the Databricks Standard base environment: the latest
+ * stable standard environment version provided by Databricks, with no workspace base environment
+ * applied. The workspace settings page shows this as Standard Latest.
  */
 export interface DefaultWorkspaceBaseEnvironment {
   /**
@@ -582,11 +587,13 @@ export interface DefaultWorkspaceBaseEnvironment {
   name?: string | undefined;
   /**
    * The default workspace base environment for CPU compute.
+   * If unset, CPU compute defaults to the Databricks Standard base environment (Standard Latest).
    * Format: workspace-base-environments/{workspace_base_environment}
    */
   cpuWorkspaceBaseEnvironment?: string | undefined;
   /**
    * The default workspace base environment for GPU compute.
+   * If unset, GPU compute defaults to the Databricks Standard base environment (Standard Latest).
    * Format: workspace-base-environments/{workspace_base_environment}
    */
   gpuWorkspaceBaseEnvironment?: string | undefined;
@@ -729,6 +736,9 @@ export interface UpdateDefaultWorkspaceBaseEnvironmentRequest {
    *
    * To unset one or both defaults, include the field path(s) in the mask and omit them from the request body.
    * To unset both, you must list both paths explicitly — the wildcard '*' cannot be used to unset fields.
+   * Unsetting a default makes that compute type use the Databricks Standard base environment.
+   * The Standard base environment has no resource name, so unsetting the field is the only way
+   * to select it.
    */
   updateMask?: FieldMask<DefaultWorkspaceBaseEnvironment> | undefined;
 }

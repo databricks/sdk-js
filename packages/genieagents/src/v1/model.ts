@@ -193,9 +193,9 @@ export interface GenieAgentConfig {
 
 /** The data a Genie Agent can access. */
 export interface GenieAgentDataSources {
-  /** Unity Catalog tables, views, and metric views, in the order they were added. */
+  /** Unity Catalog tables, views, and metric views, sorted by `identifier`. */
   tables?: GenieAgentTable[] | undefined;
-  /** Unity Catalog volumes, in the order they were added. */
+  /** Unity Catalog volumes, sorted by `path`. */
   volumes?: GenieAgentVolume[] | undefined;
   /** Unity Catalog MCP connections, sorted by `mcp_connection`. */
   mcpConnections?: GenieAgentMcpConnection[] | undefined;

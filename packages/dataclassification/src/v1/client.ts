@@ -65,8 +65,8 @@ export class DataClassificationClient {
    * Create Data Classification configuration for a catalog.
    *
    * Creates a new config resource, which enables Data Classification
-   * for the specified catalog.
-   * - The config must not already exist for the catalog.
+   * for the specified catalog. The catalog must not already have a config. Creating the config
+   * starts a scan of the selected schemas and schedules recurring scans.
    */
   async createCatalogConfig(
     req: CreateCatalogConfigRequest,
@@ -97,7 +97,13 @@ export class DataClassificationClient {
     return resp;
   }
 
-  /** Delete Data Classification configuration for a catalog. */
+  /**
+   * Delete Data Classification configuration for a catalog.
+   *
+   * Deleting the config disables Data Classification for the catalog and stops its scheduled
+   * scans. Tags that auto-tagging already applied to columns are not removed. Deleting a config
+   * that does not exist succeeds.
+   */
   async deleteCatalogConfig(
     req: DeleteCatalogConfigRequest,
     options?: CallOptions
@@ -151,8 +157,9 @@ export class DataClassificationClient {
 
   /**
    * Update the Data Classification configuration for a catalog.
-   * - The config must already exist for the catalog.
-   * - Updates fields specified in the update_mask.  Use update_mask field to perform partial updates of the configuration.
+   *
+   * The config must already exist for the catalog. Only the fields named in `update_mask`
+   * change; the other fields keep their current values.
    */
   async updateCatalogConfig(
     req: UpdateCatalogConfigRequest,

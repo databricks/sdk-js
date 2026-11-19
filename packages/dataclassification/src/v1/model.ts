@@ -24,7 +24,9 @@ export type AutoTaggingConfig_AutoTaggingMode =
 export interface AutoTaggingConfig {
   /**
    * The Classification Tag. For built-in classes this is a system tag (e.g., "class.name",
-   * "class.location"); for custom classes it is a user-defined governance tag key.
+   * "class.location"); for custom classes it is a user-defined governance tag key. The built-in
+   * tags are listed at
+   * https://docs.databricks.com/aws/en/data-governance/unity-catalog/data-classification-tags.
    */
   classificationTag?: string | undefined;
   /** Whether auto-tagging is enabled or disabled for this classification tag. */
@@ -44,7 +46,8 @@ export interface CatalogConfig {
         $case: 'includedSchemas';
         /**
          * Schemas to include in the scan, each named relative to the parent catalog.
-         * If specified, only listed schemas will be scanned.
+         * If specified, only listed schemas will be scanned. Schemas created later are not scanned
+         * until you add them to the list.
          * Mutually exclusive with `excluded_schemas`: only one may be set per request.
          * If neither `included_schemas` nor `excluded_schemas` is set, all schemas are scanned.
          */
@@ -54,7 +57,8 @@ export interface CatalogConfig {
         $case: 'excludedSchemas';
         /**
          * Schemas to exclude from the scan, each named relative to the parent catalog.
-         * If specified, all schemas except the specified ones will be scanned.
+         * If specified, all schemas except the specified ones will be scanned, including schemas
+         * created later.
          * Mutually exclusive with `included_schemas`: only one may be set per request.
          * If neither `included_schemas` nor `excluded_schemas` is set, all schemas are scanned.
          */
@@ -62,8 +66,9 @@ export interface CatalogConfig {
       }
     | undefined;
   /**
-   * List of auto-tagging configurations for this catalog.
-   * Empty list means no auto-tagging is enabled.
+   * Auto-tagging configurations that apply to this catalog. Each entry overrides the
+   * metastore-level auto-tagging setting for its classification tag; tags without an entry
+   * inherit the metastore-level setting.
    */
   autoTagConfigs?: AutoTaggingConfig[] | undefined;
 }
@@ -80,7 +85,7 @@ export interface CatalogConfig_SchemaNames {
  * Creating a config enables Data Classification for the catalog.
  */
 export interface CreateCatalogConfigRequest {
-  /** Parent resource in the format: catalogs/{catalog_name} */
+  /** Name of the catalog to enable, in the format catalogs/{catalog_name}. */
   parent?: string | undefined;
   /** The configuration to create. */
   catalogConfig?: CatalogConfig | undefined;
@@ -91,13 +96,13 @@ export interface CreateCatalogConfigRequest {
  * Deleting the config disables Data Classification for the catalog.
  */
 export interface DeleteCatalogConfigRequest {
-  /** Resource name in the format: catalogs/{catalog_name}/config */
+  /** Resource name of the config, in the format catalogs/{catalog_name}/config. */
   name?: string | undefined;
 }
 
 /** Get Data Classification configuration for a catalog. */
 export interface GetCatalogConfigRequest {
-  /** Resource name in the format: catalogs/{catalog_name}/config */
+  /** Resource name of the config, in the format catalogs/{catalog_name}/config. */
   name?: string | undefined;
 }
 
@@ -113,7 +118,10 @@ export interface UpdateCatalogConfigRequest {
    * The name field in catalog_config identifies which resource to update.
    */
   catalogConfig?: CatalogConfig | undefined;
-  /** Field mask specifying which fields to update. */
+  /**
+   * Comma-separated list of the fields of catalog_config to update, for example
+   * `included_schemas` or `auto_tag_configs`.
+   */
   updateMask?: FieldMask<CatalogConfig> | undefined;
 }
 

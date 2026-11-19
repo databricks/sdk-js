@@ -250,8 +250,8 @@ export class OAuthClient {
   }
 
   /**
-   * Delete an existing Published OAuth App Integration.
-   * You can retrieve the published OAuth app integration via [PublishedAppIntegration/get](https://docs.databricks.com/api/account/publishedappintegration/get).
+   * Delete an existing Published OAuth App Integration. The app can no longer be used to sign in to the
+   * account until it is enabled again with [PublishedAppIntegration/create](https://docs.databricks.com/api/account/publishedappintegration/create).
    */
   async deletePublishedOAuthAppIntegration(
     req: DeletePublishedOAuthAppIntegrationRequest,
@@ -397,7 +397,7 @@ export class OAuthClient {
     }
   }
 
-  /** Get the list of published OAuth app integrations for the specified <Account> */
+  /** Get the list of published OAuth app integrations for the specified <Databricks> account. */
   async listPublishedOAuthAppIntegrations(
     req: ListPublishedOAuthAppIntegrationsRequest,
     options?: CallOptions

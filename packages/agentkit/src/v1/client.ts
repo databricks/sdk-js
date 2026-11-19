@@ -216,7 +216,8 @@ export class AgentKitClient {
    * ID; the service generates one when it is omitted. Returns `ALREADY_EXISTS` when an entry with
    * the same actor, session, and path already exists. Omitted `session_id` is its own uniqueness
    * key: two omitted-session entries with the same actor and path conflict, but an omitted-session
-   * entry does not conflict with a session-scoped entry at the same actor and path.
+   * entry does not conflict with a session-scoped entry at the same actor and path. `session_id` is
+   * deprecated: once it is ignored, the uniqueness key becomes actor and path.
    */
   async createMemory(
     req: CreateManagedMemoryEntryRequest,
@@ -823,8 +824,8 @@ export class AgentKitClient {
 
   /**
    * Lists memory entries for one actor. An exact `path` filters entries across sessions,
-   * ignoring session metadata. Otherwise, `session_id` and `path_prefix` restrict the actor
-   * partition. `view` controls whether each returned entry includes memory content.
+   * ignoring session metadata. Otherwise, `path_prefix` and the deprecated `session_id` restrict
+   * the actor partition. `view` controls whether each returned entry includes memory content.
    */
   async listMemories(
     req: ListManagedMemoryEntriesRequest,

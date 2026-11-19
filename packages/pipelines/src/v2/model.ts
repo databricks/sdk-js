@@ -682,7 +682,9 @@ export interface ClonePipelineRequest {
   /**
    * Path of the pipeline parent folder in workspace file tree.
    *
-   * If absent, the pipeline doesn't have a workspace object.
+   * If absent, the pipeline doesn't have a parent folder.
+   *
+   * Example: /Workspace/Projects/my_project
    */
   parentPath?: string | undefined;
   /** Usage policy of this pipeline. */
@@ -755,7 +757,13 @@ export interface ConnectorOptions {
 }
 
 export interface CreatePipelineRequest {
-  /** If false, deployment will fail if name conflicts with that of another pipeline. */
+  /**
+   * If false, deployment will fail if name conflicts with that of another pipeline.
+   *
+   * Ignored when `parent_path` is set. A pipeline in a workspace folder must have a name that is
+   * unique within that folder, and creation fails if the folder already contains an object with the
+   * same name.
+   */
   allowDuplicateNames?: boolean | undefined;
   /**
    * If true, no pipeline is created. The response contains the settings that would be applied, with
@@ -867,7 +875,9 @@ export interface CreatePipelineRequest {
   /**
    * Path of the pipeline parent folder in workspace file tree.
    *
-   * If absent, the pipeline doesn't have a workspace object.
+   * If absent, the pipeline doesn't have a parent folder.
+   *
+   * Example: /Workspace/Projects/my_project
    */
   parentPath?: string | undefined;
   /** Usage policy of this pipeline. */
@@ -934,7 +944,14 @@ export interface DeletePipelineResponse {}
 export interface EditPipelineRequest {
   /** Unique identifier for this pipeline. */
   pipelineId?: string | undefined;
-  /** If false, deployment will fail if name has changed and conflicts the name of another pipeline. */
+  /**
+   * If false, deployment will fail if name has changed and conflicts with the name of another
+   * pipeline.
+   *
+   * Ignored when the pipeline is in a workspace folder or the request sets `parent_path`.
+   * Renaming or moving such a pipeline fails if the target folder already contains an object with
+   * the same name.
+   */
   allowDuplicateNames?: boolean | undefined;
   /**
    * If present, the last-modified time of the pipeline settings before the edit.
@@ -1044,7 +1061,9 @@ export interface EditPipelineRequest {
   /**
    * Path of the pipeline parent folder in workspace file tree.
    *
-   * If absent, the pipeline doesn't have a workspace object.
+   * If absent, the pipeline doesn't have a parent folder.
+   *
+   * Example: /Workspace/Projects/my_project
    */
   parentPath?: string | undefined;
   /** Usage policy of this pipeline. */
@@ -1310,8 +1329,9 @@ export interface IngestionGatewayPipelineDefinition {
 
 export interface IngestionPipelineDefinition {
   /**
-   * (Required, Mutable) Identifies the data source for the Lakeflow Connect Ingestion pipeline.
-   * Exactly one option must be specified.
+   * (Mutable) Identifies the data source for the Lakeflow Connect Ingestion pipeline.
+   * Exactly one option must be specified, unless the objects ingest from cloud object storage
+   * via `connector_options.cloud_files_options`, in which case none is specified.
    */
   source?:
     | {
@@ -2428,7 +2448,9 @@ export interface PipelineSpec {
   /**
    * Path of the pipeline parent folder in workspace file tree.
    *
-   * If absent, the pipeline doesn't have a workspace object.
+   * If absent, the pipeline doesn't have a parent folder.
+   *
+   * Example: /Workspace/Projects/my_project
    */
   parentPath?: string | undefined;
   /** Usage policy of this pipeline. */

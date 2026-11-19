@@ -553,10 +553,10 @@ export type AiParseDocumentFunction_DescriptionElementType =
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const AiRuntimeTask_PriorityClass = {
-  /** Lowest priority; preemptable by higher-priority workloads. */
-  BEST_EFFORT: 'BEST_EFFORT',
   /** Medium priority; not preemptable. */
   NORMAL: 'NORMAL',
+  /** Highest priority; not preemptable. */
+  HIGH: 'HIGH',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type AiRuntimeTask_PriorityClass =
@@ -2284,7 +2284,11 @@ export interface CreateJobRequest {
    * uses the default cost-optimized performance level without additional cost-saving optimizations.
    */
   durationTarget?: string | undefined;
-  /** Path of the job parent folder in workspace file tree. If absent, the job doesn't have a workspace object. */
+  /**
+   * Path of the job parent folder in workspace file tree. If absent, the job doesn't have a parent folder.
+   *
+   * Example: /Workspace/Projects/my_project
+   */
   parentPath?: string | undefined;
   /**
    * List of triggers attached to this job. A run starts when any active trigger evaluates to true. Cannot be set in
@@ -3601,7 +3605,11 @@ export interface JobSettings {
    * uses the default cost-optimized performance level without additional cost-saving optimizations.
    */
   durationTarget?: string | undefined;
-  /** Path of the job parent folder in workspace file tree. If absent, the job doesn't have a workspace object. */
+  /**
+   * Path of the job parent folder in workspace file tree. If absent, the job doesn't have a parent folder.
+   *
+   * Example: /Workspace/Projects/my_project
+   */
   parentPath?: string | undefined;
   /**
    * List of triggers attached to this job. A run starts when any active trigger evaluates to true. Cannot be set in

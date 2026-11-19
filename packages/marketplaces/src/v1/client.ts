@@ -1145,7 +1145,11 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Create a file. Currently, only provider icons and attached notebooks are supported. */
+  /**
+   * Creates a file and returns a short-lived URL for uploading its content with an HTTP PUT request.
+   * Only provider icons (PROVIDER_ICON files on a PROVIDER parent) and sample notebooks
+   * (EMBEDDED_NOTEBOOK files on a LISTING parent) are supported.
+   */
   async createFile(
     req: CreateFileRequest,
     options?: CallOptions
@@ -1175,7 +1179,11 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Create a new listing */
+  /**
+   * Creates a listing under one of the caller's provider profiles. The listing name, provider ID and
+   * visibility are required, and the caller must have access to any share that the listing
+   * references. Returns the ID of the new listing.
+   */
   async createListing(
     req: CreateListingRequest,
     options?: CallOptions
@@ -1205,7 +1213,7 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Create a provider */
+  /** Creates a provider profile in the caller's account. Returns the ID of the new profile. */
   async createProvider(
     req: CreateProviderRequest,
     options?: CallOptions
@@ -1235,7 +1243,11 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Create provider analytics dashboard. Returns Marketplace specific `id`. Not to be confused with the Lakeview dashboard id. */
+  /**
+   * Creates the Provider Analytics Dashboard in the caller's workspace from the latest template. Fails
+   * if the dashboard already exists. Returns the Marketplace-specific `id` of the dashboard record,
+   * which is distinct from the AI/BI dashboard ID.
+   */
   async createProviderAnalyticsDashboard(
     req: CreateProviderAnalyticsDashboardRequest,
     options?: CallOptions
@@ -1332,7 +1344,7 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Delete a file */
+  /** Deletes a file. Fails if the file is still in use. */
   async deleteFile(
     req: DeleteFileRequest,
     options?: CallOptions
@@ -1361,7 +1373,10 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Delete a listing */
+  /**
+   * Deletes a listing permanently. The underlying share is not deleted, and consumers who already have
+   * access to the share keep that access until it is revoked in Delta Sharing.
+   */
   async deleteListing(
     req: DeleteListingRequest,
     options?: CallOptions
@@ -1390,7 +1405,7 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Delete provider */
+  /** Deletes a provider profile and all of the listings that it owns. */
   async deleteProvider(
     req: DeleteProviderRequest,
     options?: CallOptions
@@ -1448,7 +1463,7 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Get a file */
+  /** Gets a file's metadata, including a short-lived download URL. */
   async getFile(
     req: GetFileRequest,
     options?: CallOptions
@@ -1477,7 +1492,7 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Get latest version of provider analytics dashboard. */
+  /** Gets the latest available version of the Provider Analytics Dashboard template. */
   async getLatestVersionProviderAnalyticsDashboard(
     _req: GetLatestVersionProviderAnalyticsDashboardRequest,
     options?: CallOptions
@@ -1509,7 +1524,7 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Get a listing */
+  /** Gets a listing owned by one of the caller's provider profiles. */
   async getListing(
     req: GetListingRequest,
     options?: CallOptions
@@ -1602,7 +1617,7 @@ export class MarketplacesClient {
     }
   }
 
-  /** Get provider profile */
+  /** Gets a provider profile by ID. */
   async getProvider(
     req: GetProviderRequest,
     options?: CallOptions
@@ -1808,7 +1823,7 @@ export class MarketplacesClient {
     }
   }
 
-  /** List files attached to a parent entity. */
+  /** Lists the files attached to a provider profile or a listing. */
   async listFiles(
     req: ListFilesRequest,
     options?: CallOptions
@@ -1870,7 +1885,7 @@ export class MarketplacesClient {
     }
   }
 
-  /** List listings owned by this provider */
+  /** Lists the listings owned by the provider profiles in the caller's account. */
   async listListings(
     req: ListListingsRequest,
     options?: CallOptions
@@ -1986,7 +2001,10 @@ export class MarketplacesClient {
     }
   }
 
-  /** Get provider analytics dashboard. */
+  /**
+   * Gets the Provider Analytics Dashboard that was created for the caller's account. Returns an empty
+   * response if the dashboard has not been created yet.
+   */
   async listProviderAnalyticsDashboard(
     _req: ListProviderAnalyticsDashboardRequest,
     options?: CallOptions
@@ -2018,7 +2036,7 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** List provider profiles for account. */
+  /** Lists the provider profiles in the caller's account. */
   async listProviders(
     req: ListProvidersRequest,
     options?: CallOptions
@@ -2168,7 +2186,10 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Update a listing */
+  /**
+   * Updates a listing. Send the full listing definition; the listing type cannot be changed after the
+   * listing is created, and changing the share re-links the listing to the new share.
+   */
   async updateListing(
     req: UpdateListingRequest,
     options?: CallOptions
@@ -2198,7 +2219,11 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Update personalization request. This method only permits updating the status of the request. */
+  /**
+   * Updates the status of a personalization request; other properties of the request cannot be
+   * changed. Fulfilling a request grants the consumer access to the share, and denying a fulfilled
+   * request revokes that access. The listing must be published.
+   */
   async updatePersonalizationRequestStatus(
     req: UpdatePersonalizationRequestStatusRequest,
     options?: CallOptions
@@ -2234,7 +2259,7 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Update provider profile */
+  /** Updates a provider profile. Send the full profile definition. */
   async updateProvider(
     req: UpdateProviderRequest,
     options?: CallOptions
@@ -2264,7 +2289,10 @@ export class MarketplacesClient {
     return resp;
   }
 
-  /** Update provider analytics dashboard. */
+  /**
+   * Updates the Provider Analytics Dashboard to a newer version of the template. The requested version
+   * must be newer than the version that the dashboard currently uses.
+   */
   async updateProviderAnalyticsDashboard(
     req: UpdateProviderAnalyticsDashboardRequest,
     options?: CallOptions

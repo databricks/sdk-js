@@ -340,8 +340,8 @@ export interface GrantSessionStorePermissionRequest {
 export interface GrantSessionStorePermissionResponse {}
 
 /**
- * Request to list memory entries for one actor, optionally restricted by session and
- * path prefix, or matched by exact path regardless of session.
+ * Request to list memory entries for one actor, optionally restricted by path prefix and the
+ * deprecated session filter, or matched by exact path regardless of session.
  */
 export interface ListManagedMemoryEntriesRequest {
   /**
@@ -361,8 +361,9 @@ export interface ListManagedMemoryEntriesRequest {
   /** Optional path prefix used to restrict entries within the actor partition. */
   pathPrefix?: string | undefined;
   /**
-   * Optional session identifier. When set, only entries with this exact `session_id` are
-   * returned. Omitted-session (cross-session) entries are not included. Ignored when path is set.
+   * Deprecated: the service will ignore this filter. Until then, when set, only entries with
+   * this exact `session_id` are returned, and omitted-session (cross-session) entries
+   * are not included. Ignored when path is set.
    */
   sessionId?: string | undefined;
   /** Controls whether each returned entry includes memory content. Defaults to `FULL`. */
@@ -519,12 +520,14 @@ export interface ManagedMemoryEntry {
   /** Customer-provided identifier for the actor whose memory this entry represents. */
   actorId?: string | undefined;
   /**
-   * Optional identifier for the session associated with this memory entry. When omitted, the
+   * Deprecated: memory entries will be identified by `(actor_id, path)`, and the service will
+   * ignore this field on writes and omit it from responses. Until then, an omitted value means the
    * entry applies across the actor's sessions.
    */
   sessionId?: string | undefined;
   /**
-   * Absolute, case-sensitive path identifying the entry within its actor and optional session.
+   * Absolute, case-sensitive path identifying the entry within its actor and, until the
+   * deprecated `session_id` is ignored, its optional session.
    * Paths must begin with `/` and must not contain empty, `.` or `..` segments.
    */
   path?: string | undefined;
@@ -663,8 +666,9 @@ export interface SearchManagedMemoryEntriesRequest {
    */
   pageToken?: string | undefined;
   /**
-   * Optional session identifier. When set, only entries with this exact `session_id` are
-   * searched. Omitted-session (cross-session) entries are not included.
+   * Deprecated: the service will ignore this filter. Until then, when set, only entries with
+   * this exact `session_id` are searched, and omitted-session (cross-session) entries
+   * are not included.
    */
   sessionId?: string | undefined;
   /**

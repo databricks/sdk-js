@@ -144,7 +144,7 @@ export interface ChunkInfo {
   /**
    * When fetching, provides the `chunk_index` for the _next_ chunk. If absent, indicates there are no
    * more chunks. The next chunk can be fetched with a
-   * :method:statementexecution/getstatementresultchunkn request.
+   * :method:statementexecution/getStatementResultChunkN request.
    */
   nextChunkIndex?: number | undefined;
   /**
@@ -316,7 +316,7 @@ export interface ExecuteStatementRequest {
    *
    * The parameters can be passed in the request body as follows:
    *
-   * `
+   * ```
    * {
    * ...,
    * "statement": "SELECT * FROM my_table WHERE name = :my_name AND date = :my_date",
@@ -325,7 +325,7 @@ export interface ExecuteStatementRequest {
    * { "name": "my_date", "value": "2020-01-01", "type": "DATE" }
    * ]
    * }
-   * `
+   * ```
    *
    * Currently, positional parameters denoted by a `?` marker are not supported by the
    * Databricks SQL Statement Execution API.
@@ -387,7 +387,7 @@ export interface ExternalLink {
   /**
    * When fetching, provides the `chunk_index` for the _next_ chunk. If absent, indicates there are no
    * more chunks. The next chunk can be fetched with a
-   * :method:statementexecution/getstatementresultchunkn request.
+   * :method:statementexecution/getStatementResultChunkN request.
    */
   nextChunkIndex?: number | undefined;
   /**
@@ -404,6 +404,7 @@ export interface GetResultDataRequest {
    * reference for all subsequent calls.
    */
   statementId?: string | undefined;
+  /** The zero-based index of the result chunk to fetch. */
   chunkIndex?: number | undefined;
   /**
    * The ID of the warehouse that ran the statement. The Statement Execution (Lakehouse//RT) API takes it
@@ -446,6 +447,7 @@ export interface QueryTag {
  * link is returned.)
  */
 export interface ResultData {
+  /** Short-lived cloud-storage links to the result data, used with the `EXTERNAL_LINKS` disposition. */
   externalLinks?: ExternalLink[] | undefined;
   /**
    * The `JSON_ARRAY` format is an array of arrays of values, where each non-null value is
@@ -466,7 +468,7 @@ export interface ResultData {
   /**
    * When fetching, provides the `chunk_index` for the _next_ chunk. If absent, indicates there are no
    * more chunks. The next chunk can be fetched with a
-   * :method:statementexecution/getstatementresultchunkn request.
+   * :method:statementexecution/getStatementResultChunkN request.
    */
   nextChunkIndex?: number | undefined;
   /**
@@ -479,7 +481,9 @@ export interface ResultData {
 
 /** The result manifest provides schema and metadata for the result set. */
 export interface ResultManifest {
+  /** The format of the result data, as requested with `format`. */
   format?: Format | undefined;
+  /** The schema of the result set: the ordered list of column descriptions. */
   schema?: Schema | undefined;
   /** The total number of chunks that the result set has been divided into. */
   totalChunkCount?: number | undefined;
@@ -498,11 +502,14 @@ export interface ResultManifest {
 
 /** The schema is an ordered list of column descriptions. */
 export interface Schema {
+  /** The number of columns in the result set. */
   columnCount?: number | undefined;
+  /** The column descriptions, in result set order. */
   columns?: ColumnInfo[] | undefined;
 }
 
 export interface ServiceError {
+  /** The error code that classifies the failure. */
   errorCode?: ServiceErrorCode | undefined;
   /** A brief summary of the error condition. */
   message?: string | undefined;
@@ -533,8 +540,18 @@ export interface StatementResponse {
    * reference for all subsequent calls.
    */
   statementId?: string | undefined;
+  /** The execution state of the statement and, if it failed, the error details. */
   status?: StatementStatus | undefined;
+  /** The schema and metadata of the result set. Present when `status.state` is `SUCCEEDED`. */
   manifest?: ResultManifest | undefined;
+  /**
+   * Contains the result data of a single chunk when using `INLINE` disposition. When using
+   * `EXTERNAL_LINKS` disposition, the array `external_links` is used instead to provide
+   * short-lived cloud-storage URLs to the result data
+   * in cloud storage. Exactly one of these alternatives is used. Calls to `getResultData` return
+   * the link for the requested chunk; `executeStatement` and `getStatementResult` responses can
+   * contain links for multiple chunks.
+   */
   result?: ResultData | undefined;
 }
 
@@ -551,6 +568,7 @@ export interface StatementStatus {
    * - `CLOSED`: execution successful, and statement closed; result no longer available for fetch
    */
   state?: StatementStatus_State | undefined;
+  /** The error that caused the statement to fail. Only populated when `state` is `FAILED`. */
   error?: ServiceError | undefined;
   /**
    * SQLSTATE error code returned when the statement execution fails.

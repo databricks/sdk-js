@@ -10,10 +10,12 @@ export interface CreateTagPolicyRequest {
 }
 
 export interface DeleteTagPolicyRequest {
+  /** The key of the governed tag whose policy to delete. */
   tagKey?: string | undefined;
 }
 
 export interface GetTagPolicyRequest {
+  /** The key of the governed tag whose policy to get. */
   tagKey?: string | undefined;
 }
 
@@ -33,10 +35,22 @@ export interface ListTagPoliciesResponse {
   nextPageToken?: string | undefined;
 }
 
+/**
+ * A tag policy makes a tag key governed and defines the values that can be assigned to it. Governed
+ * tags are enforced across all workspaces in the account, and only users with the ASSIGN permission on
+ * the governed tag can assign it. See https://docs.databricks.com/aws/en/admin/governed-tags/.
+ */
 export interface TagPolicy {
+  /** The tag key that this policy governs. Tag keys are case-sensitive. */
   tagKey?: string | undefined;
+  /** The unique identifier of the tag policy, generated when the policy is created. */
   id?: string | undefined;
+  /** A description of the governed tag, such as its purpose or the meaning of its values. */
   description?: string | undefined;
+  /**
+   * The allowed values of the governed tag. Only these values can be assigned to the tag key, and each
+   * value must be unique. A policy without values defines a key-only governed tag.
+   */
   values?: Value[] | undefined;
   /** Timestamp when the tag policy was created */
   createTime?: Temporal.Instant | undefined;
@@ -46,10 +60,16 @@ export interface TagPolicy {
 
 export interface UpdateTagPolicyRequest {
   tagPolicy?: TagPolicy | undefined;
+  /**
+   * The comma-separated list of tag policy fields to update. When the mask includes `values`, the
+   * values in the request replace all existing allowed values.
+   */
   updateMask?: FieldMask<TagPolicy> | undefined;
 }
 
+/** An allowed value of a governed tag. */
 export interface Value {
+  /** The value that can be assigned to the tag key. Values are case-sensitive. */
   name?: string | undefined;
 }
 

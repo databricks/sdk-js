@@ -18,6 +18,30 @@ export type ImageAccelerationDetail_Status =
   | (typeof ImageAccelerationDetail_Status)[keyof typeof ImageAccelerationDetail_Status]
   | (string & {});
 
+/** Request to delete a software artifact. */
+export interface DeleteSoftwareArtifactRequest {
+  /**
+   * Resource name of the software artifact, of the form
+   * `software-artifacts/{catalog}.{schema}.{artifact}`.
+   */
+  name?: string | undefined;
+  /**
+   * Force deletion even if the software artifact has versions, deleting them with it. Default is
+   * false.
+   */
+  force?: boolean | undefined;
+}
+
+/** Request to delete a software artifact version. */
+export interface DeleteSoftwareArtifactVersionRequest {
+  /**
+   * Resource name of the version, of the form
+   * `software-artifacts/{catalog}.{schema}.{artifact}/versions/{version}`, where `{version}` is the
+   * version's content digest, for example `sha256:<hex>`.
+   */
+  name?: string | undefined;
+}
+
 /** Request to get a software artifact. */
 export interface GetSoftwareArtifactRequest {
   /**

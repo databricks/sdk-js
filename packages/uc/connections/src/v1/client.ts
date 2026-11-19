@@ -131,7 +131,7 @@ export class ConnectionsClient {
     return resp;
   }
 
-  /** Gets a connection from it's name. */
+  /** Gets a connection from its name. */
   async getConnection(
     req: GetConnectionRequest,
     options?: CallOptions
@@ -225,7 +225,10 @@ export class ConnectionsClient {
     }
   }
 
-  /** Updates the connection that matches the supplied name. */
+  /**
+   * Updates the connection that matches the supplied name. When options are provided, they replace the
+   * existing options of the connection, so include every key that the connection type requires.
+   */
   async updateConnection(
     req: UpdateConnectionRequest,
     options?: CallOptions

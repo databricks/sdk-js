@@ -60,20 +60,21 @@ export interface AccessControlRequest {
   principalName?:
     | {
         $case: 'userName';
-        /** name of the user */
+        /** Username of the user, which is the user's email address. */
         userName: string;
       }
     | {
         $case: 'groupName';
-        /** name of the group */
+        /** Display name of the group. */
         groupName: string;
       }
     | {
         $case: 'servicePrincipalName';
-        /** application ID of a service principal */
+        /** Application ID of the service principal. */
         servicePrincipalName: string;
       }
     | undefined;
+  /** Permission level to grant to the principal. */
   permissionLevel?: PermissionLevel | undefined;
 }
 
@@ -81,23 +82,23 @@ export interface AccessControlResponse {
   principalName?:
     | {
         $case: 'userName';
-        /** name of the user */
+        /** Username of the user, which is the user's email address. */
         userName: string;
       }
     | {
         $case: 'groupName';
-        /** name of the group */
+        /** Display name of the group. */
         groupName: string;
       }
     | {
         $case: 'servicePrincipalName';
-        /** Name of the service principal. */
+        /** Application ID of the service principal. */
         servicePrincipalName: string;
       }
     | undefined;
   /** Display name of the user or service principal. */
   displayName?: string | undefined;
-  /** All permissions. */
+  /** Permission levels the principal holds on the object, both granted directly and inherited. */
   allPermissions?: Permission[] | undefined;
 }
 
@@ -170,7 +171,11 @@ export interface DeleteWorkspacePermissionAssignmentResponse {}
 export interface GetObjectPermissionsRequest {
   /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, supervisor-agents, vector-search-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
-  /** The id of the request object. */
+  /**
+   * The id of the object. It is the id that the object's own API uses, for example the cluster id for
+   * clusters, the job id for jobs, and the workspace object id for notebooks and directories. For the
+   * `authorization` object type, use `tokens` to manage token permissions.
+   */
   requestObjectId?: string | undefined;
 }
 
@@ -249,11 +254,16 @@ export interface ListAssignableRolesForResourceResponse {
 export interface ListPermissionLevelsRequest {
   /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, supervisor-agents, vector-search-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
+  /**
+   * The id of the object. It is the id that the object's own API uses, for example the cluster id for
+   * clusters, the job id for jobs, and the workspace object id for notebooks and directories. For the
+   * `authorization` object type, use `tokens` to manage token permissions.
+   */
   requestObjectId?: string | undefined;
 }
 
 export interface ListPermissionLevelsResponse {
-  /** Specific permission levels */
+  /** Permission levels that can be granted on objects of the requested type. */
   permissionLevels?: PermissionsDescription[] | undefined;
 }
 
@@ -326,8 +336,14 @@ export interface MigratePermissionsResponse {
 }
 
 export interface Permission {
+  /** Permission level the principal holds on the object. */
   permissionLevel?: PermissionLevel | undefined;
+  /**
+   * Whether the permission is inherited from a parent object or the root object instead of being
+   * granted directly on the object.
+   */
   inherited?: boolean | undefined;
+  /** Paths of the objects the permission is inherited from. It is only set when `inherited` is true. */
   inheritedFromObject?: string[] | undefined;
 }
 
@@ -338,13 +354,28 @@ export interface PermissionOutput {
 }
 
 export interface PermissionsDescription {
+  /** Permission level that can be granted on the object. */
   permissionLevel?: PermissionLevel | undefined;
+  /** Human-readable description of the permission level. */
   description?: string | undefined;
 }
 
+/** The permissions set on an object, with one entry per principal that holds a permission on it. */
 export interface PermissionsResponse {
+  /**
+   * Path that identifies the object in the access control list, built from the object type and the
+   * object id.
+   */
   objectId?: string | undefined;
+  /**
+   * Type of the object, as recorded in the access control list. It can differ from the
+   * `request_object_type` path segment, for example a request for `clusters` returns `cluster`.
+   */
   objectType?: string | undefined;
+  /**
+   * Permissions on the object, with one entry per principal. Each entry lists the principal's direct
+   * and inherited permission levels.
+   */
   accessControlList?: AccessControlResponse[] | undefined;
 }
 
@@ -446,16 +477,34 @@ export interface RuleSetUpdateRequest {
 export interface SetObjectPermissionsRequest {
   /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, supervisor-agents, vector-search-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
-  /** The id of the request object. */
+  /**
+   * The id of the object. It is the id that the object's own API uses, for example the cluster id for
+   * clusters, the job id for jobs, and the workspace object id for notebooks and directories. For the
+   * `authorization` object type, use `tokens` to manage token permissions.
+   */
   requestObjectId?: string | undefined;
+  /**
+   * Permissions to apply to the object, with one entry per principal. Each entry names exactly one
+   * principal through `user_name`, `group_name` or `service_principal_name` and the
+   * `permission_level` for that principal.
+   */
   accessControlList?: AccessControlRequest[] | undefined;
 }
 
 export interface UpdateObjectPermissionsRequest {
   /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, supervisor-agents, vector-search-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
-  /** The id of the request object. */
+  /**
+   * The id of the object. It is the id that the object's own API uses, for example the cluster id for
+   * clusters, the job id for jobs, and the workspace object id for notebooks and directories. For the
+   * `authorization` object type, use `tokens` to manage token permissions.
+   */
   requestObjectId?: string | undefined;
+  /**
+   * Permissions to apply to the object, with one entry per principal. Each entry names exactly one
+   * principal through `user_name`, `group_name` or `service_principal_name` and the
+   * `permission_level` for that principal.
+   */
   accessControlList?: AccessControlRequest[] | undefined;
 }
 

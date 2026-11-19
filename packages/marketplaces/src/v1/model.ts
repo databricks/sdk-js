@@ -235,9 +235,13 @@ export interface ConsumerTerms {
 
 /** contact info for the consumer requesting data or performing a listing installation */
 export interface ContactInfo {
+  /** First name of the consumer contact. */
   firstName?: string | undefined;
+  /** Last name of the consumer contact. */
   lastName?: string | undefined;
+  /** Email address of the consumer contact. */
   email?: string | undefined;
+  /** Company of the consumer contact. */
   company?: string | undefined;
 }
 
@@ -258,15 +262,26 @@ export interface CreateExchangeResponse {
 }
 
 export interface CreateFileRequest {
+  /** Provider profile or listing to attach the file to. */
   fileParent?: FileParent | undefined;
+  /**
+   * Purpose of the file. PROVIDER_ICON requires a PROVIDER parent; EMBEDDED_NOTEBOOK requires a
+   * LISTING parent.
+   */
   marketplaceFileType?: MarketplaceFileType | undefined;
+  /**
+   * MIME type of the file content: text/html for notebooks; image/png, image/jpeg or image/svg+xml
+   * for icons.
+   */
   mimeType?: string | undefined;
+  /** Name shown to consumers for the file, for example a notebook title. At most 255 characters. */
   displayName?: string | undefined;
 }
 
 export interface CreateFileResponse {
-  /** Pre-signed POST URL to blob storage */
+  /** Short-lived URL for uploading the file content with an HTTP PUT request. */
   uploadUrl?: string | undefined;
+  /** Metadata of the created file. */
   fileInfo?: FileInfo | undefined;
 }
 
@@ -285,10 +300,12 @@ export interface CreateInstallationResponse {
 }
 
 export interface CreateListingRequest {
+  /** Listing to create. */
   listing?: Listing | undefined;
 }
 
 export interface CreateListingResponse {
+  /** ID of the created listing. */
   listingId?: string | undefined;
 }
 
@@ -316,19 +333,24 @@ export interface CreatePersonalizationResponse {
 export interface CreateProviderAnalyticsDashboardRequest {}
 
 export interface CreateProviderAnalyticsDashboardResponse {
+  /** Marketplace-specific ID of the dashboard record, distinct from the AI/BI dashboard ID. */
   id?: string | undefined;
 }
 
 export interface CreateProviderRequest {
+  /** Provider profile to create. */
   provider?: ProviderInfo | undefined;
 }
 
 export interface CreateProviderResponse {
+  /** ID of the created provider profile. */
   id?: string | undefined;
 }
 
 export interface DataRefreshInfo {
+  /** Number of time units. Must be greater than zero. */
   interval?: bigint | undefined;
+  /** Time unit that the interval is expressed in. */
   unit?: DataRefresh | undefined;
 }
 
@@ -347,6 +369,7 @@ export interface DeleteExchangeRequest {
 export interface DeleteExchangeResponse {}
 
 export interface DeleteFileRequest {
+  /** ID of the file to delete. */
   fileId?: string | undefined;
 }
 
@@ -362,6 +385,7 @@ export interface DeleteInstallationRequest {
 export interface DeleteInstallationResponse {}
 
 export interface DeleteListingRequest {
+  /** ID of the listing to delete. */
   id?: string | undefined;
 }
 
@@ -369,6 +393,7 @@ export interface DeleteListingRequest {
 export interface DeleteListingResponse {}
 
 export interface DeleteProviderRequest {
+  /** ID of the provider profile to delete. */
   id?: string | undefined;
 }
 
@@ -410,22 +435,35 @@ export interface ExchangeListing {
 }
 
 export interface FileInfo {
+  /** ID of the file. */
   id?: string | undefined;
+  /** Purpose of the file, such as a provider icon or a notebook attached to a listing. */
   marketplaceFileType?: MarketplaceFileType | undefined;
+  /** Provider or listing that the file belongs to. */
   fileParent?: FileParent | undefined;
+  /** MIME type of the file content, for example text/html for notebooks or image/png for icons. */
   mimeType?: string | undefined;
+  /** Short-lived URL for downloading the file content. */
   downloadLink?: string | undefined;
+  /** Time the file was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
+  /** Time the file was last updated, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** Name displayed to users for applicable files, e.g. embedded notebooks */
   displayName?: string | undefined;
+  /**
+   * Processing status of the file. New files start in FILE_STATUS_STAGING and become
+   * FILE_STATUS_PUBLISHED after Databricks has sanitized them.
+   */
   status?: FileStatus | undefined;
   /** Populated if status is in a failed state with more information on reason for the failure. */
   statusMessage?: string | undefined;
 }
 
 export interface FileParent {
+  /** ID of the provider or listing that the file belongs to. */
   parentId?: string | undefined;
+  /** Type of the parent: PROVIDER for provider icons, LISTING for notebooks attached to a listing. */
   fileParentType?: FileParentType | undefined;
 }
 
@@ -443,10 +481,12 @@ export interface GetExchangeResponse {
 }
 
 export interface GetFileRequest {
+  /** ID of the file. */
   fileId?: string | undefined;
 }
 
 export interface GetFileResponse {
+  /** Metadata of the file. */
   fileInfo?: FileInfo | undefined;
 }
 
@@ -464,7 +504,7 @@ export interface GetInstallationDetailsRequest {
 export interface GetLatestVersionProviderAnalyticsDashboardRequest {}
 
 export interface GetLatestVersionProviderAnalyticsDashboardResponse {
-  /** version here is latest logical version of the dashboard template */
+  /** Latest available version of the dashboard template. */
   version?: bigint | undefined;
 }
 
@@ -480,15 +520,19 @@ export interface GetListingContentMetadataResponse {
 }
 
 export interface GetListingRequest {
+  /** ID of the listing. */
   id?: string | undefined;
 }
 
 export interface GetListingResponse {
+  /** The requested listing. */
   listing?: Listing | undefined;
 }
 
 export interface GetListingsResponse {
+  /** Listings on this page. */
   listings?: Listing[] | undefined;
+  /** Token for the next page. Not set when there are no more results. */
   nextPageToken?: string | undefined;
 }
 
@@ -501,20 +545,26 @@ export interface GetPersonalizationRequestsForConsumerResponse {
 }
 
 export interface GetPersonalizationRequestsForProviderRequest {
+  /** Token from the next_page_token field of a previous response. Omit to get the first page. */
   pageToken?: string | undefined;
+  /** Maximum number of results to return per page. */
   pageSize?: number | undefined;
 }
 
 export interface GetPersonalizationRequestsForProviderResponse {
+  /** Personalization requests on this page. */
   personalizationRequests?: PersonalizationRequest[] | undefined;
+  /** Token for the next page. Not set when there are no more results. */
   nextPageToken?: string | undefined;
 }
 
 export interface GetProviderRequest {
+  /** ID of the provider profile. */
   id?: string | undefined;
 }
 
 export interface GetProviderResponse {
+  /** The requested provider profile. */
   provider?: ProviderInfo | undefined;
 }
 
@@ -593,13 +643,18 @@ export interface ListExchangesResponse {
 }
 
 export interface ListFilesRequest {
+  /** Provider profile or listing whose files to list. */
   fileParent?: FileParent | undefined;
+  /** Token from the next_page_token field of a previous response. Omit to get the first page. */
   pageToken?: string | undefined;
+  /** Maximum number of results to return per page. */
   pageSize?: number | undefined;
 }
 
 export interface ListFilesResponse {
+  /** Files on this page. */
   fileInfos?: FileInfo[] | undefined;
+  /** Token for the next page. Not set when there are no more results. */
   nextPageToken?: string | undefined;
 }
 
@@ -636,7 +691,9 @@ export interface ListListingsForExchangeResponse {
 }
 
 export interface ListListingsRequest {
+  /** Token from the next_page_token field of a previous response. Omit to get the first page. */
   pageToken?: string | undefined;
+  /** Maximum number of results to return per page. */
   pageSize?: number | undefined;
 }
 
@@ -649,19 +706,25 @@ export interface ListPersonalizationRequestsForConsumerRequest {
 export interface ListProviderAnalyticsDashboardRequest {}
 
 export interface ListProviderAnalyticsDashboardResponse {
+  /** Marketplace-specific ID of the dashboard record. Use it as the `id` when updating the dashboard. */
   id?: string | undefined;
+  /** Version of the dashboard template that the dashboard was created or last updated from. */
   version?: bigint | undefined;
-  /** dashboard_id will be used to open Lakeview dashboard. */
+  /** ID of the AI/BI dashboard in the workspace. Use it to open the dashboard. */
   dashboardId?: string | undefined;
 }
 
 export interface ListProvidersRequest {
+  /** Token from the next_page_token field of a previous response. Omit to get the first page. */
   pageToken?: string | undefined;
+  /** Maximum number of results to return per page. */
   pageSize?: number | undefined;
 }
 
 export interface ListProvidersResponse {
+  /** Provider profiles on this page. */
   providers?: ProviderInfo[] | undefined;
+  /** Token for the next page. Not set when there are no more results. */
   nextPageToken?: string | undefined;
 }
 
@@ -696,19 +759,48 @@ export interface ListPublishedProvidersForConsumerResponse {
   nextPageToken?: string | undefined;
 }
 
+/**
+ * A Marketplace listing: a data product that a provider offers to consumers. The summary holds
+ * the listing's identity, status and sharing configuration, and the detail holds the descriptive
+ * content that consumers see on the listing page.
+ */
 export interface Listing {
+  /** ID of the listing. Assigned by the server; not allowed in create requests. */
   id?: string | undefined;
+  /** Identity, status and sharing configuration of the listing. */
   summary?: ListingSummary | undefined;
+  /**
+   * Descriptive content shown to consumers on the listing page, such as the description, links and
+   * data attributes.
+   */
   detail?: ListingDetail | undefined;
 }
 
 export interface ListingDetail {
+  /**
+   * Detailed description of the data product. Supports basic Markdown formatting such as bold,
+   * italics and lists.
+   */
   description?: string | undefined;
+  /**
+   * URL of the terms of service for the listing. Defaults to the provider profile's terms of
+   * service link when empty.
+   */
   termsOfService?: string | undefined;
+  /** URL of documentation that helps consumers use the data product. */
   documentationLink?: string | undefined;
+  /** URL where consumers can get support for the listing. */
   supportLink?: string | undefined;
   fileIds?: string[] | undefined;
+  /**
+   * URL of the privacy policy for the listing. Defaults to the provider profile's privacy policy
+   * link when empty.
+   */
   privacyPolicyLink?: string | undefined;
+  /**
+   * Sample notebooks attached to the listing. Create each notebook with createFile, using the
+   * EMBEDDED_NOTEBOOK file type and the listing as the parent, and reference it here.
+   */
   embeddedNotebookFileInfos?: FileInfo[] | undefined;
   /** Which geo region the listing data is collected from */
   geographicalCoverage?: string | undefined;
@@ -728,22 +820,16 @@ export interface ListingDetail {
   dataSource?: string | undefined;
   /** size of the dataset in GB */
   size?: number | undefined;
-  /** Type of assets included in the listing. eg. GIT_REPO, DATA_TABLE, MODEL, NOTEBOOK */
-  assets?: AssetType[] | undefined;
   /**
-   * ID 20, 21 removed don't use
-   * License of the data asset - Required for listings with model based assets
+   * Types of assets included in the listing. At least one is required unless the listing is a
+   * DRAFT. Duplicate values are ignored.
    */
+  assets?: AssetType[] | undefined;
+  /** License of the data asset. Required for listings with model-based assets. */
   license?: string | undefined;
   /**
-   * Listing tags - Simple key value pair to annotate listings.
-   * When should I use tags vs dedicated fields?
-   * Using tags avoids the need to add new columns in the database for new annotations.
-   * However, this should be used sparingly since tags are stored as key value pair.
-   * Use tags only:
-   * 1. If the field is optional and won't need to have NOT NULL integrity check
-   * 2. The value is fairly fixed, static and low cardinality (eg. enums).
-   * 3. The value won't be used in filters or joins with other tables.
+   * Tags that annotate the listing with fixed, low-cardinality values, such as supported languages
+   * or tasks.
    */
   tags?: ListingTag[] | undefined;
 }
@@ -757,29 +843,72 @@ export interface ListingFulfillment {
 }
 
 export interface ListingSetting {
+  /**
+   * PUBLIC listings are visible to all consumers in the Marketplace. PRIVATE listings are visible
+   * only to members of the private exchanges that they are shared in.
+   */
   visibility?: Visibility | undefined;
 }
 
 export interface ListingSummary {
+  /** Display name of the listing. Must start with a letter or digit and be at most 100 characters. */
   name?: string | undefined;
+  /** One-line subtitle shown with the listing name. */
   subtitle?: string | undefined;
+  /**
+   * Publication status of the listing. Only PUBLISHED listings are visible to consumers; create a
+   * listing as DRAFT and set the status to PUBLISHED when it is ready.
+   */
   status?: ListingStatus | undefined;
+  /**
+   * Delta Sharing share that holds the listing's data assets. Required to publish a STANDARD
+   * listing, except for app and MCP server listings; notebook and Git repo listings can use
+   * git_repo instead. The caller must have access to the share.
+   */
   share?: ShareInfo | undefined;
+  /** Cloud and region of the provider's Unity Catalog metastore. Not allowed in create requests. */
   providerRegion?: RegionInfo | undefined;
+  /**
+   * Listing settings, such as whether the listing is visible in the public Marketplace or only in
+   * private exchanges.
+   */
   setting?: ListingSetting | undefined;
+  /** Time the listing was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
+  /** Name of the user who created the listing. */
   createdBy?: string | undefined;
+  /** Time the listing was last updated, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
+  /** Name of the user who last updated the listing. */
   updatedBy?: string | undefined;
   publishedAt?: bigint | undefined;
   publishedBy?: string | undefined;
+  /**
+   * Categories that consumers can use to filter listings. They also appear as tags on the listing
+   * tile and detail page.
+   */
   categories?: Category[] | undefined;
+  /**
+   * How consumers get access to the listing. STANDARD listings are instantly available; PERSONALIZED
+   * listings require the provider to approve each consumer request. Cannot be changed after the
+   * listing is created.
+   */
   listingType?: ListingType | undefined;
+  /** ID of the user who created the listing. */
   createdById?: bigint | undefined;
+  /** ID of the user who last updated the listing. */
   updatedById?: bigint | undefined;
+  /** ID of the provider profile that owns the listing. */
   providerId?: string | undefined;
+  /**
+   * IDs of the private exchanges that the listing is shared in. A listing can be linked to at most
+   * 10 exchanges.
+   */
   exchangeIds?: string[] | undefined;
-  /** if a git repo is being created, a listing will be initialized with this field as opposed to a share */
+  /**
+   * Git repository that holds the listing's assets, used instead of a share for notebook and Git
+   * repo listings. A listing cannot have both a share and a Git repo.
+   */
   gitRepo?: RepoInfo | undefined;
 }
 
@@ -791,49 +920,102 @@ export interface ListingTag {
 }
 
 export interface PersonalizationRequest {
+  /** ID of the personalization request. */
   id?: string | undefined;
+  /** Cloud and region of the consumer's Unity Catalog metastore. */
   consumerRegion?: RegionInfo | undefined;
+  /** Contact details that the consumer entered with the request. */
   contactInfo?: ContactInfo | undefined;
+  /** Comment that the consumer entered with the request. */
   comment?: string | undefined;
+  /** How the consumer intends to use the data product, as entered with the request. */
   intendedUse?: string | undefined;
+  /** Current status of the request. */
   status?: PersonalizationRequestStatus | undefined;
+  /** Reason that the provider gave in the most recent status update. */
   statusMessage?: string | undefined;
   /**
    * Share information is required for data listings
    * but should be empty/ignored for non-data listings (MCP and App).
    */
   share?: ShareInfo | undefined;
+  /** Time the request was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
+  /** ID of the listing that the request was made for. */
   listingId?: string | undefined;
+  /** Time the request was last updated, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
+  /** ID of the consumer's Unity Catalog metastore. */
   metastoreId?: string | undefined;
+  /** Name of the listing that the request was made for. */
   listingName?: string | undefined;
   isFromLighthouse?: boolean | undefined;
+  /** ID of the provider profile that owns the listing. */
   providerId?: string | undefined;
+  /**
+   * How the consumer receives the shared data: DELTA_SHARING_RECIPIENT_TYPE_DATABRICKS for a consumer
+   * on a Databricks workspace, DELTA_SHARING_RECIPIENT_TYPE_OPEN for a consumer on another platform
+   * who uses a credential file.
+   */
   recipientType?: DeltaSharingRecipientType | undefined;
 }
 
 export interface ProviderInfo {
+  /** ID of the provider profile. Assigned by the server; not allowed in create or update requests. */
   id?: string | undefined;
+  /** Display name of the provider. Consumers can filter listings by provider name. */
   name?: string | undefined;
+  /**
+   * Description of the provider organization, shown on the provider profile and on all of its
+   * listings.
+   */
   description?: string | undefined;
+  /** URL for downloading the provider icon. Populated by the server from icon_file_id. */
   iconFilePath?: string | undefined;
+  /** Email address that Databricks uses to contact the provider. Not shown to consumers. */
   businessContactEmail?: string | undefined;
+  /**
+   * Email address that consumers can use to request support. Shown on all of the provider's
+   * listings.
+   */
   supportContactEmail?: string | undefined;
-  /** is_featured is accessible by consumers only */
+  /**
+   * Whether Databricks features the provider in the Marketplace. Set by Databricks; not allowed in
+   * create or update requests.
+   */
   isFeatured?: boolean | undefined;
   /** published_by is only applicable to data aggregators (e.g. Crux) */
   publishedBy?: string | undefined;
+  /** URL of the provider's website. Shown on all of the provider's listings. */
   companyWebsiteLink?: string | undefined;
+  /** ID of the provider icon file, created with createFile using the PROVIDER_ICON file type. */
   iconFileId?: string | undefined;
+  /**
+   * URL of the provider's terms of service. Shown on all of the provider's listings unless a listing
+   * sets its own terms of service.
+   */
   termOfServiceLink?: string | undefined;
+  /**
+   * URL of the provider's privacy policy. Shown on all of the provider's listings unless a listing
+   * sets its own privacy policy.
+   */
   privacyPolicyLink?: string | undefined;
+  /**
+   * ID of the provider icon file used in dark mode, created with createFile using the PROVIDER_ICON
+   * file type.
+   */
   darkModeIconFileId?: string | undefined;
+  /**
+   * URL for downloading the dark mode provider icon. Populated by the server from
+   * dark_mode_icon_file_id.
+   */
   darkModeIconFilePath?: string | undefined;
 }
 
 export interface RegionInfo {
+  /** Cloud provider: aws, azure or gcp. */
   cloud?: string | undefined;
+  /** Cloud region, for example us-west-2. */
   region?: string | undefined;
 }
 
@@ -880,6 +1062,7 @@ export interface SearchPublishedListingsForConsumerResponse {
 }
 
 export interface ShareInfo {
+  /** Name of the Delta Sharing share in the provider's Unity Catalog metastore. */
   name?: string | undefined;
   type?: ListingShareType | undefined;
 }
@@ -952,50 +1135,72 @@ export interface UpdateInstallationResponse {
 }
 
 export interface UpdateListingRequest {
+  /** ID of the listing to update. */
   id?: string | undefined;
+  /** Full definition of the listing, including the fields that are not changing. */
   listing?: Listing | undefined;
 }
 
 export interface UpdateListingResponse {
+  /** The updated listing. */
   listing?: Listing | undefined;
 }
 
 export interface UpdatePersonalizationRequestStatusRequest {
+  /** ID of the listing that the request was made for. */
   listingId?: string | undefined;
+  /** ID of the personalization request. */
   requestId?: string | undefined;
+  /**
+   * New status of the request. Allowed transitions: NEW or REQUEST_PENDING to REQUEST_PENDING,
+   * FULFILLED or DENIED; FULFILLED to DENIED; DENIED to REQUEST_PENDING.
+   */
   status?: PersonalizationRequestStatus | undefined;
+  /** Message for the consumer that explains the status change, at most 255 characters. */
   reason?: string | undefined;
+  /**
+   * Share to grant the consumer access to. Required when fulfilling a request for a listing with data
+   * assets and not allowed with other statuses. Ignored for app and MCP server listings.
+   */
   share?: ShareInfo | undefined;
 }
 
 export interface UpdatePersonalizationRequestStatusResponse {
+  /** The updated personalization request. */
   request?: PersonalizationRequest | undefined;
 }
 
 export interface UpdateProviderAnalyticsDashboardRequest {
-  /** id is immutable property and can't be updated. */
+  /**
+   * Marketplace-specific ID of the dashboard record, as returned when the dashboard was created or
+   * retrieved.
+   */
   id?: string | undefined;
   /**
-   * this is the version of the dashboard template we want to update our user to
-   * current expectation is that it should be equal to latest version of the dashboard template
+   * Version of the dashboard template to update to. Must be newer than the version that the
+   * dashboard currently uses; use the version returned by getLatestVersionProviderAnalyticsDashboard.
    */
   version?: bigint | undefined;
 }
 
 export interface UpdateProviderAnalyticsDashboardResponse {
-  /** id & version should be the same as the request */
+  /** Marketplace-specific ID of the dashboard record, the same as in the request. */
   id?: string | undefined;
+  /** Version of the dashboard template that the dashboard now uses. */
   version?: bigint | undefined;
-  /** this is newly created Lakeview dashboard for the user */
+  /** ID of the AI/BI dashboard that now contains the updated template. */
   dashboardId?: string | undefined;
 }
 
 export interface UpdateProviderRequest {
+  /** ID of the provider profile to update. */
   id?: string | undefined;
+  /** Full definition of the provider profile, including the fields that are not changing. */
   provider?: ProviderInfo | undefined;
 }
 
 export interface UpdateProviderResponse {
+  /** The updated provider profile. */
   provider?: ProviderInfo | undefined;
 }
 
