@@ -24,8 +24,8 @@ export interface ClientOptions {
 
   /**
    * Databricks workspace ID used to route workspace-level API calls on
-   * unified hosts (SPOG). When set, workspace-level methods send the
-   * `X-Databricks-Workspace-Id` header on every request. Accepts either a
+   * unified hosts (SPOG). When set and not empty, workspace-level methods send
+   * the `X-Databricks-Workspace-Id` header on every request. Accepts either a
    * classic numeric workspace ID or another workspace identifier format that
    * the server understands. Ignored by clients that only expose account-level
    * methods.

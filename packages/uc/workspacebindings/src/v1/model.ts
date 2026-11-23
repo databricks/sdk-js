@@ -19,7 +19,7 @@ export interface GetCatalogWorkspaceBindingsRequest {
 }
 
 export interface GetCatalogWorkspaceBindingsResponse {
-  /** A list of workspace IDs */
+  /** The IDs of the workspaces that are bound to the catalog. */
   workspaces?: bigint[] | undefined;
 }
 
@@ -53,14 +53,14 @@ export interface GetWorkspaceBindingsResponse {
 export interface UpdateCatalogWorkspaceBindingsRequest {
   /** The name of the catalog. */
   catalogName?: string | undefined;
-  /** A list of workspace IDs. */
+  /** The IDs of the workspaces to bind to the catalog. */
   assignWorkspaces?: bigint[] | undefined;
-  /** A list of workspace IDs. */
+  /** The IDs of the workspaces to unbind from the catalog. */
   unassignWorkspaces?: bigint[] | undefined;
 }
 
 export interface UpdateCatalogWorkspaceBindingsResponse {
-  /** A list of workspace IDs */
+  /** The IDs of the workspaces that are bound to the catalog. */
   workspaces?: bigint[] | undefined;
 }
 
@@ -85,10 +85,17 @@ export interface UpdateWorkspaceBindingsResponse {
   bindings?: WorkspaceBindingInfo[] | undefined;
 }
 
+/**
+ * A binding between a workspace and a securable. When the isolation mode of the securable is `ISOLATED`, only bound
+ * workspaces can access it.
+ */
 export interface WorkspaceBindingInfo {
-  /** Required */
+  /** The ID of the workspace that the binding applies to. */
   workspaceId?: bigint | undefined;
-  /** One of READ_WRITE/READ_ONLY. Default is READ_WRITE. */
+  /**
+   * One of READ_WRITE/READ_ONLY. Default is READ_WRITE.
+   * Only catalogs support `BINDING_TYPE_READ_ONLY`; other securable types accept only `BINDING_TYPE_READ_WRITE`.
+   */
   bindingType?: BindingType | undefined;
 }
 

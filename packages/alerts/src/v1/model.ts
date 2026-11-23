@@ -38,93 +38,189 @@ export type LifecycleState =
   | (typeof LifecycleState)[keyof typeof LifecycleState]
   | (string & {});
 
+/**
+ * A legacy Databricks SQL alert. An alert runs a saved query, compares a column of the result against
+ * a threshold, and notifies its subscribers when the condition is met. See
+ * https://docs.databricks.com/aws/en/sql/user/alerts/legacy for details.
+ */
 export interface Alert {
   /** UUID identifying the alert. */
   id?: string | undefined;
-  /** The display name of the alert. */
+  /** Display name of the alert, shown in list views and notifications. It must not be empty. */
   displayName?: string | undefined;
-  /** UUID of the query attached to the alert. */
+  /**
+   * UUID of the saved query whose result the alert evaluates. The caller must have permission to
+   * view the query.
+   */
   queryId?: string | undefined;
-  /** Current state of the alert's trigger status. This field is set to UNKNOWN if the alert has not yet been evaluated or ran into an error during the last evaluation. */
+  /**
+   * Current state of the alert's trigger status: `TRIGGERED` if the condition was met on the last
+   * evaluation, `OK` if it was not, and `UNKNOWN` if the alert has not yet been evaluated or ran into
+   * an error during the last evaluation.
+   */
   state?: AlertState | undefined;
-  /** Number of seconds an alert must wait after being triggered to rearm itself. After rearming, it can be triggered again. If 0 or not specified, the alert will not be triggered again. */
+  /**
+   * Number of seconds the alert waits after a notification before it can notify again while its state
+   * stays `TRIGGERED`. If 0 or not specified, the alert notifies once when its state changes to
+   * `TRIGGERED` and does not notify again until its state has changed.
+   */
   secondsToRetrigger?: number | undefined;
-  /** The workspace state of the alert. Used for tracking trashed status. */
+  /** Lifecycle state of the alert: `ACTIVE`, or `TRASHED` after it has been moved to the trash. */
   lifecycleState?: LifecycleState | undefined;
   /** Timestamp when the alert was last triggered, if the alert has been triggered before. */
   triggerTime?: Temporal.Instant | undefined;
-  /** Custom body of alert notification, if it exists. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /**
+   * Custom body of the alert notification. It can use the template variables and HTML described at
+   * https://docs.databricks.com/aws/en/sql/user/alerts/legacy. If omitted, the default notification
+   * body is used.
+   */
   customBody?: string | undefined;
-  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /**
+   * Custom subject of the alert notification, used as the email subject or the Slack message header.
+   * It can use the template variables described at https://docs.databricks.com/aws/en/sql/user/alerts/legacy.
+   * If omitted, the default subject is used.
+   */
   customSubject?: string | undefined;
-  /** Trigger conditions of the alert. */
+  /**
+   * Condition that triggers the alert: a column of the query result, a comparison operator, and a
+   * threshold value. The value in the first row of the column is evaluated; aggregations are not
+   * supported through this API.
+   */
   condition?: AlertCondition | undefined;
   /** The owner's username. This field is set to "Unavailable" if the user has been deleted. */
   ownerUserName?: string | undefined;
-  /** The workspace path of the folder containing the alert. */
+  /**
+   * Workspace path of the folder containing the alert. Defaults to the creator's home folder when
+   * omitted on create. It cannot be changed after creation.
+   */
   parentPath?: string | undefined;
   /** The timestamp indicating when the alert was created. */
   createTime?: Temporal.Instant | undefined;
   /** The timestamp indicating when the alert was updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** Whether to notify alert subscribers when alert returns back to normal. */
+  /**
+   * Whether to notify subscribers when the alert state changes from `TRIGGERED` back to `OK`.
+   * Defaults to true.
+   */
   notifyOnOk?: boolean | undefined;
 }
 
 export interface AlertCondition {
-  /** Operator used for comparison in alert evaluation. */
+  /**
+   * Comparison operator applied between the operand column value and the threshold. The alert is
+   * triggered when the comparison is true. `IS_NULL` triggers when the column value is null; a
+   * threshold must still be supplied but its value is ignored.
+   */
   op?: AlertOperator | undefined;
-  /** Name of the column from the query result to use for comparison in alert evaluation. */
+  /**
+   * Left-hand side of the comparison. Through this API it must be a `column` naming a column of the
+   * query result; the value in the first row of that column is compared against the threshold.
+   */
   operand?: AlertOperand | undefined;
-  /** Threshold value used for comparison in alert evaluation. */
+  /**
+   * Right-hand side of the comparison. Through this API it must be a fixed `value` whose type matches
+   * the operand column.
+   */
   threshold?: AlertOperand | undefined;
-  /** Alert state if result is empty. */
+  /** State the alert takes when the query returns no rows. Defaults to `UNKNOWN` when not set. */
   emptyResultState?: AlertState | undefined;
 }
 
 export interface AlertOperand {
   /** Only one of the following fields may be set, depending on the type of operand/threshold. */
   operand?:
-    | {$case: 'value'; value: AlertOperandValue}
-    | {$case: 'column'; column: AlertOperandColumn}
+    | {
+        $case: 'value';
+        /** A fixed value. Used for the `threshold` of a condition. */
+        value: AlertOperandValue;
+      }
+    | {
+        $case: 'column';
+        /** A column of the query result. Used for the `operand` of a condition. */
+        column: AlertOperandColumn;
+      }
     | undefined;
 }
 
 export interface AlertOperandColumn {
+  /** Name of the column in the query result. */
   name?: string | undefined;
 }
 
 export interface AlertOperandValue {
   /** Only one of the following fields may be set, depending on the type of threshold value. */
   thresholdValue?:
-    | {$case: 'stringValue'; stringValue: string}
-    | {$case: 'doubleValue'; doubleValue: number}
-    | {$case: 'boolValue'; boolValue: boolean}
+    | {
+        $case: 'stringValue';
+        /** String threshold, for string or timestamp columns. */
+        stringValue: string;
+      }
+    | {
+        $case: 'doubleValue';
+        /** Numeric threshold, for numeric columns. */
+        doubleValue: number;
+      }
+    | {
+        $case: 'boolValue';
+        /** Boolean threshold, for boolean columns. */
+        boolValue: boolean;
+      }
     | undefined;
 }
 
 export interface CreateAlertRequest {
+  /** The alert to create. A display name, a `query_id`, and a `condition` are required. */
   alert?: CreateAlertRequestAlert | undefined;
   /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */
   autoResolveDisplayName?: boolean | undefined;
 }
 
+/**
+ * A legacy Databricks SQL alert. An alert runs a saved query, compares a column of the result against
+ * a threshold, and notifies its subscribers when the condition is met. See
+ * https://docs.databricks.com/aws/en/sql/user/alerts/legacy for details.
+ */
 export interface CreateAlertRequestAlert {
-  /** The display name of the alert. */
+  /** Display name of the alert, shown in list views and notifications. It must not be empty. */
   displayName?: string | undefined;
-  /** UUID of the query attached to the alert. */
+  /**
+   * UUID of the saved query whose result the alert evaluates. The caller must have permission to
+   * view the query.
+   */
   queryId?: string | undefined;
-  /** Number of seconds an alert must wait after being triggered to rearm itself. After rearming, it can be triggered again. If 0 or not specified, the alert will not be triggered again. */
+  /**
+   * Number of seconds the alert waits after a notification before it can notify again while its state
+   * stays `TRIGGERED`. If 0 or not specified, the alert notifies once when its state changes to
+   * `TRIGGERED` and does not notify again until its state has changed.
+   */
   secondsToRetrigger?: number | undefined;
-  /** Custom body of alert notification, if it exists. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /**
+   * Custom body of the alert notification. It can use the template variables and HTML described at
+   * https://docs.databricks.com/aws/en/sql/user/alerts/legacy. If omitted, the default notification
+   * body is used.
+   */
   customBody?: string | undefined;
-  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /**
+   * Custom subject of the alert notification, used as the email subject or the Slack message header.
+   * It can use the template variables described at https://docs.databricks.com/aws/en/sql/user/alerts/legacy.
+   * If omitted, the default subject is used.
+   */
   customSubject?: string | undefined;
-  /** Trigger conditions of the alert. */
+  /**
+   * Condition that triggers the alert: a column of the query result, a comparison operator, and a
+   * threshold value. The value in the first row of the column is evaluated; aggregations are not
+   * supported through this API.
+   */
   condition?: AlertCondition | undefined;
-  /** The workspace path of the folder containing the alert. */
+  /**
+   * Workspace path of the folder containing the alert. Defaults to the creator's home folder when
+   * omitted on create. It cannot be changed after creation.
+   */
   parentPath?: string | undefined;
-  /** Whether to notify alert subscribers when alert returns back to normal. */
+  /**
+   * Whether to notify subscribers when the alert state changes from `TRIGGERED` back to `OK`.
+   * Defaults to true.
+   */
   notifyOnOk?: boolean | undefined;
 }
 
@@ -136,39 +232,72 @@ export interface CreateAlertRequestAlert {
 export interface Empty {}
 
 export interface GetAlertRequest {
+  /** UUID of the alert to fetch. */
   id?: string | undefined;
 }
 
 export interface ListAlertsRequest {
+  /** Token from the `next_page_token` of a previous response. Omit it to fetch the first page. */
   pageToken?: string | undefined;
+  /** Maximum number of alerts to return per page. */
   pageSize?: number | undefined;
 }
 
 export interface ListAlertsResponse {
+  /** Alerts on this page. */
   results?: ListAlertsResponseAlert[] | undefined;
+  /** Token to pass as `page_token` to fetch the next page. Omitted when there are no more pages. */
   nextPageToken?: string | undefined;
 }
 
+/**
+ * A legacy Databricks SQL alert. An alert runs a saved query, compares a column of the result against
+ * a threshold, and notifies its subscribers when the condition is met. See
+ * https://docs.databricks.com/aws/en/sql/user/alerts/legacy for details.
+ */
 export interface ListAlertsResponseAlert {
   /** UUID identifying the alert. */
   id?: string | undefined;
-  /** The display name of the alert. */
+  /** Display name of the alert, shown in list views and notifications. It must not be empty. */
   displayName?: string | undefined;
-  /** UUID of the query attached to the alert. */
+  /**
+   * UUID of the saved query whose result the alert evaluates. The caller must have permission to
+   * view the query.
+   */
   queryId?: string | undefined;
-  /** Current state of the alert's trigger status. This field is set to UNKNOWN if the alert has not yet been evaluated or ran into an error during the last evaluation. */
+  /**
+   * Current state of the alert's trigger status: `TRIGGERED` if the condition was met on the last
+   * evaluation, `OK` if it was not, and `UNKNOWN` if the alert has not yet been evaluated or ran into
+   * an error during the last evaluation.
+   */
   state?: AlertState | undefined;
-  /** Number of seconds an alert must wait after being triggered to rearm itself. After rearming, it can be triggered again. If 0 or not specified, the alert will not be triggered again. */
+  /**
+   * Number of seconds the alert waits after a notification before it can notify again while its state
+   * stays `TRIGGERED`. If 0 or not specified, the alert notifies once when its state changes to
+   * `TRIGGERED` and does not notify again until its state has changed.
+   */
   secondsToRetrigger?: number | undefined;
-  /** The workspace state of the alert. Used for tracking trashed status. */
+  /** Lifecycle state of the alert: `ACTIVE`, or `TRASHED` after it has been moved to the trash. */
   lifecycleState?: LifecycleState | undefined;
   /** Timestamp when the alert was last triggered, if the alert has been triggered before. */
   triggerTime?: Temporal.Instant | undefined;
-  /** Custom body of alert notification, if it exists. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /**
+   * Custom body of the alert notification. It can use the template variables and HTML described at
+   * https://docs.databricks.com/aws/en/sql/user/alerts/legacy. If omitted, the default notification
+   * body is used.
+   */
   customBody?: string | undefined;
-  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /**
+   * Custom subject of the alert notification, used as the email subject or the Slack message header.
+   * It can use the template variables described at https://docs.databricks.com/aws/en/sql/user/alerts/legacy.
+   * If omitted, the default subject is used.
+   */
   customSubject?: string | undefined;
-  /** Trigger conditions of the alert. */
+  /**
+   * Condition that triggers the alert: a column of the query result, a comparison operator, and a
+   * threshold value. The value in the first row of the column is evaluated; aggregations are not
+   * supported through this API.
+   */
   condition?: AlertCondition | undefined;
   /** The owner's username. This field is set to "Unavailable" if the user has been deleted. */
   ownerUserName?: string | undefined;
@@ -176,38 +305,75 @@ export interface ListAlertsResponseAlert {
   createTime?: Temporal.Instant | undefined;
   /** The timestamp indicating when the alert was updated. */
   updateTime?: Temporal.Instant | undefined;
-  /** Whether to notify alert subscribers when alert returns back to normal. */
+  /**
+   * Whether to notify subscribers when the alert state changes from `TRIGGERED` back to `OK`.
+   * Defaults to true.
+   */
   notifyOnOk?: boolean | undefined;
 }
 
 export interface TrashAlertRequest {
+  /** UUID of the alert to move to the trash. */
   id?: string | undefined;
 }
 
 export interface UpdateAlertRequest {
+  /** Alert fields to update. Only the fields named in `update_mask` are changed. */
   alert?: UpdateAlertRequestAlert | undefined;
+  /**
+   * Comma-separated list of the alert fields to update, such as `display_name` or `condition`.
+   * Fields not listed keep their current values.
+   */
   updateMask?: FieldMask<UpdateAlertRequestAlert> | undefined;
+  /** UUID of the alert to update. */
   id?: string | undefined;
   /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */
   autoResolveDisplayName?: boolean | undefined;
 }
 
+/**
+ * A legacy Databricks SQL alert. An alert runs a saved query, compares a column of the result against
+ * a threshold, and notifies its subscribers when the condition is met. See
+ * https://docs.databricks.com/aws/en/sql/user/alerts/legacy for details.
+ */
 export interface UpdateAlertRequestAlert {
-  /** The display name of the alert. */
+  /** Display name of the alert, shown in list views and notifications. It must not be empty. */
   displayName?: string | undefined;
-  /** UUID of the query attached to the alert. */
+  /**
+   * UUID of the saved query whose result the alert evaluates. The caller must have permission to
+   * view the query.
+   */
   queryId?: string | undefined;
-  /** Number of seconds an alert must wait after being triggered to rearm itself. After rearming, it can be triggered again. If 0 or not specified, the alert will not be triggered again. */
+  /**
+   * Number of seconds the alert waits after a notification before it can notify again while its state
+   * stays `TRIGGERED`. If 0 or not specified, the alert notifies once when its state changes to
+   * `TRIGGERED` and does not notify again until its state has changed.
+   */
   secondsToRetrigger?: number | undefined;
-  /** Custom body of alert notification, if it exists. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /**
+   * Custom body of the alert notification. It can use the template variables and HTML described at
+   * https://docs.databricks.com/aws/en/sql/user/alerts/legacy. If omitted, the default notification
+   * body is used.
+   */
   customBody?: string | undefined;
-  /** Custom subject of alert notification, if it exists. This can include email subject entries and Slack notification headers, for example. See [here](/sql/user/alerts/index.html) for custom templating instructions. */
+  /**
+   * Custom subject of the alert notification, used as the email subject or the Slack message header.
+   * It can use the template variables described at https://docs.databricks.com/aws/en/sql/user/alerts/legacy.
+   * If omitted, the default subject is used.
+   */
   customSubject?: string | undefined;
-  /** Trigger conditions of the alert. */
+  /**
+   * Condition that triggers the alert: a column of the query result, a comparison operator, and a
+   * threshold value. The value in the first row of the column is evaluated; aggregations are not
+   * supported through this API.
+   */
   condition?: AlertCondition | undefined;
   /** The owner's username. This field is set to "Unavailable" if the user has been deleted. */
   ownerUserName?: string | undefined;
-  /** Whether to notify alert subscribers when alert returns back to normal. */
+  /**
+   * Whether to notify subscribers when the alert state changes from `TRIGGERED` back to `OK`.
+   * Defaults to true.
+   */
   notifyOnOk?: boolean | undefined;
 }
 

@@ -15,6 +15,8 @@ export type {
   CreateCatalogConfigRequest,
   DeleteCatalogConfigRequest,
   GetCatalogConfigRequest,
+  RescanCatalogRequest,
+  RescanCatalogResponse,
   UpdateCatalogConfigRequest,
 } from './model';
 

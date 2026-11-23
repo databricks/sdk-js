@@ -1288,7 +1288,10 @@ export interface PartitionSpecification {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface PartitionSpecification_Partition {
-  /** An array of partition values. */
+  /**
+   * An array of partition values. A row belongs to the partition when it matches every value in
+   * the array, and each `name` must appear at most once in the array.
+   */
   values?: PartitionSpecification_Partition_PartitionValue[] | undefined;
 }
 
@@ -1306,7 +1309,10 @@ export interface PartitionSpecification_Partition_PartitionValue {
    * When this field is set, field `value` can not be set.
    */
   recipientPropertyKey?: string | undefined;
-  /** The operator to apply for the value. */
+  /**
+   * The operator to apply for the value. **EQUAL** matches the partition value exactly;
+   * **LIKE** matches it against a SQL `LIKE` pattern.
+   */
   op?:
     | PartitionSpecification_Partition_PartitionValue_PartitionValueOp
     | undefined;

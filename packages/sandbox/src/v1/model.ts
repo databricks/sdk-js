@@ -338,6 +338,15 @@ export interface ListSandboxesResponse {
   nextPageToken?: string | undefined;
 }
 
+/** Network configuration for the sandbox. */
+export interface NetworkSpec {
+  /**
+   * Whether the sandbox can reach the public internet. Defaults to true. Control-plane,
+   * PrivateLink, and workspace/UC/Delta-shared storage stay reachable either way.
+   */
+  internetAccess?: boolean | undefined;
+}
+
 /** Identifies the source and exact destination for a sandbox path rename. */
 export interface RenamePathRequest {
   /** Sandbox resource name, for example `sandboxes/my-sandbox`. */
@@ -408,6 +417,8 @@ export interface SandboxSpec {
   compute?: ComputeSpec | undefined;
   /** Software environment for the sandbox, such as the container image it runs. */
   environment?: EnvironmentSpec | undefined;
+  /** Network configuration requested for the sandbox. */
+  network?: NetworkSpec | undefined;
 }
 
 export interface SandboxStatus {
@@ -589,6 +600,14 @@ export const unmarshalListSandboxesResponseSchema: z.ZodType<ListSandboxesRespon
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalNetworkSpecSchema: z.ZodType<NetworkSpec> = z
+  .object({
+    internet_access: z.boolean().optional(),
+  })
+  .transform(d => ({
+    internetAccess: d.internet_access,
+  }));
+
 export const unmarshalRenamePathResponseSchema: z.ZodType<RenamePathResponse> =
   z.object({});
 
@@ -677,10 +696,15 @@ export const unmarshalSandboxSpecSchema: z.ZodType<SandboxSpec> = z
       .lazy(() => unmarshalEnvironmentSpecSchema)
       .nullish()
       .transform(v => v ?? undefined),
+    network: z
+      .lazy(() => unmarshalNetworkSpecSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
   })
   .transform(d => ({
     compute: d.compute,
     environment: d.environment,
+    network: d.network,
   }));
 
 export const unmarshalSandboxStatusSchema: z.ZodType<SandboxStatus> = z
@@ -756,6 +780,14 @@ export const marshalExecuteCommandSyncRequestSchema: z.ZodType = z
     execution_timeout: d.executionTimeout,
   }));
 
+export const marshalNetworkSpecSchema: z.ZodType = z
+  .object({
+    internetAccess: z.boolean().optional(),
+  })
+  .transform(d => ({
+    internet_access: d.internetAccess,
+  }));
+
 export const marshalRenamePathRequestSchema: z.ZodType = z
   .object({
     parent: z.string().optional(),
@@ -806,10 +838,12 @@ export const marshalSandboxSpecSchema: z.ZodType = z
   .object({
     compute: z.lazy(() => marshalComputeSpecSchema).optional(),
     environment: z.lazy(() => marshalEnvironmentSpecSchema).optional(),
+    network: z.lazy(() => marshalNetworkSpecSchema).optional(),
   })
   .transform(d => ({
     compute: d.compute,
     environment: d.environment,
+    network: d.network,
   }));
 
 export const marshalSandboxStatusSchema: z.ZodType = z
@@ -844,6 +878,10 @@ const environmentSpecFieldMaskSchema: FieldMaskSchema = {
   imageUri: {wire: 'image_uri'},
 };
 
+const networkSpecFieldMaskSchema: FieldMaskSchema = {
+  internetAccess: {wire: 'internet_access'},
+};
+
 const sandboxFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   displayName: {wire: 'display_name'},
@@ -868,6 +906,7 @@ const sandboxSpecFieldMaskSchema: FieldMaskSchema = {
     wire: 'environment',
     children: () => environmentSpecFieldMaskSchema,
   },
+  network: {wire: 'network', children: () => networkSpecFieldMaskSchema},
 };
 
 const sandboxStatusFieldMaskSchema: FieldMaskSchema = {

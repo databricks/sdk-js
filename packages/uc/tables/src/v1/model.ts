@@ -357,9 +357,12 @@ export interface CreateTableConstraintRequest {
 export interface CreateTableRequest {
   /** Name of table, relative to parent schema. */
   name?: string | undefined;
-  /** Name of parent catalog. */
+  /** Name of parent catalog. Required for creation using catalog and schema names. */
   catalogName?: string | undefined;
-  /** Name of parent schema relative to its parent catalog. */
+  /**
+   * Name of parent schema relative to its parent catalog.
+   * Required for creation using catalog and schema names.
+   */
   schemaName?: string | undefined;
   /**
    * The type of the table. MANAGED tables store their data in storage that Unity Catalog manages, EXTERNAL
@@ -496,10 +499,26 @@ export interface DeltaRuntimePropertiesKvPairs {
  */
 export interface Dependency {
   value?:
-    | {$case: 'table'; table: TableDependency}
-    | {$case: 'function'; function: FunctionDependency}
-    | {$case: 'connection'; connection: ConnectionDependency}
-    | {$case: 'credential'; credential: CredentialDependency}
+    | {
+        $case: 'table';
+        /** A dependency on a Unity Catalog table. */
+        table: TableDependency;
+      }
+    | {
+        $case: 'function';
+        /** A dependency on a Unity Catalog function. */
+        function: FunctionDependency;
+      }
+    | {
+        $case: 'connection';
+        /** A dependency on a Unity Catalog connection. */
+        connection: ConnectionDependency;
+      }
+    | {
+        $case: 'credential';
+        /** A dependency on a Unity Catalog credential. */
+        credential: CredentialDependency;
+      }
     | undefined;
 }
 
@@ -800,9 +819,12 @@ export interface TableExistsResponse {
 export interface TableInfo {
   /** Name of table, relative to parent schema. */
   name?: string | undefined;
-  /** Name of parent catalog. */
+  /** Name of parent catalog. Required for creation using catalog and schema names. */
   catalogName?: string | undefined;
-  /** Name of parent schema relative to its parent catalog. */
+  /**
+   * Name of parent schema relative to its parent catalog.
+   * Required for creation using catalog and schema names.
+   */
   schemaName?: string | undefined;
   /**
    * The type of the table. MANAGED tables store their data in storage that Unity Catalog manages, EXTERNAL
@@ -909,9 +931,12 @@ export interface UpdateTableRequest {
   fullNameArg?: string | undefined;
   /** Name of table, relative to parent schema. */
   name?: string | undefined;
-  /** Name of parent catalog. */
+  /** Name of parent catalog. Required for creation using catalog and schema names. */
   catalogName?: string | undefined;
-  /** Name of parent schema relative to its parent catalog. */
+  /**
+   * Name of parent schema relative to its parent catalog.
+   * Required for creation using catalog and schema names.
+   */
   schemaName?: string | undefined;
   /**
    * The type of the table. MANAGED tables store their data in storage that Unity Catalog manages, EXTERNAL

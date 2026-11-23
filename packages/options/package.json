@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-options",
-  "version": "0.52.0",
+  "version": "0.52.1",
   "description": "Options for configuring Databricks API clients and individual calls.",
   "type": "module",
   "exports": {

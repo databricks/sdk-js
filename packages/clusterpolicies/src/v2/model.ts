@@ -1,6 +1,8 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {Temporal} from '@js-temporal/polyfill';
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
@@ -99,6 +101,12 @@ export interface ComputePolicy {
   canManage?: boolean | undefined;
 }
 
+/** Request to create a custom compute policy. */
+export interface CreateComputePolicyRequest {
+  /** The compute policy to create. */
+  computePolicy?: ComputePolicy | undefined;
+}
+
 export interface CreatePolicyRequest {
   /**
    * Cluster Policy name requested by the user. This has to be unique. Length must be between 1 and 100
@@ -134,6 +142,16 @@ export interface CreatePolicyRequest {
 export interface CreatePolicyResponse {
   /** Canonical unique identifier for the cluster policy. */
   policyId?: string | undefined;
+}
+
+/**
+ * Request to delete a custom compute policy by ID. Automated compute follows the serverless compute
+ * recovery period. Repeating a completed Lakebase deletion returns NOT_FOUND
+ * and preserves Automated compute restored afterward.
+ */
+export interface DeleteComputePolicyRequest {
+  /** The ID of the compute policy to delete. */
+  computePolicyId?: string | undefined;
 }
 
 export interface DeletePolicyRequest {
@@ -180,6 +198,12 @@ export interface EditPolicyRequest {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface EditPolicyResponse {}
+
+/** Request to get a compute policy by ID. */
+export interface GetComputePolicyRequest {
+  /** The ID of the compute policy to retrieve. */
+  computePolicyId?: string | undefined;
+}
 
 export interface GetPolicyRequest {
   /** Canonical unique identifier for the Cluster Policy. */
@@ -431,6 +455,24 @@ export interface ServerlessCompute {
   canUse?: boolean | undefined;
   /** Whether the calling user has ManageServerlessComputePermission on this compute. */
   canManage?: boolean | undefined;
+}
+
+/** Request to update a custom compute policy. */
+export interface UpdateComputePolicyRequest {
+  /**
+   * The compute policy to update. `compute_policy.compute_policy_id` identifies which policy to
+   * update; only the fields named in `update_mask` are applied.
+   */
+  computePolicy?: ComputePolicy | undefined;
+  /**
+   * Fields to update, relative to `compute_policy`. Must contain at least one path; the supported
+   * paths are `display_name` and `allowed_compute_products`. Supplied product arms replace their
+   * constraints and omitted products remain unchanged.
+   * An empty arm clears that product's limits; an absent or empty products object is invalid.
+   * Removing a product requires its delete API. Nested masks and wildcards are unsupported.
+   * `display_name` cannot be cleared: if it is in the mask it must be non-empty.
+   */
+  updateMask?: FieldMask<ComputePolicy> | undefined;
 }
 
 export const unmarshalAllowedComputeProductsSchema: z.ZodType<AllowedComputeProducts> =
@@ -686,6 +728,51 @@ export const unmarshalServerlessComputeSchema: z.ZodType<ServerlessCompute> = z
     canManage: d.can_manage,
   }));
 
+export const marshalAllowedComputeProductsSchema: z.ZodType = z
+  .object({
+    automated: z.lazy(() => marshalAutomatedConstraintsSchema).optional(),
+    lakebase: z.lazy(() => marshalLakebaseConstraintsSchema).optional(),
+  })
+  .transform(d => ({
+    automated: d.automated,
+    lakebase: d.lakebase,
+  }));
+
+export const marshalAutomatedConstraintsSchema: z.ZodType = z
+  .object({
+    perWorkloadMax: z.lazy(() => marshalRateLimitConfigSchema).optional(),
+  })
+  .transform(d => ({
+    per_workload_max: d.perWorkloadMax,
+  }));
+
+export const marshalComputePolicySchema: z.ZodType = z
+  .object({
+    computePolicyId: z.string().optional(),
+    displayName: z.string().optional(),
+    allowedComputeProducts: z
+      .lazy(() => marshalAllowedComputeProductsSchema)
+      .optional(),
+    tags: z.record(z.string(), z.string()).optional(),
+    isDefault: z.boolean().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    canUse: z.boolean().optional(),
+    canManage: z.boolean().optional(),
+  })
+  .transform(d => ({
+    compute_policy_id: d.computePolicyId,
+    display_name: d.displayName,
+    allowed_compute_products: d.allowedComputeProducts,
+    tags: d.tags,
+    is_default: d.isDefault,
+    create_time: d.createTime,
+    can_use: d.canUse,
+    can_manage: d.canManage,
+  }));
+
 export const marshalCreatePolicyRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -734,6 +821,16 @@ export const marshalEditPolicyRequestSchema: z.ZodType = z
     policy_family_definition_overrides: d.policyFamilyDefinitionOverrides,
     max_clusters_per_user: d.maxClustersPerUser,
     libraries: d.libraries,
+  }));
+
+export const marshalLakebaseConstraintsSchema: z.ZodType = z
+  .object({
+    maxCapacityUnitsPerInstance: z.bigint().optional(),
+    maxIdleMinutesBeforeScaleToZero: z.bigint().optional(),
+  })
+  .transform(d => ({
+    max_capacity_units_per_instance: d.maxCapacityUnitsPerInstance,
+    max_idle_minutes_before_scale_to_zero: d.maxIdleMinutesBeforeScaleToZero,
   }));
 
 export const marshalLibrarySchema: z.ZodType = z
@@ -800,3 +897,63 @@ export const marshalRCranLibrarySchema: z.ZodType = z
     package: d.package,
     repo: d.repo,
   }));
+
+export const marshalRateLimitConfigSchema: z.ZodType = z
+  .object({
+    tShirtSize: z.string().optional(),
+    tShirtSizeName: z.string().optional(),
+  })
+  .transform(d => ({
+    t_shirt_size: d.tShirtSize,
+    t_shirt_size_name: d.tShirtSizeName,
+  }));
+
+const allowedComputeProductsFieldMaskSchema: FieldMaskSchema = {
+  automated: {
+    wire: 'automated',
+    children: () => automatedConstraintsFieldMaskSchema,
+  },
+  lakebase: {
+    wire: 'lakebase',
+    children: () => lakebaseConstraintsFieldMaskSchema,
+  },
+};
+
+const automatedConstraintsFieldMaskSchema: FieldMaskSchema = {
+  perWorkloadMax: {
+    wire: 'per_workload_max',
+    children: () => rateLimitConfigFieldMaskSchema,
+  },
+};
+
+const computePolicyFieldMaskSchema: FieldMaskSchema = {
+  allowedComputeProducts: {
+    wire: 'allowed_compute_products',
+    children: () => allowedComputeProductsFieldMaskSchema,
+  },
+  canManage: {wire: 'can_manage'},
+  canUse: {wire: 'can_use'},
+  computePolicyId: {wire: 'compute_policy_id'},
+  createTime: {wire: 'create_time'},
+  displayName: {wire: 'display_name'},
+  isDefault: {wire: 'is_default'},
+  tags: {wire: 'tags'},
+};
+
+export function computePolicyFieldMask(
+  ...paths: string[]
+): FieldMask<ComputePolicy> {
+  return FieldMask.build<ComputePolicy>(paths, computePolicyFieldMaskSchema);
+}
+
+const lakebaseConstraintsFieldMaskSchema: FieldMaskSchema = {
+  maxCapacityUnitsPerInstance: {wire: 'max_capacity_units_per_instance'},
+  maxIdleMinutesBeforeScaleToZero: {
+    wire: 'max_idle_minutes_before_scale_to_zero',
+  },
+};
+
+const rateLimitConfigFieldMaskSchema: FieldMaskSchema = {
+  tShirtSize: {wire: 't_shirt_size'},
+  tShirtSizeName: {wire: 't_shirt_size_name'},
+};

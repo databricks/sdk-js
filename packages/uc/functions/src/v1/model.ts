@@ -239,10 +239,26 @@ export interface DeleteFunctionResponse {}
  */
 export interface Dependency {
   value?:
-    | {$case: 'table'; table: TableDependency}
-    | {$case: 'function'; function: FunctionDependency}
-    | {$case: 'connection'; connection: ConnectionDependency}
-    | {$case: 'credential'; credential: CredentialDependency}
+    | {
+        $case: 'table';
+        /** A dependency on a Unity Catalog table. */
+        table: TableDependency;
+      }
+    | {
+        $case: 'function';
+        /** A dependency on a Unity Catalog function. */
+        function: FunctionDependency;
+      }
+    | {
+        $case: 'connection';
+        /** A dependency on a Unity Catalog connection. */
+        connection: ConnectionDependency;
+      }
+    | {
+        $case: 'credential';
+        /** A dependency on a Unity Catalog credential. */
+        credential: CredentialDependency;
+      }
     | undefined;
 }
 

@@ -155,6 +155,8 @@ export const EndpointScalingInfo_ScalingPhase = {
   INITIALIZING_INDEX: 'INITIALIZING_INDEX',
   /** The completion time is being estimated, for example just after the change is requested or updated. */
   ESTIMATING: 'ESTIMATING',
+  /** The new capacity and index replicas are in place, and the change is being finalized. */
+  FINALIZING: 'FINALIZING',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type EndpointScalingInfo_ScalingPhase =

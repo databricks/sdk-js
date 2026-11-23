@@ -375,8 +375,9 @@ export interface BuiltinParserVersion {
 export interface CloudWatchLogsEnvelope {
   /**
    * Whether to keep the envelope's `owner`, `logGroup`, and `logStream` values in
-   * the `data.lw_header` field of each unwrapped row. Must be set explicitly to
-   * `true` or `false`.
+   * the `data.lw_header` field of each unwrapped row whose message is a JSON object.
+   * A message that is any other JSON value is kept without the field. Must be set
+   * explicitly to `true` or `false`.
    */
   headerRetention?: boolean | undefined;
 }
@@ -1423,7 +1424,10 @@ export interface Rule {
   deduplication?: RuleDeduplication | undefined;
   /** Time window for deduplication, such as `1h`, `24h`, `7d`, or `automatic`. */
   deduplicationTimeWindow?: string | undefined;
-  /** When the rule executes. */
+  /**
+   * When the rule executes. Required for scheduled rules. A streaming rule accepts only
+   * `enabled`, and an omitted schedule means enabled.
+   */
   schedule?: RuleSchedule | undefined;
   /** The input data the rule operates on. Exactly one source is required. */
   source?:
@@ -1431,6 +1435,14 @@ export interface Rule {
         $case: 'batch';
         /** Scheduled detection (also known as batch detection) input. */
         batch: RuleInputBatch;
+      }
+    | {
+        $case: 'streaming';
+        /**
+         * Native streaming rule input: one source table filtered by one stateless row predicate.
+         * Permanent field number; must not be renumbered.
+         */
+        streaming: RuleInputStreaming;
       }
     | undefined;
   /** What to record in each signal. */
@@ -1570,6 +1582,17 @@ export interface RuleInputCustomNotebook {
   notebook?: string | undefined;
   /** Optional arguments supplied when invoking the custom function. */
   options?: Record<string, string> | undefined;
+}
+
+/**
+ * Native V2 streaming input for a detection rule: one Delta table and one stateless
+ * row predicate. The complete source row is preserved as event context.
+ */
+export interface RuleInputStreaming {
+  /** Source table whose rows are evaluated. */
+  source?: StreamingSource | undefined;
+  /** Row predicate that selects matching rows. */
+  predicate?: StreamingPredicate | undefined;
 }
 
 /** MITRE ATT&CK mapping for a detection rule. */
@@ -1733,6 +1756,21 @@ export interface SlackExportConfig {
    * exported, so rotating the secret takes effect without editing this config.
    */
   botTokenUcSecret?: string | undefined;
+}
+
+/** Stateless row predicate for a streaming detection rule. */
+export interface StreamingPredicate {
+  /**
+   * A SQL expression suitable for a WHERE clause, not a SELECT query. Evaluated
+   * per input row; only stateless, row-local expressions are accepted.
+   */
+  expression?: string | undefined;
+}
+
+/** Source Delta table for a streaming detection rule. */
+export interface StreamingSource {
+  /** Fully-qualified Unity Catalog table in `catalog.schema.table` form. */
+  table?: string | undefined;
 }
 
 /**
@@ -2591,6 +2629,7 @@ export const unmarshalRuleSchema: z.ZodType<Rule> = z
       .nullish()
       .transform(v => v ?? undefined),
     batch: z.lazy(() => unmarshalRuleInputBatchSchema).optional(),
+    streaming: z.lazy(() => unmarshalRuleInputStreamingSchema).optional(),
     output: z
       .lazy(() => unmarshalRuleOutputSchema)
       .nullish()
@@ -2647,7 +2686,9 @@ export const unmarshalRuleSchema: z.ZodType<Rule> = z
     source:
       d.batch !== undefined
         ? {$case: 'batch' as const, batch: d.batch}
-        : undefined,
+        : d.streaming !== undefined
+          ? {$case: 'streaming' as const, streaming: d.streaming}
+          : undefined,
     output: d.output,
     status: d.status,
     suppressUntilTime: d.suppress_until_time,
@@ -2736,6 +2777,23 @@ export const unmarshalRuleInputCustomNotebookSchema: z.ZodType<RuleInputCustomNo
     .transform(d => ({
       notebook: d.notebook,
       options: d.options,
+    }));
+
+export const unmarshalRuleInputStreamingSchema: z.ZodType<RuleInputStreaming> =
+  z
+    .object({
+      source: z
+        .lazy(() => unmarshalStreamingSourceSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+      predicate: z
+        .lazy(() => unmarshalStreamingPredicateSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
+    })
+    .transform(d => ({
+      source: d.source,
+      predicate: d.predicate,
     }));
 
 export const unmarshalRuleMitreMappingSchema: z.ZodType<RuleMitreMapping> = z
@@ -2842,6 +2900,23 @@ export const unmarshalSlackExportConfigSchema: z.ZodType<SlackExportConfig> = z
   .transform(d => ({
     channel: d.channel,
     botTokenUcSecret: d.bot_token_uc_secret,
+  }));
+
+export const unmarshalStreamingPredicateSchema: z.ZodType<StreamingPredicate> =
+  z
+    .object({
+      expression: z.string().optional(),
+    })
+    .transform(d => ({
+      expression: d.expression,
+    }));
+
+export const unmarshalStreamingSourceSchema: z.ZodType<StreamingSource> = z
+  .object({
+    table: z.string().optional(),
+  })
+  .transform(d => ({
+    table: d.table,
   }));
 
 export const unmarshalTableNameSchema: z.ZodType<TableName> = z
@@ -3415,6 +3490,10 @@ export const marshalRuleSchema: z.ZodType = z
           $case: z.literal('batch'),
           batch: z.lazy(() => marshalRuleInputBatchSchema),
         }),
+        z.object({
+          $case: z.literal('streaming'),
+          streaming: z.lazy(() => marshalRuleInputStreamingSchema),
+        }),
       ])
       .optional(),
     output: z.lazy(() => marshalRuleOutputSchema).optional(),
@@ -3461,6 +3540,7 @@ export const marshalRuleSchema: z.ZodType = z
     deduplication_time_window: d.deduplicationTimeWindow,
     schedule: d.schedule,
     ...(d.source?.$case === 'batch' && {batch: d.source.batch}),
+    ...(d.source?.$case === 'streaming' && {streaming: d.source.streaming}),
     output: d.output,
     status: d.status,
     suppress_until_time: d.suppressUntilTime,
@@ -3545,6 +3625,16 @@ export const marshalRuleInputCustomNotebookSchema: z.ZodType = z
   .transform(d => ({
     notebook: d.notebook,
     options: d.options,
+  }));
+
+export const marshalRuleInputStreamingSchema: z.ZodType = z
+  .object({
+    source: z.lazy(() => marshalStreamingSourceSchema).optional(),
+    predicate: z.lazy(() => marshalStreamingPredicateSchema).optional(),
+  })
+  .transform(d => ({
+    source: d.source,
+    predicate: d.predicate,
   }));
 
 export const marshalRuleMitreMappingSchema: z.ZodType = z
@@ -3657,6 +3747,22 @@ export const marshalSlackExportConfigSchema: z.ZodType = z
   .transform(d => ({
     channel: d.channel,
     bot_token_uc_secret: d.botTokenUcSecret,
+  }));
+
+export const marshalStreamingPredicateSchema: z.ZodType = z
+  .object({
+    expression: z.string().optional(),
+  })
+  .transform(d => ({
+    expression: d.expression,
+  }));
+
+export const marshalStreamingSourceSchema: z.ZodType = z
+  .object({
+    table: z.string().optional(),
+  })
+  .transform(d => ({
+    table: d.table,
   }));
 
 export const marshalTableNameSchema: z.ZodType = z
@@ -3967,6 +4073,10 @@ const ruleFieldMaskSchema: FieldMaskSchema = {
   schemaName: {wire: 'schema_name'},
   severity: {wire: 'severity'},
   status: {wire: 'status', children: () => resourceStatusFieldMaskSchema},
+  streaming: {
+    wire: 'streaming',
+    children: () => ruleInputStreamingFieldMaskSchema,
+  },
   suppressUntilTime: {wire: 'suppress_until_time'},
   timerange: {wire: 'timerange', children: () => ruleTimeRangeFieldMaskSchema},
   updateTime: {wire: 'update_time'},
@@ -4019,6 +4129,14 @@ const ruleInputCustomNotebookFieldMaskSchema: FieldMaskSchema = {
   options: {wire: 'options'},
 };
 
+const ruleInputStreamingFieldMaskSchema: FieldMaskSchema = {
+  predicate: {
+    wire: 'predicate',
+    children: () => streamingPredicateFieldMaskSchema,
+  },
+  source: {wire: 'source', children: () => streamingSourceFieldMaskSchema},
+};
+
 const ruleOutputFieldMaskSchema: FieldMaskSchema = {
   context: {wire: 'context'},
   defaultContext: {wire: 'default_context'},
@@ -4053,6 +4171,14 @@ const serviceNowExportConfigFieldMaskSchema: FieldMaskSchema = {
 const slackExportConfigFieldMaskSchema: FieldMaskSchema = {
   botTokenUcSecret: {wire: 'bot_token_uc_secret'},
   channel: {wire: 'channel'},
+};
+
+const streamingPredicateFieldMaskSchema: FieldMaskSchema = {
+  expression: {wire: 'expression'},
+};
+
+const streamingSourceFieldMaskSchema: FieldMaskSchema = {
+  table: {wire: 'table'},
 };
 
 const tableNameFieldMaskSchema: FieldMaskSchema = {

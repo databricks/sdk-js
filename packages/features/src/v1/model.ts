@@ -1249,6 +1249,17 @@ export interface DirectSchemas {
   keySchema?: SchemaConfig | undefined;
 }
 
+/**
+ * Binds one entity column of a Lookup's upstream Feature to the input that supplies its
+ * values.
+ */
+export interface EntityBinding {
+  /** Specifies the entity column of the upstream Feature. */
+  entity?: string | undefined;
+  /** Specifies where the column's values come from. */
+  input?: InputReference | undefined;
+}
+
 export interface EntityColumn {
   /**
    * The name of the entity column. For Kafka sources, use dot-prefixed path notation to reference
@@ -1491,6 +1502,16 @@ export interface Function {
         /** Applies a registered Unity Catalog function row-wise to source columns. */
         customUdf: CustomUdf;
       }
+    | {
+        $case: 'secondaryKeys';
+        /** Selects the secondary key values an upstream Feature has stored for the request's entity. */
+        secondaryKeys: SecondaryKeys;
+      }
+    | {
+        $case: 'lookup';
+        /** Looks up an upstream Feature using entity values from other Features or the request. */
+        lookup: Lookup;
+      }
     | undefined;
 }
 
@@ -1640,6 +1661,21 @@ export interface InputBinding {
   parameter?: string | undefined;
   /** Source column whose value is passed for this parameter at execution time. */
   column?: string | undefined;
+}
+
+/**
+ * The input that supplies a value. A value from the request comes from a Feature whose source is
+ * a RequestSource.
+ */
+export interface InputReference {
+  /** (-- Next ID: 2. --) */
+  source?:
+    | {
+        $case: 'feature';
+        /** Specifies another Feature whose output supplies the value. */
+        feature: FeatureReference;
+      }
+    | undefined;
 }
 
 export interface JobContext {
@@ -1895,6 +1931,28 @@ export interface ListStreamsResponse {
   streams?: Stream[] | undefined;
   /** Pagination token to request the next page of results for this query. */
   nextPageToken?: string | undefined;
+}
+
+/**
+ * Looks up an upstream Feature using entity values bound from other Features or from the
+ * request. When a binding is an array, such as the output of a SecondaryKeys Feature, returns
+ * one value per position as an array aligned with that binding.
+ * The Feature's source must be a FeatureViewSource that includes `feature` and every Feature
+ * referenced in `entities`.
+ * Currently, exactly one entity must be bound to a Feature: a SecondaryKeys Feature whose key has
+ * the same name as that entity. Its target can be `feature` or another Feature. Every other entity
+ * must be bound to a request column of the same name. Names are compared without struct prefixes,
+ * so `user_id` matches `value.user_id`. A FeatureSpec can't also look up `feature` with all of its
+ * entities supplied.
+ */
+export interface Lookup {
+  /** The upstream Feature to look up. */
+  feature?: FeatureReference | undefined;
+  /**
+   * One binding per entity column of the upstream Feature. Every entity column must be
+   * bound exactly once.
+   */
+  entities?: EntityBinding[] | undefined;
 }
 
 /** Recipients to notify when a materialization run fails. */
@@ -2577,6 +2635,27 @@ export interface SdpSource {
    * Example: {"type":"struct","fields":[{"name":"col_a","type":"integer","nullable":true,"metadata":{}},{"name":"col_c","type":"integer","nullable":true,"metadata":{}}]}
    */
   dataframeSchema?: string | undefined;
+}
+
+/**
+ * Returns the values of one entity column that an upstream Feature has stored for the
+ * request's other entity columns, as an array. For example, given a Feature with entities
+ * (user_id, ad_id), returns the ad_ids stored for the requested user_id.
+ * The Feature's source must be a FeatureViewSource that includes `feature`.
+ */
+export interface SecondaryKeys {
+  /** The upstream Feature whose stored keys are selected. */
+  feature?: FeatureReference | undefined;
+  /**
+   * The entity column of the upstream Feature to return values for. It is not supplied
+   * by the request.
+   */
+  key?: string | undefined;
+  /**
+   * Maximum number of keys to return per entity, in primary key order. Must not exceed the
+   * workspace limit.
+   */
+  maxKeys?: bigint | undefined;
 }
 
 /** Reference to an entry in a <Databricks> secret scope. */
@@ -3428,6 +3507,19 @@ export const unmarshalDirectSchemasSchema: z.ZodType<DirectSchemas> = z
     keySchema: d.key_schema,
   }));
 
+export const unmarshalEntityBindingSchema: z.ZodType<EntityBinding> = z
+  .object({
+    entity: z.string().optional(),
+    input: z
+      .lazy(() => unmarshalInputReferenceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+  })
+  .transform(d => ({
+    entity: d.entity,
+    input: d.input,
+  }));
+
 export const unmarshalEntityColumnSchema: z.ZodType<EntityColumn> = z
   .object({
     name: z.string().optional(),
@@ -3680,6 +3772,8 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
       .optional(),
     column_selection: z.lazy(() => unmarshalColumnSelectionSchema).optional(),
     custom_udf: z.lazy(() => unmarshalCustomUdfSchema).optional(),
+    secondary_keys: z.lazy(() => unmarshalSecondaryKeysSchema).optional(),
+    lookup: z.lazy(() => unmarshalLookupSchema).optional(),
   })
   .transform(d => ({
     functionType: d.function_type,
@@ -3697,7 +3791,14 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
             }
           : d.custom_udf !== undefined
             ? {$case: 'customUdf' as const, customUdf: d.custom_udf}
-            : undefined,
+            : d.secondary_keys !== undefined
+              ? {
+                  $case: 'secondaryKeys' as const,
+                  secondaryKeys: d.secondary_keys,
+                }
+              : d.lookup !== undefined
+                ? {$case: 'lookup' as const, lookup: d.lookup}
+                : undefined,
   }));
 
 export const unmarshalFunctionExtraParameterSchema: z.ZodType<FunctionExtraParameter> =
@@ -3786,6 +3887,17 @@ export const unmarshalInputBindingSchema: z.ZodType<InputBinding> = z
   .transform(d => ({
     parameter: d.parameter,
     column: d.column,
+  }));
+
+export const unmarshalInputReferenceSchema: z.ZodType<InputReference> = z
+  .object({
+    feature: z.lazy(() => unmarshalFeatureReferenceSchema).optional(),
+  })
+  .transform(d => ({
+    source:
+      d.feature !== undefined
+        ? {$case: 'feature' as const, feature: d.feature}
+        : undefined,
   }));
 
 export const unmarshalJobContextSchema: z.ZodType<JobContext> = z
@@ -4014,6 +4126,19 @@ export const unmarshalListStreamsResponseSchema: z.ZodType<ListStreamsResponse> 
       streams: d.streams,
       nextPageToken: d.next_page_token,
     }));
+
+export const unmarshalLookupSchema: z.ZodType<Lookup> = z
+  .object({
+    feature: z
+      .lazy(() => unmarshalFeatureReferenceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    entities: z.array(z.lazy(() => unmarshalEntityBindingSchema)).optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+    entities: d.entities,
+  }));
 
 export const unmarshalMaterializationFailureNotificationSchema: z.ZodType<MaterializationFailureNotification> =
   z
@@ -4609,6 +4734,24 @@ export const unmarshalSdpSourceSchema: z.ZodType<SdpSource> = z
     filterCondition: d.filter_condition,
     transformationSql: d.transformation_sql,
     dataframeSchema: d.dataframe_schema,
+  }));
+
+export const unmarshalSecondaryKeysSchema: z.ZodType<SecondaryKeys> = z
+  .object({
+    feature: z
+      .lazy(() => unmarshalFeatureReferenceSchema)
+      .nullish()
+      .transform(v => v ?? undefined),
+    key: z.string().optional(),
+    max_keys: z
+      .union([z.number(), z.bigint(), z.string()])
+      .transform(v => BigInt(v))
+      .optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+    key: d.key,
+    maxKeys: d.max_keys,
   }));
 
 export const unmarshalSecretScopeReferenceSchema: z.ZodType<SecretScopeReference> =
@@ -5398,6 +5541,16 @@ export const marshalDirectSchemasSchema: z.ZodType = z
     key_schema: d.keySchema,
   }));
 
+export const marshalEntityBindingSchema: z.ZodType = z
+  .object({
+    entity: z.string().optional(),
+    input: z.lazy(() => marshalInputReferenceSchema).optional(),
+  })
+  .transform(d => ({
+    entity: d.entity,
+    input: d.input,
+  }));
+
 export const marshalEntityColumnSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -5644,6 +5797,14 @@ export const marshalFunctionSchema: z.ZodType = z
           $case: z.literal('customUdf'),
           customUdf: z.lazy(() => marshalCustomUdfSchema),
         }),
+        z.object({
+          $case: z.literal('secondaryKeys'),
+          secondaryKeys: z.lazy(() => marshalSecondaryKeysSchema),
+        }),
+        z.object({
+          $case: z.literal('lookup'),
+          lookup: z.lazy(() => marshalLookupSchema),
+        }),
       ])
       .optional(),
   })
@@ -5659,6 +5820,10 @@ export const marshalFunctionSchema: z.ZodType = z
     ...(d.function?.$case === 'customUdf' && {
       custom_udf: d.function.customUdf,
     }),
+    ...(d.function?.$case === 'secondaryKeys' && {
+      secondary_keys: d.function.secondaryKeys,
+    }),
+    ...(d.function?.$case === 'lookup' && {lookup: d.function.lookup}),
   }));
 
 export const marshalFunctionExtraParameterSchema: z.ZodType = z
@@ -5738,6 +5903,21 @@ export const marshalInputBindingSchema: z.ZodType = z
   .transform(d => ({
     parameter: d.parameter,
     column: d.column,
+  }));
+
+export const marshalInputReferenceSchema: z.ZodType = z
+  .object({
+    source: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('feature'),
+          feature: z.lazy(() => marshalFeatureReferenceSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.source?.$case === 'feature' && {feature: d.source.feature}),
   }));
 
 export const marshalJobContextSchema: z.ZodType = z
@@ -5891,6 +6071,16 @@ export const marshalLineageContextSchema: z.ZodType = z
   .transform(d => ({
     notebook_id: d.notebookId,
     job_context: d.jobContext,
+  }));
+
+export const marshalLookupSchema: z.ZodType = z
+  .object({
+    feature: z.lazy(() => marshalFeatureReferenceSchema).optional(),
+    entities: z.array(z.lazy(() => marshalEntityBindingSchema)).optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+    entities: d.entities,
   }));
 
 export const marshalMaterializationFailureNotificationSchema: z.ZodType = z
@@ -6302,6 +6492,18 @@ export const marshalSdpSourceSchema: z.ZodType = z
     filter_condition: d.filterCondition,
     transformation_sql: d.transformationSql,
     dataframe_schema: d.dataframeSchema,
+  }));
+
+export const marshalSecondaryKeysSchema: z.ZodType = z
+  .object({
+    feature: z.lazy(() => marshalFeatureReferenceSchema).optional(),
+    key: z.string().optional(),
+    maxKeys: z.bigint().optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+    key: d.key,
+    max_keys: d.maxKeys,
   }));
 
 export const marshalSecretScopeReferenceSchema: z.ZodType = z
@@ -6858,6 +7060,10 @@ export function featureFieldMask(...paths: string[]): FieldMask<Feature> {
   return FieldMask.build<Feature>(paths, featureFieldMaskSchema);
 }
 
+const featureReferenceFieldMaskSchema: FieldMaskSchema = {
+  feature: {wire: 'feature'},
+};
+
 const featureViewSourceFieldMaskSchema: FieldMaskSchema = {
   featureReferences: {wire: 'feature_references'},
 };
@@ -6892,6 +7098,11 @@ const functionFieldMaskSchema: FieldMaskSchema = {
   customUdf: {wire: 'custom_udf', children: () => customUdfFieldMaskSchema},
   extraParameters: {wire: 'extra_parameters'},
   functionType: {wire: 'function_type'},
+  lookup: {wire: 'lookup', children: () => lookupFieldMaskSchema},
+  secondaryKeys: {
+    wire: 'secondary_keys',
+    children: () => secondaryKeysFieldMaskSchema,
+  },
 };
 
 const icebergTableSourceFieldMaskSchema: FieldMaskSchema = {
@@ -7011,6 +7222,11 @@ const lastNFunctionFieldMaskSchema: FieldMaskSchema = {
 const lineageContextFieldMaskSchema: FieldMaskSchema = {
   jobContext: {wire: 'job_context', children: () => jobContextFieldMaskSchema},
   notebookId: {wire: 'notebook_id'},
+};
+
+const lookupFieldMaskSchema: FieldMaskSchema = {
+  entities: {wire: 'entities'},
+  feature: {wire: 'feature', children: () => featureReferenceFieldMaskSchema},
 };
 
 const materializationFailureNotificationFieldMaskSchema: FieldMaskSchema = {
@@ -7219,6 +7435,12 @@ const sdpSourceFieldMaskSchema: FieldMaskSchema = {
   pipelineId: {wire: 'pipeline_id'},
   pipelineState: {wire: 'pipeline_state'},
   transformationSql: {wire: 'transformation_sql'},
+};
+
+const secondaryKeysFieldMaskSchema: FieldMaskSchema = {
+  feature: {wire: 'feature', children: () => featureReferenceFieldMaskSchema},
+  key: {wire: 'key'},
+  maxKeys: {wire: 'max_keys'},
 };
 
 const secretScopeReferenceFieldMaskSchema: FieldMaskSchema = {

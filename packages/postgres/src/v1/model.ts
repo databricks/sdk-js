@@ -2806,6 +2806,8 @@ export interface ProjectStatus {
   defaultBranch?: string | undefined;
   /** The project ID, which is the final segment of the project's resource name. */
   projectId?: string | undefined;
+  /** The compute policy that is applied to the project. */
+  computePolicyId?: string | undefined;
 }
 
 /** The provisioning state of a resource in Unity Catalog. */
@@ -4692,6 +4694,7 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
     enable_pg_native_login: z.boolean().optional(),
     default_branch: z.string().optional(),
     project_id: z.string().optional(),
+    compute_policy_id: z.string().optional(),
   })
   .transform(d => ({
     displayName: d.display_name,
@@ -4707,6 +4710,7 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
     enablePgNativeLogin: d.enable_pg_native_login,
     defaultBranch: d.default_branch,
     projectId: d.project_id,
+    computePolicyId: d.compute_policy_id,
   }));
 
 export const unmarshalRevealRolePasswordResponseSchema: z.ZodType<RevealRolePasswordResponse> =
@@ -5985,6 +5989,7 @@ export const marshalProjectStatusSchema: z.ZodType = z
     enablePgNativeLogin: z.boolean().optional(),
     defaultBranch: z.string().optional(),
     projectId: z.string().optional(),
+    computePolicyId: z.string().optional(),
   })
   .transform(d => ({
     display_name: d.displayName,
@@ -6000,6 +6005,7 @@ export const marshalProjectStatusSchema: z.ZodType = z
     enable_pg_native_login: d.enablePgNativeLogin,
     default_branch: d.defaultBranch,
     project_id: d.projectId,
+    compute_policy_id: d.computePolicyId,
   }));
 
 export const marshalRequestedClaimsSchema: z.ZodType = z
@@ -6725,6 +6731,7 @@ const projectStatusFieldMaskSchema: FieldMaskSchema = {
   branchLogicalSizeLimitBytes: {wire: 'branch_logical_size_limit_bytes'},
   budgetPolicyId: {wire: 'budget_policy_id'},
   computeLastActiveTime: {wire: 'compute_last_active_time'},
+  computePolicyId: {wire: 'compute_policy_id'},
   customTags: {wire: 'custom_tags'},
   defaultBranch: {wire: 'default_branch'},
   defaultEndpointSettings: {

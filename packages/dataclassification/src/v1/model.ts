@@ -106,6 +106,16 @@ export interface GetCatalogConfigRequest {
   name?: string | undefined;
 }
 
+/** Request to rescan a catalog that has Data Classification enabled. */
+export interface RescanCatalogRequest {
+  /** Resource name of the catalog, in the format: catalogs/{catalog_name}. */
+  name?: string | undefined;
+}
+
+/** Response for RescanCatalog. Empty for now; a named message lets later versions add fields. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface RescanCatalogResponse {}
+
 /**
  * Request to update the Data Classification configuration for a catalog.
  *
@@ -175,6 +185,9 @@ export const unmarshalCatalogConfig_SchemaNamesSchema: z.ZodType<CatalogConfig_S
       names: d.names,
     }));
 
+export const unmarshalRescanCatalogResponseSchema: z.ZodType<RescanCatalogResponse> =
+  z.object({});
+
 export const marshalAutoTaggingConfigSchema: z.ZodType = z
   .object({
     classificationTag: z.string().optional(),
@@ -222,6 +235,14 @@ export const marshalCatalogConfig_SchemaNamesSchema: z.ZodType = z
   })
   .transform(d => ({
     names: d.names,
+  }));
+
+export const marshalRescanCatalogRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 const catalogConfigFieldMaskSchema: FieldMaskSchema = {

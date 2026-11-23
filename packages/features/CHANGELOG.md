@@ -1,5 +1,13 @@
 # Version changelog
 
+## Release v0.58.9 (2026-11-23)
+
+### Bug Fixes
+* Fail a long-running method, `done`, or `wait` when the API returns an operation without a name, and keep the operation's previous name and metadata after such a poll, so the caller can poll again. `done` and `wait` fail with `invalid operation response: missing done field` when a poll has no `done` field, and `done` now returns `Promise<boolean>` instead of `Promise<boolean | undefined>`.
+
+### Internal Changes
+* Bump `options` to v0.52.1.
+
 ## Release v0.58.8 (2026-11-17)
 
 ## Release v0.58.7 (2026-11-16)
