@@ -1,6 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
+import type {ClientInfo} from '@databricks/sdk-core/clientinfo';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -62,10 +63,10 @@ const PACKAGE_SEGMENT = {
 export class KnowledgeAssistantsClient {
   private readonly options: ClientOptions;
   private readonly logger: Logger;
-  // User-Agent header value. Composed once at construction from
-  // createDefault() merged with this package's identity and the active
-  // credential's name.
-  private readonly userAgent: string;
+  // User-Agent segments, composed once at construction from createDefault()
+  // merged with this package's identity. Each request adds the auth method,
+  // which default credentials choose only when they first sign a request.
+  private readonly clientInfo: ClientInfo;
   // Memoized configuration. The profile is resolved once, lazily, on the first
   // request, then reused; host, workspaceId/accountId, and credentials are
   // filled from it when not set explicitly on the options.
@@ -74,15 +75,13 @@ export class KnowledgeAssistantsClient {
   constructor(options: ClientOptions) {
     this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
-    const info = createDefault()
+    this.clientInfo = createDefault()
       .with(PACKAGE_SEGMENT)
-      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
-    this.userAgent = info.toString();
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION});
   }
 
   private resolveConfig(): Promise<ResolvedClientConfig> {
-    this.config ??= resolveClientConfig(this.options);
+    this.config ??= resolveClientConfig(this.options, this.clientInfo);
     return this.config;
   }
 
@@ -97,10 +96,9 @@ export class KnowledgeAssistantsClient {
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -130,10 +128,9 @@ export class KnowledgeAssistantsClient {
     let resp: KnowledgeAssistant | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -163,10 +160,9 @@ export class KnowledgeAssistantsClient {
     let resp: KnowledgeSource | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -191,10 +187,9 @@ export class KnowledgeAssistantsClient {
     const url = `${host}/api/2.1/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
@@ -214,10 +209,9 @@ export class KnowledgeAssistantsClient {
     const url = `${host}/api/2.1/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
@@ -237,10 +231,9 @@ export class KnowledgeAssistantsClient {
     const url = `${host}/api/2.1/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
@@ -261,10 +254,9 @@ export class KnowledgeAssistantsClient {
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -290,10 +282,9 @@ export class KnowledgeAssistantsClient {
     let resp: KnowledgeAssistant | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -319,10 +310,9 @@ export class KnowledgeAssistantsClient {
     let resp: KnowledgeSource | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -357,10 +347,9 @@ export class KnowledgeAssistantsClient {
     let resp: ListExamplesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -412,10 +401,9 @@ export class KnowledgeAssistantsClient {
     let resp: ListKnowledgeAssistantsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -470,10 +458,9 @@ export class KnowledgeAssistantsClient {
     let resp: ListKnowledgeSourcesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -519,10 +506,9 @@ export class KnowledgeAssistantsClient {
     const body = marshalRequest(req, marshalSyncKnowledgeSourcesRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
@@ -550,10 +536,9 @@ export class KnowledgeAssistantsClient {
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -595,10 +580,9 @@ export class KnowledgeAssistantsClient {
     let resp: KnowledgeAssistant | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -640,10 +624,9 @@ export class KnowledgeAssistantsClient {
     let resp: KnowledgeSource | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,

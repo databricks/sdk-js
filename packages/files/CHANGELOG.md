@@ -1,5 +1,10 @@
 # Version changelog
 
+## Release v0.53.1 (2026-11-23)
+
+### Internal Changes
+* Bump `options` to v0.52.1.
+
 ## Release v0.53.0 (2026-11-02)
 
 ### Breaking Changes

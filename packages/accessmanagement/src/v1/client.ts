@@ -1,6 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
+import type {ClientInfo} from '@databricks/sdk-core/clientinfo';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -81,10 +82,10 @@ const PACKAGE_SEGMENT = {
 export class AccessManagementClient {
   private readonly options: ClientOptions;
   private readonly logger: Logger;
-  // User-Agent header value. Composed once at construction from
-  // createDefault() merged with this package's identity and the active
-  // credential's name.
-  private readonly userAgent: string;
+  // User-Agent segments, composed once at construction from createDefault()
+  // merged with this package's identity. Each request adds the auth method,
+  // which default credentials choose only when they first sign a request.
+  private readonly clientInfo: ClientInfo;
   // Memoized configuration. The profile is resolved once, lazily, on the first
   // request, then reused; host, workspaceId/accountId, and credentials are
   // filled from it when not set explicitly on the options.
@@ -93,15 +94,13 @@ export class AccessManagementClient {
   constructor(options: ClientOptions) {
     this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
-    const info = createDefault()
+    this.clientInfo = createDefault()
       .with(PACKAGE_SEGMENT)
-      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
-    this.userAgent = info.toString();
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION});
   }
 
   private resolveConfig(): Promise<ResolvedClientConfig> {
-    this.config ??= resolveClientConfig(this.options);
+    this.config ??= resolveClientConfig(this.options, this.clientInfo);
     return this.config;
   }
 
@@ -115,7 +114,6 @@ export class AccessManagementClient {
     let resp: DeleteWorkspacePermissionAssignmentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -144,7 +142,6 @@ export class AccessManagementClient {
     let resp: ListWorkspacePermissionAssignmentsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -173,7 +170,6 @@ export class AccessManagementClient {
     let resp: ListWorkspacePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -206,7 +202,6 @@ export class AccessManagementClient {
     let resp: WorkspacePermissionAssignmentOutput | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -247,7 +242,6 @@ export class AccessManagementClient {
     let resp: RuleSet | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -288,10 +282,9 @@ export class AccessManagementClient {
     let resp: RuleSet | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -326,7 +319,6 @@ export class AccessManagementClient {
     let resp: ListAssignableRolesForResourceResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -367,10 +359,9 @@ export class AccessManagementClient {
     let resp: ListAssignableRolesForResourceResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -403,7 +394,6 @@ export class AccessManagementClient {
     let resp: RuleSet | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -433,10 +423,9 @@ export class AccessManagementClient {
     let resp: RuleSet | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -478,10 +467,9 @@ export class AccessManagementClient {
     let resp: RestrictedSharingGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -515,10 +503,9 @@ export class AccessManagementClient {
     const url = `${host}/api/2.0/access-control/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
@@ -542,10 +529,9 @@ export class AccessManagementClient {
     let resp: RestrictedSharingGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -583,10 +569,9 @@ export class AccessManagementClient {
     let resp: ListRestrictedSharingGroupsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -633,10 +618,9 @@ export class AccessManagementClient {
     let resp: MigratePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -662,10 +646,9 @@ export class AccessManagementClient {
     let resp: PermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -691,10 +674,9 @@ export class AccessManagementClient {
     let resp: ListPermissionLevelsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -724,10 +706,9 @@ export class AccessManagementClient {
     let resp: PermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -757,10 +738,9 @@ export class AccessManagementClient {
     let resp: PermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -815,10 +795,9 @@ export class AccessManagementClient {
     let resp: CheckPolicyResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,

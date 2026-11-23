@@ -2,6 +2,7 @@
 
 import type {Credentials} from '@databricks/sdk-auth';
 import {defaultCredentials} from '@databricks/sdk-auth/credentials';
+import type {ClientInfo} from '@databricks/sdk-core/clientinfo';
 import type {
   HttpClient,
   HttpRequest,
@@ -41,12 +42,14 @@ export interface ResolvedClientConfig {
  * A configuration profile is always resolved from the config file and
  * environment variables (per options.profileOptions); it supplies host,
  * accountId, workspaceId, and credentials wherever the caller did not set them
- * explicitly. Explicit options always take precedence.
+ * explicitly. Explicit options always take precedence. Each request's
+ * User-Agent is clientInfo with the auth method of the credentials.
  *
  * @throws if host is neither provided nor present in the resolved profile.
  */
 export async function resolveClientConfig(
-  options: ClientOptions
+  options: ClientOptions,
+  clientInfo: ClientInfo
 ): Promise<ResolvedClientConfig> {
   const profile: Profile = await resolve(options.profileOptions);
 
@@ -62,7 +65,11 @@ export async function resolveClientConfig(
   const base = options.httpClient ?? newFetchHttpClient();
   const credentials =
     options.credentials ?? defaultCredentials({profile: {...profile, host}});
-  let httpClient: HttpClient = new AuthHttpClient(base, credentials);
+  let httpClient: HttpClient = new AuthHttpClient(
+    base,
+    credentials,
+    clientInfo
+  );
   if (options.timeout !== undefined) {
     httpClient = new TimeoutHttpClient(httpClient, options.timeout);
   }
@@ -89,11 +96,15 @@ function normalizeHost(host: string | undefined): string | undefined {
   return absolute.replace(/\/$/, '');
 }
 
-/** Wraps an HttpClient and adds authentication headers to requests. */
+/**
+ * Wraps an HttpClient and adds authentication headers and the User-Agent to
+ * requests.
+ */
 class AuthHttpClient implements HttpClient {
   constructor(
     private readonly base: HttpClient,
-    private readonly credentials: Credentials
+    private readonly credentials: Credentials,
+    private readonly clientInfo: ClientInfo
   ) {}
 
   async send(request: HttpRequest): Promise<HttpResponse> {
@@ -103,6 +114,13 @@ class AuthHttpClient implements HttpClient {
     for (const h of authHeaders) {
       headers.set(h.key, h.value);
     }
+    // Default credentials choose their auth method when they first sign a
+    // request, so the method is read after signing.
+    const info = this.clientInfo.with({
+      key: 'auth',
+      value: this.credentials.name(),
+    });
+    headers.set('User-Agent', info.toString());
     return this.base.send({...request, headers});
   }
 }

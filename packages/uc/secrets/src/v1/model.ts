@@ -50,8 +50,8 @@ export interface ListSecretsRequest {
    */
   schemaName?: string | undefined;
   /**
-   * Opaque pagination token to go to the next page based on previous query. The maximum page length
-   * is determined by a server configured value.
+   * Opaque pagination token for the next page of results. Set it to the **next_page_token** value
+   * from the previous response.
    */
   pageToken?: string | undefined;
   /**
@@ -85,8 +85,8 @@ export interface Secret {
   /** The name of the secret, relative to its parent schema. */
   name?: string | undefined;
   /**
-   * The owner of the secret. Defaults to the creating principal on creation. Can be updated to
-   * transfer ownership of the secret to another principal.
+   * The owner of the secret. It cannot be set when creating a secret and defaults to the creating
+   * principal. Set it in UpdateSecret to transfer ownership of the secret to another principal.
    */
   owner?: string | undefined;
   /**
@@ -113,10 +113,9 @@ export interface Secret {
   /** The name of the schema where the secret resides. */
   schemaName?: string | undefined;
   /**
-   * The secret value to store. This field is input-only and is not returned in responses — use
-   * the **effective_value** field (via GetSecret with **include_value** set to true) to read the
-   * secret value. The maximum size is 60 KiB (pre-encryption). Accepted content includes
-   * passwords, tokens, keys, and other sensitive credential data.
+   * The secret value to store, such as a password, token, or key. It is never returned in
+   * responses. To read it, call GetSecret with **include_value** set to true and use the
+   * **effective_value** field. The maximum size is 60 KiB before encryption.
    */
   value?: string | undefined;
   /**

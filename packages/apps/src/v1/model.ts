@@ -1051,33 +1051,49 @@ export interface App {
   forwardUserAccessToken?: boolean | undefined;
 }
 
+/**
+ * A deployment of an app's source code, taken from a workspace path or a Git reference. When a
+ * deployment succeeds, it becomes the app's active deployment. See
+ * https://docs.databricks.com/aws/en/dev-tools/databricks-apps/deploy.
+ */
 export interface AppDeployment {
-  /** The unique id of the deployment. */
+  /** The unique ID of the deployment. Databricks generates the ID when the deployment is created. */
   deploymentId?: string | undefined;
   /**
    * The workspace file system path of the source code used to create the app deployment. This is different from
    * `deployment_artifacts.source_code_path`, which is the path used by the deployed app. The former refers
    * to the original source code location of the app in the workspace during deployment creation, whereas
    * the latter provides a system generated stable snapshotted source code path used by the deployment.
+   * Set either `source_code_path` or `git_source`, not both. If neither is set, the deployment reuses
+   * the source of the app's active deployment.
    */
   sourceCodePath?: string | undefined;
-  /** Git repository to use as the source for the app deployment. */
+  /**
+   * Git repository to use as the source for the app deployment. The repository itself is configured
+   * on the app, so set only the branch, tag or commit here, and optionally `source_code_path`.
+   */
   gitSource?: GitSource | undefined;
-  /** The mode of which the deployment will manage the source code. */
+  /**
+   * The mode in which the deployment manages the source code. The mode defaults to `SNAPSHOT`, which
+   * is the only supported mode.
+   */
   mode?: AppDeployment_Mode | undefined;
   /** The deployment artifacts for an app. */
   deploymentArtifacts?: AppDeploymentArtifacts | undefined;
-  /** Status and status message of the deployment */
+  /** The current state of the deployment and a message that describes its progress or failure. */
   status?: AppDeploymentStatus | undefined;
-  /** The creation time of the deployment. Formatted timestamp in ISO 6801. */
+  /** The creation time of the deployment. Formatted timestamp in ISO 8601. */
   createTime?: Temporal.Instant | undefined;
-  /** The email of the user creates the deployment. */
+  /** The email of the user that created the deployment. */
   creator?: string | undefined;
-  /** The update time of the deployment. Formatted timestamp in ISO 6801. */
+  /** The update time of the deployment. Formatted timestamp in ISO 8601. */
   updateTime?: Temporal.Instant | undefined;
   /** The command with which to run the app. This will override the command specified in the app.yaml file. */
   command?: string[] | undefined;
-  /** The environment variables to set in the app runtime environment. This will override the environment variables specified in the app.yaml file. */
+  /**
+   * The environment variables to set in the app runtime environment. This will override the environment variables specified in the app.yaml file.
+   * Responses return only the variable names, not their values.
+   */
   envVars?: EnvVar[] | undefined;
   /** Deploy-time health check for the app. Verifies the app is responding to HTTP requests before considering the deployment successful. */
   healthCheck?: AppHealthCheck | undefined;
@@ -1140,7 +1156,10 @@ export interface AppDeploymentScanFinding {
 }
 
 export interface AppDeploymentStatus {
-  /** State of the deployment. */
+  /**
+   * State of the deployment. A deployment starts in `IN_PROGRESS` and ends in `SUCCEEDED`, `FAILED`
+   * or `CANCELLED`.
+   */
   state?: AppDeployment_State | undefined;
   /** Message corresponding with the deployment state. */
   message?: string | undefined;
@@ -1679,16 +1698,16 @@ export interface ListAppDeploymentScanFindingsResponse {
 export interface ListAppDeploymentsRequest {
   /** The name of the app. */
   appName?: string | undefined;
-  /** Pagination token to go to the next page of apps. Requests first page if absent. */
+  /** Pagination token to go to the next page of deployments. Requests first page if absent. */
   pageToken?: string | undefined;
-  /** Upper bound for items returned. */
+  /** Upper bound for items returned. The default is 100 and the maximum is 1000. */
   pageSize?: number | undefined;
 }
 
 export interface ListAppDeploymentsResponse {
-  /** Deployment history of the app. */
+  /** Deployment history of the app, most recent deployment first. */
   appDeployments?: AppDeployment[] | undefined;
-  /** Pagination token to request the next page of apps. */
+  /** Pagination token to request the next page of deployments. */
   nextPageToken?: string | undefined;
 }
 
@@ -1777,10 +1796,16 @@ export interface Operation {
     | undefined;
 }
 
+/**
+ * An app space groups Databricks apps and shares configuration across them. Resources, user API
+ * scopes and the usage policy configured on a space apply to every app in the space. See
+ * https://docs.databricks.com/aws/en/dev-tools/databricks-apps/app-spaces.
+ */
 export interface Space {
   /**
    * The name of the app space. The name must contain only lowercase alphanumeric characters and hyphens.
    * It must be unique within the workspace.
+   * It can't start or end with a hyphen, and it can't be changed after the space is created.
    */
   name?: string | undefined;
   /** The description of the app space. */
@@ -1789,25 +1814,28 @@ export interface Space {
   status?: SpaceStatus | undefined;
   /** The unique identifier of the app space. */
   id?: string | undefined;
-  /** The creation time of the app space. Formatted timestamp in ISO 6801. */
+  /** The creation time of the app space. Formatted timestamp in ISO 8601. */
   createTime?: Temporal.Instant | undefined;
   /** The email of the user that created the app space. */
   creator?: string | undefined;
-  /** The update time of the app space. Formatted timestamp in ISO 6801. */
+  /** The update time of the app space. Formatted timestamp in ISO 8601. */
   updateTime?: Temporal.Instant | undefined;
   /** The email of the user that last updated the app space. */
   updater?: string | undefined;
   /** Resources for the app space. Resources configured at the space level are available to all apps in the space. */
   resources?: AppResource[] | undefined;
-  /** OAuth scopes for apps in the space. */
+  /**
+   * API scopes that apps in the space can request for user authorization. See
+   * https://docs.databricks.com/aws/en/dev-tools/databricks-apps/auth.
+   */
   userApiScopes?: string[] | undefined;
   /** The effective api scopes granted to the user access token. */
   effectiveUserApiScopes?: string[] | undefined;
-  /** The service principal ID for the app space. */
+  /** Numeric ID of the app space's service principal. */
   servicePrincipalId?: bigint | undefined;
-  /** The service principal name for the app space. */
+  /** Display name of the app space's service principal. */
   servicePrincipalName?: string | undefined;
-  /** The service principal client ID for the app space. */
+  /** OAuth client ID of the app space's service principal. */
   servicePrincipalClientId?: string | undefined;
   /** The usage policy ID for managing cost at the space level. */
   usagePolicyId?: string | undefined;
@@ -1909,6 +1937,10 @@ export interface UpdateCustomTemplateRequest {
 
 export interface UpdateSpaceRequest {
   space?: Space | undefined;
+  /**
+   * Comma-separated names of the `space` fields to update, such as `description` or `resources`.
+   * A field named in the mask but absent from `space` is cleared.
+   */
   updateMask?: FieldMask<Space> | undefined;
 }
 

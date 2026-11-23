@@ -1,6 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
+import type {ClientInfo} from '@databricks/sdk-core/clientinfo';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -203,10 +204,10 @@ const PACKAGE_SEGMENT = {
 export class PostgresClient {
   private readonly options: ClientOptions;
   private readonly logger: Logger;
-  // User-Agent header value. Composed once at construction from
-  // createDefault() merged with this package's identity and the active
-  // credential's name.
-  private readonly userAgent: string;
+  // User-Agent segments, composed once at construction from createDefault()
+  // merged with this package's identity. Each request adds the auth method,
+  // which default credentials choose only when they first sign a request.
+  private readonly clientInfo: ClientInfo;
   // Memoized configuration. The profile is resolved once, lazily, on the first
   // request, then reused; host, workspaceId/accountId, and credentials are
   // filled from it when not set explicitly on the options.
@@ -215,15 +216,13 @@ export class PostgresClient {
   constructor(options: ClientOptions) {
     this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
-    const info = createDefault()
+    this.clientInfo = createDefault()
       .with(PACKAGE_SEGMENT)
-      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
-    this.userAgent = info.toString();
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION});
   }
 
   private resolveConfig(): Promise<ResolvedClientConfig> {
-    this.config ??= resolveClientConfig(this.options);
+    this.config ??= resolveClientConfig(this.options, this.clientInfo);
     return this.config;
   }
 
@@ -241,10 +240,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -266,6 +264,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<AcknowledgeAssessmentWarningsOperation> {
     const op = await this.acknowledgeAssessmentWarningsBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new AcknowledgeAssessmentWarningsOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -282,10 +283,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -307,6 +307,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<AssessMigrationOperation> {
     const op = await this.assessMigrationBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new AssessMigrationOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -332,10 +335,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -363,6 +365,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateBranchOperation> {
     const op = await this.createBranchBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateBranchOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -391,10 +396,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -428,6 +432,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateCatalogOperation> {
     const op = await this.createCatalogBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateCatalogOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -455,10 +462,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -491,6 +497,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateCdfConfigOperation> {
     const op = await this.createCdfConfigBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateCdfConfigOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -507,10 +516,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -532,6 +540,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateDataApiOperation> {
     const op = await this.createDataApiBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateDataApiOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -561,10 +572,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -596,6 +606,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateDatabaseOperation> {
     const op = await this.createDatabaseBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateDatabaseOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -625,10 +638,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -660,6 +672,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateEndpointOperation> {
     const op = await this.createEndpointBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateEndpointOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -682,10 +697,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -713,6 +727,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateMigrationOperation> {
     const op = await this.createMigrationBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateMigrationOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -739,10 +756,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -774,6 +790,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateProjectOperation> {
     const op = await this.createProjectBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateProjectOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -799,10 +818,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -830,6 +848,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateRoleOperation> {
     const op = await this.createRoleBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateRoleOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -856,10 +877,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -891,6 +911,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateSnapshotOperation> {
     const op = await this.createSnapshotBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateSnapshotOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -916,10 +939,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -950,6 +972,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<CreateSyncedTableOperation> {
     const op = await this.createSyncedTableBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateSyncedTableOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -971,10 +996,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -996,6 +1020,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteBranchOperation> {
     const op = await this.deleteBranchBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteBranchOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1015,10 +1042,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1044,6 +1070,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteCatalogOperation> {
     const op = await this.deleteCatalogBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteCatalogOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1069,10 +1098,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1098,6 +1126,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteCdfConfigOperation> {
     const op = await this.deleteCdfConfigBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteCdfConfigOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1113,10 +1144,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1138,6 +1168,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteDataApiOperation> {
     const op = await this.deleteDataApiBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteDataApiOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1153,10 +1186,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1178,6 +1210,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteDatabaseOperation> {
     const op = await this.deleteDatabaseBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteDatabaseOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1197,10 +1232,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1226,6 +1260,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteEndpointOperation> {
     const op = await this.deleteEndpointBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteEndpointOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1241,10 +1278,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1266,6 +1302,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteMigrationOperation> {
     const op = await this.deleteMigrationBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteMigrationOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1290,10 +1329,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1318,6 +1356,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteProjectOperation> {
     const op = await this.deleteProjectBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteProjectOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1339,10 +1380,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1364,6 +1404,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteRoleOperation> {
     const op = await this.deleteRoleBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteRoleOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1382,10 +1425,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1410,6 +1452,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteSnapshotOperation> {
     const op = await this.deleteSnapshotBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteSnapshotOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1428,10 +1473,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1456,6 +1500,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<DeleteSyncedTableOperation> {
     const op = await this.deleteSyncedTableBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteSyncedTableOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1475,10 +1522,9 @@ export class PostgresClient {
     let resp: DatabaseCredential | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1504,10 +1550,9 @@ export class PostgresClient {
     let resp: Assessment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1533,10 +1578,9 @@ export class PostgresClient {
     let resp: Branch | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1565,10 +1609,9 @@ export class PostgresClient {
     let resp: Catalog | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1597,10 +1640,9 @@ export class PostgresClient {
     let resp: CdfConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1629,10 +1671,9 @@ export class PostgresClient {
     let resp: CdfStatus | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1658,10 +1699,9 @@ export class PostgresClient {
     let resp: DataApi | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1687,10 +1727,9 @@ export class PostgresClient {
     let resp: Database | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1716,10 +1755,9 @@ export class PostgresClient {
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1745,10 +1783,9 @@ export class PostgresClient {
     let resp: Migration | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1774,10 +1811,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1803,10 +1839,9 @@ export class PostgresClient {
     let resp: Project | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1829,10 +1864,9 @@ export class PostgresClient {
     let resp: Role | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1858,10 +1892,9 @@ export class PostgresClient {
     let resp: Snapshot | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1890,10 +1923,9 @@ export class PostgresClient {
     let resp: SnapshotSchedule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1919,10 +1951,9 @@ export class PostgresClient {
     let resp: SyncedTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1957,10 +1988,9 @@ export class PostgresClient {
     let resp: ListAssessmentsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2015,10 +2045,9 @@ export class PostgresClient {
     let resp: ListBranchesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2074,10 +2103,9 @@ export class PostgresClient {
     let resp: ListCdfConfigsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2133,10 +2161,9 @@ export class PostgresClient {
     let resp: ListCdfStatusesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2188,10 +2215,9 @@ export class PostgresClient {
     let resp: ListDatabasesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2246,10 +2272,9 @@ export class PostgresClient {
     let resp: ListEndpointsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2304,10 +2329,9 @@ export class PostgresClient {
     let resp: ListMigrationsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2362,10 +2386,9 @@ export class PostgresClient {
     let resp: ListProjectsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2417,10 +2440,9 @@ export class PostgresClient {
     let resp: ListRolesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2472,10 +2494,9 @@ export class PostgresClient {
     let resp: ListSnapshotsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2519,10 +2540,9 @@ export class PostgresClient {
     let resp: RevealRolePasswordResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2553,10 +2573,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2582,6 +2601,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<StartMigrationOperation> {
     const op = await this.startMigrationBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new StartMigrationOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -2598,10 +2620,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2623,6 +2644,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UndeleteBranchOperation> {
     const op = await this.undeleteBranchBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UndeleteBranchOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -2639,10 +2663,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2664,6 +2687,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UndeleteMigrationOperation> {
     const op = await this.undeleteMigrationBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UndeleteMigrationOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -2684,10 +2710,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -2713,6 +2738,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UndeleteProjectOperation> {
     const op = await this.undeleteProjectBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UndeleteProjectOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -2735,10 +2763,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -2766,6 +2793,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateBranchOperation> {
     const op = await this.updateBranchBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UpdateBranchOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -2788,10 +2818,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -2819,6 +2848,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateDataApiOperation> {
     const op = await this.updateDataApiBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UpdateDataApiOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -2841,10 +2873,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -2872,6 +2903,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateDatabaseOperation> {
     const op = await this.updateDatabaseBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UpdateDatabaseOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -2898,10 +2932,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -2933,6 +2966,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateEndpointOperation> {
     const op = await this.updateEndpointBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UpdateEndpointOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -2955,10 +2991,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -2986,6 +3021,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateMigrationOperation> {
     const op = await this.updateMigrationBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UpdateMigrationOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -3008,10 +3046,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -3039,6 +3076,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateProjectOperation> {
     const op = await this.updateProjectBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UpdateProjectOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -3069,10 +3109,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -3108,6 +3147,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateRoleOperation> {
     const op = await this.updateRoleBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UpdateRoleOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -3136,10 +3178,9 @@ export class PostgresClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -3170,6 +3211,9 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<UpdateSnapshotScheduleOperation> {
     const op = await this.updateSnapshotScheduleBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UpdateSnapshotScheduleOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -3219,9 +3263,12 @@ export class AcknowledgeAssessmentWarningsOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -3257,9 +3304,15 @@ export class AcknowledgeAssessmentWarningsOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -3305,9 +3358,12 @@ export class AssessMigrationOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -3343,9 +3399,15 @@ export class AssessMigrationOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -3391,9 +3453,12 @@ export class CreateBranchOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -3427,9 +3492,15 @@ export class CreateBranchOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -3475,9 +3546,12 @@ export class CreateCatalogOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -3511,9 +3585,15 @@ export class CreateCatalogOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -3559,9 +3639,12 @@ export class CreateCdfConfigOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -3595,9 +3678,15 @@ export class CreateCdfConfigOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -3643,9 +3732,12 @@ export class CreateDataApiOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -3679,9 +3771,15 @@ export class CreateDataApiOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -3727,9 +3825,12 @@ export class CreateDatabaseOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -3763,9 +3864,15 @@ export class CreateDatabaseOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -3811,9 +3918,12 @@ export class CreateEndpointOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -3847,9 +3957,15 @@ export class CreateEndpointOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -3895,9 +4011,12 @@ export class CreateMigrationOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -3931,9 +4050,15 @@ export class CreateMigrationOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -3979,9 +4104,12 @@ export class CreateProjectOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4015,9 +4143,15 @@ export class CreateProjectOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4063,9 +4197,12 @@ export class CreateRoleOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4099,9 +4236,15 @@ export class CreateRoleOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4147,9 +4290,12 @@ export class CreateSnapshotOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4183,9 +4329,15 @@ export class CreateSnapshotOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4231,9 +4383,12 @@ export class CreateSyncedTableOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4269,9 +4424,15 @@ export class CreateSyncedTableOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4315,9 +4476,12 @@ export class DeleteBranchOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4341,9 +4505,15 @@ export class DeleteBranchOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4387,9 +4557,12 @@ export class DeleteCatalogOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4413,9 +4586,15 @@ export class DeleteCatalogOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4459,9 +4638,12 @@ export class DeleteCdfConfigOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4485,9 +4667,15 @@ export class DeleteCdfConfigOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4531,9 +4719,12 @@ export class DeleteDataApiOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4557,9 +4748,15 @@ export class DeleteDataApiOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4603,9 +4800,12 @@ export class DeleteDatabaseOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4629,9 +4829,15 @@ export class DeleteDatabaseOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4675,9 +4881,12 @@ export class DeleteEndpointOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4701,9 +4910,15 @@ export class DeleteEndpointOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4749,9 +4964,12 @@ export class DeleteMigrationOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4785,9 +5003,15 @@ export class DeleteMigrationOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4831,9 +5055,12 @@ export class DeleteProjectOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4857,9 +5084,15 @@ export class DeleteProjectOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4903,9 +5136,12 @@ export class DeleteRoleOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -4929,9 +5165,15 @@ export class DeleteRoleOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -4975,9 +5217,12 @@ export class DeleteSnapshotOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5001,9 +5246,15 @@ export class DeleteSnapshotOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -5047,9 +5298,12 @@ export class DeleteSyncedTableOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5073,9 +5327,15 @@ export class DeleteSyncedTableOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -5121,9 +5381,12 @@ export class StartMigrationOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5159,9 +5422,15 @@ export class StartMigrationOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -5205,9 +5474,12 @@ export class UndeleteBranchOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5231,9 +5503,15 @@ export class UndeleteBranchOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -5279,9 +5557,12 @@ export class UndeleteMigrationOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5317,9 +5598,15 @@ export class UndeleteMigrationOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -5363,9 +5650,12 @@ export class UndeleteProjectOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5389,9 +5679,15 @@ export class UndeleteProjectOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -5437,9 +5733,12 @@ export class UpdateBranchOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5473,9 +5772,15 @@ export class UpdateBranchOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -5521,9 +5826,12 @@ export class UpdateDataApiOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5557,9 +5865,15 @@ export class UpdateDataApiOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -5605,9 +5919,12 @@ export class UpdateDatabaseOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5641,9 +5958,15 @@ export class UpdateDatabaseOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -5689,9 +6012,12 @@ export class UpdateEndpointOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5725,9 +6051,15 @@ export class UpdateEndpointOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -5773,9 +6105,12 @@ export class UpdateMigrationOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5809,9 +6144,15 @@ export class UpdateMigrationOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -5857,9 +6198,12 @@ export class UpdateProjectOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5893,9 +6237,15 @@ export class UpdateProjectOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -5941,9 +6291,12 @@ export class UpdateRoleOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -5977,9 +6330,15 @@ export class UpdateRoleOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -6025,9 +6384,12 @@ export class UpdateSnapshotScheduleOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -6063,9 +6425,15 @@ export class UpdateSnapshotScheduleOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }

@@ -294,8 +294,9 @@ export interface CreateSkillRequest {
    */
   parent?: string | undefined;
   /**
-   * Name for the skill, e.g. "basic-math". The server normalizes this
-   * identifier to lowercase. It is independent of the bundle name read from
+   * Name of the skill within the parent schema. The name must not contain
+   * periods, spaces, forward slashes, percent signs, or control characters, and
+   * it is stored in lowercase. It is independent of the bundle name read from
    * SKILL.md.
    */
   skillId?: string | undefined;
@@ -1850,8 +1851,9 @@ export interface Skill {
    * Resource name of the skill.
    * Format: `skills/{catalog}.{schema}.{skill}`.
    * Each `{...}` component is capped at 255 characters individually.
-   * Server-derived on Create from `parent` +
-   * `skill_id`; required and immutable on Update/Get/Delete.
+   * The server derives the name on Create from
+   * `parent` and `skill_id`; it is required and immutable on Update, Get, and
+   * Delete.
    */
   name?: string | undefined;
   /**
@@ -1881,19 +1883,18 @@ export interface Skill {
   updateTime?: Temporal.Instant | undefined;
   /** Time of the most recent successful FinalizeSkill. Unset until one succeeds. */
   finalizeTime?: Temporal.Instant | undefined;
-  /** Creator identity. */
+  /** Username or service principal application ID of the principal that created the skill. */
   createdBy?: string | undefined;
-  /** Identity of the last updater. */
+  /** Username or service principal application ID of the principal that last updated the skill. */
   updatedBy?: string | undefined;
-  /** Owner of the skill. */
+  /** Username, group name, or service principal application ID of the skill owner. */
   effectiveOwner?: string | undefined;
-  /** Metastore hosting the skill. */
+  /** Unique identifier of the metastore that contains the skill. */
   metastoreId?: string | undefined;
   /**
-   * User-provided comment for the skill. Free-text, user-editable via
-   * UpdateSkill (listed in its `update_mask`). DISTINCT from `description`,
-   * which is the server-parsed, OUTPUT_ONLY SKILL.md frontmatter value: `comment`
-   * is the customer's own annotation and is preserved across bundle re-uploads.
+   * User-provided comment for the skill, which you can change with UpdateSkill.
+   * It is separate from `description`, which the server reads from the SKILL.md
+   * frontmatter, and it is preserved across bundle re-uploads and FinalizeSkill.
    * When `comment` is in the update mask, omitting it clears the field, while
    * an explicitly empty string is retained.
    */
@@ -2005,8 +2006,8 @@ export interface UpdateSkillRequest {
    */
   skill?: Skill | undefined;
   /**
-   * Fields to update; validated against `skill`. REQUIRED, matching the sibling
-   * Update RPCs. `comment` is the only mutable field.
+   * Comma-separated list of `skill` fields to update. `comment` is the only
+   * field that can be updated.
    */
   updateMask?: FieldMask<Skill> | undefined;
   /**

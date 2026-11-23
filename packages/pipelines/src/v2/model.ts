@@ -1472,7 +1472,7 @@ export interface IngestionPipelineDefinition_SchemaSpec {
   sourceSchema?: string | undefined;
   /** Required. Destination catalog to store tables. */
   destinationCatalog?: string | undefined;
-  /** Required. Destination schema to store tables in. Tables with the same name as the source tables are created in this destination schema. The pipeline fails If a table with the same name already exists. */
+  /** Required. Destination schema to store tables in. Tables with the same name as the source tables are created in this destination schema. The pipeline fails if a table with the same name already exists. */
   destinationSchema?: string | undefined;
   /** Configuration settings to control the ingestion of tables. These settings are applied to all tables in this schema and override the table_configuration defined in the IngestionPipelineDefinition object. */
   tableConfiguration?:
@@ -3255,13 +3255,16 @@ export interface TikTokAdsOptions_TikTokAdsCustomReportOptions {
   queryLifetime?: boolean | undefined;
 }
 
-/** Specifies how to transform binary data into structured data. */
+/**
+ * One step that transforms a column: either decodes data into structured data (`format`) or
+ * reshapes an already-decoded column (`operation`).
+ */
 export interface Transformer {
-  /** Required: the wire format of the data. */
+  /** The format to decode the input column from. */
   format?: Transformer_Format | undefined;
   /**
    * Format-specific configuration. Only required for JSON, Avro, and Protobuf.
-   * STRING format requires no additional config.
+   * STRING format requires no additional config. Only valid with `format`.
    */
   config?:
     | {$case: 'jsonOptions'; jsonOptions: JsonTransformerOptions}

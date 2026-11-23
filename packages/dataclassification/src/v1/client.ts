@@ -1,6 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
+import type {ClientInfo} from '@databricks/sdk-core/clientinfo';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -21,11 +22,15 @@ import type {
   CreateCatalogConfigRequest,
   DeleteCatalogConfigRequest,
   GetCatalogConfigRequest,
+  RescanCatalogRequest,
+  RescanCatalogResponse,
   UpdateCatalogConfigRequest,
 } from './model';
 import {
   marshalCatalogConfigSchema,
+  marshalRescanCatalogRequestSchema,
   unmarshalCatalogConfigSchema,
+  unmarshalRescanCatalogResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -37,10 +42,10 @@ const PACKAGE_SEGMENT = {
 export class DataClassificationClient {
   private readonly options: ClientOptions;
   private readonly logger: Logger;
-  // User-Agent header value. Composed once at construction from
-  // createDefault() merged with this package's identity and the active
-  // credential's name.
-  private readonly userAgent: string;
+  // User-Agent segments, composed once at construction from createDefault()
+  // merged with this package's identity. Each request adds the auth method,
+  // which default credentials choose only when they first sign a request.
+  private readonly clientInfo: ClientInfo;
   // Memoized configuration. The profile is resolved once, lazily, on the first
   // request, then reused; host, workspaceId/accountId, and credentials are
   // filled from it when not set explicitly on the options.
@@ -49,15 +54,13 @@ export class DataClassificationClient {
   constructor(options: ClientOptions) {
     this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
-    const info = createDefault()
+    this.clientInfo = createDefault()
       .with(PACKAGE_SEGMENT)
-      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
-    this.userAgent = info.toString();
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION});
   }
 
   private resolveConfig(): Promise<ResolvedClientConfig> {
-    this.config ??= resolveClientConfig(this.options);
+    this.config ??= resolveClientConfig(this.options, this.clientInfo);
     return this.config;
   }
 
@@ -78,10 +81,9 @@ export class DataClassificationClient {
     let resp: CatalogConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -112,10 +114,9 @@ export class DataClassificationClient {
     const url = `${host}/api/data-classification/v1/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
@@ -136,10 +137,9 @@ export class DataClassificationClient {
     let resp: CatalogConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -147,6 +147,45 @@ export class DataClassificationClient {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalCatalogConfigSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('operation completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Rescan the tables in a catalog's Data Classification scope that changed since their last scan.
+   *
+   * The rescan uses the catalog's current classifiers and follows its config (schema selection)
+   * and SKIP tags. Tables with no commits since their last scan are skipped. Views and tables
+   * without a Delta commit history keep their regular rescan schedule. The call returns once the
+   * rescan is scheduled; scanning runs in the background. If a scan of the catalog is running, the
+   * call cancels it and starts a new run.
+   * - Data Classification must be enabled for the catalog.
+   * - The call must come from the workspace where Data Classification was enabled.
+   */
+  async rescanCatalog(
+    req: RescanCatalogRequest,
+    options?: CallOptions
+  ): Promise<RescanCatalogResponse> {
+    const {host, workspaceId, httpClient} = await this.resolveConfig();
+    const url = `${host}/api/data-classification/v1/${req.name ?? ''}/rescan`;
+    const body = marshalRequest(req, marshalRescanCatalogRequestSchema);
+    let resp: RescanCatalogResponse | undefined;
+    const call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      if (workspaceId !== undefined && workspaceId !== '') {
+        headers.set('X-Databricks-Workspace-Id', workspaceId);
+      }
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalRescanCatalogResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -177,10 +216,9 @@ export class DataClassificationClient {
     let resp: CatalogConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,

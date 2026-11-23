@@ -60,7 +60,10 @@ export interface CredentialDependency {
 }
 
 export interface DeleteModelVersionRequest {
-  /** The three-level (fully qualified) name of the model version */
+  /**
+   * The three-level (fully qualified) name of the parent registered model, in the form
+   * `catalog_name.schema_name.model_name`.
+   */
   fullNameArg?: string | undefined;
   /** The integer version number of the model version */
   versionArg?: bigint | undefined;
@@ -93,10 +96,26 @@ export interface DeleteRegisteredModelResponse {}
  */
 export interface Dependency {
   value?:
-    | {$case: 'table'; table: TableDependency}
-    | {$case: 'function'; function: FunctionDependency}
-    | {$case: 'connection'; connection: ConnectionDependency}
-    | {$case: 'credential'; credential: CredentialDependency}
+    | {
+        $case: 'table';
+        /** A dependency on a Unity Catalog table. */
+        table: TableDependency;
+      }
+    | {
+        $case: 'function';
+        /** A dependency on a Unity Catalog function. */
+        function: FunctionDependency;
+      }
+    | {
+        $case: 'connection';
+        /** A dependency on a Unity Catalog connection. */
+        connection: ConnectionDependency;
+      }
+    | {
+        $case: 'credential';
+        /** A dependency on a Unity Catalog credential. */
+        credential: CredentialDependency;
+      }
     | undefined;
 }
 
@@ -122,7 +141,10 @@ export interface GetModelVersionByAliasRequest {
 }
 
 export interface GetModelVersionRequest {
-  /** The three-level (fully qualified) name of the model version */
+  /**
+   * The three-level (fully qualified) name of the parent registered model, in the form
+   * `catalog_name.schema_name.model_name`.
+   */
   fullNameArg?: string | undefined;
   /** The integer version number of the model version */
   versionArg?: bigint | undefined;
@@ -209,6 +231,11 @@ export interface ListRegisteredModelsResponse {
   nextPageToken?: string | undefined;
 }
 
+/**
+ * A numbered version of a registered model in Unity Catalog. A model version is identified by the
+ * full name of its parent registered model and its version number, or by an alias that points to it.
+ * See https://docs.databricks.com/aws/en/machine-learning/manage-model-lifecycle/.
+ */
 export interface ModelVersionInfo {
   /** The name of the parent registered model of the model version, relative to parent schema */
   modelName?: string | undefined;
@@ -245,9 +272,11 @@ export interface ModelVersionInfo {
   storageLocation?: string | undefined;
   /** The unique identifier of the metastore containing the model version */
   metastoreId?: string | undefined;
+  /** Time at which the model version was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
   /** The identifier of the user who created the model version */
   createdBy?: string | undefined;
+  /** Time at which the model version was last updated, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the model version last time */
   updatedBy?: string | undefined;
@@ -319,7 +348,10 @@ export interface TableDependency {
 }
 
 export interface UpdateModelVersionRequest {
-  /** The three-level (fully qualified) name of the model version */
+  /**
+   * The three-level (fully qualified) name of the parent registered model, in the form
+   * `catalog_name.schema_name.model_name`.
+   */
   fullNameArg?: string | undefined;
   /** The integer version number of the model version */
   versionArg?: bigint | undefined;
@@ -358,9 +390,11 @@ export interface UpdateModelVersionRequest {
   storageLocation?: string | undefined;
   /** The unique identifier of the metastore containing the model version */
   metastoreId?: string | undefined;
+  /** Time at which the model version was created, in epoch milliseconds. */
   createdAt?: bigint | undefined;
   /** The identifier of the user who created the model version */
   createdBy?: string | undefined;
+  /** Time at which the model version was last updated, in epoch milliseconds. */
   updatedAt?: bigint | undefined;
   /** The identifier of the user who updated the model version last time */
   updatedBy?: string | undefined;

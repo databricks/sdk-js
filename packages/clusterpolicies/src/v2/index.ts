@@ -12,12 +12,15 @@ export type {
   AllowedComputeProducts,
   AutomatedConstraints,
   ComputePolicy,
+  CreateComputePolicyRequest,
   CreatePolicyRequest,
   CreatePolicyResponse,
+  DeleteComputePolicyRequest,
   DeletePolicyRequest,
   DeletePolicyResponse,
   EditPolicyRequest,
   EditPolicyResponse,
+  GetComputePolicyRequest,
   GetPolicyRequest,
   LakebaseConstraints,
   Library,
@@ -33,4 +36,7 @@ export type {
   RCranLibrary,
   RateLimitConfig,
   ServerlessCompute,
+  UpdateComputePolicyRequest,
 } from './model';
+
+export {computePolicyFieldMask} from './model';

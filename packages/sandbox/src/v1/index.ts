@@ -31,6 +31,7 @@ export type {
   ListDirectoryContentsResponse,
   ListSandboxesRequest,
   ListSandboxesResponse,
+  NetworkSpec,
   RenamePathRequest,
   RenamePathResponse,
   Sandbox,

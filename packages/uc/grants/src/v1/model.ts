@@ -60,9 +60,12 @@ export interface GetEffectivePermissionsResponse {
 }
 
 export interface GetPermissionsRequest {
-  /** Type of securable. */
+  /** Type of the securable, such as `catalog`, `schema`, `table` or `volume`. The value is case-insensitive. */
   securableType?: string | undefined;
-  /** Full name of securable. */
+  /**
+   * Full name of the securable. Tables, views, volumes and functions use the three-level name
+   * `catalog.schema.object`; a metastore uses its metastore ID.
+   */
   securableFullName?: string | undefined;
   /** If provided, only the permissions for the specified principal (user or group) are returned. */
   principal?: string | undefined;
@@ -164,10 +167,7 @@ export interface ListPrivilegeAssignmentsResponse {
 }
 
 export interface PermissionsChange {
-  /**
-   * The principal whose privileges we are changing.
-   * Only one of principal or principal_id should be specified, never both at the same time.
-   */
+  /** The principal whose privileges we are changing. */
   principal?: string | undefined;
   /** The set of privileges to add. */
   add?: string[] | undefined;
@@ -176,21 +176,24 @@ export interface PermissionsChange {
 }
 
 export interface PrivilegeAssignment {
-  /**
-   * The principal (user email address or group name).
-   * For deleted principals, `principal` is empty while `principal_id` is populated.
-   */
+  /** The principal (user email address or group name). */
   principal?: string | undefined;
   /** The privileges assigned to the principal. */
   privileges?: string[] | undefined;
 }
 
 export interface UpdatePermissionsRequest {
-  /** Type of securable. */
+  /** Type of the securable, such as `catalog`, `schema`, `table` or `volume`. The value is case-insensitive. */
   securableType?: string | undefined;
-  /** Full name of securable. */
+  /**
+   * Full name of the securable. Tables, views, volumes and functions use the three-level name
+   * `catalog.schema.object`; a metastore uses its metastore ID.
+   */
   securableFullName?: string | undefined;
-  /** Optional, default false. Specifies whether all the permissions should be returned in the response. */
+  /**
+   * Whether to omit the privilege assignments from the response. When false, the response lists all direct privilege
+   * assignments on the securable after the update.
+   */
   omitPermissionsInResponse?: boolean | undefined;
   /** Array of permissions change objects. */
   changes?: PermissionsChange[] | undefined;

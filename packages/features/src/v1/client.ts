@@ -1,6 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
+import type {ClientInfo} from '@databricks/sdk-core/clientinfo';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -114,10 +115,10 @@ const PACKAGE_SEGMENT = {
 export class FeaturesClient {
   private readonly options: ClientOptions;
   private readonly logger: Logger;
-  // User-Agent header value. Composed once at construction from
-  // createDefault() merged with this package's identity and the active
-  // credential's name.
-  private readonly userAgent: string;
+  // User-Agent segments, composed once at construction from createDefault()
+  // merged with this package's identity. Each request adds the auth method,
+  // which default credentials choose only when they first sign a request.
+  private readonly clientInfo: ClientInfo;
   // Memoized configuration. The profile is resolved once, lazily, on the first
   // request, then reused; host, workspaceId/accountId, and credentials are
   // filled from it when not set explicitly on the options.
@@ -126,15 +127,13 @@ export class FeaturesClient {
   constructor(options: ClientOptions) {
     this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
-    const info = createDefault()
+    this.clientInfo = createDefault()
       .with(PACKAGE_SEGMENT)
-      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
-    this.userAgent = info.toString();
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION});
   }
 
   private resolveConfig(): Promise<ResolvedClientConfig> {
-    this.config ??= resolveClientConfig(this.options);
+    this.config ??= resolveClientConfig(this.options, this.clientInfo);
     return this.config;
   }
 
@@ -149,10 +148,9 @@ export class FeaturesClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -174,6 +172,9 @@ export class FeaturesClient {
     options?: CallOptions
   ): Promise<BackfillFeaturesOperation> {
     const op = await this.backfillFeaturesBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new BackfillFeaturesOperation(
       op,
       (req, options) => this.getOperation(req, options),
@@ -195,10 +196,9 @@ export class FeaturesClient {
     let resp: BatchCreateMaterializedFeaturesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -227,10 +227,9 @@ export class FeaturesClient {
     const body = marshalRequest(req, marshalCancelOperationRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       await executeHttpCall({
         request: httpReq,
@@ -252,10 +251,9 @@ export class FeaturesClient {
     let resp: Feature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -282,10 +280,9 @@ export class FeaturesClient {
     let resp: FeatureSpec | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -316,10 +313,9 @@ export class FeaturesClient {
     let resp: KafkaConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -355,10 +351,9 @@ export class FeaturesClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -386,6 +381,9 @@ export class FeaturesClient {
     options?: CallOptions
   ): Promise<CreateMaterializationSetOperation> {
     const op = await this.createMaterializationSetBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateMaterializationSetOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -405,10 +403,9 @@ export class FeaturesClient {
     let resp: MaterializedFeature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -435,10 +432,9 @@ export class FeaturesClient {
     let resp: Stream | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -463,10 +459,9 @@ export class FeaturesClient {
     const url = `${host}/api/2.0/feature-engineering/features/${req.fullName ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
@@ -486,10 +481,9 @@ export class FeaturesClient {
     const url = `${host}/api/2.0/feature-engineering/feature-specs/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
@@ -513,10 +507,9 @@ export class FeaturesClient {
     const url = `${host}/api/2.0/feature-engineering/features/kafka-configs/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
@@ -549,10 +542,9 @@ export class FeaturesClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -577,6 +569,9 @@ export class FeaturesClient {
     options?: CallOptions
   ): Promise<DeleteMaterializationSetOperation> {
     const op = await this.deleteMaterializationSetBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteMaterializationSetOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -591,10 +586,9 @@ export class FeaturesClient {
     const url = `${host}/api/2.0/feature-engineering/materialized-features/${req.materializedFeatureId ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
@@ -614,10 +608,9 @@ export class FeaturesClient {
     const url = `${host}/api/2.0/feature-engineering/streams/${req.name ?? ''}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
@@ -638,10 +631,9 @@ export class FeaturesClient {
     let resp: Feature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -667,10 +659,9 @@ export class FeaturesClient {
     let resp: FeatureSpec | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -700,10 +691,9 @@ export class FeaturesClient {
     let resp: KafkaConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -732,10 +722,9 @@ export class FeaturesClient {
     let resp: MaterializationSet | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -761,10 +750,9 @@ export class FeaturesClient {
     let resp: MaterializedFeature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -790,10 +778,9 @@ export class FeaturesClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -819,10 +806,9 @@ export class FeaturesClient {
     let resp: Stream | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -863,10 +849,9 @@ export class FeaturesClient {
     let resp: ListFeaturesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -922,10 +907,9 @@ export class FeaturesClient {
     let resp: ListKafkaConfigsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -980,10 +964,9 @@ export class FeaturesClient {
     let resp: ListMaterializedFeaturesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1041,10 +1024,9 @@ export class FeaturesClient {
     let resp: ListStreamsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1088,10 +1070,9 @@ export class FeaturesClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1113,6 +1094,9 @@ export class FeaturesClient {
     options?: CallOptions
   ): Promise<PurgeFeatureEntitiesOperation> {
     const op = await this.purgeFeatureEntitiesBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new PurgeFeatureEntitiesOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1147,10 +1131,9 @@ export class FeaturesClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1187,6 +1170,9 @@ export class FeaturesClient {
     options?: CallOptions
   ): Promise<TriggerMaterializationSetOperation> {
     const op = await this.triggerMaterializationSetBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new TriggerMaterializationSetOperation(
       op,
       (req, options) => this.getOperation(req, options),
@@ -1211,10 +1197,9 @@ export class FeaturesClient {
     let resp: Feature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -1257,10 +1242,9 @@ export class FeaturesClient {
     let resp: KafkaConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -1312,10 +1296,9 @@ export class FeaturesClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -1350,6 +1333,9 @@ export class FeaturesClient {
     options?: CallOptions
   ): Promise<UpdateMaterializationSetOperation> {
     const op = await this.updateMaterializationSetBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UpdateMaterializationSetOperation(op, (req, options) =>
       this.getOperation(req, options)
     );
@@ -1375,10 +1361,9 @@ export class FeaturesClient {
     let resp: MaterializedFeature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -1417,10 +1402,9 @@ export class FeaturesClient {
     let resp: Stream | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -1488,9 +1472,12 @@ export class BackfillFeaturesOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -1526,9 +1513,15 @@ export class BackfillFeaturesOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 
@@ -1579,9 +1572,12 @@ export class CreateMaterializationSetOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -1617,9 +1613,15 @@ export class CreateMaterializationSetOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -1663,9 +1665,12 @@ export class DeleteMaterializationSetOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -1689,9 +1694,15 @@ export class DeleteMaterializationSetOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -1737,9 +1748,12 @@ export class PurgeFeatureEntitiesOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -1775,9 +1789,15 @@ export class PurgeFeatureEntitiesOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -1827,9 +1847,12 @@ export class TriggerMaterializationSetOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -1865,9 +1888,15 @@ export class TriggerMaterializationSetOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 
@@ -1918,9 +1947,12 @@ export class UpdateMaterializationSetOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -1956,9 +1988,15 @@ export class UpdateMaterializationSetOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }

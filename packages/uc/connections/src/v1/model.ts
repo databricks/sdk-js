@@ -29,6 +29,8 @@ export const ConnectionType = {
   CONFLUENCE: 'CONFLUENCE',
   JDBC: 'JDBC',
   META_MARKETING: 'META_MARKETING',
+  /** Connection to Google Ads for accessing advertising data. */
+  GOOGLE_ADS: 'GOOGLE_ADS',
   /** Connection to TikTok Ads for accessing advertising data. */
   TIKTOK_ADS: 'TIKTOK_ADS',
   HUBSPOT: 'HUBSPOT',

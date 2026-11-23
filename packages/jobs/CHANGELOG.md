@@ -1,5 +1,13 @@
 # Version changelog
 
+## Release v0.58.7 (2026-11-23)
+
+### Bug Fixes
+* Reject a `listRuns` request whose `stateConstraint` holds a case that the client does not define, instead of sending the request without the filter.
+
+### Internal Changes
+* Bump `options` to v0.52.1.
+
 ## Release v0.58.6 (2026-11-19)
 
 ## Release v0.58.5 (2026-11-18)

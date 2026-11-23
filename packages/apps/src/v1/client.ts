@@ -1,6 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
+import type {ClientInfo} from '@databricks/sdk-core/clientinfo';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -102,10 +103,10 @@ const PACKAGE_SEGMENT = {
 export class AppsClient {
   private readonly options: ClientOptions;
   private readonly logger: Logger;
-  // User-Agent header value. Composed once at construction from
-  // createDefault() merged with this package's identity and the active
-  // credential's name.
-  private readonly userAgent: string;
+  // User-Agent segments, composed once at construction from createDefault()
+  // merged with this package's identity. Each request adds the auth method,
+  // which default credentials choose only when they first sign a request.
+  private readonly clientInfo: ClientInfo;
   // Memoized configuration. The profile is resolved once, lazily, on the first
   // request, then reused; host, workspaceId/accountId, and credentials are
   // filled from it when not set explicitly on the options.
@@ -114,15 +115,13 @@ export class AppsClient {
   constructor(options: ClientOptions) {
     this.options = options;
     this.logger = options.logger ?? new NoOpLogger();
-    const info = createDefault()
+    this.clientInfo = createDefault()
       .with(PACKAGE_SEGMENT)
-      .with({key: 'sdk-js-auth', value: AUTH_VERSION})
-      .with({key: 'auth', value: options.credentials?.name() ?? 'default'});
-    this.userAgent = info.toString();
+      .with({key: 'sdk-js-auth', value: AUTH_VERSION});
   }
 
   private resolveConfig(): Promise<ResolvedClientConfig> {
-    this.config ??= resolveClientConfig(this.options);
+    this.config ??= resolveClientConfig(this.options, this.clientInfo);
     return this.config;
   }
 
@@ -137,10 +136,9 @@ export class AppsClient {
     let resp: AppUpdate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -185,10 +183,9 @@ export class AppsClient {
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'POST',
         fullUrl,
@@ -222,7 +219,12 @@ export class AppsClient {
     return new CreateAppWaiter(this, resp.name);
   }
 
-  /** Creates an app deployment for the app with the supplied name. */
+  /**
+   * Creates an app deployment for the app with the supplied name. The call returns while the
+   * deployment is still `IN_PROGRESS`; poll the deployment until it reaches a terminal state. The
+   * request fails with RESOURCE_CONFLICT if another deployment of the same app is still pending and
+   * has not timed out.
+   */
   private async createAppDeploymentBase(
     req: CreateAppDeploymentRequest,
     options?: CallOptions
@@ -233,10 +235,9 @@ export class AppsClient {
     let resp: AppDeployment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -252,7 +253,12 @@ export class AppsClient {
     return resp;
   }
 
-  /** Creates an app deployment for the app with the supplied name. */
+  /**
+   * Creates an app deployment for the app with the supplied name. The call returns while the
+   * deployment is still `IN_PROGRESS`; poll the deployment until it reaches a terminal state. The
+   * request fails with RESOURCE_CONFLICT if another deployment of the same app is still pending and
+   * has not timed out.
+   */
   async createAppDeployment(
     req: CreateAppDeploymentRequest,
     options?: CallOptions
@@ -280,10 +286,9 @@ export class AppsClient {
     let resp: CustomTemplate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -310,10 +315,9 @@ export class AppsClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -335,6 +339,9 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<CreateSpaceOperation> {
     const op = await this.createSpaceBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new CreateSpaceOperation(op, (req, options) =>
       this.getSpaceOperation(req, options)
     );
@@ -347,10 +354,9 @@ export class AppsClient {
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -375,10 +381,9 @@ export class AppsClient {
     const url = `${host}/api/2.0/apps/${req.name ?? ''}/thumbnail`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
@@ -399,10 +404,9 @@ export class AppsClient {
     let resp: CustomTemplate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -428,10 +432,9 @@ export class AppsClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -453,6 +456,9 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<DeleteSpaceOperation> {
     const op = await this.deleteSpaceBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new DeleteSpaceOperation(op, (req, options) =>
       this.getSpaceOperation(req, options)
     );
@@ -465,10 +471,9 @@ export class AppsClient {
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -494,10 +499,9 @@ export class AppsClient {
     let resp: AppDeployment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -523,10 +527,9 @@ export class AppsClient {
     let resp: AppDeploymentScanFinding | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -552,10 +555,9 @@ export class AppsClient {
     let resp: AppUpdate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -581,10 +583,9 @@ export class AppsClient {
     let resp: CustomTemplate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -607,10 +608,9 @@ export class AppsClient {
     let resp: Space | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -636,10 +636,9 @@ export class AppsClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -674,10 +673,9 @@ export class AppsClient {
     let resp: ListAppDeploymentScanFindingsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -713,7 +711,10 @@ export class AppsClient {
     }
   }
 
-  /** Lists all app deployments for the app with the supplied name. */
+  /**
+   * Lists all app deployments for the app with the supplied name. The history holds only the app's
+   * most recent deployments.
+   */
   async listAppDeployments(
     req: ListAppDeploymentsRequest,
     options?: CallOptions
@@ -732,10 +733,9 @@ export class AppsClient {
     let resp: ListAppDeploymentsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -790,10 +790,9 @@ export class AppsClient {
     let resp: ListAppsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -845,10 +844,9 @@ export class AppsClient {
     let resp: ListCustomTemplatesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -903,10 +901,9 @@ export class AppsClient {
     let resp: ListSpacesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -950,10 +947,9 @@ export class AppsClient {
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -992,10 +988,9 @@ export class AppsClient {
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1031,10 +1026,9 @@ export class AppsClient {
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1070,10 +1064,9 @@ export class AppsClient {
     let resp: AppDeploymentScanFinding | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -1106,10 +1099,9 @@ export class AppsClient {
     let resp: AppThumbnail | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1136,10 +1128,9 @@ export class AppsClient {
     let resp: CustomTemplate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
@@ -1172,10 +1163,9 @@ export class AppsClient {
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
-      if (workspaceId !== undefined) {
+      if (workspaceId !== undefined && workspaceId !== '') {
         headers.set('X-Databricks-Workspace-Id', workspaceId);
       }
-      headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest(
         'PATCH',
         fullUrl,
@@ -1203,6 +1193,9 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<UpdateSpaceOperation> {
     const op = await this.updateSpaceBase(req, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     return new UpdateSpaceOperation(op, (req, options) =>
       this.getSpaceOperation(req, options)
     );
@@ -1248,9 +1241,12 @@ export class CreateSpaceOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -1284,9 +1280,15 @@ export class CreateSpaceOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -1328,9 +1330,12 @@ export class DeleteSpaceOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -1354,9 +1359,15 @@ export class DeleteSpaceOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }
@@ -1400,9 +1411,12 @@ export class UpdateSpaceOperation {
         },
         callSignal !== undefined ? {signal: callSignal} : undefined
       );
+      if (op.name === undefined || op.name === '') {
+        throw new Error('invalid operation response: missing operation name');
+      }
       this.operation = op;
       if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
+        throw new Error('invalid operation response: missing done field');
       }
       if (!op.done) {
         throw new StillRunningError();
@@ -1436,9 +1450,15 @@ export class UpdateSpaceOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean> {
     const op = await this.getOperation({name: this.operation.name}, options);
+    if (op.name === undefined || op.name === '') {
+      throw new Error('invalid operation response: missing operation name');
+    }
     this.operation = op;
+    if (op.done === undefined) {
+      throw new Error('invalid operation response: missing done field');
+    }
     return op.done;
   }
 }

@@ -557,6 +557,8 @@ export const AiRuntimeTask_PriorityClass = {
   NORMAL: 'NORMAL',
   /** Highest priority; not preemptable. */
   HIGH: 'HIGH',
+  /** Lowest priority; preemptable by higher-priority workloads. */
+  PREEMPTABLE: 'PREEMPTABLE',
 } as const;
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export type AiRuntimeTask_PriorityClass =
@@ -990,9 +992,6 @@ export const TerminationCode_Code = {
    * *
    * Returned if an org set a limit for number of their concurrent active runs and the run couldn't start
    * because it would exceed this limit.
-   * TODO: JOBS-12528: The original comment (on the issue) does not seem to reflect how this is actually used in code
-   * It should be looked into how we're handling the scenario where a given job exceeds its own internal concurrency
-   * limits.
    */
   WORKSPACE_RUN_LIMIT_EXCEEDED: 'WORKSPACE_RUN_LIMIT_EXCEEDED',
   FEATURE_DISABLED: 'FEATURE_DISABLED',
@@ -4193,10 +4192,7 @@ export interface PowerBiTask {
 }
 
 export interface PythonOperatorTask {
-  /**
-   * An ordered list of task parameters.
-   * TODO(JOBS-30885): Add limits for parameters.
-   */
+  /** An ordered list of task parameters. */
   parameters?: PythonOperatorTask_Parameter[] | undefined;
   /**
    * Fully qualified name of the main class or function.
