@@ -1592,6 +1592,21 @@ export const unmarshalExternalModelSchema: z.ZodType<ExternalModel> = z
       .lazy(() => unmarshalCustomProviderConfigSchema)
       .optional(),
   })
+  .refine(
+    d =>
+      [
+        d.ai21labs_config,
+        d.anthropic_config,
+        d.amazon_bedrock_config,
+        d.cohere_config,
+        d.google_cloud_vertex_ai_config,
+        d.databricks_model_serving_config,
+        d.openai_config,
+        d.palm_config,
+        d.custom_provider_config,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'ExternalModel.Config: multiple oneof members set'}
+  )
   .transform(d => ({
     provider: d.provider,
     name: d.name,
@@ -2139,6 +2154,12 @@ export const unmarshalTelemetryConfigSchema: z.ZodType<TelemetryConfig> = z
       .transform(v => v ?? undefined),
     enabled_telemetry_features: z.array(z.string()).optional(),
   })
+  .refine(
+    d =>
+      [d.telemetry_profile_id, d.table_names].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'TelemetryConfig.TelemetryProfile: multiple oneof members set'}
+  )
   .transform(d => ({
     telemetryProfile:
       d.telemetry_profile_id !== undefined

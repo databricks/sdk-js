@@ -4280,6 +4280,10 @@ export const unmarshalClusterInfoSchema: z.ZodType<ClusterInfo> = z
     num_workers: z.number().optional(),
     autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
   })
+  .refine(
+    d => [d.num_workers, d.autoscale].filter(v => v !== undefined).length <= 1,
+    {message: 'ClusterInfo.Size: multiple oneof members set'}
+  )
   .transform(d => ({
     clusterId: d.cluster_id,
     creatorUserName: d.creator_user_name,
@@ -4405,6 +4409,11 @@ export const unmarshalClusterInfo_ComputeSpecSchema: z.ZodType<ClusterInfo_Compu
       num_workers: z.number().optional(),
       autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
     })
+    .refine(
+      d =>
+        [d.num_workers, d.autoscale].filter(v => v !== undefined).length <= 1,
+      {message: 'ClusterInfo_ComputeSpec.Size: multiple oneof members set'}
+    )
     .transform(d => ({
       applyPolicyDefaultValues: d.apply_policy_default_values,
       clusterName: d.cluster_name,
@@ -4453,6 +4462,10 @@ export const unmarshalClusterLogConfSchema: z.ZodType<ClusterLogConf> = z
     s3: z.lazy(() => unmarshalS3StorageInfoSchema).optional(),
     volumes: z.lazy(() => unmarshalVolumesStorageInfoSchema).optional(),
   })
+  .refine(
+    d => [d.dbfs, d.s3, d.volumes].filter(v => v !== undefined).length <= 1,
+    {message: 'ClusterLogConf.StorageInfo: multiple oneof members set'}
+  )
   .transform(d => ({
     storageInfo:
       d.dbfs !== undefined
@@ -4469,6 +4482,10 @@ export const unmarshalClusterSizeSchema: z.ZodType<ClusterSize> = z
     num_workers: z.number().optional(),
     autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
   })
+  .refine(
+    d => [d.num_workers, d.autoscale].filter(v => v !== undefined).length <= 1,
+    {message: 'ClusterSize.Size: multiple oneof members set'}
+  )
   .transform(d => ({
     size:
       d.num_workers !== undefined
@@ -4627,6 +4644,14 @@ export const unmarshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsS
       num_workers: z.number().optional(),
       autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
     })
+    .refine(
+      d =>
+        [d.num_workers, d.autoscale].filter(v => v !== undefined).length <= 1,
+      {
+        message:
+          'EnforcePolicyComplianceForClusterResponse_ClusterSettings.Size: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       clusterName: d.cluster_name,
       sparkVersion: d.spark_version,
@@ -4876,6 +4901,16 @@ export const unmarshalInitScriptEventDetails_InitScriptInfoAndExecutionDetailsSc
       error_message: z.string().optional(),
       stderr: z.string().optional(),
     })
+    .refine(
+      d =>
+        [d.dbfs, d.s3, d.file, d.gcs, d.abfss, d.workspace, d.volumes].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'InitScriptEventDetails_InitScriptInfoAndExecutionDetails.StorageInfo: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       storageInfo:
         d.dbfs !== undefined
@@ -4909,6 +4944,13 @@ export const unmarshalInitScriptInfoSchema: z.ZodType<InitScriptInfo> = z
     workspace: z.lazy(() => unmarshalWorkspaceStorageInfoSchema).optional(),
     volumes: z.lazy(() => unmarshalVolumesStorageInfoSchema).optional(),
   })
+  .refine(
+    d =>
+      [d.dbfs, d.s3, d.file, d.gcs, d.abfss, d.workspace, d.volumes].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'InitScriptInfo.StorageInfo: multiple oneof members set'}
+  )
   .transform(d => ({
     storageInfo:
       d.dbfs !== undefined

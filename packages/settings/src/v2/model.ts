@@ -1518,6 +1518,44 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
       .lazy(() => unmarshalDashboardThemeSchema)
       .optional(),
   })
+  .refine(
+    d =>
+      [
+        d.boolean_val,
+        d.string_val,
+        d.integer_val,
+        d.automatic_cluster_update_workspace,
+        d.aibi_dashboard_embedding_approved_domains,
+        d.aibi_dashboard_embedding_access_policy,
+        d.restrict_workspace_admins,
+        d.personal_compute,
+        d.workspace_label,
+        d.allowed_apps_user_api_scopes,
+        d.operational_email_custom_recipient,
+        d.collaboration_platform_connectivity,
+        d.workspace_dashboard_theme,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'Setting.Value: multiple oneof members set'}
+  )
+  .refine(
+    d =>
+      [
+        d.effective_boolean_val,
+        d.effective_string_val,
+        d.effective_integer_val,
+        d.effective_automatic_cluster_update_workspace,
+        d.effective_aibi_dashboard_embedding_approved_domains,
+        d.effective_aibi_dashboard_embedding_access_policy,
+        d.effective_restrict_workspace_admins,
+        d.effective_personal_compute,
+        d.effective_workspace_label,
+        d.effective_allowed_apps_user_api_scopes,
+        d.effective_operational_email_custom_recipient,
+        d.effective_collaboration_platform_connectivity,
+        d.effective_workspace_dashboard_theme,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'Setting.EffectiveValue: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     value:
@@ -1715,6 +1753,17 @@ export const unmarshalUserPreferenceSchema: z.ZodType<UserPreference> = z
       .optional(),
     effective_string_val: z.lazy(() => unmarshalStringMessageSchema).optional(),
   })
+  .refine(
+    d => [d.boolean_val, d.string_val].filter(v => v !== undefined).length <= 1,
+    {message: 'UserPreference.Value: multiple oneof members set'}
+  )
+  .refine(
+    d =>
+      [d.effective_boolean_val, d.effective_string_val].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'UserPreference.EffectiveValue: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     userId: d.user_id,

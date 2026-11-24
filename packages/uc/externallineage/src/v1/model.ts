@@ -436,6 +436,16 @@ export const unmarshalExternalLineageRelationshipObjectSchema: z.ZodType<Externa
         .lazy(() => unmarshalExternalLineageRelationshipExternalMetadataSchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [d.table, d.path, d.model_version, d.external_metadata].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'ExternalLineageRelationshipObject.Tpe: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       tpe:
         d.table !== undefined

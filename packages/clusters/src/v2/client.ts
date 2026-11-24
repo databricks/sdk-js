@@ -326,12 +326,12 @@ export class ClustersClient {
     req: DeleteClusterRequest,
     options?: CallOptions
   ): Promise<DeleteClusterWaiter> {
-    await this.deleteClusterBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
       );
     }
+    await this.deleteClusterBase(req, options);
     return new DeleteClusterWaiter(this, req.clusterId);
   }
 
@@ -391,12 +391,12 @@ export class ClustersClient {
     req: EditClusterRequest,
     options?: CallOptions
   ): Promise<EditClusterWaiter> {
-    await this.editClusterBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
       );
     }
+    await this.editClusterBase(req, options);
     return new EditClusterWaiter(this, req.clusterId);
   }
 
@@ -685,12 +685,12 @@ export class ClustersClient {
     req: ResizeClusterRequest,
     options?: CallOptions
   ): Promise<ResizeClusterWaiter> {
-    await this.resizeClusterBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
       );
     }
+    await this.resizeClusterBase(req, options);
     return new ResizeClusterWaiter(this, req.clusterId);
   }
 
@@ -728,12 +728,12 @@ export class ClustersClient {
     req: RestartClusterRequest,
     options?: CallOptions
   ): Promise<RestartClusterWaiter> {
-    await this.restartClusterBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
       );
     }
+    await this.restartClusterBase(req, options);
     return new RestartClusterWaiter(this, req.clusterId);
   }
 
@@ -787,12 +787,12 @@ export class ClustersClient {
     req: StartClusterRequest,
     options?: CallOptions
   ): Promise<StartClusterWaiter> {
-    await this.startClusterBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
       );
     }
+    await this.startClusterBase(req, options);
     return new StartClusterWaiter(this, req.clusterId);
   }
 
@@ -881,12 +881,12 @@ export class ClustersClient {
     req: UpdateClusterRequest,
     options?: CallOptions
   ): Promise<UpdateClusterWaiter> {
-    await this.updateClusterBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
       );
     }
+    await this.updateClusterBase(req, options);
     return new UpdateClusterWaiter(this, req.clusterId);
   }
 

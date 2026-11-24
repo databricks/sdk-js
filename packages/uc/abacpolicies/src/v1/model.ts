@@ -428,6 +428,13 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
       .lazy(() => unmarshalFunctionArgExpressionSchema)
       .optional(),
   })
+  .refine(
+    d =>
+      [d.alias, d.constant, d.function_arg_expression].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'FunctionArgument.Arg: multiple oneof members set'}
+  )
   .transform(d => ({
     arg:
       d.alias !== undefined
@@ -513,6 +520,13 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
       .array(z.lazy(() => unmarshalGovernedTagReferenceSchema))
       .optional(),
   })
+  .refine(
+    d =>
+      [d.row_filter, d.column_mask, d.deny, d.grant].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'PolicyInfo.Options: multiple oneof members set'}
+  )
   .transform(d => ({
     id: d.id,
     onSecurableType: d.on_securable_type,
@@ -560,6 +574,12 @@ export const unmarshalTagIntrospectionExpressionSchema: z.ZodType<TagIntrospecti
         .lazy(() => unmarshalColumnTagValueExtractionSchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [d.tag_value, d.column_tag_value].filter(v => v !== undefined).length <=
+        1,
+      {message: 'TagIntrospectionExpression.Expr: multiple oneof members set'}
+    )
     .transform(d => ({
       expr:
         d.tag_value !== undefined

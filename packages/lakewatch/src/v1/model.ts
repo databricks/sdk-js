@@ -1392,7 +1392,11 @@ export interface Rule {
    * include `run_as_principal` keeps the current identity, and the requester must
    * still be authorized to delegate to it; an editor who is not must supply a
    * run_as_principal they can delegate to (for example, their own identity), or
-   * clear it, either of which reassigns the rule. An update whose mask includes
+   * clear it, either of which reassigns the rule. An update that only enables or
+   * disables the rule (changes `schedule.enabled` and nothing else) does not
+   * require delegate permission and keeps the current identity. Enabling the rule
+   * still requires the current identity to have the access the rule needs to run,
+   * or the request is rejected. An update whose mask includes
    * `run_as_principal` but supplies no value clears it: the rule then runs as the
    * requester, exactly as when it is omitted on create. Reads return the value as
    * supplied; the identity the rule runs as is reported in
@@ -2008,6 +2012,12 @@ export const unmarshalAutoLoaderSchema: z.ZodType<AutoLoader> = z
     include_existing_files: z.boolean().optional(),
     effective_include_existing_files: z.boolean().optional(),
   })
+  .refine(
+    d =>
+      [d.service_credentials, d.aws_secret_scope].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'AutoLoader.Credentials: multiple oneof members set'}
+  )
   .transform(d => ({
     format: d.format,
     location: d.location,
@@ -2178,6 +2188,13 @@ export const unmarshalDatasourceSchema: z.ZodType<Datasource> = z
     warehouse_id: z.string().optional(),
     compute_workspace_id: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.autoloader, d.unity_catalog_connection, d.existing_table].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'Datasource.IngestionMethod: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     datasourceId: d.datasource_id,
@@ -2271,6 +2288,12 @@ export const unmarshalEnvelopeSchema: z.ZodType<Envelope> = z
       .lazy(() => unmarshalCloudWatchLogsEnvelopeSchema)
       .optional(),
   })
+  .refine(
+    d =>
+      [d.json_array, d.cloud_watch_logs].filter(v => v !== undefined).length <=
+      1,
+    {message: 'Envelope.Kind: multiple oneof members set'}
+  )
   .transform(d => ({
     kind:
       d.json_array !== undefined
@@ -2313,6 +2336,13 @@ export const unmarshalExportConfigSchema: z.ZodType<ExportConfig> = z
     service_now: z.lazy(() => unmarshalServiceNowExportConfigSchema).optional(),
     workspace_id: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.webhook, d.jira, d.slack, d.tines, d.service_now].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'ExportConfig.Destination: multiple oneof members set'}
+  )
   .transform(d => ({
     enabled: d.enabled,
     destination:
@@ -2655,6 +2685,10 @@ export const unmarshalRuleSchema: z.ZodType<Rule> = z
       .nullish()
       .transform(v => v ?? undefined),
   })
+  .refine(
+    d => [d.batch, d.streaming].filter(v => v !== undefined).length <= 1,
+    {message: 'Rule.Source: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     ruleId: d.rule_id,
@@ -2746,6 +2780,9 @@ export const unmarshalRuleInputBatchSchema: z.ZodType<RuleInputBatch> = z
     custom: z.lazy(() => unmarshalRuleInputCustomNotebookSchema).optional(),
     warehouse_id: z.string().optional(),
   })
+  .refine(d => [d.sql, d.custom].filter(v => v !== undefined).length <= 1, {
+    message: 'RuleInputBatch.Shape: multiple oneof members set',
+  })
   .transform(d => ({
     shape:
       d.sql !== undefined
@@ -2834,6 +2871,12 @@ export const unmarshalRuleScheduleSchema: z.ZodType<RuleSchedule> = z
     cron_expression: z.string().optional(),
     enabled: z.boolean().optional(),
   })
+  .refine(
+    d =>
+      [d.at_least_every, d.cron_expression].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'RuleSchedule.Timing: multiple oneof members set'}
+  )
   .transform(d => ({
     timing:
       d.at_least_every !== undefined
@@ -2863,6 +2906,13 @@ export const unmarshalScheduleSchema: z.ZodType<Schedule> = z
     compute_group: z.string().optional(),
     enabled: z.boolean().optional(),
   })
+  .refine(
+    d =>
+      [d.at_least_every, d.cron_expression, d.continuous].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'Schedule.Timing: multiple oneof members set'}
+  )
   .transform(d => ({
     timing:
       d.at_least_every !== undefined

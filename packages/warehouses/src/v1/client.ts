@@ -279,10 +279,10 @@ export class WarehousesClient {
     req: EditWarehouseRequest,
     options?: CallOptions
   ): Promise<EditWarehouseWaiter> {
-    await this.editWarehouseBase(req, options);
     if (req.id === undefined) {
       throw new Error('request field id required for polling is missing');
     }
+    await this.editWarehouseBase(req, options);
     return new EditWarehouseWaiter(this, req.id);
   }
 
@@ -563,10 +563,10 @@ export class WarehousesClient {
     req: StartRequest,
     options?: CallOptions
   ): Promise<StartWarehouseWaiter> {
-    await this.startWarehouseBase(req, options);
     if (req.id === undefined) {
       throw new Error('request field id required for polling is missing');
     }
+    await this.startWarehouseBase(req, options);
     return new StartWarehouseWaiter(this, req.id);
   }
 
@@ -604,10 +604,10 @@ export class WarehousesClient {
     req: StopRequest,
     options?: CallOptions
   ): Promise<StopWarehouseWaiter> {
-    await this.stopWarehouseBase(req, options);
     if (req.id === undefined) {
       throw new Error('request field id required for polling is missing');
     }
+    await this.stopWarehouseBase(req, options);
     return new StopWarehouseWaiter(this, req.id);
   }
 

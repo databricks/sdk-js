@@ -689,7 +689,10 @@ export interface ClonePipelineRequest {
   parentPath?: string | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
-  /** Serverless compute ID specified by the user for serverless pipelines. */
+  /**
+   * Serverless compute ID specified by the user for serverless pipelines.
+   * Use compute_policy_id instead. Only one of these fields may be set.
+   */
   serverlessComputeId?: string | undefined;
   /** Test configuration for this pipeline. Used only by test-only updates. */
   testing?: PipelineTesting | undefined;
@@ -882,7 +885,10 @@ export interface CreatePipelineRequest {
   parentPath?: string | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
-  /** Serverless compute ID specified by the user for serverless pipelines. */
+  /**
+   * Serverless compute ID specified by the user for serverless pipelines.
+   * Use compute_policy_id instead. Only one of these fields may be set.
+   */
   serverlessComputeId?: string | undefined;
   /** Test configuration for this pipeline. Used only by test-only updates. */
   testing?: PipelineTesting | undefined;
@@ -1068,7 +1074,10 @@ export interface EditPipelineRequest {
   parentPath?: string | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
-  /** Serverless compute ID specified by the user for serverless pipelines. */
+  /**
+   * Serverless compute ID specified by the user for serverless pipelines.
+   * Use compute_policy_id instead. Only one of these fields may be set.
+   */
   serverlessComputeId?: string | undefined;
   /** Test configuration for this pipeline. Used only by test-only updates. */
   testing?: PipelineTesting | undefined;
@@ -1203,7 +1212,10 @@ export interface GetPipelineResponse {
    * Maximum total size: 10k characters (JSON format)
    */
   parameters?: Record<string, string> | undefined;
-  /** Serverless compute ID resolved for the pipeline. */
+  /**
+   * Serverless compute ID resolved for the pipeline.
+   * For the equivalent compute policy ID, use effective_compute_policy_id.
+   */
   effectiveServerlessComputeId?: string | undefined;
 }
 
@@ -2455,7 +2467,10 @@ export interface PipelineSpec {
   parentPath?: string | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
-  /** Serverless compute ID specified by the user for serverless pipelines. */
+  /**
+   * Serverless compute ID specified by the user for serverless pipelines.
+   * Use compute_policy_id instead. Only one of these fields may be set.
+   */
   serverlessComputeId?: string | undefined;
   /** Test configuration for this pipeline. Used only by test-only updates. */
   testing?: PipelineTesting | undefined;
@@ -3495,6 +3510,29 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
       .optional(),
     onedrive_options: z.lazy(() => unmarshalOneDriveOptionsSchema).optional(),
   })
+  .refine(
+    d =>
+      [
+        d.google_ads_options,
+        d.tiktok_ads_options,
+        d.sharepoint_options,
+        d.gdrive_options,
+        d.outlook_options,
+        d.smartsheet_options,
+        d.jira_options,
+        d.confluence_options,
+        d.meta_ads_options,
+        d.zendesk_support_options,
+        d.kafka_options,
+        d.rabbitmq_options,
+        d.marketo_options,
+        d.linkedin_ads_options,
+        d.reddit_ads_options,
+        d.api_source_connector_options,
+        d.onedrive_options,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'ConnectorOptions.ConnectorOptions: multiple oneof members set'}
+  )
   .transform(d => ({
     connectorOptions:
       d.google_ads_options !== undefined
@@ -3675,6 +3713,13 @@ export const unmarshalFileFilterSchema: z.ZodType<FileFilter> = z
     modified_before: z.string().optional(),
     modified_after: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.path_filter, d.modified_before, d.modified_after].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'FileFilter.Filter: multiple oneof members set'}
+  )
   .transform(d => ({
     filter:
       d.path_filter !== undefined
@@ -3901,6 +3946,18 @@ export const unmarshalIngestionPipelineDefinitionSchema: z.ZodType<IngestionPipe
         .nullish()
         .transform(v => v ?? undefined),
     })
+    .refine(
+      d =>
+        [
+          d.connection_name,
+          d.ingestion_gateway_id,
+          d.ingest_from_uc_foreign_catalog,
+        ].filter(v => v !== undefined).length <= 1,
+      {
+        message:
+          'IngestionPipelineDefinition.Source: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       source:
         d.connection_name !== undefined
@@ -3955,6 +4012,14 @@ export const unmarshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodTy
         .lazy(() => unmarshalIngestionPipelineDefinition_ReportSpecSchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [d.schema, d.table, d.report].filter(v => v !== undefined).length <= 1,
+      {
+        message:
+          'IngestionPipelineDefinition_IngestionConfig.SourceTables: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       sourceTables:
         d.schema !== undefined
@@ -4519,6 +4584,10 @@ export const unmarshalPipelineClusterSchema: z.ZodType<PipelineCluster> = z
     num_workers: z.number().optional(),
     autoscale: z.lazy(() => unmarshalPipelinesAutoScaleSchema).optional(),
   })
+  .refine(
+    d => [d.num_workers, d.autoscale].filter(v => v !== undefined).length <= 1,
+    {message: 'PipelineCluster.Size: multiple oneof members set'}
+  )
   .transform(d => ({
     label: d.label,
     applyPolicyDefaultValues: d.apply_policy_default_values,
@@ -4607,6 +4676,13 @@ export const unmarshalPipelineLibrarySchema: z.ZodType<PipelineLibrary> = z
     file: z.lazy(() => unmarshalNotebookLibrarySchema).optional(),
     glob: z.lazy(() => unmarshalPathPatternSchema).optional(),
   })
+  .refine(
+    d =>
+      [d.jar, d.maven, d.whl, d.notebook, d.file, d.glob].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'PipelineLibrary.Lib: multiple oneof members set'}
+  )
   .transform(d => ({
     lib:
       d.jar !== undefined
@@ -4786,6 +4862,9 @@ export const unmarshalPipelineTriggerSchema: z.ZodType<PipelineTrigger> = z
     manual: z.lazy(() => unmarshalManualTriggerSchema).optional(),
     cron: z.lazy(() => unmarshalCronTriggerSchema).optional(),
   })
+  .refine(d => [d.manual, d.cron].filter(v => v !== undefined).length <= 1, {
+    message: 'PipelineTrigger.Trigger: multiple oneof members set',
+  })
   .transform(d => ({
     trigger:
       d.manual !== undefined
@@ -4903,6 +4982,10 @@ export const unmarshalPipelinesInitScriptInfoSchema: z.ZodType<PipelinesInitScri
       dbfs: z.lazy(() => unmarshalPipelinesDbfsStorageInfoSchema).optional(),
       s3: z.lazy(() => unmarshalPipelinesS3StorageInfoSchema).optional(),
     })
+    .refine(d => [d.dbfs, d.s3].filter(v => v !== undefined).length <= 1, {
+      message:
+        'PipelinesInitScriptInfo.StorageInfo: multiple oneof members set',
+    })
     .transform(d => ({
       storageInfo:
         d.dbfs !== undefined
@@ -4918,6 +5001,13 @@ export const unmarshalPipelinesJobRunAsSchema: z.ZodType<PipelinesJobRunAs> = z
     service_principal_name: z.string().optional(),
     group_name: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.user_name, d.service_principal_name, d.group_name].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'PipelinesJobRunAs.Identity: multiple oneof members set'}
+  )
   .transform(d => ({
     identity:
       d.user_name !== undefined
@@ -5149,6 +5239,13 @@ export const unmarshalSourceConfigSchema: z.ZodType<SourceConfig> = z
       .lazy(() => unmarshalApiSourceConnectorConfigSchema)
       .optional(),
   })
+  .refine(
+    d =>
+      [d.google_ads_config, d.api_source_connector_config].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'SourceConfig.ConnectorConfig: multiple oneof members set'}
+  )
   .transform(d => ({
     catalog: d.catalog,
     connectorConfig:
@@ -5249,6 +5346,13 @@ export const unmarshalTransformerSchema: z.ZodType<Transformer> = z
     input_column: z.string().optional(),
     output_column: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.json_options, d.avro_options, d.protobuf_options].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'Transformer.Config: multiple oneof members set'}
+  )
   .transform(d => ({
     format: d.format,
     config:

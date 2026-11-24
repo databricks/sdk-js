@@ -1,5 +1,10 @@
 # Version changelog
 
+## Release v0.54.5 (2026-11-24)
+
+### Bug Fixes
+* Fail a method that returns a waiter before it sends the request when a request field that the waiter polls with is unset, instead of after the request has started the work.
+
 ## Release v0.54.4 (2026-11-23)
 
 ### Internal Changes

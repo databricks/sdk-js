@@ -234,6 +234,13 @@ export const unmarshalCustomerManagedKeySchema: z.ZodType<CustomerManagedKey> =
       gcp_key_info: z.lazy(() => unmarshalGcpKeyInfoSchema).optional(),
       use_cases: z.array(z.string()).optional(),
     })
+    .refine(
+      d =>
+        [d.aws_key_info, d.azure_key_info, d.gcp_key_info].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {message: 'CustomerManagedKey.KeyInfo: multiple oneof members set'}
+    )
     .transform(d => ({
       customerManagedKeyId: d.customer_managed_key_id,
       creationTime: d.creation_time,

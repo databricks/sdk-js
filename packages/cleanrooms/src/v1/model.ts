@@ -1436,6 +1436,23 @@ export const unmarshalCleanRoomAssetSchema: z.ZodType<CleanRoomAsset> = z
       .lazy(() => unmarshalCleanRoomAsset_JarAnalysisSchema)
       .optional(),
   })
+  .refine(
+    d =>
+      [
+        d.table_local_details,
+        d.volume_local_details,
+        d.view_local_details,
+        d.foreign_table_local_details,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'CleanRoomAsset.LocalDetails: multiple oneof members set'}
+  )
+  .refine(
+    d =>
+      [d.table, d.notebook, d.view, d.foreign_table, d.jar_analysis].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'CleanRoomAsset.Details: multiple oneof members set'}
+  )
   .transform(d => ({
     cleanRoomName: d.clean_room_name,
     name: d.name,
@@ -1617,6 +1634,13 @@ export const unmarshalCleanRoomAutoApprovalRuleSchema: z.ZodType<CleanRoomAutoAp
         .transform(v => BigInt(v))
         .optional(),
     })
+    .refine(
+      d =>
+        [d.author_collaborator_alias, d.author_scope].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {message: 'CleanRoomAutoApprovalRule.Authors: multiple oneof members set'}
+    )
     .transform(d => ({
       cleanRoomName: d.clean_room_name,
       ruleId: d.rule_id,
@@ -1984,6 +2008,16 @@ export const unmarshalCreateCleanRoomAssetReviewResponseSchema: z.ZodType<Create
       notebook_review_state: z.string().optional(),
       jar_analysis_review_state: z.string().optional(),
     })
+    .refine(
+      d =>
+        [d.notebook_review_state, d.jar_analysis_review_state].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'CreateCleanRoomAssetReviewResponse.ReviewState: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       notebookReviews: d.notebook_reviews,
       jarAnalysisReviews: d.jar_analysis_reviews,
@@ -2224,6 +2258,10 @@ export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgu
       column: z.string().optional(),
       constant: z.string().optional(),
     })
+    .refine(
+      d => [d.column, d.constant].filter(v => v !== undefined).length <= 1,
+      {message: 'PolicyFunctionArgument.Arg: multiple oneof members set'}
+    )
     .transform(d => ({
       arg:
         d.column !== undefined

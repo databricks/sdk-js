@@ -3231,6 +3231,15 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
       .transform(s => Temporal.Instant.from(s))
       .optional(),
   })
+  .refine(
+    d =>
+      [
+        d.azure_private_endpoint_info,
+        d.aws_vpc_endpoint_info,
+        d.gcp_psc_endpoint_info,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'Endpoint.EndpointInfo: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     endpointId: d.endpoint_id,
@@ -3268,6 +3277,15 @@ export const unmarshalGcpEndpointSchema: z.ZodType<GcpEndpoint> = z
       .optional(),
     all_vpc_sc_services: z.boolean().optional(),
   })
+  .refine(
+    d =>
+      [
+        d.service_attachment,
+        d.google_api_endpoints,
+        d.all_vpc_sc_services,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'GcpEndpoint.TargetServices: multiple oneof members set'}
+  )
   .transform(d => ({
     pscEndpointUri: d.psc_endpoint_uri,
     targetServices:
@@ -3533,6 +3551,16 @@ export const unmarshalIngressNetworkPolicy_CrossWorkspaceRequestOriginSchema: z.
         .lazy(() => unmarshalIngressNetworkPolicy_WorkspaceIdListSchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [d.all_source_workspaces, d.selected_workspaces].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'IngressNetworkPolicy_CrossWorkspaceRequestOrigin.Source: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       source:
         d.all_source_workspaces !== undefined
@@ -3636,6 +3664,19 @@ export const unmarshalIngressNetworkPolicy_PrivateRequestOriginSchema: z.ZodType
       azure_workspace_private_link: z.boolean().optional(),
       all_private_access: z.boolean().optional(),
     })
+    .refine(
+      d =>
+        [
+          d.endpoints,
+          d.all_registered_endpoints,
+          d.azure_workspace_private_link,
+          d.all_private_access,
+        ].filter(v => v !== undefined).length <= 1,
+      {
+        message:
+          'IngressNetworkPolicy_PrivateRequestOrigin.Source: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       source:
         d.endpoints !== undefined
@@ -3717,6 +3758,16 @@ export const unmarshalIngressNetworkPolicy_PublicRequestOriginSchema: z.ZodType<
         .lazy(() => unmarshalIngressNetworkPolicy_IpRangesSchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [d.all_ip_ranges, d.included_ip_ranges, d.excluded_ip_ranges].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'IngressNetworkPolicy_PublicRequestOrigin.Source: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       source:
         d.all_ip_ranges !== undefined
@@ -4259,6 +4310,9 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     error: z.lazy(() => unmarshalApiErrorSchema).optional(),
     response: z.record(z.string(), z.unknown()).optional(),
   })
+  .refine(d => [d.error, d.response].filter(v => v !== undefined).length <= 1, {
+    message: 'Operation.Result: multiple oneof members set',
+  })
   .transform(d => ({
     name: d.name,
     metadata: d.metadata,
@@ -4324,6 +4378,16 @@ export const unmarshalPrivateNetworkGatewaySchema: z.ZodType<PrivateNetworkGatew
       error_message: z.string().optional(),
       bandwidth_tier_gigabits_per_second: z.number().optional(),
     })
+    .refine(
+      d =>
+        [d.azure_cloud_connection, d.aws_cloud_connection].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'PrivateNetworkGateway.CloudConnection: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       name: d.name,
       displayName: d.display_name,

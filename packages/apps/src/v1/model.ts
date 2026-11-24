@@ -2029,6 +2029,12 @@ export const unmarshalAppSchema: z.ZodType<App> = z
       .optional(),
     forward_user_access_token: z.boolean().optional(),
   })
+  .refine(
+    d =>
+      [d.source_code_path, d.git_source].filter(v => v !== undefined).length <=
+      1,
+    {message: 'App.DeploymentSource: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     description: d.description,
@@ -2266,6 +2272,21 @@ export const unmarshalAppManifest_AppResourceSpecSchema: z.ZodType<AppManifest_A
         .lazy(() => unmarshalAppManifest_AppResourceExperimentSpecSchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [
+          d.secret_spec,
+          d.sql_warehouse_spec,
+          d.serving_endpoint_spec,
+          d.job_spec,
+          d.uc_securable_spec,
+          d.experiment_spec,
+        ].filter(v => v !== undefined).length <= 1,
+      {
+        message:
+          'AppManifest_AppResourceSpec.Resource: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       name: d.name,
       description: d.description,
@@ -2340,6 +2361,22 @@ export const unmarshalAppResourceSchema: z.ZodType<AppResource> = z
     app: z.lazy(() => unmarshalAppResourceAppSchema).optional(),
     postgres: z.lazy(() => unmarshalAppResourcePostgresSchema).optional(),
   })
+  .refine(
+    d =>
+      [
+        d.secret,
+        d.sql_warehouse,
+        d.serving_endpoint,
+        d.job,
+        d.uc_securable,
+        d.database,
+        d.genie_space,
+        d.experiment,
+        d.app,
+        d.postgres,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'AppResource.Resource: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     description: d.description,
@@ -2603,6 +2640,10 @@ export const unmarshalEnvVarSchema: z.ZodType<EnvVar> = z
     value: z.string().optional(),
     value_from: z.string().optional(),
   })
+  .refine(
+    d => [d.value, d.value_from].filter(v => v !== undefined).length <= 1,
+    {message: 'EnvVar.Source: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     source:
@@ -2642,6 +2683,10 @@ export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
     source_code_path: z.string().optional(),
     resolved_commit: z.string().optional(),
   })
+  .refine(
+    d => [d.branch, d.tag, d.commit].filter(v => v !== undefined).length <= 1,
+    {message: 'GitSource.Reference: multiple oneof members set'}
+  )
   .transform(d => ({
     gitRepository: d.git_repository,
     reference:
@@ -2723,6 +2768,9 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     done: z.boolean().optional(),
     error: z.lazy(() => unmarshalApiErrorSchema).optional(),
     response: z.record(z.string(), z.unknown()).optional(),
+  })
+  .refine(d => [d.error, d.response].filter(v => v !== undefined).length <= 1, {
+    message: 'Operation.Result: multiple oneof members set',
   })
   .transform(d => ({
     name: d.name,

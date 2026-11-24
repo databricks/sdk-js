@@ -450,6 +450,9 @@ export const unmarshalAlertOperandSchema: z.ZodType<AlertOperand> = z
     value: z.lazy(() => unmarshalAlertOperandValueSchema).optional(),
     column: z.lazy(() => unmarshalAlertOperandColumnSchema).optional(),
   })
+  .refine(d => [d.value, d.column].filter(v => v !== undefined).length <= 1, {
+    message: 'AlertOperand.Operand: multiple oneof members set',
+  })
   .transform(d => ({
     operand:
       d.value !== undefined
@@ -474,6 +477,13 @@ export const unmarshalAlertOperandValueSchema: z.ZodType<AlertOperandValue> = z
     double_value: z.number().optional(),
     bool_value: z.boolean().optional(),
   })
+  .refine(
+    d =>
+      [d.string_value, d.double_value, d.bool_value].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'AlertOperandValue.ThresholdValue: multiple oneof members set'}
+  )
   .transform(d => ({
     thresholdValue:
       d.string_value !== undefined

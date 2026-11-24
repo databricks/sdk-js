@@ -3326,7 +3326,10 @@ export interface JobCompletionTriggerState {
 export interface JobCompletionTriggerState_MonitoredJobState {
   /** The ID of the workspace containing the upstream job. */
   workspaceId?: string | undefined;
-  /** The ID of the upstream job. */
+  /**
+   * The ID of the upstream job. For a job monitored by name, the ID of the job that the name last resolved to.
+   * Omitted until the name resolves to a job.
+   */
   jobId?: string | undefined;
   /** The completion time of the latest matching upstream run observed by the trigger. */
   lastSeenCompletionTime?: Temporal.Instant | undefined;
@@ -6559,6 +6562,17 @@ export const unmarshalAiFunctionTaskSchema: z.ZodType<AiFunctionTask> = z
     ai_extract: z.lazy(() => unmarshalAiExtractFunctionSchema).optional(),
     ai_classify: z.lazy(() => unmarshalAiClassifyFunctionSchema).optional(),
   })
+  .refine(
+    d => [d.delta_table, d.volume].filter(v => v !== undefined).length <= 1,
+    {message: 'AiFunctionTask.Source: multiple oneof members set'}
+  )
+  .refine(
+    d =>
+      [d.ai_parse_document, d.ai_extract, d.ai_classify].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'AiFunctionTask.Function: multiple oneof members set'}
+  )
   .transform(d => ({
     source:
       d.delta_table !== undefined
@@ -6698,6 +6712,15 @@ export const unmarshalAlertTaskSubscriberSchema: z.ZodType<AlertTaskSubscriber> 
       user_name: z.string().optional(),
       destination_id: z.string().optional(),
     })
+    .refine(
+      d =>
+        [d.user_name, d.destination_id].filter(v => v !== undefined).length <=
+        1,
+      {
+        message:
+          'AlertTaskSubscriber.SubscriberType: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       subscriberType:
         d.user_name !== undefined
@@ -7019,6 +7042,10 @@ export const unmarshalClusterLogConfSchema: z.ZodType<ClusterLogConf> = z
     s3: z.lazy(() => unmarshalS3StorageInfoSchema).optional(),
     volumes: z.lazy(() => unmarshalVolumesStorageInfoSchema).optional(),
   })
+  .refine(
+    d => [d.dbfs, d.s3, d.volumes].filter(v => v !== undefined).length <= 1,
+    {message: 'ClusterLogConf.StorageInfo: multiple oneof members set'}
+  )
   .transform(d => ({
     storageInfo:
       d.dbfs !== undefined
@@ -7037,6 +7064,13 @@ export const unmarshalClusterSpecSchema: z.ZodType<ClusterSpec> = z
     job_cluster_key: z.string().optional(),
     libraries: z.array(z.lazy(() => unmarshalLibrarySchema)).optional(),
   })
+  .refine(
+    d =>
+      [d.existing_cluster_id, d.new_cluster, d.job_cluster_key].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'ClusterSpec.Spec: multiple oneof members set'}
+  )
   .transform(d => ({
     spec:
       d.existing_cluster_id !== undefined
@@ -7121,6 +7155,11 @@ export const unmarshalClusterSpec_NewClusterSchema: z.ZodType<ClusterSpec_NewClu
       num_workers: z.number().optional(),
       autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
     })
+    .refine(
+      d =>
+        [d.num_workers, d.autoscale].filter(v => v !== undefined).length <= 1,
+      {message: 'ClusterSpec_NewCluster.Size: multiple oneof members set'}
+    )
     .transform(d => ({
       applyPolicyDefaultValues: d.apply_policy_default_values,
       clusterName: d.cluster_name,
@@ -7795,6 +7834,23 @@ export const unmarshalGetRunOutputResponseSchema: z.ZodType<GetRunOutputResponse
       logs_truncated: z.boolean().optional(),
       error_trace: z.string().optional(),
     })
+    .refine(
+      d =>
+        [
+          d.notebook_output,
+          d.sql_output,
+          d.dbt_output,
+          d.run_job_output,
+          d.clean_rooms_notebook_output,
+          d.dashboard_output,
+          d.dbt_cloud_output,
+          d.dbt_platform_output,
+          d.alert_output,
+          d.ai_runtime_task_output,
+          d.ai_function_task_output,
+        ].filter(v => v !== undefined).length <= 1,
+      {message: 'GetRunOutputResponse.Result: multiple oneof members set'}
+    )
     .transform(d => ({
       metadata: d.metadata,
       error: d.error,
@@ -8033,6 +8089,12 @@ export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
       .nullish()
       .transform(v => v ?? undefined),
   })
+  .refine(
+    d =>
+      [d.git_branch, d.git_tag, d.git_commit].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'GitSource.GitReference: multiple oneof members set'}
+  )
   .transform(d => ({
     gitUrl: d.git_url,
     gitProvider: d.git_provider,
@@ -8059,6 +8121,13 @@ export const unmarshalInitScriptInfoSchema: z.ZodType<InitScriptInfo> = z
     workspace: z.lazy(() => unmarshalWorkspaceStorageInfoSchema).optional(),
     volumes: z.lazy(() => unmarshalVolumesStorageInfoSchema).optional(),
   })
+  .refine(
+    d =>
+      [d.dbfs, d.s3, d.file, d.gcs, d.abfss, d.workspace, d.volumes].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'InitScriptInfo.StorageInfo: multiple oneof members set'}
+  )
   .transform(d => ({
     storageInfo:
       d.dbfs !== undefined
@@ -8282,6 +8351,13 @@ export const unmarshalJobRunAsSchema: z.ZodType<JobRunAs> = z
     service_principal_name: z.string().optional(),
     group_name: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.user_name, d.service_principal_name, d.group_name].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'JobRunAs.Identity: multiple oneof members set'}
+  )
   .transform(d => ({
     identity:
       d.user_name !== undefined
@@ -8460,6 +8536,13 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
     whl: z.string().optional(),
     requirements: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.jar, d.egg, d.pypi, d.maven, d.cran, d.whl, d.requirements].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'Library.Lib: multiple oneof members set'}
+  )
   .transform(d => ({
     lib:
       d.jar !== undefined
@@ -8690,6 +8773,19 @@ export const unmarshalPerTriggerStateSchema: z.ZodType<PerTriggerState> = z
       .transform(v => v ?? undefined),
     pause_status: z.string().optional(),
   })
+  .refine(
+    d =>
+      [
+        d.periodic,
+        d.schedule,
+        d.continuous,
+        d.file_arrival,
+        d.table_update,
+        d.model,
+        d.job_completion,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'PerTriggerState.TriggerType: multiple oneof members set'}
+  )
   .transform(d => ({
     triggerType:
       d.periodic !== undefined
@@ -9009,6 +9105,25 @@ export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
       .lazy(() => unmarshalResolvedValues_AiFunctionTaskResolvedValuesSchema)
       .optional(),
   })
+  .refine(
+    d =>
+      [
+        d.notebook_task,
+        d.spark_jar_task,
+        d.spark_python_task,
+        d.spark_submit_task,
+        d.python_wheel_task,
+        d.dbt_task,
+        d.sql_task,
+        d.run_job_task,
+        d.condition_task,
+        d.simulation_task,
+        d.pipeline_task,
+        d.ai_runtime_task,
+        d.ai_function_task,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'ResolvedValues.Resolved: multiple oneof members set'}
+  )
   .transform(d => ({
     resolved:
       d.notebook_task !== undefined
@@ -9589,6 +9704,40 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
       .transform(v => BigInt(v))
       .optional(),
   })
+  .refine(
+    d =>
+      [
+        d.notebook_task,
+        d.spark_jar_task,
+        d.spark_python_task,
+        d.spark_submit_task,
+        d.pipeline_task,
+        d.python_wheel_task,
+        d.dbt_task,
+        d.sql_task,
+        d.run_job_task,
+        d.condition_task,
+        d.for_each_task,
+        d.clean_rooms_notebook_task,
+        d.gen_ai_compute_task,
+        d.alert_task,
+        d.power_bi_task,
+        d.dashboard_task,
+        d.dbt_cloud_task,
+        d.dbt_platform_task,
+        d.python_operator_task,
+        d.ai_runtime_task,
+        d.ai_function_task,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'RunTask.Task: multiple oneof members set'}
+  )
+  .refine(
+    d =>
+      [d.existing_cluster_id, d.new_cluster, d.job_cluster_key].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'RunTask.Spec: multiple oneof members set'}
+  )
   .transform(d => ({
     runId: d.run_id,
     state: d.state,
@@ -9933,6 +10082,12 @@ export const unmarshalSqlTaskSchema: z.ZodType<SqlTask> = z
     file: z.lazy(() => unmarshalSqlTaskFileSchema).optional(),
     warehouse_id: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.query, d.dashboard, d.alert, d.file].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'SqlTask.SqlTaskType: multiple oneof members set'}
+  )
   .transform(d => ({
     parameters: d.parameters,
     sqlTaskType:
@@ -10048,6 +10203,16 @@ export const unmarshalSqlTask_SqlOutputSchema: z.ZodType<SqlTask_SqlOutput> = z
       .optional(),
     file_output: z.lazy(() => unmarshalSqlTask_SqlFileOutputSchema).optional(),
   })
+  .refine(
+    d =>
+      [
+        d.query_output,
+        d.dashboard_output,
+        d.alert_output,
+        d.file_output,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'SqlTask_SqlOutput.SqlOutputType: multiple oneof members set'}
+  )
   .transform(d => ({
     sqlOutputType:
       d.query_output !== undefined
@@ -10161,6 +10326,15 @@ export const unmarshalSqlTaskSubscriptionSchema: z.ZodType<SqlTaskSubscription> 
       user_name: z.string().optional(),
       destination_id: z.string().optional(),
     })
+    .refine(
+      d =>
+        [d.user_name, d.destination_id].filter(v => v !== undefined).length <=
+        1,
+      {
+        message:
+          'SqlTaskSubscription.SubscriptionType: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       subscriptionType:
         d.user_name !== undefined
@@ -10269,6 +10443,15 @@ export const unmarshalSubscription_SubscriberSchema: z.ZodType<Subscription_Subs
       user_name: z.string().optional(),
       destination_id: z.string().optional(),
     })
+    .refine(
+      d =>
+        [d.user_name, d.destination_id].filter(v => v !== undefined).length <=
+        1,
+      {
+        message:
+          'Subscription_Subscriber.SubscriptionType: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       subscriptionType:
         d.user_name !== undefined
@@ -10391,6 +10574,40 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
     retry_on_timeout: z.boolean().optional(),
     disable_auto_optimization: z.boolean().optional(),
   })
+  .refine(
+    d =>
+      [
+        d.notebook_task,
+        d.spark_jar_task,
+        d.spark_python_task,
+        d.spark_submit_task,
+        d.pipeline_task,
+        d.python_wheel_task,
+        d.dbt_task,
+        d.sql_task,
+        d.run_job_task,
+        d.condition_task,
+        d.for_each_task,
+        d.clean_rooms_notebook_task,
+        d.gen_ai_compute_task,
+        d.alert_task,
+        d.power_bi_task,
+        d.dashboard_task,
+        d.dbt_cloud_task,
+        d.dbt_platform_task,
+        d.python_operator_task,
+        d.ai_runtime_task,
+        d.ai_function_task,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'TaskSettings.Task: multiple oneof members set'}
+  )
+  .refine(
+    d =>
+      [d.existing_cluster_id, d.new_cluster, d.job_cluster_key].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'TaskSettings.Spec: multiple oneof members set'}
+  )
   .transform(d => ({
     taskKey: d.task_key,
     dependsOn: d.depends_on,
@@ -10670,6 +10887,17 @@ export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
       .nullish()
       .transform(v => v ?? undefined),
   })
+  .refine(
+    d =>
+      [
+        d.file_arrival,
+        d.periodic,
+        d.table_update,
+        d.model,
+        d.job_completion,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'TriggerSettings.Configuration: multiple oneof members set'}
+  )
   .transform(d => ({
     pauseStatus: d.pause_status,
     configuration:
@@ -10705,6 +10933,12 @@ export const unmarshalTriggerStateSchema: z.ZodType<TriggerState> = z
       .transform(v => v ?? undefined),
     pause_status: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.table, d.file_arrival, d.job_completion].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'TriggerState.TriggerType: multiple oneof members set'}
+  )
   .transform(d => ({
     triggerType:
       d.table !== undefined

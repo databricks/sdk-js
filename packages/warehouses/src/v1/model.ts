@@ -882,8 +882,9 @@ export interface CreateWarehouseRequest {
   /** Configures whether the warehouse should use serverless compute */
   enableServerlessCompute?: boolean | undefined;
   /**
-   * Warehouse type: `PRO` or `CLASSIC`. If you want to use serverless compute,
-   * you must set to `PRO` and also set the field `enable_serverless_compute` to `true`.
+   * Warehouse type: `PRO`, `CLASSIC`, or `REALTIME`. For serverless compute,
+   * use `PRO` or `REALTIME` with `enable_serverless_compute=true`.
+   * `REALTIME` requires serverless compute and Photon; `enable_photon` defaults to `true`.
    */
   warehouseType?: WarehouseType | undefined;
   /**
@@ -905,10 +906,10 @@ export interface CreateWarehouseRequest {
    * - When absent, the warehouse is treated as having a multiplier of 1.0.
    */
   reydenClusterSizeMultiplier?: number | undefined;
-  /** Compute version label for a REALTIME warehouse. This field is output only. */
+  /** Compute version label for a Real-Time warehouse. This field is output only. */
   customerVersionLabel?: string | undefined;
   /**
-   * Maximum compute capacity of a real-time SQL warehouse, in DBU per hour.
+   * Maximum autoscaling capacity of a Real-Time SQL warehouse, in DBU per hour.
    * Must be at least the minimum DBU for the selected warehouse size and no greater
    * than the configured DBU limit. Actual capacity may be below this ceiling.
    */
@@ -1063,8 +1064,9 @@ export interface EditWarehouseRequest {
   /** Configures whether the warehouse should use serverless compute */
   enableServerlessCompute?: boolean | undefined;
   /**
-   * Warehouse type: `PRO` or `CLASSIC`. If you want to use serverless compute,
-   * you must set to `PRO` and also set the field `enable_serverless_compute` to `true`.
+   * Warehouse type: `PRO`, `CLASSIC`, or `REALTIME`. For serverless compute,
+   * use `PRO` or `REALTIME` with `enable_serverless_compute=true`.
+   * `REALTIME` requires serverless compute and Photon; `enable_photon` defaults to `true`.
    */
   warehouseType?: WarehouseType | undefined;
   /**
@@ -1086,10 +1088,10 @@ export interface EditWarehouseRequest {
    * - When absent, the warehouse is treated as having a multiplier of 1.0.
    */
   reydenClusterSizeMultiplier?: number | undefined;
-  /** Compute version label for a REALTIME warehouse. This field is output only. */
+  /** Compute version label for a Real-Time warehouse. This field is output only. */
   customerVersionLabel?: string | undefined;
   /**
-   * Maximum compute capacity of a real-time SQL warehouse, in DBU per hour.
+   * Maximum autoscaling capacity of a Real-Time SQL warehouse, in DBU per hour.
    * Must be at least the minimum DBU for the selected warehouse size and no greater
    * than the configured DBU limit. Actual capacity may be below this ceiling.
    */
@@ -1218,8 +1220,9 @@ export interface EndpointInfo {
   /** Configures whether the warehouse should use serverless compute */
   enableServerlessCompute?: boolean | undefined;
   /**
-   * Warehouse type: `PRO` or `CLASSIC`. If you want to use serverless compute,
-   * you must set to `PRO` and also set the field `enable_serverless_compute` to `true`.
+   * Warehouse type: `PRO`, `CLASSIC`, or `REALTIME`. For serverless compute,
+   * use `PRO` or `REALTIME` with `enable_serverless_compute=true`.
+   * `REALTIME` requires serverless compute and Photon; `enable_photon` defaults to `true`.
    */
   warehouseType?: WarehouseType | undefined;
   /**
@@ -1241,10 +1244,10 @@ export interface EndpointInfo {
    * - When absent, the warehouse is treated as having a multiplier of 1.0.
    */
   reydenClusterSizeMultiplier?: number | undefined;
-  /** Compute version label for a REALTIME warehouse. This field is output only. */
+  /** Compute version label for a Real-Time warehouse. This field is output only. */
   customerVersionLabel?: string | undefined;
   /**
-   * Maximum compute capacity of a real-time SQL warehouse, in DBU per hour.
+   * Maximum autoscaling capacity of a Real-Time SQL warehouse, in DBU per hour.
    * Must be at least the minimum DBU for the selected warehouse size and no greater
    * than the configured DBU limit. Actual capacity may be below this ceiling.
    */
@@ -1396,8 +1399,9 @@ export interface GetWarehouseResponse {
   /** Configures whether the warehouse should use serverless compute */
   enableServerlessCompute?: boolean | undefined;
   /**
-   * Warehouse type: `PRO` or `CLASSIC`. If you want to use serverless compute,
-   * you must set to `PRO` and also set the field `enable_serverless_compute` to `true`.
+   * Warehouse type: `PRO`, `CLASSIC`, or `REALTIME`. For serverless compute,
+   * use `PRO` or `REALTIME` with `enable_serverless_compute=true`.
+   * `REALTIME` requires serverless compute and Photon; `enable_photon` defaults to `true`.
    */
   warehouseType?: WarehouseType | undefined;
   /**
@@ -1419,10 +1423,10 @@ export interface GetWarehouseResponse {
    * - When absent, the warehouse is treated as having a multiplier of 1.0.
    */
   reydenClusterSizeMultiplier?: number | undefined;
-  /** Compute version label for a REALTIME warehouse. This field is output only. */
+  /** Compute version label for a Real-Time warehouse. This field is output only. */
   customerVersionLabel?: string | undefined;
   /**
-   * Maximum compute capacity of a real-time SQL warehouse, in DBU per hour.
+   * Maximum autoscaling capacity of a Real-Time SQL warehouse, in DBU per hour.
    * Must be at least the minimum DBU for the selected warehouse size and no greater
    * than the configured DBU limit. Actual capacity may be below this ceiling.
    */

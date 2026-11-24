@@ -1222,6 +1222,13 @@ export const unmarshalIndexSchema: z.ZodType<Index> = z
     creator: z.string().optional(),
     index_subtype: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.direct_access_index_spec, d.delta_sync_index_spec].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'Index.IndexSpec: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     endpoint: d.endpoint,

@@ -2283,6 +2283,23 @@ export const unmarshalModelProviderServiceConfigSchema: z.ZodType<ModelProviderS
         .nullish()
         .transform(v => v ?? undefined),
     })
+    .refine(
+      d =>
+        [
+          d.openai,
+          d.azure_openai,
+          d.anthropic,
+          d.amazon_bedrock,
+          d.custom,
+          d.microsoft_foundry,
+          d.gemini_enterprise,
+          d.bedrock_mantle,
+        ].filter(v => v !== undefined).length <= 1,
+      {
+        message:
+          'ModelProviderServiceConfig.Provider: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       providerType: d.provider_type,
       provider:
@@ -2355,6 +2372,15 @@ export const unmarshalModelProviderServiceConfig_AmazonBedrockProviderDirectConf
         .lazy(() => unmarshalModelProviderServiceConfig_AwsAccessKeySchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [d.service_credential, d.aws_access_key].filter(v => v !== undefined)
+          .length <= 1,
+      {
+        message:
+          'ModelProviderServiceConfig_AmazonBedrockProviderDirectConfig.AuthMode: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       region: d.region,
       authMode:
@@ -2385,6 +2411,13 @@ export const unmarshalModelProviderServiceConfig_AnthropicProviderConfigSchema: 
         )
         .optional(),
     })
+    .refine(
+      d => [d.direct, d.relayed].filter(v => v !== undefined).length <= 1,
+      {
+        message:
+          'ModelProviderServiceConfig_AnthropicProviderConfig.ProviderMode: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       providerMode:
         d.direct !== undefined
@@ -2463,6 +2496,16 @@ export const unmarshalModelProviderServiceConfig_AzureOpenAiProviderDirectConfig
         )
         .optional(),
     })
+    .refine(
+      d =>
+        [d.api_key, d.service_credential, d.entra_service_principal].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'ModelProviderServiceConfig_AzureOpenAiProviderDirectConfig.AuthMode: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       baseUrl: d.base_url,
       authMode:
@@ -2529,6 +2572,13 @@ export const unmarshalModelProviderServiceConfig_CustomProviderDirectConfigSchem
         )
         .optional(),
     })
+    .refine(
+      d => [d.api_key, d.header_auth].filter(v => v !== undefined).length <= 1,
+      {
+        message:
+          'ModelProviderServiceConfig_CustomProviderDirectConfig.AuthMode: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       baseUrl: d.base_url,
       authMode:
@@ -2589,6 +2639,15 @@ export const unmarshalModelProviderServiceConfig_GeminiEnterpriseProviderDirectC
       project_id: z.string().optional(),
       region: z.string().optional(),
     })
+    .refine(
+      d =>
+        [d.api_key, d.service_credential].filter(v => v !== undefined).length <=
+        1,
+      {
+        message:
+          'ModelProviderServiceConfig_GeminiEnterpriseProviderDirectConfig.AuthMode: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       authMode:
         d.api_key !== undefined
@@ -2638,6 +2697,16 @@ export const unmarshalModelProviderServiceConfig_MicrosoftFoundryProviderDirectC
         )
         .optional(),
     })
+    .refine(
+      d =>
+        [d.api_key, d.service_credential, d.entra_service_principal].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'ModelProviderServiceConfig_MicrosoftFoundryProviderDirectConfig.AuthMode: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       baseUrl: d.base_url,
       authMode:
@@ -2726,6 +2795,15 @@ export const unmarshalModelProviderServiceConfig_ProviderSecretSchema: z.ZodType
         .lazy(() => unmarshalModelProviderServiceConfig_SecretReferenceSchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [d.plaintext, d.secret_reference].filter(v => v !== undefined).length <=
+        1,
+      {
+        message:
+          'ModelProviderServiceConfig_ProviderSecret.Value: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       value:
         d.plaintext !== undefined
@@ -2837,6 +2915,18 @@ export const unmarshalModelServiceConfig_DestinationConfigSchema: z.ZodType<Mode
         .optional(),
       is_deleted: z.boolean().optional(),
     })
+    .refine(
+      d =>
+        [
+          d.pay_per_token_config,
+          d.provisioned_throughput_config,
+          d.external_model_config,
+        ].filter(v => v !== undefined).length <= 1,
+      {
+        message:
+          'ModelServiceConfig_DestinationConfig.TypeConfig: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       name: d.name,
       destinationType: d.destination_type,

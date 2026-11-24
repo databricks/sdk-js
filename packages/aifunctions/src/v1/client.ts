@@ -218,7 +218,7 @@ export class AiFunctionsClient {
     }
   }
 
-  /** Classifies content according to a set of provided labels. For REST API requests, the default rate limit is 1,200 requests per minute per workspace. Contact your <Databricks> account team to request a higher limit. */
+  /** Classifies content according to a set of provided labels. The AI Classify REST API has a default rate limit of 1,200 requests per minute per workspace. Contact your account team to request a higher limit. */
   async aiClassify(
     req: AiClassifyRequest,
     options?: CallOptions
@@ -247,7 +247,7 @@ export class AiFunctionsClient {
     return resp;
   }
 
-  /** Turn text and structured data into decisions your application can use. Define questions and criteria to choose an option, estimate a probability, or assign a score given a provided state. For REST API requests, the default rate limit is 1,200 requests per minute per workspace. Contact your <Databricks> account team to request a higher limit. */
+  /** Turn text and structured data into decisions your application can use. Define questions and criteria to choose an option, estimate a probability, or assign a score given a provided state. The AI Decide REST API has a default rate limit of 1,200 requests per minute per workspace. Contact your account team to request a higher limit. */
   async aiDecide(
     req: AiDecideRequest,
     options?: CallOptions
@@ -276,7 +276,7 @@ export class AiFunctionsClient {
     return resp;
   }
 
-  /** Extracts structured data from text and documents according to a provided schema. For REST API requests, the default rate limit is 120 requests per minute per workspace. Contact your <Databricks> account team to request a higher limit. */
+  /** Extracts structured data from text and documents according to a provided schema. The AI Extract REST API has a default rate limit of 120 requests per minute per workspace. Contact your account team to request a higher limit. */
   async aiExtract(
     req: AiExtractRequest,
     options?: CallOptions

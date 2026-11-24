@@ -344,10 +344,10 @@ export class JobsClient {
     req: CancelRunRequest,
     options?: CallOptions
   ): Promise<CancelRunWaiter> {
-    await this.cancelRunBase(req, options);
     if (req.runId === undefined) {
       throw new Error('request field runId required for polling is missing');
     }
+    await this.cancelRunBase(req, options);
     return new CancelRunWaiter(this, req.runId);
   }
 
@@ -814,10 +814,10 @@ export class JobsClient {
     req: RepairRunRequest,
     options?: CallOptions
   ): Promise<RepairWaiter> {
-    await this.repairBase(req, options);
     if (req.runId === undefined) {
       throw new Error('request field runId required for polling is missing');
     }
+    await this.repairBase(req, options);
     return new RepairWaiter(this, req.runId);
   }
 

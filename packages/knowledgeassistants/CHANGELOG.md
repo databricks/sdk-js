@@ -1,5 +1,10 @@
 # Version changelog
 
+## Release v0.52.2 (2026-11-24)
+
+### Bug Fixes
+* Reject a response that sets more than one field of a oneof, a group of fields of which at most one can be set, instead of returning the field that the API lists first. The Go and Java SDKs already reject such a response.
+
 ## Release v0.52.1 (2026-11-23)
 
 ### Internal Changes

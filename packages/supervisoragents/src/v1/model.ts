@@ -432,6 +432,18 @@ export const unmarshalToolSchema: z.ZodType<Tool> = z
     description: z.string().optional(),
     tool_id: z.string().optional(),
   })
+  .refine(
+    d =>
+      [
+        d.genie_space,
+        d.knowledge_assistant,
+        d.uc_function,
+        d.app,
+        d.volume,
+        d.uc_connection,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'Tool.Spec: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     id: d.id,

@@ -282,6 +282,19 @@ export const unmarshalConfigSchema: z.ZodType<Config> = z
       .lazy(() => unmarshalDatabricksAppTeamsConfigSchema)
       .optional(),
   })
+  .refine(
+    d =>
+      [
+        d.slack,
+        d.email,
+        d.generic_webhook,
+        d.pagerduty,
+        d.microsoft_teams,
+        d.databricks_app_slack,
+        d.databricks_app_teams,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'Config.Config: multiple oneof members set'}
+  )
   .transform(d => ({
     config:
       d.slack !== undefined

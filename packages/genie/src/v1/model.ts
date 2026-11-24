@@ -1133,9 +1133,11 @@ export interface GenieCreateSpaceRequest {
   /** Path of the workspace folder in which to create the space. */
   parentPath?: string | undefined;
   /**
-   * Configuration of the new space as a JSON string. To copy an existing space, use the value that
-   * [Get Genie Space](:method:genie/getspace) returns when `include_serialized_space` is true. For the
-   * JSON format and its validation rules, see https://docs.databricks.com/aws/en/genie-agents/conversation-api.
+   * Configuration of the new space as a JSON string. The configuration must include at least one
+   * table, metric view, volume, MCP connection, or sub-agent data source. To copy an existing
+   * space, use the value that [Get Genie Space](:method:genie/getspace) returns when
+   * `include_serialized_space` is true. For the JSON format and its validation rules, see
+   * https://docs.databricks.com/aws/en/genie-agents/conversation-api.
    */
   serializedSpace?: string | undefined;
   /** Display name of the new space. A default name is assigned when omitted. */
@@ -2100,6 +2102,13 @@ export const unmarshalGenieAttachmentSchema: z.ZodType<GenieAttachment> = z
     viz: z.lazy(() => unmarshalGenieVizAttachmentSchema).optional(),
     attachment_id: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.text, d.query, d.suggested_questions, d.viz].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'GenieAttachment.Attachment: multiple oneof members set'}
+  )
   .transform(d => ({
     attachment:
       d.text !== undefined
@@ -2622,6 +2631,10 @@ export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgu
       column: z.string().optional(),
       constant: z.string().optional(),
     })
+    .refine(
+      d => [d.column, d.constant].filter(v => v !== undefined).length <= 1,
+      {message: 'PolicyFunctionArgument.Arg: multiple oneof members set'}
+    )
     .transform(d => ({
       arg:
         d.column !== undefined

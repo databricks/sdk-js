@@ -227,6 +227,13 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
     whl: z.string().optional(),
     requirements: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.jar, d.egg, d.pypi, d.maven, d.cran, d.whl, d.requirements].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'Library.Lib: multiple oneof members set'}
+  )
   .transform(d => ({
     lib:
       d.jar !== undefined

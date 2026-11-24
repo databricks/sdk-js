@@ -550,12 +550,12 @@ export class PipelinesClient {
     req: StopPipelineRequest,
     options?: CallOptions
   ): Promise<StopWaiter> {
-    await this.stopBase(req, options);
     if (req.pipelineId === undefined) {
       throw new Error(
         'request field pipelineId required for polling is missing'
       );
     }
+    await this.stopBase(req, options);
     return new StopWaiter(this, req.pipelineId);
   }
 }

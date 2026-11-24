@@ -275,12 +275,6 @@ export class GenieClient {
     req: GenieCreateConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieCreateConversationMessageWaiter> {
-    const resp = await this.genieCreateConversationMessageBase(req, options);
-    if (resp.messageId === undefined) {
-      throw new Error(
-        'response field messageId required for polling is missing'
-      );
-    }
     if (req.conversationId === undefined) {
       throw new Error(
         'request field conversationId required for polling is missing'
@@ -288,6 +282,12 @@ export class GenieClient {
     }
     if (req.spaceId === undefined) {
       throw new Error('request field spaceId required for polling is missing');
+    }
+    const resp = await this.genieCreateConversationMessageBase(req, options);
+    if (resp.messageId === undefined) {
+      throw new Error(
+        'response field messageId required for polling is missing'
+      );
     }
     return new GenieCreateConversationMessageWaiter(
       this,
@@ -1181,6 +1181,9 @@ export class GenieClient {
     req: GenieStartConversationRequest,
     options?: CallOptions
   ): Promise<GenieStartConversationWaiter> {
+    if (req.spaceId === undefined) {
+      throw new Error('request field spaceId required for polling is missing');
+    }
     const resp = await this.genieStartConversationBase(req, options);
     if (resp.messageId === undefined) {
       throw new Error(
@@ -1191,9 +1194,6 @@ export class GenieClient {
       throw new Error(
         'response field conversationId required for polling is missing'
       );
-    }
-    if (req.spaceId === undefined) {
-      throw new Error('request field spaceId required for polling is missing');
     }
     return new GenieStartConversationWaiter(
       this,
