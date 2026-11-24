@@ -332,6 +332,12 @@ export const unmarshalOnlineTableSpecSchema: z.ZodType<OnlineTableSpec> = z
     perform_full_copy: z.boolean().optional(),
     pipeline_id: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.run_continuously, d.run_triggered].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'OnlineTableSpec.SchedulingPolicy: multiple oneof members set'}
+  )
   .transform(d => ({
     schedulingPolicy:
       d.run_continuously !== undefined
@@ -372,6 +378,16 @@ export const unmarshalOnlineTableStatusSchema: z.ZodType<OnlineTableStatus> = z
       .optional(),
     failed_status: z.lazy(() => unmarshalFailedStatusSchema).optional(),
   })
+  .refine(
+    d =>
+      [
+        d.provisioning_status,
+        d.continuous_update_status,
+        d.triggered_update_status,
+        d.failed_status,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'OnlineTableStatus.DetailedStatus: multiple oneof members set'}
+  )
   .transform(d => ({
     detailedState: d.detailed_state,
     message: d.message,

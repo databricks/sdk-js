@@ -70,7 +70,7 @@ export class GlobalInitScriptsClient {
     return this.config;
   }
 
-  /** Creates a new global init script in this workspace. */
+  /** Creates a new global init script in this workspace. The number of global init scripts per workspace is limited. */
   async createGlobalInitScript(
     req: CreateGlobalInitScriptRequest,
     options?: CallOptions

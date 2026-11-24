@@ -874,6 +874,9 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     error: z.lazy(() => unmarshalApiErrorSchema).optional(),
     response: z.record(z.string(), z.unknown()).optional(),
   })
+  .refine(d => [d.error, d.response].filter(v => v !== undefined).length <= 1, {
+    message: 'Operation.Result: multiple oneof members set',
+  })
   .transform(d => ({
     name: d.name,
     metadata: d.metadata,

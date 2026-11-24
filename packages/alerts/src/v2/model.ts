@@ -470,6 +470,9 @@ export const unmarshalAlertOperandSchema: z.ZodType<AlertOperand> = z
     column: z.lazy(() => unmarshalAlertOperandColumnSchema).optional(),
     value: z.lazy(() => unmarshalAlertOperandValueSchema).optional(),
   })
+  .refine(d => [d.column, d.value].filter(v => v !== undefined).length <= 1, {
+    message: 'AlertOperand.Operand: multiple oneof members set',
+  })
   .transform(d => ({
     operand:
       d.column !== undefined
@@ -498,6 +501,13 @@ export const unmarshalAlertOperandValueSchema: z.ZodType<AlertOperandValue> = z
     double_value: z.number().optional(),
     bool_value: z.boolean().optional(),
   })
+  .refine(
+    d =>
+      [d.string_value, d.double_value, d.bool_value].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'AlertOperandValue.Value: multiple oneof members set'}
+  )
   .transform(d => ({
     value:
       d.string_value !== undefined
@@ -514,6 +524,12 @@ export const unmarshalAlertRunAsSchema: z.ZodType<AlertRunAs> = z
     user_name: z.string().optional(),
     service_principal_name: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.user_name, d.service_principal_name].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'AlertRunAs.Identity: multiple oneof members set'}
+  )
   .transform(d => ({
     identity:
       d.user_name !== undefined
@@ -544,6 +560,11 @@ export const unmarshalAlertSubscriptionSchema: z.ZodType<AlertSubscription> = z
     user_email: z.string().optional(),
     destination_id: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.user_email, d.destination_id].filter(v => v !== undefined).length <= 1,
+    {message: 'AlertSubscription.SubscriptionType: multiple oneof members set'}
+  )
   .transform(d => ({
     subscriptionType:
       d.user_email !== undefined

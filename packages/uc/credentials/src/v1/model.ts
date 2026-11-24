@@ -1668,6 +1668,18 @@ export const unmarshalCredentialInfoSchema: z.ZodType<CredentialInfo> = z
     full_name: z.string().optional(),
     isolation_mode: z.string().optional(),
   })
+  .refine(
+    d =>
+      [
+        d.aws_iam_role,
+        d.azure_service_principal,
+        d.gcp_service_account_key,
+        d.azure_managed_identity,
+        d.databricks_gcp_service_account,
+        d.cloudflare_api_token,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'CredentialInfo.Credential: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     credential:
@@ -1798,6 +1810,20 @@ export const unmarshalGenerateTemporaryPathCredentialResponseSchema: z.ZodType<G
         .optional(),
       url: z.string().optional(),
     })
+    .refine(
+      d =>
+        [
+          d.aws_temp_credentials,
+          d.azure_user_delegation_sas,
+          d.gcp_oauth_token,
+          d.azure_aad,
+          d.r2_temp_credentials,
+        ].filter(v => v !== undefined).length <= 1,
+      {
+        message:
+          'GenerateTemporaryPathCredentialResponse.Credentials: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       credentials:
         d.aws_temp_credentials !== undefined
@@ -1849,6 +1875,20 @@ export const unmarshalGenerateTemporaryTableCredentialResponseSchema: z.ZodType<
         .optional(),
       url: z.string().optional(),
     })
+    .refine(
+      d =>
+        [
+          d.aws_temp_credentials,
+          d.azure_user_delegation_sas,
+          d.gcp_oauth_token,
+          d.azure_aad,
+          d.r2_temp_credentials,
+        ].filter(v => v !== undefined).length <= 1,
+      {
+        message:
+          'GenerateTemporaryTableCredentialResponse.Credentials: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       credentials:
         d.aws_temp_credentials !== undefined
@@ -1900,6 +1940,20 @@ export const unmarshalGenerateTemporaryVolumeCredentialResponseSchema: z.ZodType
         .optional(),
       url: z.string().optional(),
     })
+    .refine(
+      d =>
+        [
+          d.aws_temp_credentials,
+          d.azure_user_delegation_sas,
+          d.gcp_oauth_token,
+          d.azure_aad,
+          d.r2_temp_credentials,
+        ].filter(v => v !== undefined).length <= 1,
+      {
+        message:
+          'GenerateTemporaryVolumeCredentialResponse.Credentials: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       credentials:
         d.aws_temp_credentials !== undefined
@@ -2007,6 +2061,18 @@ export const unmarshalStorageCredentialInfoSchema: z.ZodType<StorageCredentialIn
       full_name: z.string().optional(),
       isolation_mode: z.string().optional(),
     })
+    .refine(
+      d =>
+        [
+          d.aws_iam_role,
+          d.azure_service_principal,
+          d.gcp_service_account_key,
+          d.azure_managed_identity,
+          d.databricks_gcp_service_account,
+          d.cloudflare_api_token,
+        ].filter(v => v !== undefined).length <= 1,
+      {message: 'StorageCredentialInfo.Credential: multiple oneof members set'}
+    )
     .transform(d => ({
       name: d.name,
       credential:
@@ -2090,6 +2156,17 @@ export const unmarshalTemporaryCredentialsSchema: z.ZodType<TemporaryCredentials
         .optional(),
       url: z.string().optional(),
     })
+    .refine(
+      d =>
+        [
+          d.aws_temp_credentials,
+          d.azure_user_delegation_sas,
+          d.gcp_oauth_token,
+          d.azure_aad,
+          d.r2_temp_credentials,
+        ].filter(v => v !== undefined).length <= 1,
+      {message: 'TemporaryCredentials.Credentials: multiple oneof members set'}
+    )
     .transform(d => ({
       credentials:
         d.aws_temp_credentials !== undefined

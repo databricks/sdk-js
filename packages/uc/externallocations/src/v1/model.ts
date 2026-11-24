@@ -456,6 +456,20 @@ export const unmarshalFileEventQueueSchema: z.ZodType<FileEventQueue> = z
     managed_sqs: z.lazy(() => unmarshalAwsSqsQueueSchema).optional(),
     managed_pubsub: z.lazy(() => unmarshalGcpPubsubSchema).optional(),
   })
+  .refine(
+    d =>
+      [d.provided_aqs, d.provided_sqs, d.provided_pubsub].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'FileEventQueue.Provided: multiple oneof members set'}
+  )
+  .refine(
+    d =>
+      [d.managed_aqs, d.managed_sqs, d.managed_pubsub].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'FileEventQueue.Managed: multiple oneof members set'}
+  )
   .transform(d => ({
     provided:
       d.provided_aqs !== undefined

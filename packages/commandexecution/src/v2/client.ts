@@ -126,7 +126,6 @@ export class CommandExecutionClient {
     req: CancelCommandRequest,
     options?: CallOptions
   ): Promise<CancelWaiter> {
-    await this.cancelBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -142,6 +141,7 @@ export class CommandExecutionClient {
         'request field commandId required for polling is missing'
       );
     }
+    await this.cancelBase(req, options);
     return new CancelWaiter(this, req.clusterId, req.contextId, req.commandId);
   }
 
@@ -193,12 +193,12 @@ export class CommandExecutionClient {
     req: CreateContextRequest,
     options?: CallOptions
   ): Promise<CreateWaiter> {
-    const resp = await this.createBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
       );
     }
+    const resp = await this.createBase(req, options);
     if (resp.id === undefined) {
       throw new Error('response field id required for polling is missing');
     }
@@ -285,7 +285,6 @@ export class CommandExecutionClient {
     req: ExecuteCommandRequest,
     options?: CallOptions
   ): Promise<ExecuteWaiter> {
-    const resp = await this.executeBase(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -296,6 +295,7 @@ export class CommandExecutionClient {
         'request field contextId required for polling is missing'
       );
     }
+    const resp = await this.executeBase(req, options);
     if (resp.id === undefined) {
       throw new Error('response field id required for polling is missing');
     }

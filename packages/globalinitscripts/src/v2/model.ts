@@ -3,9 +3,9 @@
 import {z} from 'zod';
 
 export interface CreateGlobalInitScriptRequest {
-  /** The name of the script */
+  /** The name of the script. The name must be unique within the workspace. */
   name?: string | undefined;
-  /** The Base64-encoded content of the script. */
+  /** The Base64-encoded content of the script. The decoded content must not be empty and cannot exceed 64 KB. */
   script?: Uint8Array | undefined;
   /**
    * The position of a global init script, where 0 represents the first script to run, 1 is the second script to run, in ascending order.
@@ -37,10 +37,11 @@ export interface GetGlobalInitScriptRequest {
   scriptId?: string | undefined;
 }
 
+/** A global init script in the workspace. Only workspace admins can view and manage global init scripts. */
 export interface GlobalInitScriptDetails {
   /** The global init script ID. */
   scriptId?: string | undefined;
-  /** The name of the script */
+  /** The name of the script. The name must be unique within the workspace. */
   name?: string | undefined;
   /** The position of a script, where 0 represents the first script to run, 1 is the second script to run, in ascending order. */
   position?: number | undefined;
@@ -50,7 +51,7 @@ export interface GlobalInitScriptDetails {
   createdBy?: string | undefined;
   /** Time when the script was created, represented as a Unix timestamp in milliseconds. */
   createdAt?: bigint | undefined;
-  /** The username of the user who last updated the script */
+  /** The username of the user who last updated the script. */
   updatedBy?: string | undefined;
   /** Time when the script was updated, represented as a Unix timestamp in milliseconds. */
   updatedAt?: bigint | undefined;
@@ -66,9 +67,9 @@ export interface ListGlobalInitScriptsResponse {
 export interface UpdateGlobalInitScriptRequest {
   /** The ID of the global init script. */
   scriptId?: string | undefined;
-  /** The name of the script */
+  /** The name of the script. The name must be unique within the workspace. */
   name?: string | undefined;
-  /** The Base64-encoded content of the script. */
+  /** The Base64-encoded content of the script. The decoded content must not be empty and cannot exceed 64 KB. */
   script?: Uint8Array | undefined;
   /**
    * The position of a script, where 0 represents the first script to run,

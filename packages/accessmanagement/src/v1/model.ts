@@ -557,6 +557,16 @@ export const unmarshalAccessControlResponseSchema: z.ZodType<AccessControlRespon
         .array(z.lazy(() => unmarshalPermissionSchema))
         .optional(),
     })
+    .refine(
+      d =>
+        [d.user_name, d.group_name, d.service_principal_name].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'AccessControlResponse.PrincipalName: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       principalName:
         d.user_name !== undefined
@@ -731,6 +741,13 @@ export const unmarshalPrincipalOutputSchema: z.ZodType<PrincipalOutput> = z
       .optional(),
     display_name: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.user_name, d.group_name, d.service_principal_name].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'PrincipalOutput.PrincipalName: multiple oneof members set'}
+  )
   .transform(d => ({
     principalName:
       d.user_name !== undefined

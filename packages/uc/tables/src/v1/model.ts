@@ -1119,6 +1119,13 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
     connection: z.lazy(() => unmarshalConnectionDependencySchema).optional(),
     credential: z.lazy(() => unmarshalCredentialDependencySchema).optional(),
   })
+  .refine(
+    d =>
+      [d.table, d.function, d.connection, d.credential].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'Dependency.Value: multiple oneof members set'}
+  )
   .transform(d => ({
     value:
       d.table !== undefined
@@ -1266,6 +1273,10 @@ export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgu
       column: z.string().optional(),
       constant: z.string().optional(),
     })
+    .refine(
+      d => [d.column, d.constant].filter(v => v !== undefined).length <= 1,
+      {message: 'PolicyFunctionArgument.Arg: multiple oneof members set'}
+    )
     .transform(d => ({
       arg:
         d.column !== undefined
@@ -1344,6 +1355,15 @@ export const unmarshalTableConstraintSchema: z.ZodType<TableConstraint> = z
       .lazy(() => unmarshalNamedTableConstraintSchema)
       .optional(),
   })
+  .refine(
+    d =>
+      [
+        d.primary_key_constraint,
+        d.foreign_key_constraint,
+        d.named_table_constraint,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'TableConstraint.Constraint: multiple oneof members set'}
+  )
   .transform(d => ({
     constraint:
       d.primary_key_constraint !== undefined

@@ -479,6 +479,12 @@ export const unmarshalWorkspaceSchema: z.ZodType<Workspace> = z
     compute_mode: z.string().optional(),
     expected_workspace_status: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.network_id, d.gcp_managed_network_config].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'Workspace.NetworkConfig: multiple oneof members set'}
+  )
   .transform(d => ({
     workspaceId: d.workspace_id,
     workspaceName: d.workspace_name,
@@ -528,6 +534,12 @@ export const unmarshalWorkspaceNetworkSchema: z.ZodType<WorkspaceNetwork> = z
       .nullish()
       .transform(v => v ?? undefined),
   })
+  .refine(
+    d =>
+      [d.gcp_managed_network_config, d.network_id].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'WorkspaceNetwork.Network: multiple oneof members set'}
+  )
   .transform(d => ({
     network:
       d.gcp_managed_network_config !== undefined

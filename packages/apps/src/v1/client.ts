@@ -159,10 +159,10 @@ export class AppsClient {
     req: AsyncUpdateAppRequest,
     options?: CallOptions
   ): Promise<AsyncUpdateAppWaiter> {
-    await this.asyncUpdateAppBase(req, options);
     if (req.appName === undefined) {
       throw new Error('request field appName required for polling is missing');
     }
+    await this.asyncUpdateAppBase(req, options);
     return new AsyncUpdateAppWaiter(this, req.appName);
   }
 
@@ -263,14 +263,14 @@ export class AppsClient {
     req: CreateAppDeploymentRequest,
     options?: CallOptions
   ): Promise<CreateAppDeploymentWaiter> {
+    if (req.appName === undefined) {
+      throw new Error('request field appName required for polling is missing');
+    }
     const resp = await this.createAppDeploymentBase(req, options);
     if (resp.deploymentId === undefined) {
       throw new Error(
         'response field deploymentId required for polling is missing'
       );
-    }
-    if (req.appName === undefined) {
-      throw new Error('request field appName required for polling is missing');
     }
     return new CreateAppDeploymentWaiter(this, resp.deploymentId, req.appName);
   }
@@ -970,10 +970,10 @@ export class AppsClient {
     req: StartAppRequest,
     options?: CallOptions
   ): Promise<StartAppWaiter> {
-    await this.startAppBase(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
+    await this.startAppBase(req, options);
     return new StartAppWaiter(this, req.name);
   }
 
@@ -1011,10 +1011,10 @@ export class AppsClient {
     req: StopAppRequest,
     options?: CallOptions
   ): Promise<StopAppWaiter> {
-    await this.stopAppBase(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
+    await this.stopAppBase(req, options);
     return new StopAppWaiter(this, req.name);
   }
 

@@ -3639,6 +3639,12 @@ export const unmarshalAssessmentCheckDetailsSchema: z.ZodType<AssessmentCheckDet
         .lazy(() => unmarshalLongTransactionDetailsSchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [d.database_size, d.long_transaction].filter(v => v !== undefined)
+          .length <= 1,
+      {message: 'AssessmentCheckDetails.Kind: multiple oneof members set'}
+    )
     .transform(d => ({
       kind:
         d.database_size !== undefined
@@ -3708,6 +3714,12 @@ export const unmarshalBranchSpecSchema: z.ZodType<BranchSpec> = z
     no_expiry: z.boolean().optional(),
     source_snapshot: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.expire_time, d.ttl, d.no_expiry].filter(v => v !== undefined).length <=
+      1,
+    {message: 'BranchSpec.Expiration: multiple oneof members set'}
+  )
   .transform(d => ({
     sourceBranch: d.source_branch,
     sourceBranchLsn: d.source_branch_lsn,
@@ -4216,6 +4228,12 @@ export const unmarshalEndpointSpecSchema: z.ZodType<EndpointSpec> = z
       .nullish()
       .transform(v => v ?? undefined),
   })
+  .refine(
+    d =>
+      [d.suspend_timeout_duration, d.no_suspension].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'EndpointSpec.Suspension: multiple oneof members set'}
+  )
   .transform(d => ({
     endpointType: d.endpoint_type,
     autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
@@ -4302,6 +4320,13 @@ export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> 
         .optional(),
       no_suspension: z.boolean().optional(),
     })
+    .refine(
+      d =>
+        [d.suspend_timeout_duration, d.no_suspension].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {message: 'InitialEndpointSpec.Suspension: multiple oneof members set'}
+    )
     .transform(d => ({
       group: d.group,
       autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
@@ -4528,6 +4553,9 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     error: z.lazy(() => unmarshalApiErrorSchema).optional(),
     response: z.record(z.string(), z.unknown()).optional(),
   })
+  .refine(d => [d.error, d.response].filter(v => v !== undefined).length <= 1, {
+    message: 'Operation.Result: multiple oneof members set',
+  })
   .transform(d => ({
     name: d.name,
     metadata: d.metadata,
@@ -4614,6 +4642,16 @@ export const unmarshalProjectDefaultEndpointSettingsSchema: z.ZodType<ProjectDef
       no_suspension: z.boolean().optional(),
       pg_settings: z.record(z.string(), z.string()).optional(),
     })
+    .refine(
+      d =>
+        [d.suspend_timeout_duration, d.no_suspension].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'ProjectDefaultEndpointSettings.Suspension: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
       autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
@@ -4822,6 +4860,13 @@ export const unmarshalScheduleCadenceSchema: z.ZodType<ScheduleCadence> = z
       .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
       .optional(),
   })
+  .refine(
+    d =>
+      [d.daily_schedule, d.weekly_schedule, d.monthly_schedule].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'ScheduleCadence.Schedule: multiple oneof members set'}
+  )
   .transform(d => ({
     schedule:
       d.daily_schedule !== undefined
@@ -4901,6 +4946,18 @@ export const unmarshalSnapshotSpecSchema: z.ZodType<SnapshotSpec> = z
       .optional(),
     no_expiry: z.boolean().optional(),
   })
+  .refine(
+    d =>
+      [d.source_branch_lsn, d.source_branch_time].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'SnapshotSpec.PointInTime: multiple oneof members set'}
+  )
+  .refine(
+    d =>
+      [d.expire_time, d.ttl, d.no_expiry].filter(v => v !== undefined).length <=
+      1,
+    {message: 'SnapshotSpec.Expiration: multiple oneof members set'}
+  )
   .transform(d => ({
     sourceBranch: d.source_branch,
     pointInTime:
@@ -4942,6 +4999,10 @@ export const unmarshalSnapshotStatusSchema: z.ZodType<SnapshotStatus> = z
       .transform(v => BigInt(v))
       .optional(),
   })
+  .refine(
+    d => [d.expire_time, d.no_expiry].filter(v => v !== undefined).length <= 1,
+    {message: 'SnapshotStatus.Expiration: multiple oneof members set'}
+  )
   .transform(d => ({
     sourceBranch: d.source_branch,
     expiration:

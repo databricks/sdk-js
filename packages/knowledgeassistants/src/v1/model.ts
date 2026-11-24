@@ -488,6 +488,11 @@ export const unmarshalKnowledgeSourceSchema: z.ZodType<KnowledgeSource> = z
       .transform(s => Temporal.Instant.from(s))
       .optional(),
   })
+  .refine(
+    d =>
+      [d.index, d.files, d.file_table].filter(v => v !== undefined).length <= 1,
+    {message: 'KnowledgeSource.Spec: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     displayName: d.display_name,

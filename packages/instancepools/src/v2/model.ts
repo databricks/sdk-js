@@ -88,12 +88,12 @@ export type GcpAvailability =
   | (string & {});
 
 /**
- * The state of a Cluster. The current allowable state transitions are as follows:
+ * The state of an instance pool. The current allowable state transitions are as follows:
  *
- * - ``ACTIVE`` -> ``STOPPED``
- * - ``ACTIVE`` -> ``DELETED``
- * - ``STOPPED`` -> ``ACTIVE``
- * - ``STOPPED`` -> ``DELETED``
+ * - `ACTIVE` -> `STOPPED`
+ * - `ACTIVE` -> `DELETED`
+ * - `STOPPED` -> `ACTIVE`
+ * - `STOPPED` -> `DELETED`
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Enum-style const object.
 export const InstancePoolState = {
@@ -117,12 +117,16 @@ export interface CreateInstancePoolRequest {
    * characters.
    */
   instancePoolName?: string | undefined;
-  /** Minimum number of idle instances to keep in the instance pool */
+  /**
+   * Minimum number of idle instances to keep in the instance pool. These instances do not
+   * terminate regardless of `idle_instance_autotermination_minutes`, and the pool provisions
+   * replacements when clusters consume them. Defaults to 0.
+   */
   minIdleInstances?: number | undefined;
   /**
    * Maximum number of outstanding instances to keep in the pool, including both instances used by
    * clusters and idle instances. Clusters that require further instance provisioning will fail during
-   * upsize requests.
+   * upsize requests. If unset, the pool size is not capped.
    */
   maxCapacity?: number | undefined;
   /**
@@ -132,7 +136,7 @@ export interface CreateInstancePoolRequest {
   awsAttributes?: InstancePoolAwsAttributes | undefined;
   /**
    * This field encodes, through a single value, the resources available to each of
-   * the Spark nodes in this cluster. For example, the Spark nodes can be provisioned
+   * the Spark nodes in clusters that use this pool. For example, the Spark nodes can be provisioned
    * and optimized for memory or compute intensive workloads. A list of available node
    * types can be retrieved by using the [clusters/listNodeTypes](https://docs.databricks.com/api/workspace/clusters/listnodetypes) API call.
    * The node type cannot be changed after the pool is created.
@@ -140,7 +144,9 @@ export interface CreateInstancePoolRequest {
   nodeTypeId?: string | undefined;
   /**
    * Additional tags for pool resources. <Databricks> will tag all pool resources (e.g., AWS
-   * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
+   * instances and EBS volumes) with these tags in addition to `default_tags`, and clusters backed
+   * by the pool inherit them. When editing a pool, omitting this field or passing an empty map
+   * keeps the existing tags, and a non-empty map replaces them. Notes:
    *
    * - Currently, <Databricks> allows at most 45 custom tags
    */
@@ -155,20 +161,29 @@ export interface CreateInstancePoolRequest {
    */
   idleInstanceAutoterminationMinutes?: number | undefined;
   /**
-   * Autoscaling Local Storage: when enabled, this instances in this pool will dynamically acquire
-   * additional disk space when its Spark workers are running low on disk space. In AWS, this
-   * feature requires specific AWS permissions to function correctly - refer to the User Guide for
-   * more details.
+   * Autoscaling Local Storage: when enabled, the instances in this pool will dynamically acquire
+   * additional disk space when their Spark workers are running low on disk space. In AWS, this
+   * feature requires specific AWS permissions to function correctly; see
+   * https://docs.databricks.com/aws/en/compute/pools#autoscaling-local-storage for details.
+   * This setting cannot be changed after the pool is created.
    */
   enableElasticDisk?: boolean | undefined;
-  /** Defines the specification of the disks that will be attached to all spark containers. */
+  /**
+   * Defines the specification of the disks that will be attached to all spark containers.
+   * The disk specification cannot be changed after the pool is created.
+   */
   diskSpec?: DiskSpec | undefined;
-  /** Custom Docker Image BYOC */
+  /**
+   * A list containing at most one custom Docker image to preload on the pool's idle instances.
+   * Clusters that use Databricks Container Services with the preloaded image start faster.
+   * The list cannot be changed after the pool is created.
+   */
   preloadedDockerImages?: DockerImage[] | undefined;
   /**
    * A list containing at most one preloaded Spark image version for the pool. Pool-backed clusters started
    * with the preloaded Spark version will start faster. A list of available Spark versions
    * can be retrieved by using the [clusters/sparkVersions](https://docs.databricks.com/api/workspace/clusters/sparkversions) API call.
+   * The list cannot be changed after the pool is created.
    */
   preloadedSparkVersions?: string[] | undefined;
   /**
@@ -276,19 +291,23 @@ export interface DockerImage {
 }
 
 export interface EditInstancePoolRequest {
-  /** Instance pool ID */
+  /** Identifier of the instance pool to edit. */
   instancePoolId?: string | undefined;
   /**
    * Pool name requested by the user. Pool name must be unique. Length must be between 1 and 100
    * characters.
    */
   instancePoolName?: string | undefined;
-  /** Minimum number of idle instances to keep in the instance pool */
+  /**
+   * Minimum number of idle instances to keep in the instance pool. These instances do not
+   * terminate regardless of `idle_instance_autotermination_minutes`, and the pool provisions
+   * replacements when clusters consume them. Defaults to 0.
+   */
   minIdleInstances?: number | undefined;
   /**
    * Maximum number of outstanding instances to keep in the pool, including both instances used by
    * clusters and idle instances. Clusters that require further instance provisioning will fail during
-   * upsize requests.
+   * upsize requests. If unset, the pool size is not capped.
    */
   maxCapacity?: number | undefined;
   /**
@@ -298,7 +317,7 @@ export interface EditInstancePoolRequest {
   awsAttributes?: InstancePoolAwsAttributes | undefined;
   /**
    * This field encodes, through a single value, the resources available to each of
-   * the Spark nodes in this cluster. For example, the Spark nodes can be provisioned
+   * the Spark nodes in clusters that use this pool. For example, the Spark nodes can be provisioned
    * and optimized for memory or compute intensive workloads. A list of available node
    * types can be retrieved by using the [clusters/listNodeTypes](https://docs.databricks.com/api/workspace/clusters/listnodetypes) API call.
    * The node type cannot be changed after the pool is created.
@@ -306,7 +325,9 @@ export interface EditInstancePoolRequest {
   nodeTypeId?: string | undefined;
   /**
    * Additional tags for pool resources. <Databricks> will tag all pool resources (e.g., AWS
-   * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
+   * instances and EBS volumes) with these tags in addition to `default_tags`, and clusters backed
+   * by the pool inherit them. When editing a pool, omitting this field or passing an empty map
+   * keeps the existing tags, and a non-empty map replaces them. Notes:
    *
    * - Currently, <Databricks> allows at most 45 custom tags
    */
@@ -321,20 +342,29 @@ export interface EditInstancePoolRequest {
    */
   idleInstanceAutoterminationMinutes?: number | undefined;
   /**
-   * Autoscaling Local Storage: when enabled, this instances in this pool will dynamically acquire
-   * additional disk space when its Spark workers are running low on disk space. In AWS, this
-   * feature requires specific AWS permissions to function correctly - refer to the User Guide for
-   * more details.
+   * Autoscaling Local Storage: when enabled, the instances in this pool will dynamically acquire
+   * additional disk space when their Spark workers are running low on disk space. In AWS, this
+   * feature requires specific AWS permissions to function correctly; see
+   * https://docs.databricks.com/aws/en/compute/pools#autoscaling-local-storage for details.
+   * This setting cannot be changed after the pool is created.
    */
   enableElasticDisk?: boolean | undefined;
-  /** Defines the specification of the disks that will be attached to all spark containers. */
+  /**
+   * Defines the specification of the disks that will be attached to all spark containers.
+   * The disk specification cannot be changed after the pool is created.
+   */
   diskSpec?: DiskSpec | undefined;
-  /** Custom Docker Image BYOC */
+  /**
+   * A list containing at most one custom Docker image to preload on the pool's idle instances.
+   * Clusters that use Databricks Container Services with the preloaded image start faster.
+   * The list cannot be changed after the pool is created.
+   */
   preloadedDockerImages?: DockerImage[] | undefined;
   /**
    * A list containing at most one preloaded Spark image version for the pool. Pool-backed clusters started
    * with the preloaded Spark version will start faster. A list of available Spark versions
    * can be retrieved by using the [clusters/sparkVersions](https://docs.databricks.com/api/workspace/clusters/sparkversions) API call.
+   * The list cannot be changed after the pool is created.
    */
   preloadedSparkVersions?: string[] | undefined;
   /**
@@ -371,9 +401,9 @@ export interface GetInstancePoolResponse {
   /** Canonical unique identifier for the pool. */
   instancePoolId?: string | undefined;
   /**
-   * Tags that are added by <Databricks> regardless of any ``custom_tags``, including:
+   * Tags that <Databricks> adds to every pool resource in addition to any `custom_tags`:
    *
-   * - Vendor: <Databricks>
+   * - Vendor: Databricks
    *
    * - DatabricksInstancePoolCreatorId: <user_id_of_creator>
    *
@@ -387,12 +417,16 @@ export interface GetInstancePoolResponse {
    * characters.
    */
   instancePoolName?: string | undefined;
-  /** Minimum number of idle instances to keep in the instance pool */
+  /**
+   * Minimum number of idle instances to keep in the instance pool. These instances do not
+   * terminate regardless of `idle_instance_autotermination_minutes`, and the pool provisions
+   * replacements when clusters consume them. Defaults to 0.
+   */
   minIdleInstances?: number | undefined;
   /**
    * Maximum number of outstanding instances to keep in the pool, including both instances used by
    * clusters and idle instances. Clusters that require further instance provisioning will fail during
-   * upsize requests.
+   * upsize requests. If unset, the pool size is not capped.
    */
   maxCapacity?: number | undefined;
   /**
@@ -402,7 +436,7 @@ export interface GetInstancePoolResponse {
   awsAttributes?: InstancePoolAwsAttributes | undefined;
   /**
    * This field encodes, through a single value, the resources available to each of
-   * the Spark nodes in this cluster. For example, the Spark nodes can be provisioned
+   * the Spark nodes in clusters that use this pool. For example, the Spark nodes can be provisioned
    * and optimized for memory or compute intensive workloads. A list of available node
    * types can be retrieved by using the [clusters/listNodeTypes](https://docs.databricks.com/api/workspace/clusters/listnodetypes) API call.
    * The node type cannot be changed after the pool is created.
@@ -410,7 +444,9 @@ export interface GetInstancePoolResponse {
   nodeTypeId?: string | undefined;
   /**
    * Additional tags for pool resources. <Databricks> will tag all pool resources (e.g., AWS
-   * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
+   * instances and EBS volumes) with these tags in addition to `default_tags`, and clusters backed
+   * by the pool inherit them. When editing a pool, omitting this field or passing an empty map
+   * keeps the existing tags, and a non-empty map replaces them. Notes:
    *
    * - Currently, <Databricks> allows at most 45 custom tags
    */
@@ -425,20 +461,29 @@ export interface GetInstancePoolResponse {
    */
   idleInstanceAutoterminationMinutes?: number | undefined;
   /**
-   * Autoscaling Local Storage: when enabled, this instances in this pool will dynamically acquire
-   * additional disk space when its Spark workers are running low on disk space. In AWS, this
-   * feature requires specific AWS permissions to function correctly - refer to the User Guide for
-   * more details.
+   * Autoscaling Local Storage: when enabled, the instances in this pool will dynamically acquire
+   * additional disk space when their Spark workers are running low on disk space. In AWS, this
+   * feature requires specific AWS permissions to function correctly; see
+   * https://docs.databricks.com/aws/en/compute/pools#autoscaling-local-storage for details.
+   * This setting cannot be changed after the pool is created.
    */
   enableElasticDisk?: boolean | undefined;
-  /** Defines the specification of the disks that will be attached to all spark containers. */
+  /**
+   * Defines the specification of the disks that will be attached to all spark containers.
+   * The disk specification cannot be changed after the pool is created.
+   */
   diskSpec?: DiskSpec | undefined;
-  /** Custom Docker Image BYOC */
+  /**
+   * A list containing at most one custom Docker image to preload on the pool's idle instances.
+   * Clusters that use Databricks Container Services with the preloaded image start faster.
+   * The list cannot be changed after the pool is created.
+   */
   preloadedDockerImages?: DockerImage[] | undefined;
   /**
    * A list containing at most one preloaded Spark image version for the pool. Pool-backed clusters started
    * with the preloaded Spark version will start faster. A list of available Spark versions
    * can be retrieved by using the [clusters/sparkVersions](https://docs.databricks.com/api/workspace/clusters/sparkversions) API call.
+   * The list cannot be changed after the pool is created.
    */
   preloadedSparkVersions?: string[] | undefined;
   /**
@@ -467,9 +512,9 @@ export interface InstancePoolAndStats {
   /** Canonical unique identifier for the pool. */
   instancePoolId?: string | undefined;
   /**
-   * Tags that are added by <Databricks> regardless of any ``custom_tags``, including:
+   * Tags that <Databricks> adds to every pool resource in addition to any `custom_tags`:
    *
-   * - Vendor: <Databricks>
+   * - Vendor: Databricks
    *
    * - DatabricksInstancePoolCreatorId: <user_id_of_creator>
    *
@@ -483,12 +528,16 @@ export interface InstancePoolAndStats {
    * characters.
    */
   instancePoolName?: string | undefined;
-  /** Minimum number of idle instances to keep in the instance pool */
+  /**
+   * Minimum number of idle instances to keep in the instance pool. These instances do not
+   * terminate regardless of `idle_instance_autotermination_minutes`, and the pool provisions
+   * replacements when clusters consume them. Defaults to 0.
+   */
   minIdleInstances?: number | undefined;
   /**
    * Maximum number of outstanding instances to keep in the pool, including both instances used by
    * clusters and idle instances. Clusters that require further instance provisioning will fail during
-   * upsize requests.
+   * upsize requests. If unset, the pool size is not capped.
    */
   maxCapacity?: number | undefined;
   /**
@@ -498,7 +547,7 @@ export interface InstancePoolAndStats {
   awsAttributes?: InstancePoolAwsAttributes | undefined;
   /**
    * This field encodes, through a single value, the resources available to each of
-   * the Spark nodes in this cluster. For example, the Spark nodes can be provisioned
+   * the Spark nodes in clusters that use this pool. For example, the Spark nodes can be provisioned
    * and optimized for memory or compute intensive workloads. A list of available node
    * types can be retrieved by using the [clusters/listNodeTypes](https://docs.databricks.com/api/workspace/clusters/listnodetypes) API call.
    * The node type cannot be changed after the pool is created.
@@ -506,7 +555,9 @@ export interface InstancePoolAndStats {
   nodeTypeId?: string | undefined;
   /**
    * Additional tags for pool resources. <Databricks> will tag all pool resources (e.g., AWS
-   * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
+   * instances and EBS volumes) with these tags in addition to `default_tags`, and clusters backed
+   * by the pool inherit them. When editing a pool, omitting this field or passing an empty map
+   * keeps the existing tags, and a non-empty map replaces them. Notes:
    *
    * - Currently, <Databricks> allows at most 45 custom tags
    */
@@ -521,20 +572,29 @@ export interface InstancePoolAndStats {
    */
   idleInstanceAutoterminationMinutes?: number | undefined;
   /**
-   * Autoscaling Local Storage: when enabled, this instances in this pool will dynamically acquire
-   * additional disk space when its Spark workers are running low on disk space. In AWS, this
-   * feature requires specific AWS permissions to function correctly - refer to the User Guide for
-   * more details.
+   * Autoscaling Local Storage: when enabled, the instances in this pool will dynamically acquire
+   * additional disk space when their Spark workers are running low on disk space. In AWS, this
+   * feature requires specific AWS permissions to function correctly; see
+   * https://docs.databricks.com/aws/en/compute/pools#autoscaling-local-storage for details.
+   * This setting cannot be changed after the pool is created.
    */
   enableElasticDisk?: boolean | undefined;
-  /** Defines the specification of the disks that will be attached to all spark containers. */
+  /**
+   * Defines the specification of the disks that will be attached to all spark containers.
+   * The disk specification cannot be changed after the pool is created.
+   */
   diskSpec?: DiskSpec | undefined;
-  /** Custom Docker Image BYOC */
+  /**
+   * A list containing at most one custom Docker image to preload on the pool's idle instances.
+   * Clusters that use Databricks Container Services with the preloaded image start faster.
+   * The list cannot be changed after the pool is created.
+   */
   preloadedDockerImages?: DockerImage[] | undefined;
   /**
    * A list containing at most one preloaded Spark image version for the pool. Pool-backed clusters started
    * with the preloaded Spark version will start faster. A list of available Spark versions
    * can be retrieved by using the [clusters/sparkVersions](https://docs.databricks.com/api/workspace/clusters/sparkversions) API call.
+   * The list cannot be changed after the pool is created.
    */
   preloadedSparkVersions?: string[] | undefined;
   /**
@@ -571,7 +631,7 @@ export interface InstancePoolAwsAttributes {
    * This string will be of a form like "us-west-2a". The provided availability
    * zone must be in the same region as the <Databricks> deployment. For example, "us-west-2a"
    * is not a valid zone id if the <Databricks> deployment resides in the "us-east-1" region.
-   * This is an optional field at cluster creation, and if not specified, a default zone will be used.
+   * This is an optional field at pool creation, and if not specified, a default zone will be used.
    * The list of available zones as well as the default value can be found by using the
    * `List Zones` method.
    *
@@ -701,10 +761,9 @@ export interface InstancePoolStats {
 
 export interface InstancePoolStatus {
   /**
-   * List of error messages for the failed pending instances.
-   * The pending_instance_errors follows FIFO with maximum length of the min_idle of the pool.
-   * The pending_instance_errors is emptied once the number of exiting available instances reaches
-   * the min_idle of the pool.
+   * List of errors for pending instances that failed to launch, most recent first. The list holds
+   * at most `min_idle_instances` entries, and never more than 20, and is emptied once the pool has
+   * at least `min_idle_instances` available instances and no pending ones.
    */
   pendingInstanceErrors?: PendingInstanceError[] | undefined;
 }
@@ -713,6 +772,7 @@ export interface InstancePoolStatus {
 export interface ListInstancePoolsRequest {}
 
 export interface ListInstancePoolsResponse {
+  /** Instance pools in the workspace, each with its usage statistics and status. */
   instancePools?: InstancePoolAndStats[] | undefined;
 }
 
@@ -727,9 +787,14 @@ export interface NodeTypeFlexibility {
   awsContextId?: string | undefined;
 }
 
-/** Error message of a failed pending instances */
+/** Error for an instance that failed to launch while the pool was provisioning it. */
 export interface PendingInstanceError {
+  /** Identifier of the pending instance that failed to launch. */
   instanceId?: string | undefined;
+  /**
+   * Error message describing why the instance failed to launch. The message may be omitted,
+   * because not all pool status reads include it.
+   */
   message?: string | undefined;
 }
 
@@ -769,6 +834,12 @@ export const unmarshalDiskTypeSchema: z.ZodType<DiskType> = z
     ebs_volume_type: z.string().optional(),
     azure_disk_volume_type: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.ebs_volume_type, d.azure_disk_volume_type].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'DiskType.RemoteVolumeType: multiple oneof members set'}
+  )
   .transform(d => ({
     remoteVolumeType:
       d.ebs_volume_type !== undefined

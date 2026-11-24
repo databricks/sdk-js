@@ -1393,6 +1393,13 @@ export const unmarshalMiniVectorIndexSchema: z.ZodType<MiniVectorIndex> = z
     index_subtype: z.string().optional(),
     endpoint_id: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.direct_access_index_spec, d.delta_sync_index_spec].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'MiniVectorIndex.IndexSpec: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     endpointName: d.endpoint_name,
@@ -1559,6 +1566,17 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
     struct_value: z.lazy(() => unmarshalStructSchema).optional(),
     list_value: z.lazy(() => unmarshalListValueSchema).optional(),
   })
+  .refine(
+    d =>
+      [
+        d.number_value,
+        d.string_value,
+        d.bool_value,
+        d.struct_value,
+        d.list_value,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'Value.Kind: multiple oneof members set'}
+  )
   .transform(d => ({
     kind:
       d.number_value !== undefined
@@ -1594,6 +1612,13 @@ export const unmarshalVectorIndexSchema: z.ZodType<VectorIndex> = z
     index_subtype: z.string().optional(),
     endpoint_id: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.direct_access_index_spec, d.delta_sync_index_spec].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'VectorIndex.IndexSpec: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     endpointName: d.endpoint_name,

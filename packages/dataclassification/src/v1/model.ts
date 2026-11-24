@@ -158,6 +158,12 @@ export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
       .array(z.lazy(() => unmarshalAutoTaggingConfigSchema))
       .optional(),
   })
+  .refine(
+    d =>
+      [d.included_schemas, d.excluded_schemas].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'CatalogConfig.SelectedSchemas: multiple oneof members set'}
+  )
   .transform(d => ({
     name: d.name,
     selectedSchemas:

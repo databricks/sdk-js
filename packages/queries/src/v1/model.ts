@@ -457,6 +457,13 @@ export const unmarshalDateRangeValueSchema: z.ZodType<DateRangeValue> = z
     precision: z.string().optional(),
     start_day_of_week: z.number().optional(),
   })
+  .refine(
+    d =>
+      [d.dynamic_date_range_value, d.date_range_value].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'DateRangeValue.Value: multiple oneof members set'}
+  )
   .transform(d => ({
     value:
       d.dynamic_date_range_value !== undefined
@@ -480,6 +487,12 @@ export const unmarshalDateValueSchema: z.ZodType<DateValue> = z
     date_value: z.string().optional(),
     precision: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.dynamic_date_value, d.date_value].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'DateValue.Value: multiple oneof members set'}
+  )
   .transform(d => ({
     value:
       d.dynamic_date_value !== undefined
@@ -676,6 +689,18 @@ export const unmarshalQueryParameterSchema: z.ZodType<QueryParameter> = z
       .lazy(() => unmarshalQueryBackedValueSchema)
       .optional(),
   })
+  .refine(
+    d =>
+      [
+        d.text_value,
+        d.numeric_value,
+        d.enum_value,
+        d.date_value,
+        d.date_range_value,
+        d.query_backed_value,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'QueryParameter.ParameterValue: multiple oneof members set'}
+  )
   .transform(d => ({
     title: d.title,
     name: d.name,

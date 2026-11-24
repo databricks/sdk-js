@@ -616,6 +616,13 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
     connection: z.lazy(() => unmarshalConnectionDependencySchema).optional(),
     credential: z.lazy(() => unmarshalCredentialDependencySchema).optional(),
   })
+  .refine(
+    d =>
+      [d.table, d.function, d.connection, d.credential].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'Dependency.Value: multiple oneof members set'}
+  )
   .transform(d => ({
     value:
       d.table !== undefined

@@ -1503,6 +1503,16 @@ export const unmarshalSyncedTableStatusSchema: z.ZodType<SyncedTableStatus> = z
       .nullish()
       .transform(v => v ?? undefined),
   })
+  .refine(
+    d =>
+      [
+        d.provisioning_status,
+        d.continuous_update_status,
+        d.triggered_update_status,
+        d.failed_status,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'SyncedTableStatus.DetailedStatus: multiple oneof members set'}
+  )
   .transform(d => ({
     detailedState: d.detailed_state,
     message: d.message,

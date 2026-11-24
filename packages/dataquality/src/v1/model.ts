@@ -701,6 +701,16 @@ export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> 
         .optional(),
       effective_warehouse_id: z.string().optional(),
     })
+    .refine(
+      d =>
+        [d.inference_log, d.time_series, d.snapshot].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'DataProfilingConfig.AnalysisConfig: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       outputSchemaId: d.output_schema_id,
       assetsDir: d.assets_dir,

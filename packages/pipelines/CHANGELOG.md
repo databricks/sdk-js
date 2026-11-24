@@ -1,5 +1,11 @@
 # Version changelog
 
+## Release v0.59.6 (2026-11-24)
+
+### Bug Fixes
+* Fail a method that returns a waiter before it sends the request when a request field that the waiter polls with is unset, instead of after the request has started the work.
+* Reject a response that sets more than one field of a oneof, a group of fields of which at most one can be set, instead of returning the field that the API lists first. The Go and Java SDKs already reject such a response.
+
 ## Release v0.59.5 (2026-11-23)
 
 ### Internal Changes

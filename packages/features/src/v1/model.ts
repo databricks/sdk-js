@@ -3122,6 +3122,29 @@ export const unmarshalAggregationFunctionSchema: z.ZodType<AggregationFunction> 
         .nullish()
         .transform(v => v ?? undefined),
     })
+    .refine(
+      d =>
+        [
+          d.avg,
+          d.count_function,
+          d.sum,
+          d.min,
+          d.max,
+          d.first,
+          d.last,
+          d.approx_count_distinct,
+          d.approx_percentile,
+          d.stddev_pop,
+          d.stddev_samp,
+          d.var_pop,
+          d.var_samp,
+          d.first_n,
+          d.last_n,
+          d.first_distinct,
+          d.last_distinct,
+        ].filter(v => v !== undefined).length <= 1,
+      {message: 'AggregationFunction.Operation: multiple oneof members set'}
+    )
     .transform(d => ({
       operation:
         d.avg !== undefined
@@ -3239,6 +3262,12 @@ export const unmarshalAuthConfigSchema: z.ZodType<AuthConfig> = z
     uc_service_credential_name: z.string().optional(),
     mtls_config: z.lazy(() => unmarshalMtlsConfigSchema).optional(),
   })
+  .refine(
+    d =>
+      [d.uc_service_credential_name, d.mtls_config].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'AuthConfig.AuthConfig: multiple oneof members set'}
+  )
   .transform(d => ({
     authConfig:
       d.uc_service_credential_name !== undefined
@@ -3300,6 +3329,12 @@ export const unmarshalBackfillSourceSchema: z.ZodType<BackfillSource> = z
       .optional(),
     delta_table_name: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.delta_table_source, d.delta_table_name].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'BackfillSource.BackfillSource: multiple oneof members set'}
+  )
   .transform(d => ({
     backfillSource:
       d.delta_table_source !== undefined
@@ -3412,6 +3447,19 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
       .nullish()
       .transform(v => v ?? undefined),
   })
+  .refine(
+    d =>
+      [
+        d.delta_table_source,
+        d.kafka_source,
+        d.request_source,
+        d.stream_source,
+        d.feature_view_source,
+        d.sdp_source,
+        d.iceberg_table_source,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'DataSource.DataSource: multiple oneof members set'}
+  )
   .transform(d => ({
     dataSource:
       d.delta_table_source !== undefined
@@ -3691,6 +3739,13 @@ export const unmarshalFeaturesSchema: z.ZodType<Features> = z
       .lazy(() => unmarshalDeclarativeFeatureSchema)
       .optional(),
   })
+  .refine(
+    d =>
+      [d.feature_lookup, d.feature_function, d.declarative_feature].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'Features.Feature: multiple oneof members set'}
+  )
   .transform(d => ({
     feature:
       d.feature_lookup !== undefined
@@ -3775,6 +3830,17 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
     secondary_keys: z.lazy(() => unmarshalSecondaryKeysSchema).optional(),
     lookup: z.lazy(() => unmarshalLookupSchema).optional(),
   })
+  .refine(
+    d =>
+      [
+        d.aggregation_function,
+        d.column_selection,
+        d.custom_udf,
+        d.secondary_keys,
+        d.lookup,
+      ].filter(v => v !== undefined).length <= 1,
+    {message: 'Function.Function: multiple oneof members set'}
+  )
   .transform(d => ({
     functionType: d.function_type,
     extraParameters: d.extra_parameters,
@@ -3867,6 +3933,15 @@ export const unmarshalIngestionDestinationSchema: z.ZodType<IngestionDestination
       delta_table_name: z.string().optional(),
       view_name: z.string().optional(),
     })
+    .refine(
+      d =>
+        [d.delta_table_name, d.view_name].filter(v => v !== undefined).length <=
+        1,
+      {
+        message:
+          'IngestionDestination.IngestionDestination: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       ingestionDestination:
         d.delta_table_name !== undefined
@@ -3997,6 +4072,16 @@ export const unmarshalKafkaSubscriptionModeSchema: z.ZodType<KafkaSubscriptionMo
       subscribe: z.string().optional(),
       subscribe_pattern: z.string().optional(),
     })
+    .refine(
+      d =>
+        [d.assign, d.subscribe, d.subscribe_pattern].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'KafkaSubscriptionMode.SubscriptionMode: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       subscriptionMode:
         d.assign !== undefined
@@ -4018,6 +4103,15 @@ export const unmarshalKinesisStreamConfigSchema: z.ZodType<KinesisStreamConfig> 
       stream_arns: z.lazy(() => unmarshalStreamArnListSchema).optional(),
       extra_options: z.record(z.string(), z.string()).optional(),
     })
+    .refine(
+      d =>
+        [d.stream_names, d.stream_arns].filter(v => v !== undefined).length <=
+        1,
+      {
+        message:
+          'KinesisStreamConfig.StreamIdentifier: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       streamIdentifier:
         d.stream_names !== undefined
@@ -4237,6 +4331,16 @@ export const unmarshalMaterializationSetOperationMetadataSchema: z.ZodType<Mater
         .lazy(() => unmarshalMaterializationSetTriggerProgressSchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [d.deletion_progress, d.update_progress, d.trigger_progress].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'MaterializationSetOperationMetadata.Progress: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       featureFullNames: d.feature_full_names,
       state: d.state,
@@ -4341,6 +4445,23 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
         .nullish()
         .transform(v => v ?? undefined),
     })
+    .refine(
+      d =>
+        [d.offline_store_config, d.online_store_config].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {message: 'MaterializedFeature.Destination: multiple oneof members set'}
+    )
+    .refine(
+      d =>
+        [
+          d.cron_schedule_trigger,
+          d.table_trigger,
+          d.streaming_mode,
+          d.external_trigger,
+        ].filter(v => v !== undefined).length <= 1,
+      {message: 'MaterializedFeature.Trigger: multiple oneof members set'}
+    )
     .transform(d => ({
       materializedFeatureId: d.materialized_feature_id,
       featureName: d.feature_name,
@@ -4490,6 +4611,9 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     error: z.lazy(() => unmarshalApiErrorSchema).optional(),
     response: z.record(z.string(), z.unknown()).optional(),
   })
+  .refine(d => [d.error, d.response].filter(v => v !== undefined).length <= 1, {
+    message: 'Operation.Result: multiple oneof members set',
+  })
   .transform(d => ({
     name: d.name,
     metadata: d.metadata,
@@ -4603,6 +4727,12 @@ export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
     flat_schema: z.lazy(() => unmarshalFlatSchemaSchema).optional(),
     dataframe_schema: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.flat_schema, d.dataframe_schema].filter(v => v !== undefined).length <=
+      1,
+    {message: 'RequestSource.Schema: multiple oneof members set'}
+  )
   .transform(d => ({
     schema:
       d.flat_schema !== undefined
@@ -4653,6 +4783,13 @@ export const unmarshalSchemaConfigSchema: z.ZodType<SchemaConfig> = z
     avro_schema: z.string().optional(),
     proto_schema: z.lazy(() => unmarshalProtoSchemaSpecSchema).optional(),
   })
+  .refine(
+    d =>
+      [d.json_schema, d.avro_schema, d.proto_schema].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'SchemaConfig.Schema: multiple oneof members set'}
+  )
   .transform(d => ({
     schema:
       d.json_schema !== undefined
@@ -4885,6 +5022,16 @@ export const unmarshalStreamConnectionConfigSchema: z.ZodType<StreamConnectionCo
         .lazy(() => unmarshalDirectMtlsConfigSchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [d.uc_connection_name, d.direct_mtls_config].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {
+        message:
+          'StreamConnectionConfig.ConnectionConfig: multiple oneof members set',
+      }
+    )
     .transform(d => ({
       connectionConfig:
         d.uc_connection_name !== undefined
@@ -4916,6 +5063,13 @@ export const unmarshalStreamSchemaConfigSchema: z.ZodType<StreamSchemaConfig> =
         .lazy(() => unmarshalSchemaRegistryConfigSchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [d.direct_schemas, d.schema_registry_config].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {message: 'StreamSchemaConfig.SchemaConfig: multiple oneof members set'}
+    )
     .transform(d => ({
       schemaConfig:
         d.direct_schemas !== undefined
@@ -4952,6 +5106,13 @@ export const unmarshalStreamSourceConfigSchema: z.ZodType<StreamSourceConfig> =
         .lazy(() => unmarshalKinesisStreamConfigSchema)
         .optional(),
     })
+    .refine(
+      d =>
+        [d.kafka_stream_config, d.kinesis_stream_config].filter(
+          v => v !== undefined
+        ).length <= 1,
+      {message: 'StreamSourceConfig.SourceConfig: multiple oneof members set'}
+    )
     .transform(d => ({
       sourceConfig:
         d.kafka_stream_config !== undefined
@@ -4985,6 +5146,12 @@ export const unmarshalSubscriptionModeSchema: z.ZodType<SubscriptionMode> = z
     subscribe: z.string().optional(),
     subscribe_pattern: z.string().optional(),
   })
+  .refine(
+    d =>
+      [d.assign, d.subscribe, d.subscribe_pattern].filter(v => v !== undefined)
+        .length <= 1,
+    {message: 'SubscriptionMode.SubscriptionMode: multiple oneof members set'}
+  )
   .transform(d => ({
     subscriptionMode:
       d.assign !== undefined
@@ -5039,6 +5206,13 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
       .transform(s => Temporal.Instant.from(s))
       .optional(),
   })
+  .refine(
+    d =>
+      [d.continuous, d.tumbling, d.sliding, d.rolling, d.sawtooth].filter(
+        v => v !== undefined
+      ).length <= 1,
+    {message: 'TimeWindow.WindowType: multiple oneof members set'}
+  )
   .transform(d => ({
     windowType:
       d.continuous !== undefined

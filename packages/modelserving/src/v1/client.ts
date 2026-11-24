@@ -143,10 +143,10 @@ export class ModelServingClient {
     req: CreateInferenceEndpointRequest,
     options?: CallOptions
   ): Promise<CreateInferenceEndpointWaiter> {
-    await this.createInferenceEndpointBase(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
+    await this.createInferenceEndpointBase(req, options);
     return new CreateInferenceEndpointWaiter(this, req.name);
   }
 
@@ -184,10 +184,10 @@ export class ModelServingClient {
     req: CreatePtEndpointRequest,
     options?: CallOptions
   ): Promise<CreateProvisionedThroughputInferenceEndpointWaiter> {
-    await this.createProvisionedThroughputInferenceEndpointBase(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
+    await this.createProvisionedThroughputInferenceEndpointBase(req, options);
     return new CreateProvisionedThroughputInferenceEndpointWaiter(
       this,
       req.name
@@ -542,10 +542,10 @@ export class ModelServingClient {
     req: PutInferenceEndpointConfigRequest,
     options?: CallOptions
   ): Promise<PutInferenceEndpointConfigWaiter> {
-    await this.putInferenceEndpointConfigBase(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
+    await this.putInferenceEndpointConfigBase(req, options);
     return new PutInferenceEndpointConfigWaiter(this, req.name);
   }
 
@@ -618,13 +618,13 @@ export class ModelServingClient {
     req: PutPtEndpointConfigRequest,
     options?: CallOptions
   ): Promise<PutProvisionedThroughputInferenceEndpointConfigWaiter> {
+    if (req.name === undefined) {
+      throw new Error('request field name required for polling is missing');
+    }
     await this.putProvisionedThroughputInferenceEndpointConfigBase(
       req,
       options
     );
-    if (req.name === undefined) {
-      throw new Error('request field name required for polling is missing');
-    }
     return new PutProvisionedThroughputInferenceEndpointConfigWaiter(
       this,
       req.name
