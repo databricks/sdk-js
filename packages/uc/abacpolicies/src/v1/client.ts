@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -75,7 +76,10 @@ export class AbacPoliciesClient {
   ): Promise<PolicyInfo> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/unity-catalog/policies`;
-    const body = marshalRequest(req.policyInfo, marshalPolicyInfoSchema);
+    const body =
+      req.policyInfo === undefined
+        ? 'null'
+        : marshalRequest(req.policyInfo, marshalPolicyInfoSchema);
     let resp: PolicyInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -102,8 +106,17 @@ export class AbacPoliciesClient {
     req: DeletePolicyRequest,
     options?: CallOptions
   ): Promise<DeletePolicyResponse> {
+    if (req.onSecurableType === undefined) {
+      throw new Error('path parameter "on_securable_type" is required');
+    }
+    if (req.onSecurableFullname === undefined) {
+      throw new Error('path parameter "on_securable_fullname" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/policies/${encodePathVariable(req.onSecurableType)}/${encodePathVariable(req.onSecurableFullname)}/${encodePathVariable(req.name)}`;
     let resp: DeletePolicyResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -130,8 +143,17 @@ export class AbacPoliciesClient {
     req: GetPolicyRequest,
     options?: CallOptions
   ): Promise<PolicyInfo> {
+    if (req.onSecurableType === undefined) {
+      throw new Error('path parameter "on_securable_type" is required');
+    }
+    if (req.onSecurableFullname === undefined) {
+      throw new Error('path parameter "on_securable_fullname" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/policies/${encodePathVariable(req.onSecurableType)}/${encodePathVariable(req.onSecurableFullname)}/${encodePathVariable(req.name)}`;
     let resp: PolicyInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -164,8 +186,14 @@ export class AbacPoliciesClient {
     req: ListPoliciesRequest,
     options?: CallOptions
   ): Promise<ListPoliciesResponse> {
+    if (req.onSecurableType === undefined) {
+      throw new Error('path parameter "on_securable_type" is required');
+    }
+    if (req.onSecurableFullname === undefined) {
+      throw new Error('path parameter "on_securable_fullname" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/policies/${encodePathVariable(req.onSecurableType)}/${encodePathVariable(req.onSecurableFullname)}`;
     const params = new URLSearchParams();
     if (req.includeInherited !== undefined) {
       params.append('include_inherited', String(req.includeInherited));
@@ -221,15 +249,27 @@ export class AbacPoliciesClient {
     req: UpdatePolicyRequest,
     options?: CallOptions
   ): Promise<PolicyInfo> {
+    if (req.onSecurableType === undefined) {
+      throw new Error('path parameter "on_securable_type" is required');
+    }
+    if (req.onSecurableFullname === undefined) {
+      throw new Error('path parameter "on_securable_fullname" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/policies/${encodePathVariable(req.onSecurableType)}/${encodePathVariable(req.onSecurableFullname)}/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.policyInfo, marshalPolicyInfoSchema);
+    const body =
+      req.policyInfo === undefined
+        ? 'null'
+        : marshalRequest(req.policyInfo, marshalPolicyInfoSchema);
     let resp: PolicyInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

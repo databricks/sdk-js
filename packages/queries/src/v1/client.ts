@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -103,7 +104,7 @@ export class QueriesClient {
   /** Gets a query. */
   async getQuery(req: GetQueryRequest, options?: CallOptions): Promise<Query> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/queries/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/sql/queries/${encodePathVariable(req.id ?? '')}`;
     let resp: Query | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -185,7 +186,7 @@ export class QueriesClient {
     options?: CallOptions
   ): Promise<ListVisualizationsForQueryResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/queries/${req.id ?? ''}/visualizations`;
+    const url = `${host}/api/2.0/sql/queries/${encodePathVariable(req.id ?? '')}/visualizations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -242,7 +243,7 @@ export class QueriesClient {
     options?: CallOptions
   ): Promise<Empty> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/queries/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/sql/queries/${encodePathVariable(req.id ?? '')}`;
     let resp: Empty | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -274,7 +275,7 @@ export class QueriesClient {
     options?: CallOptions
   ): Promise<Query> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/queries/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/sql/queries/${encodePathVariable(req.id ?? '')}`;
     const body = marshalRequest(req, marshalUpdateQueryRequestSchema);
     let resp: Query | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

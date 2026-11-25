@@ -124,7 +124,11 @@ export interface CreateManagedMemoryEntryRequest {
   parent?: string | undefined;
   /** The memory entry to create. */
   managedMemoryEntry?: ManagedMemoryEntry | undefined;
-  /** Optional caller-selected memory entry ID. The service generates an ID when omitted. */
+  /**
+   * Caller-selected memory entry ID. It must contain 1-255 letters, digits, hyphens, or
+   * underscores, and it becomes the last segment of the entry's `name`. The service generates a
+   * UUID when it is omitted.
+   */
   managedMemoryEntryId?: string | undefined;
 }
 
@@ -354,7 +358,10 @@ export interface ListManagedMemoryEntriesRequest {
    * Defaults to 10; must be between 1 and 100.
    */
   pageSize?: number | undefined;
-  /** Opaque pagination token from a previous ListManagedMemoryEntries response. */
+  /**
+   * Opaque pagination token, taken from the `next_page_token` of a previous response. The other
+   * request parameters must match the request that returned the token.
+   */
   pageToken?: string | undefined;
   /** Customer-provided identifier for the actor whose entries are listed. */
   actorId?: string | undefined;
@@ -372,7 +379,10 @@ export interface ListManagedMemoryEntriesRequest {
 
 /** Response containing memory entries. */
 export interface ListManagedMemoryEntriesResponse {
-  /** Memory entries matching the request and selected response view. */
+  /**
+   * Memory entries matching the request and selected response view, ordered by creation time,
+   * oldest first.
+   */
   managedMemoryEntries?: ManagedMemoryEntry[] | undefined;
   /** Opaque pagination token. This field is omitted when there are no more results. */
   nextPageToken?: string | undefined;
@@ -509,7 +519,10 @@ export interface ListSessionsResponse {
   nextPageToken?: string | undefined;
 }
 
-/** A workspace-scoped entry in a memory store. */
+/**
+ * A workspace-scoped entry in a memory store. Each entry belongs to one actor and, optionally, one
+ * session, and its `path` is unique within that actor and session.
+ */
 export interface ManagedMemoryEntry {
   /**
    * Resource name in the form
@@ -651,7 +664,10 @@ export interface SearchManagedMemoryEntriesRequest {
   parent?: string | undefined;
   /** Customer-provided identifier for the actor whose entries are searched. */
   actorId?: string | undefined;
-  /** Free-form search query. */
+  /**
+   * Free-form search query. Entries are ranked by how well their `content` and `description`
+   * match it.
+   */
   query?: string | undefined;
   /** Deprecated alias for `page_size`. When both fields are set, their values must match. */
   limit?: number | undefined;
@@ -1232,12 +1248,102 @@ export const marshalAppendSessionItemsRequestSchema: z.ZodType = z
     parent: d.parent,
   }));
 
+export const marshalAppendSessionItemsResponseSchema: z.ZodType = z
+  .object({
+    sessionItems: z.array(z.lazy(() => marshalSessionItemSchema)).optional(),
+  })
+  .transform(d => ({
+    session_items: d.sessionItems,
+  }));
+
 export const marshalClearSessionItemsRequestSchema: z.ZodType = z
   .object({
     parent: z.string().optional(),
   })
   .transform(d => ({
     parent: d.parent,
+  }));
+
+export const marshalClearSessionItemsResponseSchema: z.ZodType = z.object({});
+
+export const marshalCreateManagedMemoryEntryRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    managedMemoryEntry: z
+      .lazy(() => marshalManagedMemoryEntrySchema)
+      .optional(),
+    managedMemoryEntryId: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    managed_memory_entry: d.managedMemoryEntry,
+    managed_memory_entry_id: d.managedMemoryEntryId,
+  }));
+
+export const marshalCreateManagedMemoryStoreRequestSchema: z.ZodType = z
+  .object({
+    managedMemoryStore: z
+      .lazy(() => marshalManagedMemoryStoreSchema)
+      .optional(),
+    managedMemoryStoreId: z.string().optional(),
+  })
+  .transform(d => ({
+    managed_memory_store: d.managedMemoryStore,
+    managed_memory_store_id: d.managedMemoryStoreId,
+  }));
+
+export const marshalCreateSessionRequestSchema: z.ZodType = z
+  .object({
+    session: z.lazy(() => marshalSessionSchema).optional(),
+    sessionId: z.string().optional(),
+    parent: z.string().optional(),
+  })
+  .transform(d => ({
+    session: d.session,
+    session_id: d.sessionId,
+    parent: d.parent,
+  }));
+
+export const marshalCreateSessionStoreRequestSchema: z.ZodType = z
+  .object({
+    sessionStore: z.lazy(() => marshalSessionStoreSchema).optional(),
+    sessionStoreId: z.string().optional(),
+  })
+  .transform(d => ({
+    session_store: d.sessionStore,
+    session_store_id: d.sessionStoreId,
+  }));
+
+export const marshalDeleteManagedMemoryEntryRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteManagedMemoryStoreRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteSessionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteSessionStoreRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalExtractMemoriesRequestSchema: z.ZodType = z
@@ -1254,6 +1360,16 @@ export const marshalExtractMemoriesRequestSchema: z.ZodType = z
     session_id: d.sessionId,
     instructions: d.instructions,
     dry_run: d.dryRun,
+  }));
+
+export const marshalExtractMemoriesResponseSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    entries: z.array(z.lazy(() => marshalManagedMemoryEntrySchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    entries: d.entries,
   }));
 
 export const marshalForkSessionRequestSchema: z.ZodType = z
@@ -1274,6 +1390,64 @@ export const marshalForkSessionRequestSchema: z.ZodType = z
     parent: d.parent,
   }));
 
+export const marshalForkSessionResponseSchema: z.ZodType = z
+  .object({
+    session: z.lazy(() => marshalSessionSchema).optional(),
+  })
+  .transform(d => ({
+    session: d.session,
+  }));
+
+export const marshalGetManagedMemoryEntryRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    view: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    view: d.view,
+  }));
+
+export const marshalGetManagedMemoryStoreRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetMemoryStorePermissionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetSessionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetSessionStorePermissionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetSessionStoreRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalGrantMemoryStorePermissionRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1286,6 +1460,9 @@ export const marshalGrantMemoryStorePermissionRequestSchema: z.ZodType = z
     permission: d.permission,
   }));
 
+export const marshalGrantMemoryStorePermissionResponseSchema: z.ZodType =
+  z.object({});
+
 export const marshalGrantSessionStorePermissionRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1296,6 +1473,181 @@ export const marshalGrantSessionStorePermissionRequestSchema: z.ZodType = z
     name: d.name,
     principal: d.principal,
     permission: d.permission,
+  }));
+
+export const marshalGrantSessionStorePermissionResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalListManagedMemoryEntriesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    actorId: z.string().optional(),
+    pathPrefix: z.string().optional(),
+    sessionId: z.string().optional(),
+    view: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    actor_id: d.actorId,
+    path_prefix: d.pathPrefix,
+    session_id: d.sessionId,
+    view: d.view,
+  }));
+
+export const marshalListManagedMemoryEntriesResponseSchema: z.ZodType = z
+  .object({
+    managedMemoryEntries: z
+      .array(z.lazy(() => marshalManagedMemoryEntrySchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    managed_memory_entries: d.managedMemoryEntries,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListManagedMemoryStoresRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListManagedMemoryStoresResponseSchema: z.ZodType = z
+  .object({
+    managedMemoryStores: z
+      .array(z.lazy(() => marshalManagedMemoryStoreSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    managed_memory_stores: d.managedMemoryStores,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListMemoryStorePermissionsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListMemoryStorePermissionsResponseSchema: z.ZodType = z
+  .object({
+    memoryStorePermissions: z
+      .array(z.lazy(() => marshalMemoryStorePermissionSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    memory_store_permissions: d.memoryStorePermissions,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSessionItemsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    orderBy: z.string().optional(),
+    parent: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    order_by: d.orderBy,
+    parent: d.parent,
+  }));
+
+export const marshalListSessionItemsResponseSchema: z.ZodType = z
+  .object({
+    sessionItems: z.array(z.lazy(() => marshalSessionItemSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    session_items: d.sessionItems,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSessionStorePermissionsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListSessionStorePermissionsResponseSchema: z.ZodType = z
+  .object({
+    sessionStorePermissions: z
+      .array(z.lazy(() => marshalSessionStorePermissionSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    session_store_permissions: d.sessionStorePermissions,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSessionStoresRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListSessionStoresResponseSchema: z.ZodType = z
+  .object({
+    sessionStores: z.array(z.lazy(() => marshalSessionStoreSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    session_stores: d.sessionStores,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSessionsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    filter: z.string().optional(),
+    orderBy: z.string().optional(),
+    parent: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    filter: d.filter,
+    order_by: d.orderBy,
+    parent: d.parent,
+  }));
+
+export const marshalListSessionsResponseSchema: z.ZodType = z
+  .object({
+    sessions: z.array(z.lazy(() => marshalSessionSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    sessions: d.sessions,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalManagedMemoryEntrySchema: z.ZodType = z
@@ -1328,6 +1680,18 @@ export const marshalManagedMemoryEntrySchema: z.ZodType = z
     update_time: d.updateTime,
   }));
 
+export const marshalManagedMemoryEntrySearchResultSchema: z.ZodType = z
+  .object({
+    managedMemoryEntry: z
+      .lazy(() => marshalManagedMemoryEntrySchema)
+      .optional(),
+    score: z.number().optional(),
+  })
+  .transform(d => ({
+    managed_memory_entry: d.managedMemoryEntry,
+    score: d.score,
+  }));
+
 export const marshalManagedMemoryStoreSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1358,12 +1722,30 @@ export const marshalManagedMemoryStoreSchema: z.ZodType = z
     update_time: d.updateTime,
   }));
 
+export const marshalMemoryStorePermissionSchema: z.ZodType = z
+  .object({
+    principal: z.lazy(() => marshalStorePrincipalSchema).optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    principal: d.principal,
+    permission: d.permission,
+  }));
+
 export const marshalPopSessionItemRequestSchema: z.ZodType = z
   .object({
     parent: z.string().optional(),
   })
   .transform(d => ({
     parent: d.parent,
+  }));
+
+export const marshalPopSessionItemResponseSchema: z.ZodType = z
+  .object({
+    item: z.lazy(() => marshalSessionItemSchema).optional(),
+  })
+  .transform(d => ({
+    item: d.item,
   }));
 
 export const marshalRevokeMemoryStorePermissionRequestSchema: z.ZodType = z
@@ -1376,6 +1758,9 @@ export const marshalRevokeMemoryStorePermissionRequestSchema: z.ZodType = z
     principal: d.principal,
   }));
 
+export const marshalRevokeMemoryStorePermissionResponseSchema: z.ZodType =
+  z.object({});
+
 export const marshalRevokeSessionStorePermissionRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1385,6 +1770,9 @@ export const marshalRevokeSessionStorePermissionRequestSchema: z.ZodType = z
     name: d.name,
     principal: d.principal,
   }));
+
+export const marshalRevokeSessionStorePermissionResponseSchema: z.ZodType =
+  z.object({});
 
 export const marshalSearchManagedMemoryEntriesRequestSchema: z.ZodType = z
   .object({
@@ -1408,6 +1796,22 @@ export const marshalSearchManagedMemoryEntriesRequestSchema: z.ZodType = z
     session_id: d.sessionId,
     path_prefix: d.pathPrefix,
     view: d.view,
+  }));
+
+export const marshalSearchManagedMemoryEntriesResponseSchema: z.ZodType = z
+  .object({
+    managedMemoryEntries: z
+      .array(z.lazy(() => marshalManagedMemoryEntrySchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+    results: z
+      .array(z.lazy(() => marshalManagedMemoryEntrySearchResultSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    managed_memory_entries: d.managedMemoryEntries,
+    next_page_token: d.nextPageToken,
+    results: d.results,
   }));
 
 export const marshalSessionSchema: z.ZodType = z
@@ -1482,6 +1886,16 @@ export const marshalSessionStoreSchema: z.ZodType = z
     name: d.name,
   }));
 
+export const marshalSessionStorePermissionSchema: z.ZodType = z
+  .object({
+    principal: z.lazy(() => marshalStorePrincipalSchema).optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    principal: d.principal,
+    permission: d.permission,
+  }));
+
 export const marshalStorageBackendSchema: z.ZodType = z
   .object({
     backendType: z.string().optional(),
@@ -1500,6 +1914,62 @@ export const marshalStorePrincipalSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     principal_type: d.principalType,
+  }));
+
+export const marshalUpdateManagedMemoryEntryRequestSchema: z.ZodType = z
+  .object({
+    managedMemoryEntry: z
+      .lazy(() => marshalManagedMemoryEntrySchema)
+      .optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    managed_memory_entry: d.managedMemoryEntry,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateManagedMemoryStoreRequestSchema: z.ZodType = z
+  .object({
+    managedMemoryStore: z
+      .lazy(() => marshalManagedMemoryStoreSchema)
+      .optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    managed_memory_store: d.managedMemoryStore,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateSessionRequestSchema: z.ZodType = z
+  .object({
+    session: z.lazy(() => marshalSessionSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    session: d.session,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateSessionStoreRequestSchema: z.ZodType = z
+  .object({
+    sessionStore: z.lazy(() => marshalSessionStoreSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    session_store: d.sessionStore,
+    update_mask: d.updateMask,
   }));
 
 const managedMemoryEntryFieldMaskSchema: FieldMaskSchema = {

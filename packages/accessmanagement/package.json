@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-accessmanagement",
-  "version": "0.52.6",
+  "version": "0.52.7",
   "description": "",
   "type": "module",
   "exports": {

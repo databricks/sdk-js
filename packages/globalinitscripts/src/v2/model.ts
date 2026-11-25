@@ -167,6 +167,70 @@ export const marshalCreateGlobalInitScriptRequestSchema: z.ZodType = z
     enabled: d.enabled,
   }));
 
+export const marshalCreateGlobalInitScriptResponseSchema: z.ZodType = z
+  .object({
+    scriptId: z.string().optional(),
+  })
+  .transform(d => ({
+    script_id: d.scriptId,
+  }));
+
+export const marshalDeleteGlobalInitScriptRequestSchema: z.ZodType = z
+  .object({
+    scriptId: z.string().optional(),
+  })
+  .transform(d => ({
+    script_id: d.scriptId,
+  }));
+
+export const marshalDeleteGlobalInitScriptResponseSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalGetGlobalInitScriptRequestSchema: z.ZodType = z
+  .object({
+    scriptId: z.string().optional(),
+  })
+  .transform(d => ({
+    script_id: d.scriptId,
+  }));
+
+export const marshalGlobalInitScriptDetailsSchema: z.ZodType = z
+  .object({
+    scriptId: z.string().optional(),
+    name: z.string().optional(),
+    position: z.number().optional(),
+    enabled: z.boolean().optional(),
+    createdBy: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+  })
+  .transform(d => ({
+    script_id: d.scriptId,
+    name: d.name,
+    position: d.position,
+    enabled: d.enabled,
+    created_by: d.createdBy,
+    created_at: d.createdAt,
+    updated_by: d.updatedBy,
+    updated_at: d.updatedAt,
+  }));
+
+export const marshalListGlobalInitScriptsRequestSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalListGlobalInitScriptsResponseSchema: z.ZodType = z
+  .object({
+    scripts: z
+      .array(z.lazy(() => marshalGlobalInitScriptDetailsSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    scripts: d.scripts,
+  }));
+
 export const marshalUpdateGlobalInitScriptRequestSchema: z.ZodType = z
   .object({
     scriptId: z.string().optional(),
@@ -187,3 +251,7 @@ export const marshalUpdateGlobalInitScriptRequestSchema: z.ZodType = z
     position: d.position,
     enabled: d.enabled,
   }));
+
+export const marshalUpdateGlobalInitScriptResponseSchema: z.ZodType = z.object(
+  {}
+);

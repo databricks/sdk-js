@@ -790,6 +790,46 @@ export const marshalCancelStatementRequestSchema: z.ZodType = z
     warehouse_id: d.warehouseId,
   }));
 
+export const marshalCancelStatementResponseSchema: z.ZodType = z.object({});
+
+export const marshalChunkInfoSchema: z.ZodType = z
+  .object({
+    chunkIndex: z.number().optional(),
+    rowOffset: z.bigint().optional(),
+    rowCount: z.bigint().optional(),
+    byteCount: z.bigint().optional(),
+    nextChunkIndex: z.number().optional(),
+    nextChunkInternalLink: z.string().optional(),
+  })
+  .transform(d => ({
+    chunk_index: d.chunkIndex,
+    row_offset: d.rowOffset,
+    row_count: d.rowCount,
+    byte_count: d.byteCount,
+    next_chunk_index: d.nextChunkIndex,
+    next_chunk_internal_link: d.nextChunkInternalLink,
+  }));
+
+export const marshalColumnInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    typeText: z.string().optional(),
+    typeName: z.string().optional(),
+    position: z.number().optional(),
+    typePrecision: z.number().optional(),
+    typeScale: z.number().optional(),
+    typeIntervalType: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    type_text: d.typeText,
+    type_name: d.typeName,
+    position: d.position,
+    type_precision: d.typePrecision,
+    type_scale: d.typeScale,
+    type_interval_type: d.typeIntervalType,
+  }));
+
 export const marshalExecuteStatementRequestSchema: z.ZodType = z
   .object({
     statement: z.string().optional(),
@@ -822,6 +862,52 @@ export const marshalExecuteStatementRequestSchema: z.ZodType = z
     query_tags: d.queryTags,
   }));
 
+export const marshalExternalLinkSchema: z.ZodType = z
+  .object({
+    externalLink: z.string().optional(),
+    expiration: z.string().optional(),
+    httpHeaders: z.record(z.string(), z.string()).optional(),
+    chunkIndex: z.number().optional(),
+    rowOffset: z.bigint().optional(),
+    rowCount: z.bigint().optional(),
+    byteCount: z.bigint().optional(),
+    nextChunkIndex: z.number().optional(),
+    nextChunkInternalLink: z.string().optional(),
+  })
+  .transform(d => ({
+    external_link: d.externalLink,
+    expiration: d.expiration,
+    http_headers: d.httpHeaders,
+    chunk_index: d.chunkIndex,
+    row_offset: d.rowOffset,
+    row_count: d.rowCount,
+    byte_count: d.byteCount,
+    next_chunk_index: d.nextChunkIndex,
+    next_chunk_internal_link: d.nextChunkInternalLink,
+  }));
+
+export const marshalGetResultDataRequestSchema: z.ZodType = z
+  .object({
+    statementId: z.string().optional(),
+    chunkIndex: z.number().optional(),
+    warehouseId: z.string().optional(),
+  })
+  .transform(d => ({
+    statement_id: d.statementId,
+    chunk_index: d.chunkIndex,
+    warehouse_id: d.warehouseId,
+  }));
+
+export const marshalGetStatementResultRequestSchema: z.ZodType = z
+  .object({
+    statementId: z.string().optional(),
+    warehouseId: z.string().optional(),
+  })
+  .transform(d => ({
+    statement_id: d.statementId,
+    warehouse_id: d.warehouseId,
+  }));
+
 export const marshalQueryTagSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
@@ -830,6 +916,68 @@ export const marshalQueryTagSchema: z.ZodType = z
   .transform(d => ({
     key: d.key,
     value: d.value,
+  }));
+
+export const marshalResultDataSchema: z.ZodType = z
+  .object({
+    externalLinks: z.array(z.lazy(() => marshalExternalLinkSchema)).optional(),
+    dataArray: z.array(z.array(jsonValueSchema)).optional(),
+    chunkIndex: z.number().optional(),
+    rowOffset: z.bigint().optional(),
+    rowCount: z.bigint().optional(),
+    byteCount: z.bigint().optional(),
+    nextChunkIndex: z.number().optional(),
+    nextChunkInternalLink: z.string().optional(),
+  })
+  .transform(d => ({
+    external_links: d.externalLinks,
+    data_array: d.dataArray,
+    chunk_index: d.chunkIndex,
+    row_offset: d.rowOffset,
+    row_count: d.rowCount,
+    byte_count: d.byteCount,
+    next_chunk_index: d.nextChunkIndex,
+    next_chunk_internal_link: d.nextChunkInternalLink,
+  }));
+
+export const marshalResultManifestSchema: z.ZodType = z
+  .object({
+    format: z.string().optional(),
+    schema: z.lazy(() => marshalSchemaSchema).optional(),
+    totalChunkCount: z.number().optional(),
+    chunks: z.array(z.lazy(() => marshalChunkInfoSchema)).optional(),
+    totalRowCount: z.bigint().optional(),
+    totalByteCount: z.bigint().optional(),
+    truncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    format: d.format,
+    schema: d.schema,
+    total_chunk_count: d.totalChunkCount,
+    chunks: d.chunks,
+    total_row_count: d.totalRowCount,
+    total_byte_count: d.totalByteCount,
+    truncated: d.truncated,
+  }));
+
+export const marshalSchemaSchema: z.ZodType = z
+  .object({
+    columnCount: z.number().optional(),
+    columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    column_count: d.columnCount,
+    columns: d.columns,
+  }));
+
+export const marshalServiceErrorSchema: z.ZodType = z
+  .object({
+    errorCode: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    error_code: d.errorCode,
+    message: d.message,
   }));
 
 export const marshalStatementParameterSchema: z.ZodType = z
@@ -842,4 +990,30 @@ export const marshalStatementParameterSchema: z.ZodType = z
     name: d.name,
     value: d.value,
     type: d.type,
+  }));
+
+export const marshalStatementResponseSchema: z.ZodType = z
+  .object({
+    statementId: z.string().optional(),
+    status: z.lazy(() => marshalStatementStatusSchema).optional(),
+    manifest: z.lazy(() => marshalResultManifestSchema).optional(),
+    result: z.lazy(() => marshalResultDataSchema).optional(),
+  })
+  .transform(d => ({
+    statement_id: d.statementId,
+    status: d.status,
+    manifest: d.manifest,
+    result: d.result,
+  }));
+
+export const marshalStatementStatusSchema: z.ZodType = z
+  .object({
+    state: z.string().optional(),
+    error: z.lazy(() => marshalServiceErrorSchema).optional(),
+    sqlState: z.string().optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+    error: d.error,
+    sql_state: d.sqlState,
   }));

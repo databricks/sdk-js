@@ -594,6 +594,52 @@ export const unmarshalWorkspaceSetSchema: z.ZodType<WorkspaceSet> = z
     stableUrlNames: d.stable_url_names,
   }));
 
+export const marshalCreateFailoverGroupRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    failoverGroup: z.lazy(() => marshalFailoverGroupSchema).optional(),
+    validateOnly: z.boolean().optional(),
+    failoverGroupId: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    failover_group: d.failoverGroup,
+    validate_only: d.validateOnly,
+    failover_group_id: d.failoverGroupId,
+  }));
+
+export const marshalCreateStableUrlRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    stableUrl: z.lazy(() => marshalStableUrlSchema).optional(),
+    validateOnly: z.boolean().optional(),
+    stableUrlId: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    stable_url: d.stableUrl,
+    validate_only: d.validateOnly,
+    stable_url_id: d.stableUrlId,
+  }));
+
+export const marshalDeleteFailoverGroupRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    etag: d.etag,
+  }));
+
+export const marshalDeleteStableUrlRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalFailoverFailoverGroupRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -653,12 +699,74 @@ export const marshalFailoverGroupSchema: z.ZodType = z
     has_replication_point_blocking_errors: d.hasReplicationPointBlockingErrors,
   }));
 
+export const marshalGetFailoverGroupRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetStableUrlRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalInitialReplicationProgressSchema: z.ZodType = z
   .object({
     completed: z.number().optional(),
   })
   .transform(d => ({
     completed: d.completed,
+  }));
+
+export const marshalListFailoverGroupsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListFailoverGroupsResponseSchema: z.ZodType = z
+  .object({
+    failoverGroups: z
+      .array(z.lazy(() => marshalFailoverGroupSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    failover_groups: d.failoverGroups,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListStableUrlsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListStableUrlsResponseSchema: z.ZodType = z
+  .object({
+    stableUrls: z.array(z.lazy(() => marshalStableUrlSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    stable_urls: d.stableUrls,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalLocationMappingSchema: z.ZodType = z
@@ -721,6 +829,21 @@ export const marshalUcReplicationConfigSchema: z.ZodType = z
     location_mappings: d.locationMappings,
     catalogs: d.catalogs,
     data_replication_workspace_set: d.dataReplicationWorkspaceSet,
+  }));
+
+export const marshalUpdateFailoverGroupRequestSchema: z.ZodType = z
+  .object({
+    failoverGroup: z.lazy(() => marshalFailoverGroupSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    failover_group: d.failoverGroup,
+    update_mask: d.updateMask,
+    etag: d.etag,
   }));
 
 export const marshalWorkspaceSetSchema: z.ZodType = z

@@ -5479,6 +5479,8 @@ export const marshalApplyEnvironmentRequestSchema: z.ZodType = z
     pipeline_id: d.pipelineId,
   }));
 
+export const marshalApplyEnvironmentResponseSchema: z.ZodType = z.object({});
+
 export const marshalAutoFullRefreshPolicySchema: z.ZodType = z
   .object({
     enabled: z.boolean().optional(),
@@ -5581,6 +5583,14 @@ export const marshalClonePipelineRequestSchema: z.ZodType = z
     serverless_compute_id: d.serverlessComputeId,
     testing: d.testing,
     clone_mode: d.cloneMode,
+  }));
+
+export const marshalClonePipelineResponseSchema: z.ZodType = z
+  .object({
+    pipelineId: z.string().optional(),
+  })
+  .transform(d => ({
+    pipeline_id: d.pipelineId,
   }));
 
 export const marshalConfluenceConnectorOptionsSchema: z.ZodType = z
@@ -5823,6 +5833,16 @@ export const marshalCreatePipelineRequestSchema: z.ZodType = z
     testing: d.testing,
   }));
 
+export const marshalCreatePipelineResponseSchema: z.ZodType = z
+  .object({
+    pipelineId: z.string().optional(),
+    effectiveSettings: z.lazy(() => marshalPipelineSpecSchema).optional(),
+  })
+  .transform(d => ({
+    pipeline_id: d.pipelineId,
+    effective_settings: d.effectiveSettings,
+  }));
+
 export const marshalCronTriggerSchema: z.ZodType = z
   .object({
     quartzCronSchedule: z.string().optional(),
@@ -5831,6 +5851,16 @@ export const marshalCronTriggerSchema: z.ZodType = z
   .transform(d => ({
     quartz_cron_schedule: d.quartzCronSchedule,
     timezone_id: d.timezoneId,
+  }));
+
+export const marshalDataPlaneIdSchema: z.ZodType = z
+  .object({
+    instance: z.string().optional(),
+    seqNo: z.bigint().optional(),
+  })
+  .transform(d => ({
+    instance: d.instance,
+    seq_no: d.seqNo,
   }));
 
 export const marshalDataStagingOptionsSchema: z.ZodType = z
@@ -5844,6 +5874,20 @@ export const marshalDataStagingOptionsSchema: z.ZodType = z
     schema_name: d.schemaName,
     volume_name: d.volumeName,
   }));
+
+export const marshalDeletePipelineRequestSchema: z.ZodType = z
+  .object({
+    pipelineId: z.string().optional(),
+    force: z.boolean().optional(),
+    cascade: z.boolean().optional(),
+  })
+  .transform(d => ({
+    pipeline_id: d.pipelineId,
+    force: d.force,
+    cascade: d.cascade,
+  }));
+
+export const marshalDeletePipelineResponseSchema: z.ZodType = z.object({});
 
 export const marshalEditPipelineRequestSchema: z.ZodType = z
   .object({
@@ -5927,6 +5971,20 @@ export const marshalEditPipelineRequestSchema: z.ZodType = z
     testing: d.testing,
   }));
 
+export const marshalEditPipelineResponseSchema: z.ZodType = z.object({});
+
+export const marshalErrorDetailSchema: z.ZodType = z
+  .object({
+    exceptions: z
+      .array(z.lazy(() => marshalSerializedExceptionSchema))
+      .optional(),
+    fatal: z.boolean().optional(),
+  })
+  .transform(d => ({
+    exceptions: d.exceptions,
+    fatal: d.fatal,
+  }));
+
 export const marshalEventLogSpecSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -6001,6 +6059,72 @@ export const marshalFiltersSchema: z.ZodType = z
   .transform(d => ({
     include: d.include,
     exclude: d.exclude,
+  }));
+
+export const marshalGetPipelineRequestSchema: z.ZodType = z
+  .object({
+    pipelineId: z.string().optional(),
+  })
+  .transform(d => ({
+    pipeline_id: d.pipelineId,
+  }));
+
+export const marshalGetPipelineResponseSchema: z.ZodType = z
+  .object({
+    pipelineId: z.string().optional(),
+    spec: z.lazy(() => marshalPipelineSpecSchema).optional(),
+    state: z.string().optional(),
+    cause: z.string().optional(),
+    clusterId: z.string().optional(),
+    name: z.string().optional(),
+    health: z.string().optional(),
+    creatorUserName: z.string().optional(),
+    latestUpdates: z
+      .array(z.lazy(() => marshalUpdateStateInfoSchema))
+      .optional(),
+    lastModified: z.bigint().optional(),
+    runAsUserName: z.string().optional(),
+    effectiveBudgetPolicyId: z.string().optional(),
+    effectivePublishingMode: z.string().optional(),
+    runAs: z.lazy(() => marshalPipelinesJobRunAsSchema).optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
+    effectiveServerlessComputeId: z.string().optional(),
+  })
+  .transform(d => ({
+    pipeline_id: d.pipelineId,
+    spec: d.spec,
+    state: d.state,
+    cause: d.cause,
+    cluster_id: d.clusterId,
+    name: d.name,
+    health: d.health,
+    creator_user_name: d.creatorUserName,
+    latest_updates: d.latestUpdates,
+    last_modified: d.lastModified,
+    run_as_user_name: d.runAsUserName,
+    effective_budget_policy_id: d.effectiveBudgetPolicyId,
+    effective_publishing_mode: d.effectivePublishingMode,
+    run_as: d.runAs,
+    parameters: d.parameters,
+    effective_serverless_compute_id: d.effectiveServerlessComputeId,
+  }));
+
+export const marshalGetUpdateRequestSchema: z.ZodType = z
+  .object({
+    pipelineId: z.string().optional(),
+    updateId: z.string().optional(),
+  })
+  .transform(d => ({
+    pipeline_id: d.pipelineId,
+    update_id: d.updateId,
+  }));
+
+export const marshalGetUpdateResponseSchema: z.ZodType = z
+  .object({
+    update: z.lazy(() => marshalUpdateInfoSchema).optional(),
+  })
+  .transform(d => ({
+    update: d.update,
   }));
 
 export const marshalGoogleAdsConfigSchema: z.ZodType = z
@@ -6423,6 +6547,84 @@ export const marshalLinkedInAdsOptions_LinkedInAdsCustomReportOptionsSchema: z.Z
       metrics: d.metrics,
     }));
 
+export const marshalListPipelineEventsRequestSchema: z.ZodType = z
+  .object({
+    pipelineId: z.string().optional(),
+    pageToken: z.string().optional(),
+    maxResults: z.number().optional(),
+    orderBy: z.array(z.string()).optional(),
+    filter: z.string().optional(),
+  })
+  .transform(d => ({
+    pipeline_id: d.pipelineId,
+    page_token: d.pageToken,
+    max_results: d.maxResults,
+    order_by: d.orderBy,
+    filter: d.filter,
+  }));
+
+export const marshalListPipelineEventsResponseSchema: z.ZodType = z
+  .object({
+    events: z.array(z.lazy(() => marshalPipelineEventSchema)).optional(),
+    nextPageToken: z.string().optional(),
+    prevPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    events: d.events,
+    next_page_token: d.nextPageToken,
+    prev_page_token: d.prevPageToken,
+  }));
+
+export const marshalListPipelinesRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    maxResults: z.number().optional(),
+    orderBy: z.array(z.string()).optional(),
+    filter: z.string().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    max_results: d.maxResults,
+    order_by: d.orderBy,
+    filter: d.filter,
+  }));
+
+export const marshalListPipelinesResponseSchema: z.ZodType = z
+  .object({
+    statuses: z.array(z.lazy(() => marshalPipelineStateInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    statuses: d.statuses,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListUpdatesRequestSchema: z.ZodType = z
+  .object({
+    pipelineId: z.string().optional(),
+    pageToken: z.string().optional(),
+    maxResults: z.number().optional(),
+    untilUpdateId: z.string().optional(),
+  })
+  .transform(d => ({
+    pipeline_id: d.pipelineId,
+    page_token: d.pageToken,
+    max_results: d.maxResults,
+    until_update_id: d.untilUpdateId,
+  }));
+
+export const marshalListUpdatesResponseSchema: z.ZodType = z
+  .object({
+    updates: z.array(z.lazy(() => marshalUpdateInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+    prevPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    updates: d.updates,
+    next_page_token: d.nextPageToken,
+    prev_page_token: d.prevPageToken,
+  }));
+
 export const marshalManualTriggerSchema: z.ZodType = z.object({});
 
 export const marshalMarketoOptionsSchema: z.ZodType = z
@@ -6523,6 +6725,56 @@ export const marshalOperationTimeWindowSchema: z.ZodType = z
     start_hour: d.startHour,
     days_of_week: d.daysOfWeek,
     time_zone_id: d.timeZoneId,
+  }));
+
+export const marshalOriginSchema: z.ZodType = z
+  .object({
+    cloud: z.string().optional(),
+    region: z.string().optional(),
+    orgId: z.bigint().optional(),
+    pipelineId: z.string().optional(),
+    pipelineName: z.string().optional(),
+    clusterId: z.string().optional(),
+    updateId: z.string().optional(),
+    maintenanceId: z.string().optional(),
+    tableId: z.string().optional(),
+    datasetName: z.string().optional(),
+    flowId: z.string().optional(),
+    flowName: z.string().optional(),
+    batchId: z.bigint().optional(),
+    requestId: z.string().optional(),
+    ucResourceId: z.string().optional(),
+    host: z.string().optional(),
+    materializationName: z.string().optional(),
+    ingestionSourceConnectionName: z.string().optional(),
+    ingestionSourceCatalogName: z.string().optional(),
+    ingestionSourceSchemaName: z.string().optional(),
+    ingestionSourceTableName: z.string().optional(),
+    ingestionSourceTableVersion: z.string().optional(),
+  })
+  .transform(d => ({
+    cloud: d.cloud,
+    region: d.region,
+    org_id: d.orgId,
+    pipeline_id: d.pipelineId,
+    pipeline_name: d.pipelineName,
+    cluster_id: d.clusterId,
+    update_id: d.updateId,
+    maintenance_id: d.maintenanceId,
+    table_id: d.tableId,
+    dataset_name: d.datasetName,
+    flow_id: d.flowId,
+    flow_name: d.flowName,
+    batch_id: d.batchId,
+    request_id: d.requestId,
+    uc_resource_id: d.ucResourceId,
+    host: d.host,
+    materialization_name: d.materializationName,
+    ingestion_source_connection_name: d.ingestionSourceConnectionName,
+    ingestion_source_catalog_name: d.ingestionSourceCatalogName,
+    ingestion_source_schema_name: d.ingestionSourceSchemaName,
+    ingestion_source_table_name: d.ingestionSourceTableName,
+    ingestion_source_table_version: d.ingestionSourceTableVersion,
   }));
 
 export const marshalOutlookOptionsSchema: z.ZodType = z
@@ -6630,6 +6882,32 @@ export const marshalPipelineDeploymentSchema: z.ZodType = z
     version_id: d.versionId,
   }));
 
+export const marshalPipelineEventSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    sequence: z.lazy(() => marshalSequencingSchema).optional(),
+    origin: z.lazy(() => marshalOriginSchema).optional(),
+    timestamp: z.string().optional(),
+    message: z.string().optional(),
+    level: z.string().optional(),
+    error: z.lazy(() => marshalErrorDetailSchema).optional(),
+    eventType: z.string().optional(),
+    maturityLevel: z.string().optional(),
+    truncation: z.lazy(() => marshalTruncationSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    sequence: d.sequence,
+    origin: d.origin,
+    timestamp: d.timestamp,
+    message: d.message,
+    level: d.level,
+    error: d.error,
+    event_type: d.eventType,
+    maturity_level: d.maturityLevel,
+    truncation: d.truncation,
+  }));
+
 export const marshalPipelineLibrarySchema: z.ZodType = z
   .object({
     lib: z
@@ -6662,6 +6940,104 @@ export const marshalPipelineLibrarySchema: z.ZodType = z
     ...(d.lib?.$case === 'notebook' && {notebook: d.lib.notebook}),
     ...(d.lib?.$case === 'file' && {file: d.lib.file}),
     ...(d.lib?.$case === 'glob' && {glob: d.lib.glob}),
+  }));
+
+export const marshalPipelineSpecSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+    storage: z.string().optional(),
+    configuration: z.record(z.string(), z.string()).optional(),
+    clusters: z.array(z.lazy(() => marshalPipelineClusterSchema)).optional(),
+    libraries: z.array(z.lazy(() => marshalPipelineLibrarySchema)).optional(),
+    ingestionDefinition: z
+      .lazy(() => marshalIngestionPipelineDefinitionSchema)
+      .optional(),
+    gatewayDefinition: z
+      .lazy(() => marshalIngestionGatewayPipelineDefinitionSchema)
+      .optional(),
+    trigger: z.lazy(() => marshalPipelineTriggerSchema).optional(),
+    target: z.string().optional(),
+    schema: z.string().optional(),
+    filters: z.lazy(() => marshalFiltersSchema).optional(),
+    continuous: z.boolean().optional(),
+    development: z.boolean().optional(),
+    photon: z.boolean().optional(),
+    edition: z.string().optional(),
+    channel: z.string().optional(),
+    catalog: z.string().optional(),
+    notifications: z.array(z.lazy(() => marshalNotificationsSchema)).optional(),
+    serverless: z.boolean().optional(),
+    deployment: z.lazy(() => marshalPipelineDeploymentSchema).optional(),
+    restartWindow: z.lazy(() => marshalRestartWindowSchema).optional(),
+    budgetPolicyId: z.string().optional(),
+    tags: z.record(z.string(), z.string()).optional(),
+    eventLog: z.lazy(() => marshalEventLogSpecSchema).optional(),
+    rootPath: z.string().optional(),
+    environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
+    parentPath: z.string().optional(),
+    usagePolicyId: z.string().optional(),
+    serverlessComputeId: z.string().optional(),
+    testing: z.lazy(() => marshalPipelineTestingSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    name: d.name,
+    storage: d.storage,
+    configuration: d.configuration,
+    clusters: d.clusters,
+    libraries: d.libraries,
+    ingestion_definition: d.ingestionDefinition,
+    gateway_definition: d.gatewayDefinition,
+    trigger: d.trigger,
+    target: d.target,
+    schema: d.schema,
+    filters: d.filters,
+    continuous: d.continuous,
+    development: d.development,
+    photon: d.photon,
+    edition: d.edition,
+    channel: d.channel,
+    catalog: d.catalog,
+    notifications: d.notifications,
+    serverless: d.serverless,
+    deployment: d.deployment,
+    restart_window: d.restartWindow,
+    budget_policy_id: d.budgetPolicyId,
+    tags: d.tags,
+    event_log: d.eventLog,
+    root_path: d.rootPath,
+    environment: d.environment,
+    parent_path: d.parentPath,
+    usage_policy_id: d.usagePolicyId,
+    serverless_compute_id: d.serverlessComputeId,
+    testing: d.testing,
+  }));
+
+export const marshalPipelineStateSchema: z.ZodType = z.object({});
+
+export const marshalPipelineStateInfoSchema: z.ZodType = z
+  .object({
+    pipelineId: z.string().optional(),
+    state: z.string().optional(),
+    clusterId: z.string().optional(),
+    name: z.string().optional(),
+    latestUpdates: z
+      .array(z.lazy(() => marshalUpdateStateInfoSchema))
+      .optional(),
+    creatorUserName: z.string().optional(),
+    runAsUserName: z.string().optional(),
+    health: z.string().optional(),
+  })
+  .transform(d => ({
+    pipeline_id: d.pipelineId,
+    state: d.state,
+    cluster_id: d.clusterId,
+    name: d.name,
+    latest_updates: d.latestUpdates,
+    creator_user_name: d.creatorUserName,
+    run_as_user_name: d.runAsUserName,
+    health: d.health,
   }));
 
 export const marshalPipelineTestEnvironmentSchema: z.ZodType = z
@@ -7015,6 +7391,8 @@ export const marshalRewindSpecSchema: z.ZodType = z
     datasets: d.datasets,
   }));
 
+export const marshalScdTypeSchema: z.ZodType = z.object({});
+
 export const marshalSchemaRegistryConfigSchema: z.ZodType = z
   .object({
     confluentOptions: z
@@ -7027,6 +7405,28 @@ export const marshalSchemaRegistryConfigSchema: z.ZodType = z
     confluent_options: d.confluentOptions,
     protobuf_message_name: d.protobufMessageName,
     connection_name: d.connectionName,
+  }));
+
+export const marshalSequencingSchema: z.ZodType = z
+  .object({
+    dataPlaneId: z.lazy(() => marshalDataPlaneIdSchema).optional(),
+    controlPlaneSeqNo: z.bigint().optional(),
+  })
+  .transform(d => ({
+    data_plane_id: d.dataPlaneId,
+    control_plane_seq_no: d.controlPlaneSeqNo,
+  }));
+
+export const marshalSerializedExceptionSchema: z.ZodType = z
+  .object({
+    className: z.string().optional(),
+    message: z.string().optional(),
+    stack: z.array(z.lazy(() => marshalStackFrameSchema)).optional(),
+  })
+  .transform(d => ({
+    class_name: d.className,
+    message: d.message,
+    stack: d.stack,
   }));
 
 export const marshalSharepointOptionsSchema: z.ZodType = z
@@ -7096,6 +7496,20 @@ export const marshalSourceConfigSchema: z.ZodType = z
     }),
   }));
 
+export const marshalStackFrameSchema: z.ZodType = z
+  .object({
+    declaringClass: z.string().optional(),
+    methodName: z.string().optional(),
+    fileName: z.string().optional(),
+    lineNumber: z.number().optional(),
+  })
+  .transform(d => ({
+    declaring_class: d.declaringClass,
+    method_name: d.methodName,
+    file_name: d.fileName,
+    line_number: d.lineNumber,
+  }));
+
 export const marshalStartUpdateRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
@@ -7134,6 +7548,14 @@ export const marshalStartUpdateRequestSchema: z.ZodType = z
     replace_where_overrides: d.replaceWhereOverrides,
   }));
 
+export const marshalStartUpdateResponseSchema: z.ZodType = z
+  .object({
+    updateId: z.string().optional(),
+  })
+  .transform(d => ({
+    update_id: d.updateId,
+  }));
+
 export const marshalStopPipelineRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
@@ -7141,6 +7563,8 @@ export const marshalStopPipelineRequestSchema: z.ZodType = z
   .transform(d => ({
     pipeline_id: d.pipelineId,
   }));
+
+export const marshalStopPipelineResponseSchema: z.ZodType = z.object({});
 
 export const marshalTikTokAdsOptionsSchema: z.ZodType = z
   .object({
@@ -7221,6 +7645,75 @@ export const marshalTransformerSchema: z.ZodType = z
     }),
     input_column: d.inputColumn,
     output_column: d.outputColumn,
+  }));
+
+export const marshalTruncationSchema: z.ZodType = z
+  .object({
+    truncatedFields: z
+      .array(z.lazy(() => marshalTruncation_TruncationDetailSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    truncated_fields: d.truncatedFields,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalTruncation_TruncationDetailSchema: z.ZodType = z
+  .object({
+    fieldName: z.string().optional(),
+  })
+  .transform(d => ({
+    field_name: d.fieldName,
+  }));
+
+export const marshalUpdateInfoSchema: z.ZodType = z
+  .object({
+    pipelineId: z.string().optional(),
+    updateId: z.string().optional(),
+    config: z.lazy(() => marshalPipelineSpecSchema).optional(),
+    cause: z.string().optional(),
+    state: z.string().optional(),
+    clusterId: z.string().optional(),
+    creationTime: z.bigint().optional(),
+    fullRefresh: z.boolean().optional(),
+    refreshSelection: z.array(z.string()).optional(),
+    fullRefreshSelection: z.array(z.string()).optional(),
+    refreshSelectionByPath: z.array(z.string()).optional(),
+    fullRefreshSelectionByPath: z.array(z.string()).optional(),
+    validateOnly: z.boolean().optional(),
+    mode: z.string().optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
+    testOnly: z.boolean().optional(),
+  })
+  .transform(d => ({
+    pipeline_id: d.pipelineId,
+    update_id: d.updateId,
+    config: d.config,
+    cause: d.cause,
+    state: d.state,
+    cluster_id: d.clusterId,
+    creation_time: d.creationTime,
+    full_refresh: d.fullRefresh,
+    refresh_selection: d.refreshSelection,
+    full_refresh_selection: d.fullRefreshSelection,
+    refresh_selection_by_path: d.refreshSelectionByPath,
+    full_refresh_selection_by_path: d.fullRefreshSelectionByPath,
+    validate_only: d.validateOnly,
+    mode: d.mode,
+    parameters: d.parameters,
+    test_only: d.testOnly,
+  }));
+
+export const marshalUpdateStateInfoSchema: z.ZodType = z
+  .object({
+    updateId: z.string().optional(),
+    state: z.string().optional(),
+    creationTime: z.string().optional(),
+  })
+  .transform(d => ({
+    update_id: d.updateId,
+    state: d.state,
+    creation_time: d.creationTime,
   }));
 
 export const marshalZendeskSupportOptionsSchema: z.ZodType = z

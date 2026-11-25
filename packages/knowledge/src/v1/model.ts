@@ -382,6 +382,80 @@ export const marshalAssetLinkSchema: z.ZodType = z
     create_time: d.createTime,
   }));
 
+export const marshalCreateAssetLinkRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    assetLink: z.lazy(() => marshalAssetLinkSchema).optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    asset_link: d.assetLink,
+  }));
+
+export const marshalCreatePageRequestSchema: z.ZodType = z
+  .object({
+    page: z.lazy(() => marshalPageSchema).optional(),
+    requestId: z.string().optional(),
+  })
+  .transform(d => ({
+    page: d.page,
+    request_id: d.requestId,
+  }));
+
+export const marshalDeleteAssetLinkRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeletePageRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetAssetLinkRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetPageRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalListPagesRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    filter: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    filter: d.filter,
+  }));
+
+export const marshalListPagesResponseSchema: z.ZodType = z
+  .object({
+    pages: z.array(z.lazy(() => marshalPageSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    pages: d.pages,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalPageSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -412,6 +486,19 @@ export const marshalPageSchema: z.ZodType = z
     create_time: d.createTime,
     update_time: d.updateTime,
     owner_ids: d.ownerIds,
+  }));
+
+export const marshalUpdatePageRequestSchema: z.ZodType = z
+  .object({
+    page: z.lazy(() => marshalPageSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    page: d.page,
+    update_mask: d.updateMask,
   }));
 
 const pageFieldMaskSchema: FieldMaskSchema = {

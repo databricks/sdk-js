@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -125,8 +126,11 @@ export class VolumesClient {
     req: DeleteVolumeRequest,
     options?: CallOptions
   ): Promise<DeleteVolumeResponse> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/volumes/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/volumes/${encodePathVariable(req.fullNameArg)}`;
     let resp: DeleteVolumeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -160,8 +164,11 @@ export class VolumesClient {
     req: GetVolumeRequest,
     options?: CallOptions
   ): Promise<VolumeInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/volumes/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/volumes/${encodePathVariable(req.fullNameArg)}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
       params.append('include_browse', String(req.includeBrowse));
@@ -280,8 +287,11 @@ export class VolumesClient {
     req: UpdateVolumeRequest,
     options?: CallOptions
   ): Promise<VolumeInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/volumes/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/volumes/${encodePathVariable(req.fullNameArg)}`;
     const body = marshalRequest(req, marshalUpdateVolumeRequestSchema);
     let resp: VolumeInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

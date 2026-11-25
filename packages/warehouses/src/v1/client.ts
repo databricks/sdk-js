@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -119,10 +120,13 @@ export class WarehousesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.defaultWarehouseOverride,
-      marshalDefaultWarehouseOverrideSchema
-    );
+    const body =
+      req.defaultWarehouseOverride === undefined
+        ? 'null'
+        : marshalRequest(
+            req.defaultWarehouseOverride,
+            marshalDefaultWarehouseOverrideSchema
+          );
     let resp: DefaultWarehouseOverride | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -200,8 +204,11 @@ export class WarehousesClient {
     req: DeleteDefaultWarehouseOverrideRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/warehouses/v1/${req.name ?? ''}`;
+    const url = `${host}/api/warehouses/v1/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -222,8 +229,11 @@ export class WarehousesClient {
     req: DeleteWarehouseRequest,
     options?: CallOptions
   ): Promise<DeleteWarehouseResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/sql/warehouses/${encodePathVariable(req.id)}`;
     let resp: DeleteWarehouseResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -250,8 +260,11 @@ export class WarehousesClient {
     req: EditWarehouseRequest,
     options?: CallOptions
   ): Promise<EditWarehouseResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/warehouses/${req.id ?? ''}/edit`;
+    const url = `${host}/api/2.0/sql/warehouses/${encodePathVariable(req.id)}/edit`;
     const body = marshalRequest(req, marshalEditWarehouseRequestSchema);
     let resp: EditWarehouseResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -295,8 +308,11 @@ export class WarehousesClient {
     req: GetDefaultWarehouseOverrideRequest,
     options?: CallOptions
   ): Promise<DefaultWarehouseOverride> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/warehouses/v1/${req.name ?? ''}`;
+    const url = `${host}/api/warehouses/v1/${encodePathVariable(req.name)}`;
     let resp: DefaultWarehouseOverride | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -323,8 +339,11 @@ export class WarehousesClient {
     req: GetWarehouseRequest,
     options?: CallOptions
   ): Promise<GetWarehouseResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/sql/warehouses/${encodePathVariable(req.id)}`;
     let resp: GetWarehouseResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -534,8 +553,11 @@ export class WarehousesClient {
     req: StartRequest,
     options?: CallOptions
   ): Promise<StartResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/warehouses/${req.id ?? ''}/start`;
+    const url = `${host}/api/2.0/sql/warehouses/${encodePathVariable(req.id)}/start`;
     const body = marshalRequest(req, marshalStartRequestSchema);
     let resp: StartResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -575,8 +597,11 @@ export class WarehousesClient {
     req: StopRequest,
     options?: CallOptions
   ): Promise<StopResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/warehouses/${req.id ?? ''}/stop`;
+    const url = `${host}/api/2.0/sql/warehouses/${encodePathVariable(req.id)}/stop`;
     const body = marshalRequest(req, marshalStopRequestSchema);
     let resp: StopResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -620,7 +645,7 @@ export class WarehousesClient {
     options?: CallOptions
   ): Promise<DefaultWarehouseOverride> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/warehouses/v1/${req.defaultWarehouseOverride?.name ?? ''}`;
+    const url = `${host}/api/warehouses/v1/${encodePathVariable(req.defaultWarehouseOverride?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -630,10 +655,13 @@ export class WarehousesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.defaultWarehouseOverride,
-      marshalDefaultWarehouseOverrideSchema
-    );
+    const body =
+      req.defaultWarehouseOverride === undefined
+        ? 'null'
+        : marshalRequest(
+            req.defaultWarehouseOverride,
+            marshalDefaultWarehouseOverrideSchema
+          );
     let resp: DefaultWarehouseOverride | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

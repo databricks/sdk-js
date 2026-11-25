@@ -623,6 +623,28 @@ export const marshalColumnTagValueExtractionSchema: z.ZodType = z
     tag_key: d.tagKey,
   }));
 
+export const marshalCreatePolicyRequestSchema: z.ZodType = z
+  .object({
+    policyInfo: z.lazy(() => marshalPolicyInfoSchema).optional(),
+  })
+  .transform(d => ({
+    policy_info: d.policyInfo,
+  }));
+
+export const marshalDeletePolicyRequestSchema: z.ZodType = z
+  .object({
+    onSecurableType: z.string().optional(),
+    onSecurableFullname: z.string().optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    on_securable_type: d.onSecurableType,
+    on_securable_fullname: d.onSecurableFullname,
+    name: d.name,
+  }));
+
+export const marshalDeletePolicyResponseSchema: z.ZodType = z.object({});
+
 export const marshalDenyOptionsSchema: z.ZodType = z
   .object({
     privileges: z.array(z.string()).optional(),
@@ -673,6 +695,18 @@ export const marshalFunctionArgumentSchema: z.ZodType = z
     }),
   }));
 
+export const marshalGetPolicyRequestSchema: z.ZodType = z
+  .object({
+    onSecurableType: z.string().optional(),
+    onSecurableFullname: z.string().optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    on_securable_type: d.onSecurableType,
+    on_securable_fullname: d.onSecurableFullname,
+    name: d.name,
+  }));
+
 export const marshalGovernedTagReferenceSchema: z.ZodType = z
   .object({
     tagKey: z.string().optional(),
@@ -689,6 +723,32 @@ export const marshalGrantOptionsSchema: z.ZodType = z
   })
   .transform(d => ({
     privileges: d.privileges,
+  }));
+
+export const marshalListPoliciesRequestSchema: z.ZodType = z
+  .object({
+    onSecurableType: z.string().optional(),
+    onSecurableFullname: z.string().optional(),
+    includeInherited: z.boolean().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    on_securable_type: d.onSecurableType,
+    on_securable_fullname: d.onSecurableFullname,
+    include_inherited: d.includeInherited,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListPoliciesResponseSchema: z.ZodType = z
+  .object({
+    policies: z.array(z.lazy(() => marshalPolicyInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    policies: d.policies,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalMatchColumnSchema: z.ZodType = z
@@ -805,6 +865,25 @@ export const marshalTagValueExtractionSchema: z.ZodType = z
   })
   .transform(d => ({
     tag_key: d.tagKey,
+  }));
+
+export const marshalUpdatePolicyRequestSchema: z.ZodType = z
+  .object({
+    onSecurableType: z.string().optional(),
+    onSecurableFullname: z.string().optional(),
+    name: z.string().optional(),
+    policyInfo: z.lazy(() => marshalPolicyInfoSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    on_securable_type: d.onSecurableType,
+    on_securable_fullname: d.onSecurableFullname,
+    name: d.name,
+    policy_info: d.policyInfo,
+    update_mask: d.updateMask,
   }));
 
 const columnMaskOptionsFieldMaskSchema: FieldMaskSchema = {

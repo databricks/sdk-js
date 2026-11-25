@@ -319,6 +319,26 @@ export const unmarshalRCranLibrarySchema: z.ZodType<RCranLibrary> = z
 export const unmarshalUninstallLibrariesResponseSchema: z.ZodType<UninstallLibrariesResponse> =
   z.object({});
 
+export const marshalClusterLibraryStatusesSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+    libraryStatuses: z
+      .array(z.lazy(() => marshalLibraryFullStatusSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    cluster_id: d.clusterId,
+    library_statuses: d.libraryStatuses,
+  }));
+
+export const marshalClusterStatusRequestSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+  })
+  .transform(d => ({
+    cluster_id: d.clusterId,
+  }));
+
 export const marshalInstallLibrariesRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
@@ -328,6 +348,8 @@ export const marshalInstallLibrariesRequestSchema: z.ZodType = z
     cluster_id: d.clusterId,
     libraries: d.libraries,
   }));
+
+export const marshalInstallLibrariesResponseSchema: z.ZodType = z.object({});
 
 export const marshalLibrarySchema: z.ZodType = z
   .object({
@@ -360,6 +382,33 @@ export const marshalLibrarySchema: z.ZodType = z
     ...(d.lib?.$case === 'cran' && {cran: d.lib.cran}),
     ...(d.lib?.$case === 'whl' && {whl: d.lib.whl}),
     ...(d.lib?.$case === 'requirements' && {requirements: d.lib.requirements}),
+  }));
+
+export const marshalLibraryFullStatusSchema: z.ZodType = z
+  .object({
+    library: z.lazy(() => marshalLibrarySchema).optional(),
+    status: z.string().optional(),
+    messages: z.array(z.string()).optional(),
+    isLibraryForAllClusters: z.boolean().optional(),
+  })
+  .transform(d => ({
+    library: d.library,
+    status: d.status,
+    messages: d.messages,
+    is_library_for_all_clusters: d.isLibraryForAllClusters,
+  }));
+
+export const marshalListAllClusterLibraryStatusesRequestSchema: z.ZodType =
+  z.object({});
+
+export const marshalListAllClusterLibraryStatusesResponseSchema: z.ZodType = z
+  .object({
+    statuses: z
+      .array(z.lazy(() => marshalClusterLibraryStatusesSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    statuses: d.statuses,
   }));
 
 export const marshalMavenLibrarySchema: z.ZodType = z
@@ -403,3 +452,5 @@ export const marshalUninstallLibrariesRequestSchema: z.ZodType = z
     cluster_id: d.clusterId,
     libraries: d.libraries,
   }));
+
+export const marshalUninstallLibrariesResponseSchema: z.ZodType = z.object({});

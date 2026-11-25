@@ -1,5 +1,10 @@
 # Version changelog
 
+## Release v0.54.0 (2026-11-25)
+
+### Bug Fixes
+* `uploadFile` now throws `retries are unsupported for client-side streaming methods` before it sends anything when its call sets `retrier`, as the Go and Java SDKs do. It used to ignore that retrier. Remove `retrier` from the options of `uploadFile` calls.
+
 ## Release v0.53.1 (2026-11-23)
 
 ### Internal Changes

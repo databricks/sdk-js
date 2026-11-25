@@ -2301,6 +2301,9 @@ export const marshalCleanRoomSchema: z.ZodType = z
     enable_shared_output: d.enableSharedOutput,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoom_StatusSchema: z.ZodType = z.object({});
+
 export const marshalCleanRoomAssetSchema: z.ZodType = z
   .object({
     cleanRoomName: z.string().optional(),
@@ -2459,6 +2462,9 @@ export const marshalCleanRoomAsset_NotebookSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomAsset_StatusSchema: z.ZodType = z.object({});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalCleanRoomAsset_TableSchema: z.ZodType = z
   .object({
     columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
@@ -2597,6 +2603,38 @@ export const marshalCleanRoomNotebookReviewSchema: z.ZodType = z
     review_sub_reason: d.reviewSubReason,
   }));
 
+export const marshalCleanRoomNotebookTaskRunSchema: z.ZodType = z
+  .object({
+    notebookName: z.string().optional(),
+    startTime: z.bigint().optional(),
+    runDuration: z.bigint().optional(),
+    notebookJobRunState: z
+      .lazy(() => marshalCleanRoomTaskRunStateSchema)
+      .optional(),
+    collaboratorJobRunInfo: z
+      .lazy(() => marshalCollaboratorJobRunInfoSchema)
+      .optional(),
+    outputSchemaName: z.string().optional(),
+    outputSchemaExpirationTime: z.bigint().optional(),
+    notebookEtag: z.string().optional(),
+    notebookUpdatedAt: z.bigint().optional(),
+    sharedOutputSchemaName: z.string().optional(),
+    sharedOutputSchemaExpirationTime: z.bigint().optional(),
+  })
+  .transform(d => ({
+    notebook_name: d.notebookName,
+    start_time: d.startTime,
+    run_duration: d.runDuration,
+    notebook_job_run_state: d.notebookJobRunState,
+    collaborator_job_run_info: d.collaboratorJobRunInfo,
+    output_schema_name: d.outputSchemaName,
+    output_schema_expiration_time: d.outputSchemaExpirationTime,
+    notebook_etag: d.notebookEtag,
+    notebook_updated_at: d.notebookUpdatedAt,
+    shared_output_schema_name: d.sharedOutputSchemaName,
+    shared_output_schema_expiration_time: d.sharedOutputSchemaExpirationTime,
+  }));
+
 export const marshalCleanRoomOutputCatalogSchema: z.ZodType = z
   .object({
     status: z.string().optional(),
@@ -2635,6 +2673,87 @@ export const marshalCleanRoomRemoteDetailSchema: z.ZodType = z
     compliance_security_profile: d.complianceSecurityProfile,
     enable_shared_output: d.enableSharedOutput,
     package_provider_collaborator_alias: d.packageProviderCollaboratorAlias,
+  }));
+
+export const marshalCleanRoomTaskRunSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    taskType: z.string().optional(),
+    startTime: z.bigint().optional(),
+    runDuration: z.bigint().optional(),
+    taskRunState: z.lazy(() => marshalCleanRoomTaskRunStateSchema).optional(),
+    collaboratorJobRunInfo: z
+      .lazy(() => marshalCollaboratorJobRunInfoSchema)
+      .optional(),
+    outputInfo: z
+      .lazy(() => marshalCleanRoomTaskRun_OutputInfoSchema)
+      .optional(),
+    analysisDetails: z
+      .lazy(() => marshalCleanRoomTaskRun_CleanRoomTaskAnalysisDetailsSchema)
+      .optional(),
+    sharedOutputInfo: z
+      .lazy(() => marshalCleanRoomTaskRun_OutputInfoSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    task_type: d.taskType,
+    start_time: d.startTime,
+    run_duration: d.runDuration,
+    task_run_state: d.taskRunState,
+    collaborator_job_run_info: d.collaboratorJobRunInfo,
+    output_info: d.outputInfo,
+    analysis_details: d.analysisDetails,
+    shared_output_info: d.sharedOutputInfo,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomTaskRun_CleanRoomTaskAnalysisDetailsSchema: z.ZodType =
+  z
+    .object({
+      etag: z.string().optional(),
+      updatedAt: z.bigint().optional(),
+    })
+    .transform(d => ({
+      etag: d.etag,
+      updated_at: d.updatedAt,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomTaskRun_OutputInfoSchema: z.ZodType = z
+  .object({
+    outputSchemaName: z.string().optional(),
+    outputSchemaExpirationTime: z.bigint().optional(),
+  })
+  .transform(d => ({
+    output_schema_name: d.outputSchemaName,
+    output_schema_expiration_time: d.outputSchemaExpirationTime,
+  }));
+
+export const marshalCleanRoomTaskRunStateSchema: z.ZodType = z
+  .object({
+    lifeCycleState: z.string().optional(),
+    resultState: z.string().optional(),
+  })
+  .transform(d => ({
+    life_cycle_state: d.lifeCycleState,
+    result_state: d.resultState,
+  }));
+
+export const marshalCollaboratorJobRunInfoSchema: z.ZodType = z
+  .object({
+    collaboratorJobId: z.bigint().optional(),
+    collaboratorJobRunId: z.bigint().optional(),
+    collaboratorTaskRunId: z.bigint().optional(),
+    collaboratorWorkspaceId: z.bigint().optional(),
+    collaboratorAlias: z.string().optional(),
+  })
+  .transform(d => ({
+    collaborator_job_id: d.collaboratorJobId,
+    collaborator_job_run_id: d.collaboratorJobRunId,
+    collaborator_task_run_id: d.collaboratorTaskRunId,
+    collaborator_workspace_id: d.collaboratorWorkspaceId,
+    collaborator_alias: d.collaboratorAlias,
   }));
 
 export const marshalColumnInfoSchema: z.ZodType = z
@@ -2691,6 +2810,14 @@ export const marshalComplianceSecurityProfileSchema: z.ZodType = z
     compliance_standards: d.complianceStandards,
   }));
 
+export const marshalCreateCleanRoomAssetRequestSchema: z.ZodType = z
+  .object({
+    asset: z.lazy(() => marshalCleanRoomAssetSchema).optional(),
+  })
+  .transform(d => ({
+    asset: d.asset,
+  }));
+
 export const marshalCreateCleanRoomAssetReviewRequestSchema: z.ZodType = z
   .object({
     cleanRoomName: z.string().optional(),
@@ -2723,6 +2850,38 @@ export const marshalCreateCleanRoomAssetReviewRequestSchema: z.ZodType = z
     }),
   }));
 
+export const marshalCreateCleanRoomAssetReviewResponseSchema: z.ZodType = z
+  .object({
+    notebookReviews: z
+      .array(z.lazy(() => marshalCleanRoomNotebookReviewSchema))
+      .optional(),
+    jarAnalysisReviews: z
+      .array(z.lazy(() => marshalCleanRoomJarAnalysisReviewSchema))
+      .optional(),
+    reviewState: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('notebookReviewState'),
+          notebookReviewState: z.string(),
+        }),
+        z.object({
+          $case: z.literal('jarAnalysisReviewState'),
+          jarAnalysisReviewState: z.string(),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    notebook_reviews: d.notebookReviews,
+    jar_analysis_reviews: d.jarAnalysisReviews,
+    ...(d.reviewState?.$case === 'notebookReviewState' && {
+      notebook_review_state: d.reviewState.notebookReviewState,
+    }),
+    ...(d.reviewState?.$case === 'jarAnalysisReviewState' && {
+      jar_analysis_review_state: d.reviewState.jarAnalysisReviewState,
+    }),
+  }));
+
 export const marshalCreateCleanRoomAutoApprovalRuleRequestSchema: z.ZodType = z
   .object({
     autoApprovalRule: z
@@ -2731,6 +2890,66 @@ export const marshalCreateCleanRoomAutoApprovalRuleRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     auto_approval_rule: d.autoApprovalRule,
+  }));
+
+export const marshalCreateCleanRoomOutputCatalogRequestSchema: z.ZodType = z
+  .object({
+    cleanRoomName: z.string().optional(),
+    outputCatalog: z.lazy(() => marshalCleanRoomOutputCatalogSchema).optional(),
+  })
+  .transform(d => ({
+    clean_room_name: d.cleanRoomName,
+    output_catalog: d.outputCatalog,
+  }));
+
+export const marshalCreateCleanRoomOutputCatalogResponseSchema: z.ZodType = z
+  .object({
+    outputCatalog: z.lazy(() => marshalCleanRoomOutputCatalogSchema).optional(),
+  })
+  .transform(d => ({
+    output_catalog: d.outputCatalog,
+  }));
+
+export const marshalCreateCleanRoomRequestSchema: z.ZodType = z
+  .object({
+    cleanRoom: z.lazy(() => marshalCleanRoomSchema).optional(),
+  })
+  .transform(d => ({
+    clean_room: d.cleanRoom,
+  }));
+
+export const marshalDeleteCleanRoomAssetRequestSchema: z.ZodType = z
+  .object({
+    cleanRoomName: z.string().optional(),
+    assetType: z.string().optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    clean_room_name: d.cleanRoomName,
+    asset_type: d.assetType,
+    name: d.name,
+  }));
+
+export const marshalDeleteCleanRoomAssetResponseSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalDeleteCleanRoomAutoApprovalRuleRequestSchema: z.ZodType = z
+  .object({
+    cleanRoomName: z.string().optional(),
+    ruleId: z.string().optional(),
+  })
+  .transform(d => ({
+    clean_room_name: d.cleanRoomName,
+    rule_id: d.ruleId,
+  }));
+
+export const marshalDeleteCleanRoomRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalEgressNetworkPolicySchema: z.ZodType = z
@@ -2828,6 +3047,50 @@ export const marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationS
       azure_container: d.azureContainer,
     }));
 
+export const marshalGetCleanRoomAssetRequestSchema: z.ZodType = z
+  .object({
+    cleanRoomName: z.string().optional(),
+    assetType: z.string().optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    clean_room_name: d.cleanRoomName,
+    asset_type: d.assetType,
+    name: d.name,
+  }));
+
+export const marshalGetCleanRoomAssetRevisionRequestSchema: z.ZodType = z
+  .object({
+    cleanRoomName: z.string().optional(),
+    name: z.string().optional(),
+    assetType: z.string().optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    clean_room_name: d.cleanRoomName,
+    name: d.name,
+    asset_type: d.assetType,
+    etag: d.etag,
+  }));
+
+export const marshalGetCleanRoomAutoApprovalRuleRequestSchema: z.ZodType = z
+  .object({
+    cleanRoomName: z.string().optional(),
+    ruleId: z.string().optional(),
+  })
+  .transform(d => ({
+    clean_room_name: d.cleanRoomName,
+    rule_id: d.ruleId,
+  }));
+
+export const marshalGetCleanRoomRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalJarAnalysisVersionReviewSchema: z.ZodType = z
   .object({
     etag: z.string().optional(),
@@ -2838,6 +3101,148 @@ export const marshalJarAnalysisVersionReviewSchema: z.ZodType = z
     etag: d.etag,
     review_state: d.reviewState,
     comment: d.comment,
+  }));
+
+export const marshalListCleanRoomAssetRevisionsRequestSchema: z.ZodType = z
+  .object({
+    cleanRoomName: z.string().optional(),
+    name: z.string().optional(),
+    assetType: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    clean_room_name: d.cleanRoomName,
+    name: d.name,
+    asset_type: d.assetType,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListCleanRoomAssetRevisionsResponseSchema: z.ZodType = z
+  .object({
+    revisions: z.array(z.lazy(() => marshalCleanRoomAssetSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    revisions: d.revisions,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListCleanRoomAssetsRequestSchema: z.ZodType = z
+  .object({
+    cleanRoomName: z.string().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    clean_room_name: d.cleanRoomName,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListCleanRoomAssetsResponseSchema: z.ZodType = z
+  .object({
+    assets: z.array(z.lazy(() => marshalCleanRoomAssetSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    assets: d.assets,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListCleanRoomAutoApprovalRulesRequestSchema: z.ZodType = z
+  .object({
+    cleanRoomName: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    clean_room_name: d.cleanRoomName,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListCleanRoomAutoApprovalRulesResponseSchema: z.ZodType = z
+  .object({
+    rules: z
+      .array(z.lazy(() => marshalCleanRoomAutoApprovalRuleSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    rules: d.rules,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListCleanRoomNotebookTaskRunsRequestSchema: z.ZodType = z
+  .object({
+    cleanRoomName: z.string().optional(),
+    notebookName: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    clean_room_name: d.cleanRoomName,
+    notebook_name: d.notebookName,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListCleanRoomNotebookTaskRunsResponseSchema: z.ZodType = z
+  .object({
+    runs: z
+      .array(z.lazy(() => marshalCleanRoomNotebookTaskRunSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    runs: d.runs,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListCleanRoomTaskRunsRequestSchema: z.ZodType = z
+  .object({
+    cleanRoomName: z.string().optional(),
+    name: z.string().optional(),
+    taskType: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    clean_room_name: d.cleanRoomName,
+    name: d.name,
+    task_type: d.taskType,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListCleanRoomTaskRunsResponseSchema: z.ZodType = z
+  .object({
+    runs: z.array(z.lazy(() => marshalCleanRoomTaskRunSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    runs: d.runs,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListCleanRoomsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListCleanRoomsResponseSchema: z.ZodType = z
+  .object({
+    cleanRooms: z.array(z.lazy(() => marshalCleanRoomSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    clean_rooms: d.cleanRooms,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalNotebookVersionReviewSchema: z.ZodType = z
@@ -2851,6 +3256,8 @@ export const marshalNotebookVersionReviewSchema: z.ZodType = z
     review_state: d.reviewState,
     comment: d.comment,
   }));
+
+export const marshalPartitionSpecificationSchema: z.ZodType = z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalPartitionSpecification_PartitionSchema: z.ZodType = z
@@ -2895,6 +3302,26 @@ export const marshalPolicyFunctionArgumentSchema: z.ZodType = z
   .transform(d => ({
     ...(d.arg?.$case === 'column' && {column: d.arg.column}),
     ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
+  }));
+
+export const marshalUpdateCleanRoomAssetRequestSchema: z.ZodType = z
+  .object({
+    cleanRoomName: z.string().optional(),
+    asset: z.lazy(() => marshalCleanRoomAssetSchema).optional(),
+  })
+  .transform(d => ({
+    clean_room_name: d.cleanRoomName,
+    asset: d.asset,
+  }));
+
+export const marshalUpdateCleanRoomAutoApprovalRuleRequestSchema: z.ZodType = z
+  .object({
+    autoApprovalRule: z
+      .lazy(() => marshalCleanRoomAutoApprovalRuleSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    auto_approval_rule: d.autoApprovalRule,
   }));
 
 export const marshalUpdateCleanRoomRequestSchema: z.ZodType = z

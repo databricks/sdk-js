@@ -107,10 +107,66 @@ export const marshalCreateStorageConfigurationRequestSchema: z.ZodType = z
     role_arn: d.roleArn,
   }));
 
+export const marshalDeleteStorageConfigurationRequestSchema: z.ZodType = z
+  .object({
+    storageConfigurationId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    storage_configuration_id: d.storageConfigurationId,
+    account_id: d.accountId,
+  }));
+
+export const marshalGetStorageConfigurationRequestSchema: z.ZodType = z
+  .object({
+    storageConfigurationId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    storage_configuration_id: d.storageConfigurationId,
+    account_id: d.accountId,
+  }));
+
+export const marshalListStorageConfigurationRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+  }));
+
+export const marshalListStorageConfigurationResponseSchema: z.ZodType = z
+  .object({
+    storageConfigurations: z
+      .array(z.lazy(() => marshalStorageConfigurationSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    storage_configurations: d.storageConfigurations,
+  }));
+
 export const marshalRootBucketInfoSchema: z.ZodType = z
   .object({
     bucketName: z.string().optional(),
   })
   .transform(d => ({
     bucket_name: d.bucketName,
+  }));
+
+export const marshalStorageConfigurationSchema: z.ZodType = z
+  .object({
+    storageConfigurationId: z.string().optional(),
+    accountId: z.string().optional(),
+    rootBucketInfo: z.lazy(() => marshalRootBucketInfoSchema).optional(),
+    storageConfigurationName: z.string().optional(),
+    creationTime: z.bigint().optional(),
+    roleArn: z.string().optional(),
+  })
+  .transform(d => ({
+    storage_configuration_id: d.storageConfigurationId,
+    account_id: d.accountId,
+    root_bucket_info: d.rootBucketInfo,
+    storage_configuration_name: d.storageConfigurationName,
+    creation_time: d.creationTime,
+    role_arn: d.roleArn,
   }));

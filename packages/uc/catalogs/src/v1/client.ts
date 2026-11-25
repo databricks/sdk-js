@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -100,8 +101,11 @@ export class CatalogsClient {
     req: DeleteCatalogRequest,
     options?: CallOptions
   ): Promise<DeleteCatalogResponse> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/catalogs/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/catalogs/${encodePathVariable(req.nameArg)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -137,8 +141,11 @@ export class CatalogsClient {
     req: GetCatalogRequest,
     options?: CallOptions
   ): Promise<CatalogInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/catalogs/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/catalogs/${encodePathVariable(req.nameArg)}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
       params.append('include_browse', String(req.includeBrowse));
@@ -244,8 +251,11 @@ export class CatalogsClient {
     req: UpdateCatalogRequest,
     options?: CallOptions
   ): Promise<CatalogInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/catalogs/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/catalogs/${encodePathVariable(req.nameArg)}`;
     const body = marshalRequest(req, marshalUpdateCatalogRequestSchema);
     let resp: CatalogInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

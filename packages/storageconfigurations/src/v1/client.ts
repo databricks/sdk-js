@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -68,7 +69,7 @@ export class StorageConfigurationsClient {
     options?: CallOptions
   ): Promise<StorageConfiguration> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/storage-configurations`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/storage-configurations`;
     const body = marshalRequest(
       req,
       marshalCreateStorageConfigurationRequestSchema
@@ -96,8 +97,11 @@ export class StorageConfigurationsClient {
     req: DeleteStorageConfigurationRequest,
     options?: CallOptions
   ): Promise<StorageConfiguration> {
+    if (req.storageConfigurationId === undefined) {
+      throw new Error('path parameter "storage_configuration_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/storage-configurations/${req.storageConfigurationId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/storage-configurations/${encodePathVariable(req.storageConfigurationId)}`;
     let resp: StorageConfiguration | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -121,8 +125,11 @@ export class StorageConfigurationsClient {
     req: GetStorageConfigurationRequest,
     options?: CallOptions
   ): Promise<StorageConfiguration> {
+    if (req.storageConfigurationId === undefined) {
+      throw new Error('path parameter "storage_configuration_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/storage-configurations/${req.storageConfigurationId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/storage-configurations/${encodePathVariable(req.storageConfigurationId)}`;
     let resp: StorageConfiguration | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -147,7 +154,7 @@ export class StorageConfigurationsClient {
     options?: CallOptions
   ): Promise<ListStorageConfigurationResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/storage-configurations`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/storage-configurations`;
     let resp: ListStorageConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();

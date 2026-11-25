@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   parseResponse,
@@ -68,8 +69,17 @@ export class ResourceQuotasClient {
     req: GetQuotaRequest,
     options?: CallOptions
   ): Promise<GetQuotaResponse> {
+    if (req.parentSecurableType === undefined) {
+      throw new Error('path parameter "parent_securable_type" is required');
+    }
+    if (req.parentFullName === undefined) {
+      throw new Error('path parameter "parent_full_name" is required');
+    }
+    if (req.quotaName === undefined) {
+      throw new Error('path parameter "quota_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/resource-quotas/${req.parentSecurableType ?? ''}/${req.parentFullName ?? ''}/${req.quotaName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/resource-quotas/${encodePathVariable(req.parentSecurableType)}/${encodePathVariable(req.parentFullName)}/${encodePathVariable(req.quotaName)}`;
     let resp: GetQuotaResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();

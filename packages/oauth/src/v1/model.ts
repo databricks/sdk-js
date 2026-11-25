@@ -577,12 +577,104 @@ export const marshalCreatePublishedOAuthAppIntegrationRequestSchema: z.ZodType =
       token_access_policy: d.tokenAccessPolicy,
     }));
 
+export const marshalCreatePublishedOAuthAppIntegrationResponseSchema: z.ZodType =
+  z
+    .object({
+      integrationId: z.string().optional(),
+    })
+    .transform(d => ({
+      integration_id: d.integrationId,
+    }));
+
 export const marshalCredentialPartitionIdSchema: z.ZodType = z
   .object({
     workspaceId: z.bigint().optional(),
   })
   .transform(d => ({
     workspaceId: d.workspaceId,
+  }));
+
+export const marshalCustomOAuthAppIntegrationSchema: z.ZodType = z
+  .object({
+    integrationId: z.string().optional(),
+    clientId: z.string().optional(),
+    redirectUrls: z.array(z.string()).optional(),
+    name: z.string().optional(),
+    confidential: z.boolean().optional(),
+    tokenAccessPolicy: z.lazy(() => marshalTokenAccessPolicySchema).optional(),
+    scopes: z.array(z.string()).optional(),
+    createdBy: z.bigint().optional(),
+    createTime: z.string().optional(),
+    creatorUsername: z.string().optional(),
+    userAuthorizedScopes: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    integration_id: d.integrationId,
+    client_id: d.clientId,
+    redirect_urls: d.redirectUrls,
+    name: d.name,
+    confidential: d.confidential,
+    token_access_policy: d.tokenAccessPolicy,
+    scopes: d.scopes,
+    created_by: d.createdBy,
+    create_time: d.createTime,
+    creator_username: d.creatorUsername,
+    user_authorized_scopes: d.userAuthorizedScopes,
+  }));
+
+export const marshalCustomOAuthAppIntegrationSecretSchema: z.ZodType = z
+  .object({
+    integrationId: z.string().optional(),
+    clientId: z.string().optional(),
+    clientSecret: z.string().optional(),
+  })
+  .transform(d => ({
+    integration_id: d.integrationId,
+    client_id: d.clientId,
+    client_secret: d.clientSecret,
+  }));
+
+export const marshalDeleteCustomOAuthAppIntegrationRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    integrationId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    integration_id: d.integrationId,
+  }));
+
+export const marshalDeleteCustomOAuthAppIntegrationResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalDeletePublishedOAuthAppIntegrationRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      integrationId: z.string().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      integration_id: d.integrationId,
+    }));
+
+export const marshalDeletePublishedOAuthAppIntegrationResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalExchangeTokenSchema: z.ZodType = z
+  .object({
+    tokenType: z.string().optional(),
+    credential: z.string().optional(),
+    scopes: z.array(z.string()).optional(),
+    credentialEolTime: z.bigint().optional(),
+    ownerId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    tokenType: d.tokenType,
+    credential: d.credential,
+    scopes: d.scopes,
+    credentialEolTime: d.credentialEolTime,
+    ownerId: d.ownerId,
   }));
 
 export const marshalExchangeTokenExchangeRequestSchema: z.ZodType = z
@@ -595,6 +687,147 @@ export const marshalExchangeTokenExchangeRequestSchema: z.ZodType = z
     partitionId: d.partitionId,
     tokenType: d.tokenType,
     scopes: d.scopes,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalExchangeTokenExchangeRequest_ResponseSchema: z.ZodType = z
+  .object({
+    values: z.array(z.lazy(() => marshalExchangeTokenSchema)).optional(),
+  })
+  .transform(d => ({
+    values: d.values,
+  }));
+
+export const marshalGetCustomOAuthAppIntegrationRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    integrationId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    integration_id: d.integrationId,
+  }));
+
+export const marshalGetPublishedOAuthAppIntegrationRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    integrationId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    integration_id: d.integrationId,
+  }));
+
+export const marshalListCustomOAuthAppIntegrationsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+    includeCreatorUsername: z.boolean().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+    include_creator_username: d.includeCreatorUsername,
+  }));
+
+export const marshalListCustomOAuthAppIntegrationsResponseSchema: z.ZodType = z
+  .object({
+    apps: z
+      .array(z.lazy(() => marshalCustomOAuthAppIntegrationSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    apps: d.apps,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListPublishedOAuthAppIntegrationsRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      pageToken: z.string().optional(),
+      pageSize: z.number().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      page_token: d.pageToken,
+      page_size: d.pageSize,
+    }));
+
+export const marshalListPublishedOAuthAppIntegrationsResponseSchema: z.ZodType =
+  z
+    .object({
+      apps: z
+        .array(z.lazy(() => marshalPublishedOAuthAppIntegrationSchema))
+        .optional(),
+      nextPageToken: z.string().optional(),
+    })
+    .transform(d => ({
+      apps: d.apps,
+      next_page_token: d.nextPageToken,
+    }));
+
+export const marshalListPublishedOAuthAppsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListPublishedOAuthAppsResponseSchema: z.ZodType = z
+  .object({
+    apps: z.array(z.lazy(() => marshalPublishedOAuthAppSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    apps: d.apps,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalPublishedOAuthAppSchema: z.ZodType = z
+  .object({
+    appId: z.string().optional(),
+    clientId: z.string().optional(),
+    name: z.string().optional(),
+    description: z.string().optional(),
+    isConfidentialClient: z.boolean().optional(),
+    redirectUrls: z.array(z.string()).optional(),
+    scopes: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    app_id: d.appId,
+    client_id: d.clientId,
+    name: d.name,
+    description: d.description,
+    is_confidential_client: d.isConfidentialClient,
+    redirect_urls: d.redirectUrls,
+    scopes: d.scopes,
+  }));
+
+export const marshalPublishedOAuthAppIntegrationSchema: z.ZodType = z
+  .object({
+    appId: z.string().optional(),
+    integrationId: z.string().optional(),
+    name: z.string().optional(),
+    tokenAccessPolicy: z.lazy(() => marshalTokenAccessPolicySchema).optional(),
+    createdBy: z.bigint().optional(),
+    createTime: z.string().optional(),
+  })
+  .transform(d => ({
+    app_id: d.appId,
+    integration_id: d.integrationId,
+    name: d.name,
+    token_access_policy: d.tokenAccessPolicy,
+    created_by: d.createdBy,
+    create_time: d.createTime,
   }));
 
 export const marshalTokenAccessPolicySchema: z.ZodType = z
@@ -629,6 +862,9 @@ export const marshalUpdateCustomOAuthAppIntegrationRequestSchema: z.ZodType = z
     user_authorized_scopes: d.userAuthorizedScopes,
   }));
 
+export const marshalUpdateCustomOAuthAppIntegrationResponseSchema: z.ZodType =
+  z.object({});
+
 export const marshalUpdatePublishedOAuthAppIntegrationRequestSchema: z.ZodType =
   z
     .object({
@@ -643,3 +879,6 @@ export const marshalUpdatePublishedOAuthAppIntegrationRequestSchema: z.ZodType =
       integration_id: d.integrationId,
       token_access_policy: d.tokenAccessPolicy,
     }));
+
+export const marshalUpdatePublishedOAuthAppIntegrationResponseSchema: z.ZodType =
+  z.object({});

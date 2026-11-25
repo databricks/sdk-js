@@ -318,6 +318,16 @@ export const unmarshalSecretScopeSchema: z.ZodType<SecretScope> = z
     keyvaultMetadata: d.keyvault_metadata,
   }));
 
+export const marshalAclItemSchema: z.ZodType = z
+  .object({
+    principal: z.string().optional(),
+    permission: z.string().optional(),
+  })
+  .transform(d => ({
+    principal: d.principal,
+    permission: d.permission,
+  }));
+
 export const marshalAzureKeyVaultSecretScopeMetadataSchema: z.ZodType = z
   .object({
     resourceId: z.string().optional(),
@@ -344,6 +354,8 @@ export const marshalCreateScopeRequestSchema: z.ZodType = z
     backend_azure_keyvault: d.backendAzureKeyvault,
   }));
 
+export const marshalCreateScopeResponseSchema: z.ZodType = z.object({});
+
 export const marshalDeleteAclRequestSchema: z.ZodType = z
   .object({
     scope: z.string().optional(),
@@ -354,6 +366,8 @@ export const marshalDeleteAclRequestSchema: z.ZodType = z
     principal: d.principal,
   }));
 
+export const marshalDeleteAclResponseSchema: z.ZodType = z.object({});
+
 export const marshalDeleteScopeRequestSchema: z.ZodType = z
   .object({
     scope: z.string().optional(),
@@ -361,6 +375,8 @@ export const marshalDeleteScopeRequestSchema: z.ZodType = z
   .transform(d => ({
     scope: d.scope,
   }));
+
+export const marshalDeleteScopeResponseSchema: z.ZodType = z.object({});
 
 export const marshalDeleteSecretRequestSchema: z.ZodType = z
   .object({
@@ -370,6 +386,85 @@ export const marshalDeleteSecretRequestSchema: z.ZodType = z
   .transform(d => ({
     scope: d.scope,
     key: d.key,
+  }));
+
+export const marshalDeleteSecretResponseSchema: z.ZodType = z.object({});
+
+export const marshalGetAclRequestSchema: z.ZodType = z
+  .object({
+    scope: z.string().optional(),
+    principal: z.string().optional(),
+  })
+  .transform(d => ({
+    scope: d.scope,
+    principal: d.principal,
+  }));
+
+export const marshalGetSecretRequestSchema: z.ZodType = z
+  .object({
+    scope: z.string().optional(),
+    key: z.string().optional(),
+  })
+  .transform(d => ({
+    scope: d.scope,
+    key: d.key,
+  }));
+
+export const marshalGetSecretResponseSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z
+      .any()
+      .transform((d: Uint8Array) =>
+        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalListAclsRequestSchema: z.ZodType = z
+  .object({
+    scope: z.string().optional(),
+  })
+  .transform(d => ({
+    scope: d.scope,
+  }));
+
+export const marshalListAclsResponseSchema: z.ZodType = z
+  .object({
+    items: z.array(z.lazy(() => marshalAclItemSchema)).optional(),
+  })
+  .transform(d => ({
+    items: d.items,
+  }));
+
+export const marshalListScopesRequestSchema: z.ZodType = z.object({});
+
+export const marshalListScopesResponseSchema: z.ZodType = z
+  .object({
+    scopes: z.array(z.lazy(() => marshalSecretScopeSchema)).optional(),
+  })
+  .transform(d => ({
+    scopes: d.scopes,
+  }));
+
+export const marshalListSecretsRequestSchema: z.ZodType = z
+  .object({
+    scope: z.string().optional(),
+  })
+  .transform(d => ({
+    scope: d.scope,
+  }));
+
+export const marshalListSecretsResponseSchema: z.ZodType = z
+  .object({
+    secrets: z.array(z.lazy(() => marshalSecretMetadataSchema)).optional(),
+  })
+  .transform(d => ({
+    secrets: d.secrets,
   }));
 
 export const marshalPutAclRequestSchema: z.ZodType = z
@@ -383,6 +478,8 @@ export const marshalPutAclRequestSchema: z.ZodType = z
     principal: d.principal,
     permission: d.permission,
   }));
+
+export const marshalPutAclResponseSchema: z.ZodType = z.object({});
 
 export const marshalPutSecretRequestSchema: z.ZodType = z
   .object({
@@ -409,4 +506,30 @@ export const marshalPutSecretRequestSchema: z.ZodType = z
       string_value: d.value.stringValue,
     }),
     ...(d.value?.$case === 'bytesValue' && {bytes_value: d.value.bytesValue}),
+  }));
+
+export const marshalPutSecretResponseSchema: z.ZodType = z.object({});
+
+export const marshalSecretMetadataSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+  }));
+
+export const marshalSecretScopeSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    backendType: z.string().optional(),
+    keyvaultMetadata: z
+      .lazy(() => marshalAzureKeyVaultSecretScopeMetadataSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    backend_type: d.backendType,
+    keyvault_metadata: d.keyvaultMetadata,
   }));

@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -127,7 +128,10 @@ export class CleanRoomsClient {
   ): Promise<CleanRoom> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/clean-rooms`;
-    const body = marshalRequest(req.cleanRoom, marshalCleanRoomSchema);
+    const body =
+      req.cleanRoom === undefined
+        ? 'null'
+        : marshalRequest(req.cleanRoom, marshalCleanRoomSchema);
     let resp: CleanRoom | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -182,8 +186,11 @@ export class CleanRoomsClient {
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.asset?.cleanRoomName ?? ''}/assets`;
-    const body = marshalRequest(req.asset, marshalCleanRoomAssetSchema);
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.asset?.cleanRoomName ?? '')}/assets`;
+    const body =
+      req.asset === undefined
+        ? 'null'
+        : marshalRequest(req.asset, marshalCleanRoomAssetSchema);
     let resp: CleanRoomAsset | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -210,8 +217,14 @@ export class CleanRoomsClient {
     req: CreateCleanRoomAssetReviewRequest,
     options?: CallOptions
   ): Promise<CreateCleanRoomAssetReviewResponse> {
+    if (req.cleanRoomName === undefined) {
+      throw new Error('path parameter "clean_room_name" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/reviews`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName)}/assets/${encodePathVariable(req.assetType ?? '')}/${encodePathVariable(req.name)}/reviews`;
     const body = marshalRequest(
       req,
       marshalCreateCleanRoomAssetReviewRequestSchema
@@ -246,7 +259,7 @@ export class CleanRoomsClient {
     options?: CallOptions
   ): Promise<CleanRoomAutoApprovalRule> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.autoApprovalRule?.cleanRoomName ?? ''}/auto-approval-rules`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.autoApprovalRule?.cleanRoomName ?? '')}/auto-approval-rules`;
     const body = marshalRequest(
       req,
       marshalCreateCleanRoomAutoApprovalRuleRequestSchema
@@ -282,12 +295,18 @@ export class CleanRoomsClient {
     req: CreateCleanRoomOutputCatalogRequest,
     options?: CallOptions
   ): Promise<CreateCleanRoomOutputCatalogResponse> {
+    if (req.cleanRoomName === undefined) {
+      throw new Error('path parameter "clean_room_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/output-catalogs`;
-    const body = marshalRequest(
-      req.outputCatalog,
-      marshalCleanRoomOutputCatalogSchema
-    );
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName)}/output-catalogs`;
+    const body =
+      req.outputCatalog === undefined
+        ? 'null'
+        : marshalRequest(
+            req.outputCatalog,
+            marshalCleanRoomOutputCatalogSchema
+          );
     let resp: CreateCleanRoomOutputCatalogResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -322,8 +341,11 @@ export class CleanRoomsClient {
     req: DeleteCleanRoomRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -344,8 +366,14 @@ export class CleanRoomsClient {
     req: DeleteCleanRoomAssetRequest,
     options?: CallOptions
   ): Promise<DeleteCleanRoomAssetResponse> {
+    if (req.cleanRoomName === undefined) {
+      throw new Error('path parameter "clean_room_name" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName)}/assets/${encodePathVariable(req.assetType ?? '')}/${encodePathVariable(req.name)}`;
     let resp: DeleteCleanRoomAssetResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -375,8 +403,14 @@ export class CleanRoomsClient {
     req: DeleteCleanRoomAutoApprovalRuleRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.cleanRoomName === undefined) {
+      throw new Error('path parameter "clean_room_name" is required');
+    }
+    if (req.ruleId === undefined) {
+      throw new Error('path parameter "rule_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/auto-approval-rules/${req.ruleId ?? ''}`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName)}/auto-approval-rules/${encodePathVariable(req.ruleId)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -397,8 +431,11 @@ export class CleanRoomsClient {
     req: GetCleanRoomRequest,
     options?: CallOptions
   ): Promise<CleanRoom> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.name)}`;
     let resp: CleanRoom | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -425,8 +462,14 @@ export class CleanRoomsClient {
     req: GetCleanRoomAssetRequest,
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
+    if (req.cleanRoomName === undefined) {
+      throw new Error('path parameter "clean_room_name" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName)}/assets/${encodePathVariable(req.assetType ?? '')}/${encodePathVariable(req.name)}`;
     let resp: CleanRoomAsset | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -453,8 +496,14 @@ export class CleanRoomsClient {
     req: GetCleanRoomAssetRevisionRequest,
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
+    if (req.cleanRoomName === undefined) {
+      throw new Error('path parameter "clean_room_name" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/revisions/${req.etag ?? ''}`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName)}/assets/${encodePathVariable(req.assetType ?? '')}/${encodePathVariable(req.name)}/revisions/${encodePathVariable(req.etag ?? '')}`;
     let resp: CleanRoomAsset | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -481,8 +530,14 @@ export class CleanRoomsClient {
     req: GetCleanRoomAutoApprovalRuleRequest,
     options?: CallOptions
   ): Promise<CleanRoomAutoApprovalRule> {
+    if (req.cleanRoomName === undefined) {
+      throw new Error('path parameter "clean_room_name" is required');
+    }
+    if (req.ruleId === undefined) {
+      throw new Error('path parameter "rule_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/auto-approval-rules/${req.ruleId ?? ''}`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName)}/auto-approval-rules/${encodePathVariable(req.ruleId)}`;
     let resp: CleanRoomAutoApprovalRule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -509,8 +564,14 @@ export class CleanRoomsClient {
     req: ListCleanRoomAssetRevisionsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomAssetRevisionsResponse> {
+    if (req.cleanRoomName === undefined) {
+      throw new Error('path parameter "clean_room_name" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/revisions`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName)}/assets/${encodePathVariable(req.assetType ?? '')}/${encodePathVariable(req.name)}/revisions`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -569,8 +630,11 @@ export class CleanRoomsClient {
     req: ListCleanRoomAssetsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomAssetsResponse> {
+    if (req.cleanRoomName === undefined) {
+      throw new Error('path parameter "clean_room_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName)}/assets`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -623,8 +687,11 @@ export class CleanRoomsClient {
     req: ListCleanRoomAutoApprovalRulesRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomAutoApprovalRulesResponse> {
+    if (req.cleanRoomName === undefined) {
+      throw new Error('path parameter "clean_room_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/auto-approval-rules`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName)}/auto-approval-rules`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -680,8 +747,11 @@ export class CleanRoomsClient {
     req: ListCleanRoomNotebookTaskRunsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomNotebookTaskRunsResponse> {
+    if (req.cleanRoomName === undefined) {
+      throw new Error('path parameter "clean_room_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/runs`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName)}/runs`;
     const params = new URLSearchParams();
     if (req.notebookName !== undefined) {
       params.append('notebook_name', req.notebookName);
@@ -740,8 +810,11 @@ export class CleanRoomsClient {
     req: ListCleanRoomTaskRunsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomTaskRunsResponse> {
+    if (req.cleanRoomName === undefined) {
+      throw new Error('path parameter "clean_room_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/task-runs`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName)}/task-runs`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -866,8 +939,11 @@ export class CleanRoomsClient {
     req: UpdateCleanRoomRequest,
     options?: CallOptions
   ): Promise<CleanRoom> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.name)}`;
     const body = marshalRequest(req, marshalUpdateCleanRoomRequestSchema);
     let resp: CleanRoom | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -898,9 +974,18 @@ export class CleanRoomsClient {
     req: UpdateCleanRoomAssetRequest,
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
+    if (req.asset === undefined) {
+      throw new Error('path parameter "asset_type" is required');
+    }
+    if (req.asset?.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.asset?.assetType ?? ''}/${req.asset?.name ?? ''}`;
-    const body = marshalRequest(req.asset, marshalCleanRoomAssetSchema);
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.cleanRoomName ?? '')}/assets/${encodePathVariable(req.asset?.assetType ?? '')}/${encodePathVariable(req.asset?.name)}`;
+    const body =
+      req.asset === undefined
+        ? 'null'
+        : marshalRequest(req.asset, marshalCleanRoomAssetSchema);
     let resp: CleanRoomAsset | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -928,11 +1013,14 @@ export class CleanRoomsClient {
     options?: CallOptions
   ): Promise<CleanRoomAutoApprovalRule> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/clean-rooms/${req.autoApprovalRule?.cleanRoomName ?? ''}/auto-approval-rules/${req.autoApprovalRule?.ruleId ?? ''}`;
-    const body = marshalRequest(
-      req.autoApprovalRule,
-      marshalCleanRoomAutoApprovalRuleSchema
-    );
+    const url = `${host}/api/2.0/clean-rooms/${encodePathVariable(req.autoApprovalRule?.cleanRoomName ?? '')}/auto-approval-rules/${encodePathVariable(req.autoApprovalRule?.ruleId ?? '')}`;
+    const body =
+      req.autoApprovalRule === undefined
+        ? 'null'
+        : marshalRequest(
+            req.autoApprovalRule,
+            marshalCleanRoomAutoApprovalRuleSchema
+          );
     let resp: CleanRoomAutoApprovalRule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

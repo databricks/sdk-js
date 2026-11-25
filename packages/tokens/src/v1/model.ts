@@ -173,6 +173,26 @@ export const marshalCreateTokenRequestSchema: z.ZodType = z
     autoscope_enabled: d.autoscopeEnabled,
   }));
 
+export const marshalCreateTokenResponseSchema: z.ZodType = z
+  .object({
+    tokenValue: z.string().optional(),
+    tokenInfo: z.lazy(() => marshalPublicTokenInfoSchema).optional(),
+  })
+  .transform(d => ({
+    token_value: d.tokenValue,
+    token_info: d.tokenInfo,
+  }));
+
+export const marshalListTokensRequestSchema: z.ZodType = z.object({});
+
+export const marshalListTokensResponseSchema: z.ZodType = z
+  .object({
+    tokenInfos: z.array(z.lazy(() => marshalPublicTokenInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    token_infos: d.tokenInfos,
+  }));
+
 export const marshalPublicTokenInfoSchema: z.ZodType = z
   .object({
     tokenId: z.string().optional(),
@@ -203,6 +223,8 @@ export const marshalRevokeTokenRequestSchema: z.ZodType = z
     token_id: d.tokenId,
   }));
 
+export const marshalRevokeTokenResponseSchema: z.ZodType = z.object({});
+
 export const marshalUpdateTokenRequestSchema: z.ZodType = z
   .object({
     tokenId: z.string().optional(),
@@ -217,6 +239,8 @@ export const marshalUpdateTokenRequestSchema: z.ZodType = z
     token: d.token,
     update_mask: d.updateMask,
   }));
+
+export const marshalUpdateTokenResponseSchema: z.ZodType = z.object({});
 
 const publicTokenInfoFieldMaskSchema: FieldMaskSchema = {
   autoscopeState: {wire: 'autoscope_state'},

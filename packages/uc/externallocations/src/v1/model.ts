@@ -600,6 +600,20 @@ export const marshalCreateExternalLocationRequestSchema: z.ZodType = z
     effective_file_event_queue: d.effectiveFileEventQueue,
   }));
 
+export const marshalDeleteExternalLocationRequestSchema: z.ZodType = z
+  .object({
+    nameArg: z.string().optional(),
+    force: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name_arg: d.nameArg,
+    force: d.force,
+  }));
+
+export const marshalDeleteExternalLocationResponseSchema: z.ZodType = z.object(
+  {}
+);
+
 export const marshalEncryptionDetailsSchema: z.ZodType = z
   .object({
     encryptionDetailsType: z
@@ -615,6 +629,54 @@ export const marshalEncryptionDetailsSchema: z.ZodType = z
     ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && {
       sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails,
     }),
+  }));
+
+export const marshalExternalLocationInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    url: z.string().optional(),
+    credentialName: z.string().optional(),
+    readOnly: z.boolean().optional(),
+    comment: z.string().optional(),
+    enableFileEvents: z.boolean().optional(),
+    fileEventQueue: z.lazy(() => marshalFileEventQueueSchema).optional(),
+    owner: z.string().optional(),
+    encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
+    metastoreId: z.string().optional(),
+    credentialId: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    browseOnly: z.boolean().optional(),
+    isolationMode: z.string().optional(),
+    fallback: z.boolean().optional(),
+    effectiveEnableFileEvents: z.boolean().optional(),
+    effectiveFileEventQueue: z
+      .lazy(() => marshalFileEventQueueSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    url: d.url,
+    credential_name: d.credentialName,
+    read_only: d.readOnly,
+    comment: d.comment,
+    enable_file_events: d.enableFileEvents,
+    file_event_queue: d.fileEventQueue,
+    owner: d.owner,
+    encryption_details: d.encryptionDetails,
+    metastore_id: d.metastoreId,
+    credential_id: d.credentialId,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    browse_only: d.browseOnly,
+    isolation_mode: d.isolationMode,
+    fallback: d.fallback,
+    effective_enable_file_events: d.effectiveEnableFileEvents,
+    effective_file_event_queue: d.effectiveFileEventQueue,
   }));
 
 export const marshalFileEventQueueSchema: z.ZodType = z
@@ -681,6 +743,42 @@ export const marshalGcpPubsubSchema: z.ZodType = z
   .transform(d => ({
     subscription_name: d.subscriptionName,
     managed_resource_id: d.managedResourceId,
+  }));
+
+export const marshalGetExternalLocationRequestSchema: z.ZodType = z
+  .object({
+    nameArg: z.string().optional(),
+    includeBrowse: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name_arg: d.nameArg,
+    include_browse: d.includeBrowse,
+  }));
+
+export const marshalListExternalLocationsRequestSchema: z.ZodType = z
+  .object({
+    includeBrowse: z.boolean().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+    includeUnbound: z.boolean().optional(),
+  })
+  .transform(d => ({
+    include_browse: d.includeBrowse,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+    include_unbound: d.includeUnbound,
+  }));
+
+export const marshalListExternalLocationsResponseSchema: z.ZodType = z
+  .object({
+    externalLocations: z
+      .array(z.lazy(() => marshalExternalLocationInfoSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    external_locations: d.externalLocations,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalSseEncryptionDetailsSchema: z.ZodType = z

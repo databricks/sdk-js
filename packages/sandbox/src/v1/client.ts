@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   sendAndCheckError,
@@ -118,7 +119,10 @@ export class SandboxClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.sandbox, marshalSandboxSchema);
+    const body =
+      req.sandbox === undefined
+        ? 'null'
+        : marshalRequest(req.sandbox, marshalSandboxSchema);
     let resp: Sandbox | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -155,8 +159,11 @@ export class SandboxClient {
     req: DeleteSandboxRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -177,8 +184,11 @@ export class SandboxClient {
     req: GetSandboxRequest,
     options?: CallOptions
   ): Promise<Sandbox> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/${encodePathVariable(req.name)}`;
     let resp: Sandbox | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -268,8 +278,11 @@ export class SandboxClient {
     req: StartSandboxRequest,
     options?: CallOptions
   ): Promise<Sandbox> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/${req.name ?? ''}/start`;
+    const url = `${host}/api/2.0/${encodePathVariable(req.name)}/start`;
     const body = marshalRequest(req, marshalStartSandboxRequestSchema);
     let resp: Sandbox | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -303,8 +316,11 @@ export class SandboxClient {
     req: StopSandboxRequest,
     options?: CallOptions
   ): Promise<Sandbox> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/${req.name ?? ''}/stop`;
+    const url = `${host}/api/2.0/${encodePathVariable(req.name)}/stop`;
     const body = marshalRequest(req, marshalStopSandboxRequestSchema);
     let resp: Sandbox | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -338,14 +354,17 @@ export class SandboxClient {
     options?: CallOptions
   ): Promise<Sandbox> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/${encodePathVariable(req.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.sandbox, marshalSandboxSchema);
+    const body =
+      req.sandbox === undefined
+        ? 'null'
+        : marshalRequest(req.sandbox, marshalSandboxSchema);
     let resp: Sandbox | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -378,8 +397,11 @@ export class SandboxClient {
     req: CreateDirectoryRequest,
     options?: CallOptions
   ): Promise<CreateDirectoryResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/directories:make`;
+    const url = `${host}/api/2.0/sandbox-files/${encodePathVariable(req.parent)}/directories:make`;
     const body = marshalRequest(req, marshalCreateDirectoryRequestSchema);
     let resp: CreateDirectoryResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -410,8 +432,11 @@ export class SandboxClient {
     req: DeletePathRequest,
     options?: CallOptions
   ): Promise<DeletePathResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/paths:remove`;
+    const url = `${host}/api/2.0/sandbox-files/${encodePathVariable(req.parent)}/paths:remove`;
     const body = marshalRequest(req, marshalDeletePathRequestSchema);
     let resp: DeletePathResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -439,8 +464,11 @@ export class SandboxClient {
     req: GetMetadataRequest,
     options?: CallOptions
   ): Promise<GetMetadataResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/paths:describe`;
+    const url = `${host}/api/2.0/sandbox-files/${encodePathVariable(req.parent)}/paths:describe`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
       params.append('path', req.path);
@@ -473,8 +501,11 @@ export class SandboxClient {
     req: ListDirectoryContentsRequest,
     options?: CallOptions
   ): Promise<ListDirectoryContentsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/directory-entries`;
+    const url = `${host}/api/2.0/sandbox-files/${encodePathVariable(req.parent)}/directory-entries`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
       params.append('path', req.path);
@@ -533,8 +564,11 @@ export class SandboxClient {
     req: RenamePathRequest,
     options?: CallOptions
   ): Promise<RenamePathResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/paths:rename`;
+    const url = `${host}/api/2.0/sandbox-files/${encodePathVariable(req.parent)}/paths:rename`;
     const body = marshalRequest(req, marshalRenamePathRequestSchema);
     let resp: RenamePathResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -581,8 +615,11 @@ export class SandboxClient {
     req: DownloadFileRequest,
     options?: CallOptions
   ): Promise<DownloadFileResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/content`;
+    const url = `${host}/api/2.0/sandbox-files/${encodePathVariable(req.parent)}/content`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
       params.append('path', req.path);
@@ -661,8 +698,11 @@ export class SandboxClient {
     req: UploadFileRequest,
     options?: CallOptions
   ): Promise<UploadFileResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sandbox-files/${req.parent ?? ''}/content`;
+    const url = `${host}/api/2.0/sandbox-files/${encodePathVariable(req.parent)}/content`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
       params.append('path', req.path);
@@ -675,6 +715,11 @@ export class SandboxClient {
     const headers = new Headers({'Content-Type': 'application/octet-stream'});
     if (workspaceId !== undefined && workspaceId !== '') {
       headers.set('X-Databricks-Workspace-Id', workspaceId);
+    }
+    if (options?.retrier !== undefined) {
+      throw new Error(
+        'retries are unsupported for client-side streaming methods'
+      );
     }
     const httpReq = buildHttpRequest(
       'PUT',
@@ -699,8 +744,11 @@ export class SandboxClient {
     req: ExecuteCommandSyncRequest,
     options?: CallOptions
   ): Promise<ExecuteCommandSyncResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sandbox-exec/${req.name ?? ''}/exec-sync`;
+    const url = `${host}/api/2.0/sandbox-exec/${encodePathVariable(req.name)}/exec-sync`;
     const body = marshalRequest(req, marshalExecuteCommandSyncRequestSchema);
     let resp: ExecuteCommandSyncResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -729,7 +777,7 @@ export class SandboxClient {
     options?: CallOptions
   ): Promise<ListCommandsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sandbox-exec/${req.parent ?? ''}/commands`;
+    const url = `${host}/api/2.0/sandbox-exec/${encodePathVariable(req.parent ?? '')}/commands`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));

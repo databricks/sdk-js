@@ -148,3 +148,31 @@ export const marshalCreateForecastingExperimentRequestSchema: z.ZodType = z
     include_features: d.includeFeatures,
     future_feature_data_path: d.futureFeatureDataPath,
   }));
+
+export const marshalCreateForecastingExperimentResponseSchema: z.ZodType = z
+  .object({
+    experimentId: z.string().optional(),
+  })
+  .transform(d => ({
+    experiment_id: d.experimentId,
+  }));
+
+export const marshalForecastingExperimentSchema: z.ZodType = z
+  .object({
+    experimentId: z.string().optional(),
+    experimentPageUrl: z.string().optional(),
+    state: z.string().optional(),
+  })
+  .transform(d => ({
+    experiment_id: d.experimentId,
+    experiment_page_url: d.experimentPageUrl,
+    state: d.state,
+  }));
+
+export const marshalGetForecastingExperimentRequestSchema: z.ZodType = z
+  .object({
+    experimentId: z.string().optional(),
+  })
+  .transform(d => ({
+    experiment_id: d.experimentId,
+  }));

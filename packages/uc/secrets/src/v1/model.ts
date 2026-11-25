@@ -210,6 +210,56 @@ export const unmarshalSecretSchema: z.ZodType<Secret> = z
     expireTime: d.expire_time,
   }));
 
+export const marshalCreateSecretRequestSchema: z.ZodType = z
+  .object({
+    secret: z.lazy(() => marshalSecretSchema).optional(),
+  })
+  .transform(d => ({
+    secret: d.secret,
+  }));
+
+export const marshalDeleteSecretRequestSchema: z.ZodType = z
+  .object({
+    fullName: z.string().optional(),
+  })
+  .transform(d => ({
+    full_name: d.fullName,
+  }));
+
+export const marshalGetSecretRequestSchema: z.ZodType = z
+  .object({
+    fullName: z.string().optional(),
+    includeValue: z.boolean().optional(),
+  })
+  .transform(d => ({
+    full_name: d.fullName,
+    include_value: d.includeValue,
+  }));
+
+export const marshalListSecretsRequestSchema: z.ZodType = z
+  .object({
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListSecretsResponseSchema: z.ZodType = z
+  .object({
+    secrets: z.array(z.lazy(() => marshalSecretSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    secrets: d.secrets,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalSecretSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -253,6 +303,21 @@ export const marshalSecretSchema: z.ZodType = z
     value: d.value,
     effective_value: d.effectiveValue,
     expire_time: d.expireTime,
+  }));
+
+export const marshalUpdateSecretRequestSchema: z.ZodType = z
+  .object({
+    fullName: z.string().optional(),
+    secret: z.lazy(() => marshalSecretSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    full_name: d.fullName,
+    secret: d.secret,
+    update_mask: d.updateMask,
   }));
 
 const secretFieldMaskSchema: FieldMaskSchema = {

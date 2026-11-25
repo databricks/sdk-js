@@ -400,6 +400,98 @@ export const marshalCreateLogDeliveryConfigurationRequestSchema: z.ZodType = z
     log_delivery_configuration: d.logDeliveryConfiguration,
   }));
 
+export const marshalCreateLogDeliveryConfigurationResponseSchema: z.ZodType = z
+  .object({
+    logDeliveryConfiguration: z
+      .lazy(() => marshalLogDeliveryConfigurationSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    log_delivery_configuration: d.logDeliveryConfiguration,
+  }));
+
+export const marshalGetLogDeliveryConfigurationRequestSchema: z.ZodType = z
+  .object({
+    configId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    config_id: d.configId,
+    account_id: d.accountId,
+  }));
+
+export const marshalGetLogDeliveryConfigurationResponseSchema: z.ZodType = z
+  .object({
+    logDeliveryConfiguration: z
+      .lazy(() => marshalLogDeliveryConfigurationSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    log_delivery_configuration: d.logDeliveryConfiguration,
+  }));
+
+export const marshalListLogDeliveryConfigurationRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    credentialsId: z.string().optional(),
+    storageConfigurationId: z.string().optional(),
+    status: z.string().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    credentials_id: d.credentialsId,
+    storage_configuration_id: d.storageConfigurationId,
+    status: d.status,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListLogDeliveryConfigurationResponseSchema: z.ZodType = z
+  .object({
+    logDeliveryConfigurations: z
+      .array(z.lazy(() => marshalLogDeliveryConfigurationSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    log_delivery_configurations: d.logDeliveryConfigurations,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalLogDeliveryConfigurationSchema: z.ZodType = z
+  .object({
+    configId: z.string().optional(),
+    configName: z.string().optional(),
+    logType: z.string().optional(),
+    outputFormat: z.string().optional(),
+    accountId: z.string().optional(),
+    credentialsId: z.string().optional(),
+    storageConfigurationId: z.string().optional(),
+    workspaceIdsFilter: z.array(z.bigint()).optional(),
+    deliveryPathPrefix: z.string().optional(),
+    deliveryStartTime: z.string().optional(),
+    status: z.string().optional(),
+    creationTime: z.bigint().optional(),
+    updateTime: z.bigint().optional(),
+    logDeliveryStatus: z.lazy(() => marshalLogDeliveryStatusSchema).optional(),
+  })
+  .transform(d => ({
+    config_id: d.configId,
+    config_name: d.configName,
+    log_type: d.logType,
+    output_format: d.outputFormat,
+    account_id: d.accountId,
+    credentials_id: d.credentialsId,
+    storage_configuration_id: d.storageConfigurationId,
+    workspace_ids_filter: d.workspaceIdsFilter,
+    delivery_path_prefix: d.deliveryPathPrefix,
+    delivery_start_time: d.deliveryStartTime,
+    status: d.status,
+    creation_time: d.creationTime,
+    update_time: d.updateTime,
+    log_delivery_status: d.logDeliveryStatus,
+  }));
+
 export const marshalLogDeliveryStatusSchema: z.ZodType = z
   .object({
     status: z.string().optional(),
@@ -425,3 +517,6 @@ export const marshalUpdateLogDeliveryConfigurationRequestSchema: z.ZodType = z
     account_id: d.accountId,
     status: d.status,
   }));
+
+export const marshalUpdateLogDeliveryConfigurationResponseSchema: z.ZodType =
+  z.object({});

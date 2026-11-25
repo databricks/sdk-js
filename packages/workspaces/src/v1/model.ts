@@ -629,6 +629,16 @@ export const marshalCreateWorkspaceRequestSchema: z.ZodType = z
     network_connectivity_config_id: d.networkConnectivityConfigId,
   }));
 
+export const marshalDeleteWorkspaceRequestSchema: z.ZodType = z
+  .object({
+    workspaceId: z.bigint().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    workspace_id: d.workspaceId,
+    account_id: d.accountId,
+  }));
+
 export const marshalGcpCloudResourceContainerSchema: z.ZodType = z
   .object({
     projectId: z.string().optional(),
@@ -659,6 +669,16 @@ export const marshalGcpManagedNetworkConfigSchema: z.ZodType = z
     gke_cluster_service_ip_range: d.gkeClusterServiceIpRange,
   }));
 
+export const marshalGetWorkspaceRequestSchema: z.ZodType = z
+  .object({
+    workspaceId: z.bigint().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    workspace_id: d.workspaceId,
+    account_id: d.accountId,
+  }));
+
 export const marshalGkeConfigSchema: z.ZodType = z
   .object({
     connectivityType: z.string().optional(),
@@ -667,6 +687,35 @@ export const marshalGkeConfigSchema: z.ZodType = z
   .transform(d => ({
     connectivity_type: d.connectivityType,
     master_ip_range: d.masterIpRange,
+  }));
+
+export const marshalListWorkspacesRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+  }));
+
+export const marshalListWorkspacesResponseSchema: z.ZodType = z
+  .object({
+    workspaces: z.array(z.lazy(() => marshalWorkspaceSchema)).optional(),
+  })
+  .transform(d => ({
+    workspaces: d.workspaces,
+  }));
+
+export const marshalUpdateWorkspaceRequestSchema: z.ZodType = z
+  .object({
+    customerFacingWorkspace: z.lazy(() => marshalWorkspaceSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    customer_facing_workspace: d.customerFacingWorkspace,
+    update_mask: d.updateMask,
   }));
 
 export const marshalWorkspaceSchema: z.ZodType = z

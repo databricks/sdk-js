@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -138,8 +139,14 @@ export class RegisteredModelsClient {
     req: DeleteModelVersionRequest,
     options?: CallOptions
   ): Promise<DeleteModelVersionResponse> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
+    if (req.versionArg === undefined) {
+      throw new Error('path parameter "version_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/versions/${String(req.versionArg ?? '')}`;
+    const url = `${host}/api/2.1/unity-catalog/models/${encodePathVariable(req.fullNameArg)}/versions/${String(req.versionArg)}`;
     let resp: DeleteModelVersionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -172,8 +179,11 @@ export class RegisteredModelsClient {
     req: DeleteRegisteredModelRequest,
     options?: CallOptions
   ): Promise<DeleteRegisteredModelResponse> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/models/${encodePathVariable(req.fullNameArg)}`;
     let resp: DeleteRegisteredModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -209,8 +219,14 @@ export class RegisteredModelsClient {
     req: DeleteRegisteredModelAliasRequest,
     options?: CallOptions
   ): Promise<DeleteRegisteredModelAliasResponse> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
+    if (req.aliasArg === undefined) {
+      throw new Error('path parameter "alias_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/aliases/${req.aliasArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/models/${encodePathVariable(req.fullNameArg)}/aliases/${encodePathVariable(req.aliasArg)}`;
     let resp: DeleteRegisteredModelAliasResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -247,8 +263,14 @@ export class RegisteredModelsClient {
     req: GetModelVersionRequest,
     options?: CallOptions
   ): Promise<ModelVersionInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
+    if (req.versionArg === undefined) {
+      throw new Error('path parameter "version_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/versions/${String(req.versionArg ?? '')}`;
+    const url = `${host}/api/2.1/unity-catalog/models/${encodePathVariable(req.fullNameArg)}/versions/${String(req.versionArg)}`;
     const params = new URLSearchParams();
     if (req.includeAliases !== undefined) {
       params.append('include_aliases', String(req.includeAliases));
@@ -291,8 +313,14 @@ export class RegisteredModelsClient {
     req: GetModelVersionByAliasRequest,
     options?: CallOptions
   ): Promise<ModelVersionInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
+    if (req.aliasArg === undefined) {
+      throw new Error('path parameter "alias_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/aliases/${req.aliasArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/models/${encodePathVariable(req.fullNameArg)}/aliases/${encodePathVariable(req.aliasArg)}`;
     const params = new URLSearchParams();
     if (req.includeAliases !== undefined) {
       params.append('include_aliases', String(req.includeAliases));
@@ -332,8 +360,11 @@ export class RegisteredModelsClient {
     req: GetRegisteredModelRequest,
     options?: CallOptions
   ): Promise<RegisteredModelInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/models/${encodePathVariable(req.fullNameArg)}`;
     const params = new URLSearchParams();
     if (req.includeAliases !== undefined) {
       params.append('include_aliases', String(req.includeAliases));
@@ -385,8 +416,11 @@ export class RegisteredModelsClient {
     req: ListModelVersionsRequest,
     options?: CallOptions
   ): Promise<ListModelVersionsResponse> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/versions`;
+    const url = `${host}/api/2.1/unity-catalog/models/${encodePathVariable(req.fullNameArg)}/versions`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -529,8 +563,14 @@ export class RegisteredModelsClient {
     req: SetRegisteredModelAliasRequest,
     options?: CallOptions
   ): Promise<RegisteredModelAliasInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
+    if (req.aliasArg === undefined) {
+      throw new Error('path parameter "alias_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/aliases/${req.aliasArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/models/${encodePathVariable(req.fullNameArg)}/aliases/${encodePathVariable(req.aliasArg)}`;
     const body = marshalRequest(
       req,
       marshalSetRegisteredModelAliasRequestSchema
@@ -569,8 +609,14 @@ export class RegisteredModelsClient {
     req: UpdateModelVersionRequest,
     options?: CallOptions
   ): Promise<ModelVersionInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
+    if (req.versionArg === undefined) {
+      throw new Error('path parameter "version_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/versions/${String(req.versionArg ?? '')}`;
+    const url = `${host}/api/2.1/unity-catalog/models/${encodePathVariable(req.fullNameArg)}/versions/${String(req.versionArg)}`;
     const body = marshalRequest(req, marshalUpdateModelVersionRequestSchema);
     let resp: ModelVersionInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -606,8 +652,11 @@ export class RegisteredModelsClient {
     req: UpdateRegisteredModelRequest,
     options?: CallOptions
   ): Promise<RegisteredModelInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/models/${encodePathVariable(req.fullNameArg)}`;
     const body = marshalRequest(req, marshalUpdateRegisteredModelRequestSchema);
     let resp: RegisteredModelInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

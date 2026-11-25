@@ -167,6 +167,48 @@ export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo
       bindingType: d.binding_type,
     }));
 
+export const marshalGetCatalogWorkspaceBindingsRequestSchema: z.ZodType = z
+  .object({
+    catalogName: z.string().optional(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+  }));
+
+export const marshalGetCatalogWorkspaceBindingsResponseSchema: z.ZodType = z
+  .object({
+    workspaces: z.array(z.bigint()).optional(),
+  })
+  .transform(d => ({
+    workspaces: d.workspaces,
+  }));
+
+export const marshalGetWorkspaceBindingsRequestSchema: z.ZodType = z
+  .object({
+    securableType: z.string().optional(),
+    securableFullName: z.string().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    securable_type: d.securableType,
+    securable_full_name: d.securableFullName,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+export const marshalGetWorkspaceBindingsResponseSchema: z.ZodType = z
+  .object({
+    bindings: z
+      .array(z.lazy(() => marshalWorkspaceBindingInfoSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    bindings: d.bindings,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalUpdateCatalogWorkspaceBindingsRequestSchema: z.ZodType = z
   .object({
     catalogName: z.string().optional(),
@@ -177,6 +219,14 @@ export const marshalUpdateCatalogWorkspaceBindingsRequestSchema: z.ZodType = z
     catalog_name: d.catalogName,
     assign_workspaces: d.assignWorkspaces,
     unassign_workspaces: d.unassignWorkspaces,
+  }));
+
+export const marshalUpdateCatalogWorkspaceBindingsResponseSchema: z.ZodType = z
+  .object({
+    workspaces: z.array(z.bigint()).optional(),
+  })
+  .transform(d => ({
+    workspaces: d.workspaces,
   }));
 
 export const marshalUpdateWorkspaceBindingsRequestSchema: z.ZodType = z
@@ -191,6 +241,16 @@ export const marshalUpdateWorkspaceBindingsRequestSchema: z.ZodType = z
     securable_full_name: d.securableFullName,
     add: d.add,
     remove: d.remove,
+  }));
+
+export const marshalUpdateWorkspaceBindingsResponseSchema: z.ZodType = z
+  .object({
+    bindings: z
+      .array(z.lazy(() => marshalWorkspaceBindingInfoSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    bindings: d.bindings,
   }));
 
 export const marshalWorkspaceBindingInfoSchema: z.ZodType = z

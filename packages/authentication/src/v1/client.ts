@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -85,7 +86,7 @@ export class AuthenticationClient {
     options?: CallOptions
   ): Promise<FederationPolicy> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/federationPolicies`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/federationPolicies`;
     const params = new URLSearchParams();
     if (req.servicePrincipalId !== undefined) {
       params.append('service_principal_id', String(req.servicePrincipalId));
@@ -95,7 +96,10 @@ export class AuthenticationClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.policy, marshalFederationPolicySchema);
+    const body =
+      req.policy === undefined
+        ? 'null'
+        : marshalRequest(req.policy, marshalFederationPolicySchema);
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -125,15 +129,21 @@ export class AuthenticationClient {
     req: CreateServicePrincipalFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
+    if (req.servicePrincipalId === undefined) {
+      throw new Error('path parameter "service_principal_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/servicePrincipals/${String(req.servicePrincipalId)}/federationPolicies`;
     const params = new URLSearchParams();
     if (req.policyId !== undefined) {
       params.append('policy_id', req.policyId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.policy, marshalFederationPolicySchema);
+    const body =
+      req.policy === undefined
+        ? 'null'
+        : marshalRequest(req.policy, marshalFederationPolicySchema);
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -163,8 +173,11 @@ export class AuthenticationClient {
     req: DeleteAccountFederationPolicyRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.policyId === undefined) {
+      throw new Error('path parameter "policy_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/federationPolicies/${req.policyId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/federationPolicies/${encodePathVariable(req.policyId)}`;
     const params = new URLSearchParams();
     if (req.servicePrincipalId !== undefined) {
       params.append('service_principal_id', String(req.servicePrincipalId));
@@ -188,8 +201,14 @@ export class AuthenticationClient {
     req: DeleteServicePrincipalFederationPolicyRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.servicePrincipalId === undefined) {
+      throw new Error('path parameter "service_principal_id" is required');
+    }
+    if (req.policyId === undefined) {
+      throw new Error('path parameter "policy_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies/${req.policyId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/servicePrincipals/${String(req.servicePrincipalId)}/federationPolicies/${encodePathVariable(req.policyId)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -207,8 +226,11 @@ export class AuthenticationClient {
     req: GetAccountFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
+    if (req.policyId === undefined) {
+      throw new Error('path parameter "policy_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/federationPolicies/${req.policyId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/federationPolicies/${encodePathVariable(req.policyId)}`;
     const params = new URLSearchParams();
     if (req.servicePrincipalId !== undefined) {
       params.append('service_principal_id', String(req.servicePrincipalId));
@@ -238,8 +260,14 @@ export class AuthenticationClient {
     req: GetServicePrincipalFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
+    if (req.servicePrincipalId === undefined) {
+      throw new Error('path parameter "service_principal_id" is required');
+    }
+    if (req.policyId === undefined) {
+      throw new Error('path parameter "policy_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies/${req.policyId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/servicePrincipals/${String(req.servicePrincipalId)}/federationPolicies/${encodePathVariable(req.policyId)}`;
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -264,7 +292,7 @@ export class AuthenticationClient {
     options?: CallOptions
   ): Promise<ListFederationPoliciesResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/federationPolicies`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/federationPolicies`;
     const params = new URLSearchParams();
     if (req.servicePrincipalId !== undefined) {
       params.append('service_principal_id', String(req.servicePrincipalId));
@@ -320,8 +348,11 @@ export class AuthenticationClient {
     req: ListServicePrincipalFederationPoliciesRequest,
     options?: CallOptions
   ): Promise<ListFederationPoliciesResponse> {
+    if (req.servicePrincipalId === undefined) {
+      throw new Error('path parameter "service_principal_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/servicePrincipals/${String(req.servicePrincipalId)}/federationPolicies`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -377,8 +408,11 @@ export class AuthenticationClient {
     req: UpdateAccountFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
+    if (req.policyId === undefined) {
+      throw new Error('path parameter "policy_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/federationPolicies/${req.policyId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/federationPolicies/${encodePathVariable(req.policyId)}`;
     const params = new URLSearchParams();
     if (req.servicePrincipalId !== undefined) {
       params.append('service_principal_id', String(req.servicePrincipalId));
@@ -388,7 +422,10 @@ export class AuthenticationClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.policy, marshalFederationPolicySchema);
+    const body =
+      req.policy === undefined
+        ? 'null'
+        : marshalRequest(req.policy, marshalFederationPolicySchema);
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -418,15 +455,24 @@ export class AuthenticationClient {
     req: UpdateServicePrincipalFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
+    if (req.servicePrincipalId === undefined) {
+      throw new Error('path parameter "service_principal_id" is required');
+    }
+    if (req.policyId === undefined) {
+      throw new Error('path parameter "policy_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${String(req.servicePrincipalId ?? '')}/federationPolicies/${req.policyId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/servicePrincipals/${String(req.servicePrincipalId)}/federationPolicies/${encodePathVariable(req.policyId)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.policy, marshalFederationPolicySchema);
+    const body =
+      req.policy === undefined
+        ? 'null'
+        : marshalRequest(req.policy, marshalFederationPolicySchema);
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -457,7 +503,7 @@ export class AuthenticationClient {
     options?: CallOptions
   ): Promise<CreateServicePrincipalSecretResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/servicePrincipals/${encodePathVariable(req.servicePrincipal ?? '')}/credentials/secrets`;
     const body = marshalRequest(
       req,
       marshalCreateServicePrincipalSecretRequestSchema
@@ -489,7 +535,7 @@ export class AuthenticationClient {
     options?: CallOptions
   ): Promise<CreateServicePrincipalSecretResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
+    const url = `${host}/api/2.0/accounts/servicePrincipals/${encodePathVariable(req.servicePrincipal ?? '')}/credentials/secrets`;
     const body = marshalRequest(
       req,
       marshalCreateServicePrincipalSecretRequestSchema
@@ -524,7 +570,7 @@ export class AuthenticationClient {
     options?: CallOptions
   ): Promise<DeleteServicePrincipalSecretResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets/${req.secretId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/servicePrincipals/${encodePathVariable(req.servicePrincipal ?? '')}/credentials/secrets/${encodePathVariable(req.secretId ?? '')}`;
     let resp: DeleteServicePrincipalSecretResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -552,7 +598,7 @@ export class AuthenticationClient {
     options?: CallOptions
   ): Promise<DeleteServicePrincipalSecretResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets/${req.secretId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/servicePrincipals/${encodePathVariable(req.servicePrincipal ?? '')}/credentials/secrets/${encodePathVariable(req.secretId ?? '')}`;
     const params = new URLSearchParams();
     if (req.accountId !== undefined) {
       params.append('account_id', req.accountId);
@@ -589,7 +635,7 @@ export class AuthenticationClient {
     options?: CallOptions
   ): Promise<ListServicePrincipalSecretsResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/servicePrincipals/${encodePathVariable(req.servicePrincipal ?? '')}/credentials/secrets`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -643,7 +689,7 @@ export class AuthenticationClient {
     options?: CallOptions
   ): Promise<ListServicePrincipalSecretsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
+    const url = `${host}/api/2.0/accounts/servicePrincipals/${encodePathVariable(req.servicePrincipal ?? '')}/credentials/secrets`;
     const params = new URLSearchParams();
     if (req.accountId !== undefined) {
       params.append('account_id', req.accountId);

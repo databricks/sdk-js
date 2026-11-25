@@ -501,8 +501,11 @@ export class FilesClient {
     req: CreateDirectoryRequest,
     options?: CallOptions
   ): Promise<CreateDirectoryResponse> {
+    if (req.directoryPath === undefined) {
+      throw new Error('path parameter "directory_path" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
+    const url = `${host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath)}`;
     let resp: CreateDirectoryResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -534,8 +537,11 @@ export class FilesClient {
     req: DeleteDirectoryRequest,
     options?: CallOptions
   ): Promise<DeleteDirectoryResponse> {
+    if (req.directoryPath === undefined) {
+      throw new Error('path parameter "directory_path" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
+    const url = `${host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath)}`;
     let resp: DeleteDirectoryResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -562,8 +568,11 @@ export class FilesClient {
     req: DeleteFileRequest,
     options?: CallOptions
   ): Promise<DeleteFileResponse> {
+    if (req.filePath === undefined) {
+      throw new Error('path parameter "file_path" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
+    const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath)}`;
     let resp: DeleteFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -594,8 +603,11 @@ export class FilesClient {
     req: DownloadFileRequest,
     options?: CallOptions
   ): Promise<DownloadFileResponse> {
+    if (req.filePath === undefined) {
+      throw new Error('path parameter "file_path" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
+    const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath)}`;
     let resp: DownloadFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({Accept: 'application/octet-stream'});
@@ -646,8 +658,11 @@ export class FilesClient {
     req: GetDirectoryMetadataRequest,
     options?: CallOptions
   ): Promise<GetDirectoryMetadataResponse> {
+    if (req.directoryPath === undefined) {
+      throw new Error('path parameter "directory_path" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
+    const url = `${host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath)}`;
     let resp: GetDirectoryMetadataResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -680,8 +695,11 @@ export class FilesClient {
     req: GetFileMetadataRequest,
     options?: CallOptions
   ): Promise<GetFileMetadataResponse> {
+    if (req.filePath === undefined) {
+      throw new Error('path parameter "file_path" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
+    const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath)}`;
     let resp: GetFileMetadataResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -717,8 +735,11 @@ export class FilesClient {
     req: ListDirectoryContentsRequest,
     options?: CallOptions
   ): Promise<ListDirectoryResponse> {
+    if (req.directoryPath === undefined) {
+      throw new Error('path parameter "directory_path" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
+    const url = `${host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath)}`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -776,8 +797,11 @@ export class FilesClient {
     req: UploadFileRequest,
     options?: CallOptions
   ): Promise<UploadFileResponse> {
+    if (req.filePath === undefined) {
+      throw new Error('path parameter "file_path" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
+    const url = `${host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath)}`;
     const params = new URLSearchParams();
     if (req.overwrite !== undefined) {
       params.append('overwrite', String(req.overwrite));
@@ -787,6 +811,11 @@ export class FilesClient {
     const headers = new Headers({'Content-Type': 'application/octet-stream'});
     if (workspaceId !== undefined && workspaceId !== '') {
       headers.set('X-Databricks-Workspace-Id', workspaceId);
+    }
+    if (options?.retrier !== undefined) {
+      throw new Error(
+        'retries are unsupported for client-side streaming methods'
+      );
     }
     const httpReq = buildHttpRequest(
       'PUT',

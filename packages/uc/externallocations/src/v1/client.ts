@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -106,8 +107,11 @@ export class ExternalLocationsClient {
     req: DeleteExternalLocationRequest,
     options?: CallOptions
   ): Promise<DeleteExternalLocationResponse> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/external-locations/${encodePathVariable(req.nameArg)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -146,8 +150,11 @@ export class ExternalLocationsClient {
     req: GetExternalLocationRequest,
     options?: CallOptions
   ): Promise<ExternalLocationInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/external-locations/${encodePathVariable(req.nameArg)}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
       params.append('include_browse', String(req.includeBrowse));
@@ -255,8 +262,11 @@ export class ExternalLocationsClient {
     req: UpdateExternalLocationRequest,
     options?: CallOptions
   ): Promise<ExternalLocationInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/external-locations/${encodePathVariable(req.nameArg)}`;
     const body = marshalRequest(
       req,
       marshalUpdateExternalLocationRequestSchema

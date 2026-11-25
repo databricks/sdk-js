@@ -504,6 +504,60 @@ export const marshalAppSchema: z.ZodType = z
     name: d.name,
   }));
 
+export const marshalCreateExampleRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    example: z.lazy(() => marshalExampleSchema).optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    example: d.example,
+  }));
+
+export const marshalCreateSupervisorAgentRequestSchema: z.ZodType = z
+  .object({
+    supervisorAgent: z.lazy(() => marshalSupervisorAgentSchema).optional(),
+  })
+  .transform(d => ({
+    supervisor_agent: d.supervisorAgent,
+  }));
+
+export const marshalCreateToolRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    tool: z.lazy(() => marshalToolSchema).optional(),
+    toolId: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    tool: d.tool,
+    tool_id: d.toolId,
+  }));
+
+export const marshalDeleteExampleRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteSupervisorAgentRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteToolRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalExampleSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -526,6 +580,30 @@ export const marshalGenieSpaceSchema: z.ZodType = z
     id: d.id,
   }));
 
+export const marshalGetExampleRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetSupervisorAgentRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetToolRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalKnowledgeAssistantSchema: z.ZodType = z
   .object({
     servingEndpointName: z.string().optional(),
@@ -534,6 +612,72 @@ export const marshalKnowledgeAssistantSchema: z.ZodType = z
   .transform(d => ({
     serving_endpoint_name: d.servingEndpointName,
     knowledge_assistant_id: d.knowledgeAssistantId,
+  }));
+
+export const marshalListExamplesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListExamplesResponseSchema: z.ZodType = z
+  .object({
+    examples: z.array(z.lazy(() => marshalExampleSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    examples: d.examples,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSupervisorAgentsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListSupervisorAgentsResponseSchema: z.ZodType = z
+  .object({
+    supervisorAgents: z
+      .array(z.lazy(() => marshalSupervisorAgentSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    supervisor_agents: d.supervisorAgents,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListToolsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListToolsResponseSchema: z.ZodType = z
+  .object({
+    tools: z.array(z.lazy(() => marshalToolSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    tools: d.tools,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalSupervisorAgentSchema: z.ZodType = z
@@ -633,6 +777,47 @@ export const marshalUcFunctionSchema: z.ZodType = z
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalUpdateExampleRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    example: z.lazy(() => marshalExampleSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    example: d.example,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateSupervisorAgentRequestSchema: z.ZodType = z
+  .object({
+    supervisorAgent: z.lazy(() => marshalSupervisorAgentSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    supervisor_agent: d.supervisorAgent,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateToolRequestSchema: z.ZodType = z
+  .object({
+    tool: z.lazy(() => marshalToolSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    tool: d.tool,
+    update_mask: d.updateMask,
   }));
 
 export const marshalVolumeSchema: z.ZodType = z

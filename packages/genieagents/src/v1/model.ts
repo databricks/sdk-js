@@ -192,22 +192,12 @@ export interface GenieAgentConfig {
   sampleQuestions?: GenieAgentSampleQuestion[] | undefined;
 }
 
-/** The data a Genie Agent can access. */
-export interface GenieAgentDataSources {
-  /** Unity Catalog tables, views, and metric views, sorted by `identifier`. */
-  tables?: GenieAgentTable[] | undefined;
-  /** Unity Catalog volumes, sorted by `path`. */
-  volumes?: GenieAgentVolume[] | undefined;
-  /** Unity Catalog MCP connections, sorted by `mcp_connection`. */
-  mcpConnections?: GenieAgentMcpConnection[] | undefined;
-}
-
 /** The definition of a Genie Agent. */
 export interface GenieAgentDefinition {
   /** General settings of the Genie Agent. */
   config?: GenieAgentConfig | undefined;
-  /** The data the Genie Agent can access. */
-  dataSources?: GenieAgentDataSources | undefined;
+  /** The resources the Genie Agent can use: data, SQL functions, connections, and sub-agents. */
+  resources?: GenieAgentResources | undefined;
   /** Instructions and SQL that guide how the Genie Agent answers questions. */
   instructions?: GenieAgentInstructions | undefined;
   /** Benchmarks for evaluating the quality of the Genie Agent's answers. */
@@ -230,12 +220,10 @@ export interface GenieAgentExampleQuestionSql {
 
 /** Instructions and SQL that guide how a Genie Agent answers questions. */
 export interface GenieAgentInstructions {
-  /** General text instructions. At most one text instruction is supported. */
-  textInstructions?: GenieAgentTextInstruction[] | undefined;
+  /** The general text instruction. */
+  textInstruction?: GenieAgentTextInstruction | undefined;
   /** Example questions paired with the SQL that answers them. */
   exampleQuestionSqls?: GenieAgentExampleQuestionSql[] | undefined;
-  /** Unity Catalog SQL functions the generated SQL may call. */
-  sqlFunctions?: GenieAgentSqlFunction[] | undefined;
   /** Predefined joins between tables or metric views. */
   joinSpecs?: GenieAgentJoinSpec[] | undefined;
   /** Reusable SQL filters, expressions, and measures. */
@@ -272,6 +260,18 @@ export interface GenieAgentJoinSpec {
 export interface GenieAgentMcpConnection {
   /** The name of the Unity Catalog connection, for example `system.ai.google_calendar`. */
   mcpConnection?: string | undefined;
+}
+
+/** The resources a Genie Agent can use. */
+export interface GenieAgentResources {
+  /** Unity Catalog tables, views, and metric views, sorted by `identifier`. */
+  tables?: GenieAgentTable[] | undefined;
+  /** Unity Catalog volumes, sorted by `path`. */
+  volumes?: GenieAgentVolume[] | undefined;
+  /** Unity Catalog MCP connections, sorted by `mcp_connection`. */
+  mcpConnections?: GenieAgentMcpConnection[] | undefined;
+  /** Unity Catalog SQL functions the generated SQL may call, sorted by `id`, then `identifier`. */
+  sqlFunctions?: GenieAgentSqlFunction[] | undefined;
 }
 
 /** A sample question shown to users of the Genie Agent. */
@@ -470,7 +470,7 @@ export interface UpdateGenieAgentRequest {
    * `definition` is rejected with INVALID_PARAMETER_VALUE; an unset `parent_path` is cleared
    * without moving the Genie Agent. `definition` is replaced as a whole.
    *
-   * The one supported path inside `definition` is `definition.data_sources.sub_agents`, and only
+   * The one supported path inside `definition` is `definition.resources.sub_agents`, and only
    * alongside `definition`. Naming it makes the sub-agent list exact, so an empty list detaches
    * every sub-agent. Without it, including with `*`, an empty list keeps them.
    *
@@ -591,23 +591,6 @@ export const unmarshalGenieAgentConfigSchema: z.ZodType<GenieAgentConfig> = z
     sampleQuestions: d.sample_questions,
   }));
 
-export const unmarshalGenieAgentDataSourcesSchema: z.ZodType<GenieAgentDataSources> =
-  z
-    .object({
-      tables: z.array(z.lazy(() => unmarshalGenieAgentTableSchema)).optional(),
-      volumes: z
-        .array(z.lazy(() => unmarshalGenieAgentVolumeSchema))
-        .optional(),
-      mcp_connections: z
-        .array(z.lazy(() => unmarshalGenieAgentMcpConnectionSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      tables: d.tables,
-      volumes: d.volumes,
-      mcpConnections: d.mcp_connections,
-    }));
-
 export const unmarshalGenieAgentDefinitionSchema: z.ZodType<GenieAgentDefinition> =
   z
     .object({
@@ -615,8 +598,8 @@ export const unmarshalGenieAgentDefinitionSchema: z.ZodType<GenieAgentDefinition
         .lazy(() => unmarshalGenieAgentConfigSchema)
         .nullish()
         .transform(v => v ?? undefined),
-      data_sources: z
-        .lazy(() => unmarshalGenieAgentDataSourcesSchema)
+      resources: z
+        .lazy(() => unmarshalGenieAgentResourcesSchema)
         .nullish()
         .transform(v => v ?? undefined),
       instructions: z
@@ -630,7 +613,7 @@ export const unmarshalGenieAgentDefinitionSchema: z.ZodType<GenieAgentDefinition
     })
     .transform(d => ({
       config: d.config,
-      dataSources: d.data_sources,
+      resources: d.resources,
       instructions: d.instructions,
       benchmarks: d.benchmarks,
     }));
@@ -657,14 +640,12 @@ export const unmarshalGenieAgentExampleQuestionSqlSchema: z.ZodType<GenieAgentEx
 export const unmarshalGenieAgentInstructionsSchema: z.ZodType<GenieAgentInstructions> =
   z
     .object({
-      text_instructions: z
-        .array(z.lazy(() => unmarshalGenieAgentTextInstructionSchema))
-        .optional(),
+      text_instruction: z
+        .lazy(() => unmarshalGenieAgentTextInstructionSchema)
+        .nullish()
+        .transform(v => v ?? undefined),
       example_question_sqls: z
         .array(z.lazy(() => unmarshalGenieAgentExampleQuestionSqlSchema))
-        .optional(),
-      sql_functions: z
-        .array(z.lazy(() => unmarshalGenieAgentSqlFunctionSchema))
         .optional(),
       join_specs: z
         .array(z.lazy(() => unmarshalGenieAgentJoinSpecSchema))
@@ -675,9 +656,8 @@ export const unmarshalGenieAgentInstructionsSchema: z.ZodType<GenieAgentInstruct
         .transform(v => v ?? undefined),
     })
     .transform(d => ({
-      textInstructions: d.text_instructions,
+      textInstruction: d.text_instruction,
       exampleQuestionSqls: d.example_question_sqls,
-      sqlFunctions: d.sql_functions,
       joinSpecs: d.join_specs,
       sqlSnippets: d.sql_snippets,
     }));
@@ -727,6 +707,27 @@ export const unmarshalGenieAgentMcpConnectionSchema: z.ZodType<GenieAgentMcpConn
     })
     .transform(d => ({
       mcpConnection: d.mcp_connection,
+    }));
+
+export const unmarshalGenieAgentResourcesSchema: z.ZodType<GenieAgentResources> =
+  z
+    .object({
+      tables: z.array(z.lazy(() => unmarshalGenieAgentTableSchema)).optional(),
+      volumes: z
+        .array(z.lazy(() => unmarshalGenieAgentVolumeSchema))
+        .optional(),
+      mcp_connections: z
+        .array(z.lazy(() => unmarshalGenieAgentMcpConnectionSchema))
+        .optional(),
+      sql_functions: z
+        .array(z.lazy(() => unmarshalGenieAgentSqlFunctionSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      tables: d.tables,
+      volumes: d.volumes,
+      mcpConnections: d.mcp_connections,
+      sqlFunctions: d.sql_functions,
     }));
 
 export const unmarshalGenieAgentSampleQuestionSchema: z.ZodType<GenieAgentSampleQuestion> =
@@ -916,6 +917,26 @@ export const unmarshalListGenieAgentsResponseSchema: z.ZodType<ListGenieAgentsRe
       unreachable: d.unreachable,
     }));
 
+export const marshalCreateGenieAgentRequestSchema: z.ZodType = z
+  .object({
+    genieAgent: z.lazy(() => marshalGenieAgentSchema).optional(),
+    genieAgentId: z.string().optional(),
+  })
+  .transform(d => ({
+    genie_agent: d.genieAgent,
+    genie_agent_id: d.genieAgentId,
+  }));
+
+export const marshalDeleteGenieAgentRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    etag: d.etag,
+  }));
+
 export const marshalGenieAgentSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1014,30 +1035,16 @@ export const marshalGenieAgentConfigSchema: z.ZodType = z
     sample_questions: d.sampleQuestions,
   }));
 
-export const marshalGenieAgentDataSourcesSchema: z.ZodType = z
-  .object({
-    tables: z.array(z.lazy(() => marshalGenieAgentTableSchema)).optional(),
-    volumes: z.array(z.lazy(() => marshalGenieAgentVolumeSchema)).optional(),
-    mcpConnections: z
-      .array(z.lazy(() => marshalGenieAgentMcpConnectionSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    tables: d.tables,
-    volumes: d.volumes,
-    mcp_connections: d.mcpConnections,
-  }));
-
 export const marshalGenieAgentDefinitionSchema: z.ZodType = z
   .object({
     config: z.lazy(() => marshalGenieAgentConfigSchema).optional(),
-    dataSources: z.lazy(() => marshalGenieAgentDataSourcesSchema).optional(),
+    resources: z.lazy(() => marshalGenieAgentResourcesSchema).optional(),
     instructions: z.lazy(() => marshalGenieAgentInstructionsSchema).optional(),
     benchmarks: z.lazy(() => marshalGenieAgentBenchmarksSchema).optional(),
   })
   .transform(d => ({
     config: d.config,
-    data_sources: d.dataSources,
+    resources: d.resources,
     instructions: d.instructions,
     benchmarks: d.benchmarks,
   }));
@@ -1062,14 +1069,11 @@ export const marshalGenieAgentExampleQuestionSqlSchema: z.ZodType = z
 
 export const marshalGenieAgentInstructionsSchema: z.ZodType = z
   .object({
-    textInstructions: z
-      .array(z.lazy(() => marshalGenieAgentTextInstructionSchema))
+    textInstruction: z
+      .lazy(() => marshalGenieAgentTextInstructionSchema)
       .optional(),
     exampleQuestionSqls: z
       .array(z.lazy(() => marshalGenieAgentExampleQuestionSqlSchema))
-      .optional(),
-    sqlFunctions: z
-      .array(z.lazy(() => marshalGenieAgentSqlFunctionSchema))
       .optional(),
     joinSpecs: z
       .array(z.lazy(() => marshalGenieAgentJoinSpecSchema))
@@ -1077,9 +1081,8 @@ export const marshalGenieAgentInstructionsSchema: z.ZodType = z
     sqlSnippets: z.lazy(() => marshalGenieAgentSqlSnippetsSchema).optional(),
   })
   .transform(d => ({
-    text_instructions: d.textInstructions,
+    text_instruction: d.textInstruction,
     example_question_sqls: d.exampleQuestionSqls,
-    sql_functions: d.sqlFunctions,
     join_specs: d.joinSpecs,
     sql_snippets: d.sqlSnippets,
   }));
@@ -1120,6 +1123,24 @@ export const marshalGenieAgentMcpConnectionSchema: z.ZodType = z
   })
   .transform(d => ({
     mcp_connection: d.mcpConnection,
+  }));
+
+export const marshalGenieAgentResourcesSchema: z.ZodType = z
+  .object({
+    tables: z.array(z.lazy(() => marshalGenieAgentTableSchema)).optional(),
+    volumes: z.array(z.lazy(() => marshalGenieAgentVolumeSchema)).optional(),
+    mcpConnections: z
+      .array(z.lazy(() => marshalGenieAgentMcpConnectionSchema))
+      .optional(),
+    sqlFunctions: z
+      .array(z.lazy(() => marshalGenieAgentSqlFunctionSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    tables: d.tables,
+    volumes: d.volumes,
+    mcp_connections: d.mcpConnections,
+    sql_functions: d.sqlFunctions,
   }));
 
 export const marshalGenieAgentSampleQuestionSchema: z.ZodType = z
@@ -1282,6 +1303,53 @@ export const marshalGenieAgentVolumeSchema: z.ZodType = z
     description: d.description,
   }));
 
+export const marshalGetGenieAgentRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalListGenieAgentsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    view: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    view: d.view,
+  }));
+
+export const marshalListGenieAgentsResponseSchema: z.ZodType = z
+  .object({
+    genieAgents: z.array(z.lazy(() => marshalGenieAgentSchema)).optional(),
+    nextPageToken: z.string().optional(),
+    unreachable: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    genie_agents: d.genieAgents,
+    next_page_token: d.nextPageToken,
+    unreachable: d.unreachable,
+  }));
+
+export const marshalUpdateGenieAgentRequestSchema: z.ZodType = z
+  .object({
+    genieAgent: z.lazy(() => marshalGenieAgentSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    genie_agent: d.genieAgent,
+    update_mask: d.updateMask,
+    etag: d.etag,
+  }));
+
 const genieAgentFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   definition: {
@@ -1310,41 +1378,49 @@ const genieAgentConfigFieldMaskSchema: FieldMaskSchema = {
   sampleQuestions: {wire: 'sample_questions'},
 };
 
-const genieAgentDataSourcesFieldMaskSchema: FieldMaskSchema = {
-  mcpConnections: {wire: 'mcp_connections'},
-  tables: {wire: 'tables'},
-  volumes: {wire: 'volumes'},
-};
-
 const genieAgentDefinitionFieldMaskSchema: FieldMaskSchema = {
   benchmarks: {
     wire: 'benchmarks',
     children: () => genieAgentBenchmarksFieldMaskSchema,
   },
   config: {wire: 'config', children: () => genieAgentConfigFieldMaskSchema},
-  dataSources: {
-    wire: 'data_sources',
-    children: () => genieAgentDataSourcesFieldMaskSchema,
-  },
   instructions: {
     wire: 'instructions',
     children: () => genieAgentInstructionsFieldMaskSchema,
+  },
+  resources: {
+    wire: 'resources',
+    children: () => genieAgentResourcesFieldMaskSchema,
   },
 };
 
 const genieAgentInstructionsFieldMaskSchema: FieldMaskSchema = {
   exampleQuestionSqls: {wire: 'example_question_sqls'},
   joinSpecs: {wire: 'join_specs'},
-  sqlFunctions: {wire: 'sql_functions'},
   sqlSnippets: {
     wire: 'sql_snippets',
     children: () => genieAgentSqlSnippetsFieldMaskSchema,
   },
-  textInstructions: {wire: 'text_instructions'},
+  textInstruction: {
+    wire: 'text_instruction',
+    children: () => genieAgentTextInstructionFieldMaskSchema,
+  },
+};
+
+const genieAgentResourcesFieldMaskSchema: FieldMaskSchema = {
+  mcpConnections: {wire: 'mcp_connections'},
+  sqlFunctions: {wire: 'sql_functions'},
+  tables: {wire: 'tables'},
+  volumes: {wire: 'volumes'},
 };
 
 const genieAgentSqlSnippetsFieldMaskSchema: FieldMaskSchema = {
   expressions: {wire: 'expressions'},
   filters: {wire: 'filters'},
   measures: {wire: 'measures'},
+};
+
+const genieAgentTextInstructionFieldMaskSchema: FieldMaskSchema = {
+  content: {wire: 'content'},
+  id: {wire: 'id'},
 };

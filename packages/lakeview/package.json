@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-lakeview",
-  "version": "0.54.4",
+  "version": "0.54.5",
   "description": "",
   "type": "module",
   "exports": {

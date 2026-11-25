@@ -774,6 +774,48 @@ export const marshalAlertConfigurationSchema: z.ZodType = z
     principal_overrides: d.principalOverrides,
   }));
 
+export const marshalAlertSpendStatusSchema: z.ZodType = z
+  .object({
+    scopeType: z.string().optional(),
+    timePeriod: z.string().optional(),
+    spend: z.string().optional(),
+    threshold: z.string().optional(),
+    percentConsumed: z.string().optional(),
+  })
+  .transform(d => ({
+    scope_type: d.scopeType,
+    time_period: d.timePeriod,
+    spend: d.spend,
+    threshold: d.threshold,
+    percent_consumed: d.percentConsumed,
+  }));
+
+export const marshalBudgetConfigurationSchema: z.ZodType = z
+  .object({
+    budgetConfigurationId: z.string().optional(),
+    accountId: z.string().optional(),
+    createTime: z.bigint().optional(),
+    updateTime: z.bigint().optional(),
+    alertConfigurations: z
+      .array(z.lazy(() => marshalAlertConfigurationSchema))
+      .optional(),
+    filter: z.lazy(() => marshalBudgetConfigurationFilterSchema).optional(),
+    displayName: z.string().optional(),
+    includeExternalSpend: z.boolean().optional(),
+    resourceType: z.string().optional(),
+  })
+  .transform(d => ({
+    budget_configuration_id: d.budgetConfigurationId,
+    account_id: d.accountId,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    alert_configurations: d.alertConfigurations,
+    filter: d.filter,
+    display_name: d.displayName,
+    include_external_spend: d.includeExternalSpend,
+    resource_type: d.resourceType,
+  }));
+
 export const marshalBudgetConfigurationFilterSchema: z.ZodType = z
   .object({
     workspaceId: z
@@ -823,6 +865,18 @@ export const marshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodType
       operator: d.operator,
       values: d.values,
     }));
+
+export const marshalBudgetSpendStatusSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    alertSpendStatuses: z
+      .array(z.lazy(() => marshalAlertSpendStatusSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    alert_spend_statuses: d.alertSpendStatuses,
+  }));
 
 export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
   .object({
@@ -899,6 +953,99 @@ export const marshalCreateBudgetConfigurationRequestSchema: z.ZodType = z
     budget: d.budget,
   }));
 
+export const marshalCreateBudgetConfigurationResponseSchema: z.ZodType = z
+  .object({
+    budget: z.lazy(() => marshalBudgetConfigurationSchema).optional(),
+  })
+  .transform(d => ({
+    budget: d.budget,
+  }));
+
+export const marshalDeleteBudgetConfigurationRequestSchema: z.ZodType = z
+  .object({
+    budgetId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    budget_id: d.budgetId,
+    account_id: d.accountId,
+  }));
+
+export const marshalDeleteBudgetConfigurationResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalGetBudgetConfigurationRequestSchema: z.ZodType = z
+  .object({
+    budgetId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    budget_id: d.budgetId,
+    account_id: d.accountId,
+  }));
+
+export const marshalGetBudgetConfigurationResponseSchema: z.ZodType = z
+  .object({
+    budget: z.lazy(() => marshalBudgetConfigurationSchema).optional(),
+  })
+  .transform(d => ({
+    budget: d.budget,
+  }));
+
+export const marshalGetBudgetSpendStatusRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalListBudgetConfigurationsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListBudgetConfigurationsResponseSchema: z.ZodType = z
+  .object({
+    budgets: z.array(z.lazy(() => marshalBudgetConfigurationSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    budgets: d.budgets,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListBudgetSpendStatusesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+    filter: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+    filter: d.filter,
+  }));
+
+export const marshalListBudgetSpendStatusesResponseSchema: z.ZodType = z
+  .object({
+    budgetSpendStatuses: z
+      .array(z.lazy(() => marshalBudgetSpendStatusSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    budget_spend_statuses: d.budgetSpendStatuses,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalPrincipalOverrideSchema: z.ZodType = z
   .object({
     principalId: z.bigint().optional(),
@@ -940,5 +1087,13 @@ export const marshalUpdateBudgetConfigurationRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     budget_id: d.budgetId,
+    budget: d.budget,
+  }));
+
+export const marshalUpdateBudgetConfigurationResponseSchema: z.ZodType = z
+  .object({
+    budget: z.lazy(() => marshalBudgetConfigurationSchema).optional(),
+  })
+  .transform(d => ({
     budget: d.budget,
   }));

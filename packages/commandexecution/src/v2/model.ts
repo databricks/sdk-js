@@ -281,6 +281,8 @@ export const marshalCancelCommandRequestSchema: z.ZodType = z
     contextId: d.contextId,
   }));
 
+export const marshalCancelResponseSchema: z.ZodType = z.object({});
+
 export const marshalCreateContextRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
@@ -289,6 +291,14 @@ export const marshalCreateContextRequestSchema: z.ZodType = z
   .transform(d => ({
     clusterId: d.clusterId,
     language: d.language,
+  }));
+
+export const marshalCreateResponseSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
   }));
 
 export const marshalDestroyContextRequestSchema: z.ZodType = z
@@ -300,6 +310,8 @@ export const marshalDestroyContextRequestSchema: z.ZodType = z
     clusterId: d.clusterId,
     contextId: d.contextId,
   }));
+
+export const marshalDestroyResponseSchema: z.ZodType = z.object({});
 
 export const marshalExecuteCommandRequestSchema: z.ZodType = z
   .object({
@@ -313,4 +325,74 @@ export const marshalExecuteCommandRequestSchema: z.ZodType = z
     contextId: d.contextId,
     language: d.language,
     command: d.command,
+  }));
+
+export const marshalGetCommandStatusRequestSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+    contextId: z.string().optional(),
+    commandId: z.string().optional(),
+  })
+  .transform(d => ({
+    clusterId: d.clusterId,
+    contextId: d.contextId,
+    commandId: d.commandId,
+  }));
+
+export const marshalGetCommandStatusResponseSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    status: z.string().optional(),
+    results: z.lazy(() => marshalResultsSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    status: d.status,
+    results: d.results,
+  }));
+
+export const marshalGetContextStatusRequestSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+    contextId: z.string().optional(),
+  })
+  .transform(d => ({
+    clusterId: d.clusterId,
+    contextId: d.contextId,
+  }));
+
+export const marshalGetContextStatusResponseSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    status: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    status: d.status,
+  }));
+
+export const marshalResultsSchema: z.ZodType = z
+  .object({
+    cause: z.string().optional(),
+    data: jsonValueSchema.optional(),
+    fileName: z.string().optional(),
+    fileNames: z.array(z.string()).optional(),
+    isJsonSchema: z.boolean().optional(),
+    pos: z.number().optional(),
+    resultType: z.string().optional(),
+    schema: z.array(jsonObjectSchema).optional(),
+    summary: z.string().optional(),
+    truncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    cause: d.cause,
+    data: d.data,
+    fileName: d.fileName,
+    fileNames: d.fileNames,
+    isJsonSchema: d.isJsonSchema,
+    pos: d.pos,
+    resultType: d.resultType,
+    schema: d.schema,
+    summary: d.summary,
+    truncated: d.truncated,
   }));

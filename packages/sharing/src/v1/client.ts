@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -152,8 +153,11 @@ export class SharingClient {
     options?: CallOptions
   ): Promise<FederationPolicy> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies`;
-    const body = marshalRequest(req.policy, marshalFederationPolicySchema);
+    const url = `${host}/api/2.0/data-sharing/recipients/${encodePathVariable(req.recipientName ?? '')}/federation-policies`;
+    const body =
+      req.policy === undefined
+        ? 'null'
+        : marshalRequest(req.policy, marshalFederationPolicySchema);
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -279,8 +283,14 @@ export class SharingClient {
     req: DeleteFederationPolicyRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.recipientName === undefined) {
+      throw new Error('path parameter "recipient_name" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/data-sharing/recipients/${encodePathVariable(req.recipientName)}/federation-policies/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -301,8 +311,11 @@ export class SharingClient {
     req: DeleteProviderRequest,
     options?: CallOptions
   ): Promise<DeleteProviderResponse> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/providers/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/providers/${encodePathVariable(req.nameArg)}`;
     let resp: DeleteProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -329,8 +342,11 @@ export class SharingClient {
     req: DeleteRecipientRequest,
     options?: CallOptions
   ): Promise<DeleteRecipientResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/recipients/${encodePathVariable(req.name)}`;
     let resp: DeleteRecipientResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -357,8 +373,11 @@ export class SharingClient {
     req: DeleteShareRequest,
     options?: CallOptions
   ): Promise<DeleteShareResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/shares/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/shares/${encodePathVariable(req.name)}`;
     let resp: DeleteShareResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -385,8 +404,11 @@ export class SharingClient {
     req: GetActivationUrlInfoRequest,
     options?: CallOptions
   ): Promise<GetActivationUrlInfoResponse> {
+    if (req.activationUrl === undefined) {
+      throw new Error('path parameter "activation_url" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/public/data_sharing_activation_info/${req.activationUrl ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/public/data_sharing_activation_info/${encodePathVariable(req.activationUrl)}`;
     let resp: GetActivationUrlInfoResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -419,8 +441,14 @@ export class SharingClient {
     req: GetFederationPolicyRequest,
     options?: CallOptions
   ): Promise<FederationPolicy> {
+    if (req.recipientName === undefined) {
+      throw new Error('path parameter "recipient_name" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/data-sharing/recipients/${encodePathVariable(req.recipientName)}/federation-policies/${encodePathVariable(req.name)}`;
     let resp: FederationPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -450,8 +478,11 @@ export class SharingClient {
     req: GetProviderRequest,
     options?: CallOptions
   ): Promise<ProviderInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/providers/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/providers/${encodePathVariable(req.nameArg)}`;
     let resp: ProviderInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -483,8 +514,11 @@ export class SharingClient {
     req: GetRecipientRequest,
     options?: CallOptions
   ): Promise<RecipientInfo> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/recipients/${encodePathVariable(req.name)}`;
     let resp: RecipientInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -511,8 +545,11 @@ export class SharingClient {
     req: GetShareRequest,
     options?: CallOptions
   ): Promise<ShareInfo> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/shares/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/shares/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.includeSharedData !== undefined) {
       params.append('include_shared_data', String(req.includeSharedData));
@@ -548,8 +585,11 @@ export class SharingClient {
     req: ListFederationPoliciesRequest,
     options?: CallOptions
   ): Promise<ListFederationPoliciesResponse> {
+    if (req.recipientName === undefined) {
+      throw new Error('path parameter "recipient_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/data-sharing/recipients/${req.recipientName ?? ''}/federation-policies`;
+    const url = `${host}/api/2.0/data-sharing/recipients/${encodePathVariable(req.recipientName)}/federation-policies`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -608,8 +648,14 @@ export class SharingClient {
     req: ListProviderShareAssetsRequest,
     options?: CallOptions
   ): Promise<ListProviderShareAssetsResponse> {
+    if (req.providerNameArg === undefined) {
+      throw new Error('path parameter "provider_name_arg" is required');
+    }
+    if (req.shareNameArg === undefined) {
+      throw new Error('path parameter "share_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/data-sharing/providers/${req.providerNameArg ?? ''}/shares/${req.shareNameArg ?? ''}`;
+    const url = `${host}/api/2.1/data-sharing/providers/${encodePathVariable(req.providerNameArg)}/shares/${encodePathVariable(req.shareNameArg)}`;
     const params = new URLSearchParams();
     if (req.tableMaxResults !== undefined) {
       params.append('table_max_results', String(req.tableMaxResults));
@@ -662,8 +708,11 @@ export class SharingClient {
     req: ListProviderSharesRequest,
     options?: CallOptions
   ): Promise<ListProviderSharesResponse> {
+    if (req.providerNameArg === undefined) {
+      throw new Error('path parameter "provider_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/providers/${req.providerNameArg ?? ''}/shares`;
+    const url = `${host}/api/2.1/unity-catalog/providers/${encodePathVariable(req.providerNameArg)}/shares`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -782,8 +831,11 @@ export class SharingClient {
     req: ListRecipientSharePermissionsRequest,
     options?: CallOptions
   ): Promise<GetRecipientSharePermissionsResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}/share-permissions`;
+    const url = `${host}/api/2.1/unity-catalog/recipients/${encodePathVariable(req.name)}/share-permissions`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -891,8 +943,11 @@ export class SharingClient {
     req: ListSharePermissionsRequest,
     options?: CallOptions
   ): Promise<GetSharePermissionsResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/shares/${req.name ?? ''}/permissions`;
+    const url = `${host}/api/2.1/unity-catalog/shares/${encodePathVariable(req.name)}/permissions`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -991,8 +1046,11 @@ export class SharingClient {
     req: RetrieveTokenRequest,
     options?: CallOptions
   ): Promise<RetrieveTokenResponse> {
+    if (req.activationUrl === undefined) {
+      throw new Error('path parameter "activation_url" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/public/data_sharing_activation/${req.activationUrl ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/public/data_sharing_activation/${encodePathVariable(req.activationUrl)}`;
     let resp: RetrieveTokenResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1022,8 +1080,11 @@ export class SharingClient {
     req: RotateRecipientTokenRequest,
     options?: CallOptions
   ): Promise<RecipientInfo> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/recipients/${req.name ?? ''}/rotate-token`;
+    const url = `${host}/api/2.1/unity-catalog/recipients/${encodePathVariable(req.name)}/rotate-token`;
     const body = marshalRequest(req, marshalRotateRecipientTokenRequestSchema);
     let resp: RecipientInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1054,8 +1115,11 @@ export class SharingClient {
     req: UpdateProviderRequest,
     options?: CallOptions
   ): Promise<ProviderInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/providers/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/providers/${encodePathVariable(req.nameArg)}`;
     const body = marshalRequest(req, marshalUpdateProviderRequestSchema);
     let resp: ProviderInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1086,8 +1150,11 @@ export class SharingClient {
     req: UpdateRecipientRequest,
     options?: CallOptions
   ): Promise<RecipientInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/recipients/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/recipients/${encodePathVariable(req.nameArg)}`;
     const body = marshalRequest(req, marshalUpdateRecipientRequestSchema);
     let resp: RecipientInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1131,8 +1198,11 @@ export class SharingClient {
     req: UpdateShareRequest,
     options?: CallOptions
   ): Promise<ShareInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/shares/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/shares/${encodePathVariable(req.nameArg)}`;
     const body = marshalRequest(req, marshalUpdateShareRequestSchema);
     let resp: ShareInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1167,8 +1237,11 @@ export class SharingClient {
     req: UpdateSharePermissionsRequest,
     options?: CallOptions
   ): Promise<UpdateSharePermissionsResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/shares/${req.name ?? ''}/permissions`;
+    const url = `${host}/api/2.1/unity-catalog/shares/${encodePathVariable(req.name)}/permissions`;
     const body = marshalRequest(
       req,
       marshalUpdateSharePermissionsRequestSchema

@@ -576,6 +576,17 @@ export const marshalColumnRelationshipSchema: z.ZodType = z
     target: d.target,
   }));
 
+export const marshalCreateExternalLineageRelationshipRequestSchema: z.ZodType =
+  z
+    .object({
+      externalLineageRelationship: z
+        .lazy(() => marshalCreateRequestExternalLineageSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      external_lineage_relationship: d.externalLineageRelationship,
+    }));
+
 export const marshalCreateRequestExternalLineageSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
@@ -596,7 +607,60 @@ export const marshalCreateRequestExternalLineageSchema: z.ZodType = z
     properties: d.properties,
   }));
 
+export const marshalDeleteExternalLineageRelationshipRequestSchema: z.ZodType =
+  z
+    .object({
+      externalLineageRelationship: z
+        .lazy(() => marshalDeleteRequestExternalLineageSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      external_lineage_relationship: d.externalLineageRelationship,
+    }));
+
 export const marshalDeleteRequestExternalLineageSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    source: z
+      .lazy(() => marshalExternalLineageRelationshipObjectSchema)
+      .optional(),
+    target: z
+      .lazy(() => marshalExternalLineageRelationshipObjectSchema)
+      .optional(),
+    columns: z.array(z.lazy(() => marshalColumnRelationshipSchema)).optional(),
+    properties: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    source: d.source,
+    target: d.target,
+    columns: d.columns,
+    properties: d.properties,
+  }));
+
+export const marshalDirectionSchema: z.ZodType = z.object({});
+
+export const marshalExternalLineageInfoSchema: z.ZodType = z
+  .object({
+    tableInfo: z.lazy(() => marshalLineageTableInfoSchema).optional(),
+    fileInfo: z.lazy(() => marshalLineageFileInfoSchema).optional(),
+    modelInfo: z.lazy(() => marshalLineageModelVersionInfoSchema).optional(),
+    externalMetadataInfo: z
+      .lazy(() => marshalLineageExternalMetadataInfoSchema)
+      .optional(),
+    externalLineageInfo: z
+      .lazy(() => marshalExternalLineageRelationshipSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    table_info: d.tableInfo,
+    file_info: d.fileInfo,
+    model_info: d.modelInfo,
+    external_metadata_info: d.externalMetadataInfo,
+    external_lineage_info: d.externalLineageInfo,
+  }));
+
+export const marshalExternalLineageRelationshipSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     source: z
@@ -686,6 +750,119 @@ export const marshalExternalLineageRelationshipTableSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
   }));
+
+export const marshalLineageExternalMetadataInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    systemType: z.string().optional(),
+    entityType: z.string().optional(),
+    eventTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    system_type: d.systemType,
+    entity_type: d.entityType,
+    event_time: d.eventTime,
+  }));
+
+export const marshalLineageFileInfoSchema: z.ZodType = z
+  .object({
+    path: z.string().optional(),
+    securableName: z.string().optional(),
+    storageLocation: z.string().optional(),
+    securableType: z.string().optional(),
+    eventTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+    securable_name: d.securableName,
+    storage_location: d.storageLocation,
+    securable_type: d.securableType,
+    event_time: d.eventTime,
+  }));
+
+export const marshalLineageModelVersionInfoSchema: z.ZodType = z
+  .object({
+    modelName: z.string().optional(),
+    version: z.bigint().optional(),
+    eventTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    model_name: d.modelName,
+    version: d.version,
+    event_time: d.eventTime,
+  }));
+
+export const marshalLineageTableInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    eventTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    event_time: d.eventTime,
+  }));
+
+export const marshalListExternalLineageRelationshipsRequestSchema: z.ZodType = z
+  .object({
+    objectInfo: z
+      .lazy(() => marshalExternalLineageRelationshipObjectSchema)
+      .optional(),
+    lineageDirection: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    object_info: d.objectInfo,
+    lineage_direction: d.lineageDirection,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListExternalLineageRelationshipsResponseSchema: z.ZodType =
+  z
+    .object({
+      externalLineageRelationships: z
+        .array(z.lazy(() => marshalExternalLineageInfoSchema))
+        .optional(),
+      nextPageToken: z.string().optional(),
+    })
+    .transform(d => ({
+      external_lineage_relationships: d.externalLineageRelationships,
+      next_page_token: d.nextPageToken,
+    }));
+
+export const marshalUpdateExternalLineageRelationshipRequestSchema: z.ZodType =
+  z
+    .object({
+      externalLineageRelationship: z
+        .lazy(() => marshalUpdateRequestExternalLineageSchema)
+        .optional(),
+      updateMask: z
+        .any()
+        .transform((m: FieldMask) => m.toString())
+        .optional(),
+    })
+    .transform(d => ({
+      external_lineage_relationship: d.externalLineageRelationship,
+      update_mask: d.updateMask,
+    }));
 
 export const marshalUpdateRequestExternalLineageSchema: z.ZodType = z
   .object({

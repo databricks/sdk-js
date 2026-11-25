@@ -288,6 +288,40 @@ export const unmarshalKeyAccessConfigurationSchema: z.ZodType<KeyAccessConfigura
       credentialId: d.credential_id,
     }));
 
+export const marshalAwsKeyInfoOutputSchema: z.ZodType = z
+  .object({
+    keyArn: z.string().optional(),
+    keyAlias: z.string().optional(),
+    keyRegion: z.string().optional(),
+    reuseKeyForClusterVolumes: z.boolean().optional(),
+  })
+  .transform(d => ({
+    key_arn: d.keyArn,
+    key_alias: d.keyAlias,
+    key_region: d.keyRegion,
+    reuse_key_for_cluster_volumes: d.reuseKeyForClusterVolumes,
+  }));
+
+export const marshalAzureKeyInfoSchema: z.ZodType = z
+  .object({
+    keyVaultUri: z.string().optional(),
+    keyName: z.string().optional(),
+    version: z.string().optional(),
+    tenantId: z.string().optional(),
+    diskEncryptionSetId: z.string().optional(),
+    keyAccessConfiguration: z
+      .lazy(() => marshalKeyAccessConfigurationSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    key_vault_uri: d.keyVaultUri,
+    key_name: d.keyName,
+    version: d.version,
+    tenant_id: d.tenantId,
+    disk_encryption_set_id: d.diskEncryptionSetId,
+    key_access_configuration: d.keyAccessConfiguration,
+  }));
+
 export const marshalCreateAwsKeyInfoSchema: z.ZodType = z
   .object({
     keyArn: z.string().optional(),
@@ -369,6 +403,67 @@ export const marshalCreateGcpKeyInfoSchema: z.ZodType = z
     manual: d.manual,
   }));
 
+export const marshalCustomerManagedKeySchema: z.ZodType = z
+  .object({
+    customerManagedKeyId: z.string().optional(),
+    creationTime: z.bigint().optional(),
+    accountId: z.string().optional(),
+    keyInfo: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsKeyInfo'),
+          awsKeyInfo: z.lazy(() => marshalAwsKeyInfoOutputSchema),
+        }),
+        z.object({
+          $case: z.literal('azureKeyInfo'),
+          azureKeyInfo: z.lazy(() => marshalAzureKeyInfoSchema),
+        }),
+        z.object({
+          $case: z.literal('gcpKeyInfo'),
+          gcpKeyInfo: z.lazy(() => marshalGcpKeyInfoSchema),
+        }),
+      ])
+      .optional(),
+    useCases: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    customer_managed_key_id: d.customerManagedKeyId,
+    creation_time: d.creationTime,
+    account_id: d.accountId,
+    ...(d.keyInfo?.$case === 'awsKeyInfo' && {
+      aws_key_info: d.keyInfo.awsKeyInfo,
+    }),
+    ...(d.keyInfo?.$case === 'azureKeyInfo' && {
+      azure_key_info: d.keyInfo.azureKeyInfo,
+    }),
+    ...(d.keyInfo?.$case === 'gcpKeyInfo' && {
+      gcp_key_info: d.keyInfo.gcpKeyInfo,
+    }),
+    use_cases: d.useCases,
+  }));
+
+export const marshalDeleteCustomerManagedKeyRequestSchema: z.ZodType = z
+  .object({
+    customerManagedKeyId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    customer_managed_key_id: d.customerManagedKeyId,
+    account_id: d.accountId,
+  }));
+
+export const marshalGcpKeyInfoSchema: z.ZodType = z
+  .object({
+    kmsKeyId: z.string().optional(),
+    gcpServiceAccount: z.lazy(() => marshalGcpServiceAccountSchema).optional(),
+    manual: z.boolean().optional(),
+  })
+  .transform(d => ({
+    kms_key_id: d.kmsKeyId,
+    gcp_service_account: d.gcpServiceAccount,
+    manual: d.manual,
+  }));
+
 export const marshalGcpServiceAccountSchema: z.ZodType = z
   .object({
     serviceAccountEmail: z.string().optional(),
@@ -377,10 +472,38 @@ export const marshalGcpServiceAccountSchema: z.ZodType = z
     service_account_email: d.serviceAccountEmail,
   }));
 
+export const marshalGetCustomerManagedKeyRequestSchema: z.ZodType = z
+  .object({
+    customerManagedKeyId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    customer_managed_key_id: d.customerManagedKeyId,
+    account_id: d.accountId,
+  }));
+
 export const marshalKeyAccessConfigurationSchema: z.ZodType = z
   .object({
     credentialId: z.string().optional(),
   })
   .transform(d => ({
     credential_id: d.credentialId,
+  }));
+
+export const marshalListCustomerManagedKeyRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+  }));
+
+export const marshalListCustomerManagedKeyResponseSchema: z.ZodType = z
+  .object({
+    customerManagedKeys: z
+      .array(z.lazy(() => marshalCustomerManagedKeySchema))
+      .optional(),
+  })
+  .transform(d => ({
+    customer_managed_keys: d.customerManagedKeys,
   }));

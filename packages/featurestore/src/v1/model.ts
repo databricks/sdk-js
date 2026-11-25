@@ -200,6 +200,58 @@ export const unmarshalPublishTableResponseSchema: z.ZodType<PublishTableResponse
       pipelineId: d.pipeline_id,
     }));
 
+export const marshalCreateOnlineStoreRequestSchema: z.ZodType = z
+  .object({
+    onlineStore: z.lazy(() => marshalOnlineStoreSchema).optional(),
+  })
+  .transform(d => ({
+    online_store: d.onlineStore,
+  }));
+
+export const marshalDeleteOnlineStoreRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteOnlineTableRequestSchema: z.ZodType = z
+  .object({
+    onlineTableName: z.string().optional(),
+  })
+  .transform(d => ({
+    online_table_name: d.onlineTableName,
+  }));
+
+export const marshalGetOnlineStoreRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalListOnlineStoresRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListOnlineStoresResponseSchema: z.ZodType = z
+  .object({
+    onlineStores: z.array(z.lazy(() => marshalOnlineStoreSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    online_stores: d.onlineStores,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalOnlineStoreSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -249,6 +301,29 @@ export const marshalPublishTableRequestSchema: z.ZodType = z
   .transform(d => ({
     source_table_name: d.sourceTableName,
     publish_spec: d.publishSpec,
+  }));
+
+export const marshalPublishTableResponseSchema: z.ZodType = z
+  .object({
+    onlineTableName: z.string().optional(),
+    pipelineId: z.string().optional(),
+  })
+  .transform(d => ({
+    online_table_name: d.onlineTableName,
+    pipeline_id: d.pipelineId,
+  }));
+
+export const marshalUpdateOnlineStoreRequestSchema: z.ZodType = z
+  .object({
+    onlineStore: z.lazy(() => marshalOnlineStoreSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    online_store: d.onlineStore,
+    update_mask: d.updateMask,
   }));
 
 const onlineStoreFieldMaskSchema: FieldMaskSchema = {

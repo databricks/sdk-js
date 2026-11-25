@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -184,8 +185,11 @@ export class TablesClient {
     req: DeleteTableRequest,
     options?: CallOptions
   ): Promise<DeleteTableResponse> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/tables/${encodePathVariable(req.fullNameArg)}`;
     let resp: DeleteTableResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -222,8 +226,11 @@ export class TablesClient {
     req: DeleteTableConstraintRequest,
     options?: CallOptions
   ): Promise<DeleteTableConstraintResponse> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/constraints/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/constraints/${encodePathVariable(req.fullNameArg)}`;
     const params = new URLSearchParams();
     if (req.constraintName !== undefined) {
       params.append('constraint_name', req.constraintName);
@@ -270,8 +277,11 @@ export class TablesClient {
     req: GetTableRequest,
     options?: CallOptions
   ): Promise<TableInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/tables/${encodePathVariable(req.fullNameArg)}`;
     const params = new URLSearchParams();
     if (req.includeDeltaMetadata !== undefined) {
       params.append('include_delta_metadata', String(req.includeDeltaMetadata));
@@ -494,8 +504,11 @@ export class TablesClient {
     req: TableExistsRequest,
     options?: CallOptions
   ): Promise<TableExistsResponse> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}/exists`;
+    const url = `${host}/api/2.1/unity-catalog/tables/${encodePathVariable(req.fullNameArg)}/exists`;
     let resp: TableExistsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -526,8 +539,11 @@ export class TablesClient {
     req: UpdateTableRequest,
     options?: CallOptions
   ): Promise<UpdateTableResponse> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/tables/${encodePathVariable(req.fullNameArg)}`;
     const body = marshalRequest(req, marshalUpdateTableRequestSchema);
     let resp: UpdateTableResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

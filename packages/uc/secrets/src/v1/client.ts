@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -78,7 +79,10 @@ export class SecretsClient {
   ): Promise<Secret> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/unity-catalog/secrets`;
-    const body = marshalRequest(req.secret, marshalSecretSchema);
+    const body =
+      req.secret === undefined
+        ? 'null'
+        : marshalRequest(req.secret, marshalSecretSchema);
     let resp: Secret | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -109,8 +113,11 @@ export class SecretsClient {
     req: DeleteSecretRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.fullName === undefined) {
+      throw new Error('path parameter "full_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/secrets/${encodePathVariable(req.fullName)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -143,8 +150,11 @@ export class SecretsClient {
     req: GetSecretRequest,
     options?: CallOptions
   ): Promise<Secret> {
+    if (req.fullName === undefined) {
+      throw new Error('path parameter "full_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/secrets/${encodePathVariable(req.fullName)}`;
     const params = new URLSearchParams();
     if (req.includeValue !== undefined) {
       params.append('include_value', String(req.includeValue));
@@ -262,15 +272,21 @@ export class SecretsClient {
     req: UpdateSecretRequest,
     options?: CallOptions
   ): Promise<Secret> {
+    if (req.fullName === undefined) {
+      throw new Error('path parameter "full_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/secrets/${req.fullName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/secrets/${encodePathVariable(req.fullName)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.secret, marshalSecretSchema);
+    const body =
+      req.secret === undefined
+        ? 'null'
+        : marshalRequest(req.secret, marshalSecretSchema);
     let resp: Secret | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

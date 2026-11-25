@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -171,8 +172,11 @@ export class TokensClient {
     req: UpdateTokenRequest,
     options?: CallOptions
   ): Promise<UpdateTokenResponse> {
+    if (req.tokenId === undefined) {
+      throw new Error('path parameter "token_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/token/${req.tokenId ?? ''}`;
+    const url = `${host}/api/2.0/token/${encodePathVariable(req.tokenId)}`;
     const body = marshalRequest(req, marshalUpdateTokenRequestSchema);
     let resp: UpdateTokenResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

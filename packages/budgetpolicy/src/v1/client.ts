@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -74,7 +75,7 @@ export class BudgetPolicyClient {
     options?: CallOptions
   ): Promise<BudgetPolicy> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budget-policies`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/budget-policies`;
     const body = marshalRequest(req, marshalCreateBudgetPolicyRequestSchema);
     let resp: BudgetPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -99,8 +100,11 @@ export class BudgetPolicyClient {
     req: DeleteBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.policyId === undefined) {
+      throw new Error('path parameter "policy_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budget-policies/${req.policyId ?? ''}`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/budget-policies/${encodePathVariable(req.policyId)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -118,8 +122,11 @@ export class BudgetPolicyClient {
     req: GetBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<BudgetPolicy> {
+    if (req.policyId === undefined) {
+      throw new Error('path parameter "policy_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budget-policies/${req.policyId ?? ''}`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/budget-policies/${encodePathVariable(req.policyId)}`;
     let resp: BudgetPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -147,7 +154,7 @@ export class BudgetPolicyClient {
     options?: CallOptions
   ): Promise<ListBudgetPoliciesResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budget-policies`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/budget-policies`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -215,7 +222,7 @@ export class BudgetPolicyClient {
     options?: CallOptions
   ): Promise<BudgetPolicy> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budget-policies/${req.policy?.policyId ?? ''}`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/budget-policies/${encodePathVariable(req.policy?.policyId ?? '')}`;
     const params = new URLSearchParams();
     if (req.limitConfig !== undefined) {
       flattenQueryParams(
@@ -226,7 +233,10 @@ export class BudgetPolicyClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.policy, marshalBudgetPolicySchema);
+    const body =
+      req.policy === undefined
+        ? 'null'
+        : marshalRequest(req.policy, marshalBudgetPolicySchema);
     let resp: BudgetPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

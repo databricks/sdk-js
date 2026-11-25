@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -70,7 +71,10 @@ export class TagPoliciesClient {
   ): Promise<TagPolicy> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/tag-policies`;
-    const body = marshalRequest(req.tagPolicy, marshalTagPolicySchema);
+    const body =
+      req.tagPolicy === undefined
+        ? 'null'
+        : marshalRequest(req.tagPolicy, marshalTagPolicySchema);
     let resp: TagPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -97,8 +101,11 @@ export class TagPoliciesClient {
     req: DeleteTagPolicyRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.tagKey === undefined) {
+      throw new Error('path parameter "tag_key" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/tag-policies/${req.tagKey ?? ''}`;
+    const url = `${host}/api/2.1/tag-policies/${encodePathVariable(req.tagKey)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -119,8 +126,11 @@ export class TagPoliciesClient {
     req: GetTagPolicyRequest,
     options?: CallOptions
   ): Promise<TagPolicy> {
+    if (req.tagKey === undefined) {
+      throw new Error('path parameter "tag_key" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/tag-policies/${req.tagKey ?? ''}`;
+    const url = `${host}/api/2.1/tag-policies/${encodePathVariable(req.tagKey)}`;
     let resp: TagPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -201,15 +211,21 @@ export class TagPoliciesClient {
     req: UpdateTagPolicyRequest,
     options?: CallOptions
   ): Promise<TagPolicy> {
+    if (req.tagPolicy?.tagKey === undefined) {
+      throw new Error('path parameter "tag_key" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/tag-policies/${req.tagPolicy?.tagKey ?? ''}`;
+    const url = `${host}/api/2.1/tag-policies/${encodePathVariable(req.tagPolicy?.tagKey)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.tagPolicy, marshalTagPolicySchema);
+    const body =
+      req.tagPolicy === undefined
+        ? 'null'
+        : marshalRequest(req.tagPolicy, marshalTagPolicySchema);
     let resp: TagPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

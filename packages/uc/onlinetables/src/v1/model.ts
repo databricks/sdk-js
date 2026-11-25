@@ -488,6 +488,22 @@ export const marshalContinuousUpdateStatusSchema: z.ZodType = z
     initial_pipeline_sync_progress: d.initialPipelineSyncProgress,
   }));
 
+export const marshalCreateOnlineTableRequestSchema: z.ZodType = z
+  .object({
+    table: z.lazy(() => marshalOnlineTableSchema).optional(),
+  })
+  .transform(d => ({
+    table: d.table,
+  }));
+
+export const marshalDeleteOnlineTableRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalFailedStatusSchema: z.ZodType = z
   .object({
     lastProcessedCommitVersion: z.bigint().optional(),
@@ -499,6 +515,14 @@ export const marshalFailedStatusSchema: z.ZodType = z
   .transform(d => ({
     last_processed_commit_version: d.lastProcessedCommitVersion,
     timestamp: d.timestamp,
+  }));
+
+export const marshalGetOnlineTableRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalOnlineTableSchema: z.ZodType = z
@@ -624,6 +648,8 @@ export const marshalPipelineProgressSchema: z.ZodType = z
     sync_progress_completion: d.syncProgressCompletion,
     estimated_completion_time_seconds: d.estimatedCompletionTimeSeconds,
   }));
+
+export const marshalProvisioningInfoSchema: z.ZodType = z.object({});
 
 export const marshalProvisioningStatusSchema: z.ZodType = z
   .object({

@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -131,8 +132,11 @@ export class LakewatchClient {
     req: GetBuiltinParserRequest,
     options?: CallOptions
   ): Promise<BuiltinParser> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     let resp: BuiltinParser | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -159,8 +163,11 @@ export class LakewatchClient {
     req: GetBuiltinParserVersionRequest,
     options?: CallOptions
   ): Promise<BuiltinParserVersion> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     let resp: BuiltinParserVersion | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -190,8 +197,11 @@ export class LakewatchClient {
     req: ListBuiltinParserVersionsRequest,
     options?: CallOptions
   ): Promise<ListBuiltinParserVersionsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.parent ?? ''}/versions`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.parent)}/versions`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -307,8 +317,11 @@ export class LakewatchClient {
     req: GetAlertConfigRequest,
     options?: CallOptions
   ): Promise<AlertConfig> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     let resp: AlertConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -335,8 +348,11 @@ export class LakewatchClient {
     req: GetCommonConfigRequest,
     options?: CallOptions
   ): Promise<CommonConfig> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     let resp: CommonConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -363,8 +379,11 @@ export class LakewatchClient {
     req: GetDatasourceConfigRequest,
     options?: CallOptions
   ): Promise<DatasourceConfig> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     let resp: DatasourceConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -391,8 +410,11 @@ export class LakewatchClient {
     req: GetRuleConfigRequest,
     options?: CallOptions
   ): Promise<RuleConfig> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     let resp: RuleConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -420,7 +442,7 @@ export class LakewatchClient {
     options?: CallOptions
   ): Promise<AlertConfig> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.alertConfig?.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.alertConfig?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -430,7 +452,10 @@ export class LakewatchClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.alertConfig, marshalAlertConfigSchema);
+    const body =
+      req.alertConfig === undefined
+        ? 'null'
+        : marshalRequest(req.alertConfig, marshalAlertConfigSchema);
     let resp: AlertConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -464,7 +489,7 @@ export class LakewatchClient {
     options?: CallOptions
   ): Promise<CommonConfig> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.commonConfig?.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.commonConfig?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -474,7 +499,10 @@ export class LakewatchClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.commonConfig, marshalCommonConfigSchema);
+    const body =
+      req.commonConfig === undefined
+        ? 'null'
+        : marshalRequest(req.commonConfig, marshalCommonConfigSchema);
     let resp: CommonConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -508,7 +536,7 @@ export class LakewatchClient {
     options?: CallOptions
   ): Promise<DatasourceConfig> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.datasourceConfig?.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.datasourceConfig?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -518,10 +546,10 @@ export class LakewatchClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.datasourceConfig,
-      marshalDatasourceConfigSchema
-    );
+    const body =
+      req.datasourceConfig === undefined
+        ? 'null'
+        : marshalRequest(req.datasourceConfig, marshalDatasourceConfigSchema);
     let resp: DatasourceConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -555,7 +583,7 @@ export class LakewatchClient {
     options?: CallOptions
   ): Promise<RuleConfig> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.ruleConfig?.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.ruleConfig?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -565,7 +593,10 @@ export class LakewatchClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.ruleConfig, marshalRuleConfigSchema);
+    const body =
+      req.ruleConfig === undefined
+        ? 'null'
+        : marshalRequest(req.ruleConfig, marshalRuleConfigSchema);
     let resp: RuleConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -600,7 +631,10 @@ export class LakewatchClient {
   ): Promise<Datasource> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/lakewatch/datasources`;
-    const body = marshalRequest(req.datasource, marshalDatasourceSchema);
+    const body =
+      req.datasource === undefined
+        ? 'null'
+        : marshalRequest(req.datasource, marshalDatasourceSchema);
     let resp: Datasource | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -627,8 +661,11 @@ export class LakewatchClient {
     req: DeleteDatasourceRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -649,8 +686,11 @@ export class LakewatchClient {
     req: GetDatasourceRequest,
     options?: CallOptions
   ): Promise<Datasource> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     let resp: Datasource | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -748,7 +788,7 @@ export class LakewatchClient {
     options?: CallOptions
   ): Promise<Datasource> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.datasource?.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.datasource?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -758,7 +798,10 @@ export class LakewatchClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.datasource, marshalDatasourceSchema);
+    const body =
+      req.datasource === undefined
+        ? 'null'
+        : marshalRequest(req.datasource, marshalDatasourceSchema);
     let resp: Datasource | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -793,7 +836,10 @@ export class LakewatchClient {
   ): Promise<Parser> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/lakewatch/parsers`;
-    const body = marshalRequest(req.parser, marshalParserSchema);
+    const body =
+      req.parser === undefined
+        ? 'null'
+        : marshalRequest(req.parser, marshalParserSchema);
     let resp: Parser | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -824,9 +870,15 @@ export class LakewatchClient {
     req: CreateParserVersionRequest,
     options?: CallOptions
   ): Promise<ParserVersion> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.parent ?? ''}/versions`;
-    const body = marshalRequest(req.parserVersion, marshalParserVersionSchema);
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.parent)}/versions`;
+    const body =
+      req.parserVersion === undefined
+        ? 'null'
+        : marshalRequest(req.parserVersion, marshalParserVersionSchema);
     let resp: ParserVersion | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -856,8 +908,11 @@ export class LakewatchClient {
     req: DeleteParserRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -883,8 +938,11 @@ export class LakewatchClient {
     req: DeleteParserVersionRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -908,8 +966,11 @@ export class LakewatchClient {
     req: GetParserRequest,
     options?: CallOptions
   ): Promise<Parser> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     let resp: Parser | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -936,8 +997,11 @@ export class LakewatchClient {
     req: GetParserVersionRequest,
     options?: CallOptions
   ): Promise<ParserVersion> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     let resp: ParserVersion | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -964,8 +1028,11 @@ export class LakewatchClient {
     req: ListParserVersionsRequest,
     options?: CallOptions
   ): Promise<ListParserVersionsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.parent ?? ''}/versions`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.parent)}/versions`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -1083,7 +1150,10 @@ export class LakewatchClient {
   ): Promise<Rule> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/lakewatch/rules`;
-    const body = marshalRequest(req.rule, marshalRuleSchema);
+    const body =
+      req.rule === undefined
+        ? 'null'
+        : marshalRequest(req.rule, marshalRuleSchema);
     let resp: Rule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1110,8 +1180,11 @@ export class LakewatchClient {
     req: DeleteRuleRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -1129,8 +1202,11 @@ export class LakewatchClient {
 
   /** Returns a single rule by its resource name. */
   async getRule(req: GetRuleRequest, options?: CallOptions): Promise<Rule> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.name)}`;
     let resp: Rule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1224,7 +1300,7 @@ export class LakewatchClient {
     options?: CallOptions
   ): Promise<Rule> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakewatch/${req.rule?.name ?? ''}`;
+    const url = `${host}/api/2.0/lakewatch/${encodePathVariable(req.rule?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -1234,7 +1310,10 @@ export class LakewatchClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.rule, marshalRuleSchema);
+    const body =
+      req.rule === undefined
+        ? 'null'
+        : marshalRequest(req.rule, marshalRuleSchema);
     let resp: Rule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

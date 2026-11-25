@@ -124,3 +124,61 @@ export const unmarshalQuotaInfoSchema: z.ZodType<QuotaInfo> = z
     quotaLimit: d.quota_limit,
     lastRefreshedAt: d.last_refreshed_at,
   }));
+
+export const marshalGetQuotaRequestSchema: z.ZodType = z
+  .object({
+    parentSecurableType: z.string().optional(),
+    parentFullName: z.string().optional(),
+    quotaName: z.string().optional(),
+  })
+  .transform(d => ({
+    parent_securable_type: d.parentSecurableType,
+    parent_full_name: d.parentFullName,
+    quota_name: d.quotaName,
+  }));
+
+export const marshalGetQuotaResponseSchema: z.ZodType = z
+  .object({
+    quotaInfo: z.lazy(() => marshalQuotaInfoSchema).optional(),
+  })
+  .transform(d => ({
+    quota_info: d.quotaInfo,
+  }));
+
+export const marshalListQuotasRequestSchema: z.ZodType = z
+  .object({
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListQuotasResponseSchema: z.ZodType = z
+  .object({
+    quotas: z.array(z.lazy(() => marshalQuotaInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    quotas: d.quotas,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalQuotaInfoSchema: z.ZodType = z
+  .object({
+    parentSecurableType: z.string().optional(),
+    parentFullName: z.string().optional(),
+    quotaName: z.string().optional(),
+    quotaCount: z.number().optional(),
+    quotaLimit: z.number().optional(),
+    lastRefreshedAt: z.bigint().optional(),
+  })
+  .transform(d => ({
+    parent_securable_type: d.parentSecurableType,
+    parent_full_name: d.parentFullName,
+    quota_name: d.quotaName,
+    quota_count: d.quotaCount,
+    quota_limit: d.quotaLimit,
+    last_refreshed_at: d.lastRefreshedAt,
+  }));

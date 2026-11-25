@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -105,7 +106,7 @@ export class NotificationDestinationsClient {
     options?: CallOptions
   ): Promise<Empty> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/notification-destinations/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/notification-destinations/${encodePathVariable(req.id ?? '')}`;
     let resp: Empty | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -133,7 +134,7 @@ export class NotificationDestinationsClient {
     options?: CallOptions
   ): Promise<NotificationDestination> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/notification-destinations/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/notification-destinations/${encodePathVariable(req.id ?? '')}`;
     let resp: NotificationDestination | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -218,7 +219,7 @@ export class NotificationDestinationsClient {
     options?: CallOptions
   ): Promise<NotificationDestination> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/notification-destinations/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/notification-destinations/${encodePathVariable(req.id ?? '')}`;
     const body = marshalRequest(
       req,
       marshalUpdateNotificationDestinationRequestSchema
