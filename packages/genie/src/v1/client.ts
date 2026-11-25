@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   sendAndCheckError,
@@ -170,8 +171,11 @@ export class GenieClient {
     req: DownloadMessageAttachmentVisualizationRequest,
     options?: CallOptions
   ): Promise<DownloadMessageAttachmentVisualizationResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/${req.name ?? ''}/download-visualization`;
+    const url = `${host}/api/2.0/genie/${encodePathVariable(req.name)}/download-visualization`;
     let resp: DownloadMessageAttachmentVisualizationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({Accept: 'application/octet-stream'});
@@ -204,8 +208,17 @@ export class GenieClient {
     req: GenieCancelResponseRequest,
     options?: CallOptions
   ): Promise<GenieMessage> {
+    if (req.agentId === undefined) {
+      throw new Error('path parameter "agent_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.responseId === undefined) {
+      throw new Error('path parameter "response_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/agents/${req.agentId ?? ''}/conversations/${req.conversationId ?? ''}/responses/${req.responseId ?? ''}/cancel`;
+    const url = `${host}/api/2.0/genie/agents/${encodePathVariable(req.agentId)}/conversations/${encodePathVariable(req.conversationId)}/responses/${encodePathVariable(req.responseId)}/cancel`;
     const body = marshalRequest(req, marshalGenieCancelResponseRequestSchema);
     let resp: GenieMessage | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -238,8 +251,14 @@ export class GenieClient {
     req: GenieCreateConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieMessage> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages`;
     const body = marshalRequest(
       req,
       marshalGenieCreateConversationMessageRequestSchema
@@ -306,8 +325,11 @@ export class GenieClient {
     req: GenieCreateEvalRunRequest,
     options?: CallOptions
   ): Promise<GenieEvalRunResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/eval-runs`;
     const body = marshalRequest(req, marshalGenieCreateEvalRunRequestSchema);
     let resp: GenieEvalRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -335,8 +357,17 @@ export class GenieClient {
     req: GenieCreateMessageCommentRequest,
     options?: CallOptions
   ): Promise<GenieMessageComment> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.messageId === undefined) {
+      throw new Error('path parameter "message_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/comments`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages/${encodePathVariable(req.messageId)}/comments`;
     const body = marshalRequest(
       req,
       marshalGenieCreateMessageCommentRequestSchema
@@ -370,8 +401,14 @@ export class GenieClient {
     req: GenieDeleteConversationRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -392,8 +429,17 @@ export class GenieClient {
     req: GenieDeleteConversationMessageRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.messageId === undefined) {
+      throw new Error('path parameter "message_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages/${encodePathVariable(req.messageId)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -414,8 +460,20 @@ export class GenieClient {
     req: GenieExecuteMessageAttachmentQueryRequest,
     options?: CallOptions
   ): Promise<GenieGetMessageQueryResultResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.messageId === undefined) {
+      throw new Error('path parameter "message_id" is required');
+    }
+    if (req.attachmentId === undefined) {
+      throw new Error('path parameter "attachment_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/attachments/${req.attachmentId ?? ''}/execute-query`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages/${encodePathVariable(req.messageId)}/attachments/${encodePathVariable(req.attachmentId)}/execute-query`;
     const body = marshalRequest(
       req,
       marshalGenieExecuteMessageAttachmentQueryRequestSchema
@@ -449,8 +507,17 @@ export class GenieClient {
     req: GenieExecuteMessageQueryRequest,
     options?: CallOptions
   ): Promise<GenieGetMessageQueryResultResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.messageId === undefined) {
+      throw new Error('path parameter "message_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/execute-query`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages/${encodePathVariable(req.messageId)}/execute-query`;
     const body = marshalRequest(
       req,
       marshalGenieExecuteMessageQueryRequestSchema
@@ -504,8 +571,20 @@ export class GenieClient {
     req: GenieGenerateDownloadFullQueryResultRequest,
     options?: CallOptions
   ): Promise<GenieGenerateDownloadFullQueryResultResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.messageId === undefined) {
+      throw new Error('path parameter "message_id" is required');
+    }
+    if (req.attachmentId === undefined) {
+      throw new Error('path parameter "attachment_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/attachments/${req.attachmentId ?? ''}/downloads`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages/${encodePathVariable(req.messageId)}/attachments/${encodePathVariable(req.attachmentId)}/downloads`;
     const body = marshalRequest(
       req,
       marshalGenieGenerateDownloadFullQueryResultRequestSchema
@@ -542,8 +621,17 @@ export class GenieClient {
     req: GenieGetConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieMessage> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.messageId === undefined) {
+      throw new Error('path parameter "message_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages/${encodePathVariable(req.messageId)}`;
     let resp: GenieMessage | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -590,8 +678,23 @@ export class GenieClient {
     req: GenieGetDownloadFullQueryResultRequest,
     options?: CallOptions
   ): Promise<GenieGetDownloadFullQueryResultResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.messageId === undefined) {
+      throw new Error('path parameter "message_id" is required');
+    }
+    if (req.attachmentId === undefined) {
+      throw new Error('path parameter "attachment_id" is required');
+    }
+    if (req.downloadId === undefined) {
+      throw new Error('path parameter "download_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/attachments/${req.attachmentId ?? ''}/downloads/${req.downloadId ?? ''}`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages/${encodePathVariable(req.messageId)}/attachments/${encodePathVariable(req.attachmentId)}/downloads/${encodePathVariable(req.downloadId)}`;
     const params = new URLSearchParams();
     if (req.downloadIdSignature !== undefined) {
       params.append('download_id_signature', req.downloadIdSignature);
@@ -631,8 +734,17 @@ export class GenieClient {
     req: GenieGetEvalResultDetailsRequest,
     options?: CallOptions
   ): Promise<GenieEvalResultDetails> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.evalRunId === undefined) {
+      throw new Error('path parameter "eval_run_id" is required');
+    }
+    if (req.resultId === undefined) {
+      throw new Error('path parameter "result_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs/${req.evalRunId ?? ''}/results/${req.resultId ?? ''}`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/eval-runs/${encodePathVariable(req.evalRunId)}/results/${encodePathVariable(req.resultId)}`;
     let resp: GenieEvalResultDetails | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -662,8 +774,14 @@ export class GenieClient {
     req: GenieGetEvalRunRequest,
     options?: CallOptions
   ): Promise<GenieEvalRunResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.evalRunId === undefined) {
+      throw new Error('path parameter "eval_run_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs/${req.evalRunId ?? ''}`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/eval-runs/${encodePathVariable(req.evalRunId)}`;
     let resp: GenieEvalRunResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -693,8 +811,20 @@ export class GenieClient {
     req: GenieGetMessageAttachmentQueryResultRequest,
     options?: CallOptions
   ): Promise<GenieGetMessageQueryResultResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.messageId === undefined) {
+      throw new Error('path parameter "message_id" is required');
+    }
+    if (req.attachmentId === undefined) {
+      throw new Error('path parameter "attachment_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/attachments/${req.attachmentId ?? ''}/query-result`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages/${encodePathVariable(req.messageId)}/attachments/${encodePathVariable(req.attachmentId)}/query-result`;
     let resp: GenieGetMessageQueryResultResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -724,8 +854,17 @@ export class GenieClient {
     req: GenieGetMessageQueryResultRequest,
     options?: CallOptions
   ): Promise<GenieGetMessageQueryResultResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.messageId === undefined) {
+      throw new Error('path parameter "message_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/query-result`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages/${encodePathVariable(req.messageId)}/query-result`;
     let resp: GenieGetMessageQueryResultResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -755,8 +894,20 @@ export class GenieClient {
     req: GenieGetQueryResultByAttachmentRequest,
     options?: CallOptions
   ): Promise<GenieGetMessageQueryResultResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.messageId === undefined) {
+      throw new Error('path parameter "message_id" is required');
+    }
+    if (req.attachmentId === undefined) {
+      throw new Error('path parameter "attachment_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/query-result/${req.attachmentId ?? ''}`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages/${encodePathVariable(req.messageId)}/query-result/${encodePathVariable(req.attachmentId)}`;
     let resp: GenieGetMessageQueryResultResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -786,8 +937,11 @@ export class GenieClient {
     req: GenieGetSpaceRequest,
     options?: CallOptions
   ): Promise<GenieSpace> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}`;
     const params = new URLSearchParams();
     if (req.includeSerializedSpace !== undefined) {
       params.append(
@@ -823,8 +977,14 @@ export class GenieClient {
     req: GenieListConversationCommentsRequest,
     options?: CallOptions
   ): Promise<GenieListConversationCommentsResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/list-comments`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/list-comments`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -867,8 +1027,14 @@ export class GenieClient {
     req: GenieListConversationMessagesRequest,
     options?: CallOptions
   ): Promise<GenieListConversationMessagesResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -911,8 +1077,11 @@ export class GenieClient {
     req: GenieListConversationsRequest,
     options?: CallOptions
   ): Promise<GenieListConversationsResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -958,8 +1127,14 @@ export class GenieClient {
     req: GenieListEvalResultsRequest,
     options?: CallOptions
   ): Promise<GenieListEvalResultsResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.evalRunId === undefined) {
+      throw new Error('path parameter "eval_run_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs/${req.evalRunId ?? ''}/results`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/eval-runs/${encodePathVariable(req.evalRunId)}/results`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -998,8 +1173,11 @@ export class GenieClient {
     req: GenieListEvalRunsRequest,
     options?: CallOptions
   ): Promise<GenieListEvalRunsResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/eval-runs`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -1035,8 +1213,17 @@ export class GenieClient {
     req: GenieListMessageCommentsRequest,
     options?: CallOptions
   ): Promise<GenieListMessageCommentsResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.messageId === undefined) {
+      throw new Error('path parameter "message_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/comments`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages/${encodePathVariable(req.messageId)}/comments`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -1112,8 +1299,17 @@ export class GenieClient {
     req: GenieSendMessageFeedbackRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
+    if (req.conversationId === undefined) {
+      throw new Error('path parameter "conversation_id" is required');
+    }
+    if (req.messageId === undefined) {
+      throw new Error('path parameter "message_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/feedback`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/conversations/${encodePathVariable(req.conversationId)}/messages/${encodePathVariable(req.messageId)}/feedback`;
     const body = marshalRequest(
       req,
       marshalGenieSendMessageFeedbackRequestSchema
@@ -1142,8 +1338,11 @@ export class GenieClient {
     req: GenieStartConversationRequest,
     options?: CallOptions
   ): Promise<GenieStartConversationResponse> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/start-conversation`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}/start-conversation`;
     const body = marshalRequest(
       req,
       marshalGenieStartConversationRequestSchema
@@ -1208,8 +1407,11 @@ export class GenieClient {
     req: GenieTrashSpaceRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -1234,8 +1436,11 @@ export class GenieClient {
     req: GenieUpdateSpaceRequest,
     options?: CallOptions
   ): Promise<GenieSpace> {
+    if (req.spaceId === undefined) {
+      throw new Error('path parameter "space_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/spaces/${req.spaceId ?? ''}`;
+    const url = `${host}/api/2.0/genie/spaces/${encodePathVariable(req.spaceId)}`;
     const body = marshalRequest(req, marshalGenieUpdateSpaceRequestSchema);
     let resp: GenieSpace | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

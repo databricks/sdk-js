@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -73,8 +74,11 @@ export class StatementExecutionClient {
     req: CancelStatementRequest,
     options?: CallOptions
   ): Promise<CancelStatementResponse> {
+    if (req.statementId === undefined) {
+      throw new Error('path parameter "statement_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/statements/${req.statementId ?? ''}/cancel`;
+    const url = `${host}/api/2.0/sql/statements/${encodePathVariable(req.statementId)}/cancel`;
     const body = marshalRequest(req, marshalCancelStatementRequestSchema);
     let resp: CancelStatementResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -184,8 +188,14 @@ export class StatementExecutionClient {
     req: GetResultDataRequest,
     options?: CallOptions
   ): Promise<ResultData> {
+    if (req.statementId === undefined) {
+      throw new Error('path parameter "statement_id" is required');
+    }
+    if (req.chunkIndex === undefined) {
+      throw new Error('path parameter "chunk_index" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/statements/${req.statementId ?? ''}/result/chunks/${String(req.chunkIndex ?? '')}`;
+    const url = `${host}/api/2.0/sql/statements/${encodePathVariable(req.statementId)}/result/chunks/${String(req.chunkIndex)}`;
     const params = new URLSearchParams();
     if (req.warehouseId !== undefined) {
       params.append('warehouse_id', req.warehouseId);
@@ -229,8 +239,11 @@ export class StatementExecutionClient {
     req: GetStatementResultRequest,
     options?: CallOptions
   ): Promise<StatementResponse> {
+    if (req.statementId === undefined) {
+      throw new Error('path parameter "statement_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/statements/${req.statementId ?? ''}`;
+    const url = `${host}/api/2.0/sql/statements/${encodePathVariable(req.statementId)}`;
     const params = new URLSearchParams();
     if (req.warehouseId !== undefined) {
       params.append('warehouse_id', req.warehouseId);

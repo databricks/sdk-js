@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -59,8 +60,11 @@ export class ModelServingQueryClient {
     req: QueryEndpointRequest,
     options?: CallOptions
   ): Promise<QueryEndpointResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/serving-endpoints/${req.name ?? ''}/invocations`;
+    const url = `${host}/serving-endpoints/${encodePathVariable(req.name)}/invocations`;
     const body = marshalRequest(req, marshalQueryEndpointRequestSchema);
     let resp: QueryEndpointResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

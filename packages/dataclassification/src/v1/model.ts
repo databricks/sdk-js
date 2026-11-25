@@ -243,12 +243,53 @@ export const marshalCatalogConfig_SchemaNamesSchema: z.ZodType = z
     names: d.names,
   }));
 
+export const marshalCreateCatalogConfigRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    catalogConfig: z.lazy(() => marshalCatalogConfigSchema).optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    catalog_config: d.catalogConfig,
+  }));
+
+export const marshalDeleteCatalogConfigRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetCatalogConfigRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalRescanCatalogRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalRescanCatalogResponseSchema: z.ZodType = z.object({});
+
+export const marshalUpdateCatalogConfigRequestSchema: z.ZodType = z
+  .object({
+    catalogConfig: z.lazy(() => marshalCatalogConfigSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    catalog_config: d.catalogConfig,
+    update_mask: d.updateMask,
   }));
 
 const catalogConfigFieldMaskSchema: FieldMaskSchema = {

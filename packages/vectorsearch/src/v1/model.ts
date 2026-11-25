@@ -1666,6 +1666,16 @@ export const unmarshalVectorIndexStatusSchema: z.ZodType<VectorIndexStatus> = z
     indexUrl: d.index_url,
   }));
 
+export const marshalColumnInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    typeText: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    type_text: d.typeText,
+  }));
+
 export const marshalCreateEndpointRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1728,6 +1738,72 @@ export const marshalCustomTagSchema: z.ZodType = z
   .transform(d => ({
     key: d.key,
     value: d.value,
+  }));
+
+export const marshalDeleteDataVectorIndexRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    primaryKeys: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    primary_keys: d.primaryKeys,
+  }));
+
+export const marshalDeleteDataVectorIndexResponseSchema: z.ZodType = z
+  .object({
+    status: z.string().optional(),
+    result: z.lazy(() => marshalUpsertDeleteDataResultSchema).optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+    result: d.result,
+  }));
+
+export const marshalDeleteEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteEndpointResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteVectorIndexRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteVectorIndexResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeltaSyncVectorIndexSpecSchema: z.ZodType = z
+  .object({
+    sourceTable: z.string().optional(),
+    embeddingSourceColumns: z
+      .array(z.lazy(() => marshalEmbeddingSourceColumnSchema))
+      .optional(),
+    embeddingVectorColumns: z
+      .array(z.lazy(() => marshalEmbeddingVectorColumnSchema))
+      .optional(),
+    pipelineType: z.string().optional(),
+    pipelineId: z.string().optional(),
+    embeddingWritebackTable: z.string().optional(),
+    columnsToSync: z.array(z.string()).optional(),
+    columnsToIndex: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    source_table: d.sourceTable,
+    embedding_source_columns: d.embeddingSourceColumns,
+    embedding_vector_columns: d.embeddingVectorColumns,
+    pipeline_type: d.pipelineType,
+    pipeline_id: d.pipelineId,
+    embedding_writeback_table: d.embeddingWritebackTable,
+    columns_to_sync: d.columnsToSync,
+    columns_to_index: d.columnsToIndex,
   }));
 
 export const marshalDeltaSyncVectorIndexSpecRequestSchema: z.ZodType = z
@@ -1804,6 +1880,172 @@ export const marshalEmbeddingVectorColumnSchema: z.ZodType = z
     embedding_dimension: d.embeddingDimension,
   }));
 
+export const marshalEndpointSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    creator: z.string().optional(),
+    creationTimestamp: z.bigint().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    endpointType: z.string().optional(),
+    lastUpdatedUser: z.string().optional(),
+    id: z.string().optional(),
+    endpointStatus: z.lazy(() => marshalEndpointStatusSchema).optional(),
+    numIndexes: z.number().optional(),
+    budgetPolicyId: z.string().optional(),
+    effectiveBudgetPolicyId: z.string().optional(),
+    customTags: z.array(z.lazy(() => marshalCustomTagSchema)).optional(),
+    scalingInfo: z.lazy(() => marshalEndpointScalingInfoSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    creator: d.creator,
+    creation_timestamp: d.creationTimestamp,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    endpoint_type: d.endpointType,
+    last_updated_user: d.lastUpdatedUser,
+    id: d.id,
+    endpoint_status: d.endpointStatus,
+    num_indexes: d.numIndexes,
+    budget_policy_id: d.budgetPolicyId,
+    effective_budget_policy_id: d.effectiveBudgetPolicyId,
+    custom_tags: d.customTags,
+    scaling_info: d.scalingInfo,
+  }));
+
+export const marshalEndpointScalingInfoSchema: z.ZodType = z
+  .object({
+    state: z.string().optional(),
+    requestedTargetQps: z.bigint().optional(),
+    estimatedCompletionTimestamp: z.bigint().optional(),
+    phase: z.string().optional(),
+    indexInitializationPercentage: z.number().optional(),
+    delayedReason: z.string().optional(),
+    targetQpsChangeAllowedAfterTimestamp: z.bigint().optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+    requested_target_qps: d.requestedTargetQps,
+    estimated_completion_timestamp: d.estimatedCompletionTimestamp,
+    phase: d.phase,
+    index_initialization_percentage: d.indexInitializationPercentage,
+    delayed_reason: d.delayedReason,
+    target_qps_change_allowed_after_timestamp:
+      d.targetQpsChangeAllowedAfterTimestamp,
+  }));
+
+export const marshalEndpointStatusSchema: z.ZodType = z
+  .object({
+    state: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+    message: d.message,
+  }));
+
+export const marshalFacetResultDataSchema: z.ZodType = z
+  .object({
+    facetRowCount: z.number().optional(),
+    facetArray: z.array(z.array(jsonValueSchema)).optional(),
+  })
+  .transform(d => ({
+    facet_row_count: d.facetRowCount,
+    facet_array: d.facetArray,
+  }));
+
+export const marshalFailedStatusSchema: z.ZodType = z
+  .object({
+    errorMessage: z.string().optional(),
+    lastProcessedCommitVersion: z.bigint().optional(),
+    lastProcessedCommitTimestamp: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    errorCode: z.string().optional(),
+  })
+  .transform(d => ({
+    error_message: d.errorMessage,
+    last_processed_commit_version: d.lastProcessedCommitVersion,
+    last_processed_commit_timestamp: d.lastProcessedCommitTimestamp,
+    error_code: d.errorCode,
+  }));
+
+export const marshalGetEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetVectorIndexRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    ensureRerankerCompatible: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    ensure_reranker_compatible: d.ensureRerankerCompatible,
+  }));
+
+export const marshalListEndpointResponseSchema: z.ZodType = z
+  .object({
+    endpoints: z.array(z.lazy(() => marshalEndpointSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    endpoints: d.endpoints,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListEndpointsRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+  }));
+
+export const marshalListValueSchema: z.ZodType = z
+  .object({
+    values: z.array(z.lazy(() => marshalValueSchema)).optional(),
+  })
+  .transform(d => ({
+    values: d.values,
+  }));
+
+export const marshalListVectorIndexRequestSchema: z.ZodType = z
+  .object({
+    endpointName: z.string().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    endpoint_name: d.endpointName,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListVectorIndexResponseSchema: z.ZodType = z
+  .object({
+    vectorIndexes: z
+      .array(z.lazy(() => marshalMiniVectorIndexSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    vector_indexes: d.vectorIndexes,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalMapStringValueEntrySchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.lazy(() => marshalValueSchema).optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
 export const marshalMetricSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1826,6 +2068,70 @@ export const marshalMetricLabelSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalMetricValueSchema: z.ZodType = z
+  .object({
+    timestamp: z.bigint().optional(),
+    value: z.number().optional(),
+  })
+  .transform(d => ({
+    timestamp: d.timestamp,
+    value: d.value,
+  }));
+
+export const marshalMetricValuesSchema: z.ZodType = z
+  .object({
+    metric: z.lazy(() => marshalMetricSchema).optional(),
+    values: z.array(z.lazy(() => marshalMetricValueSchema)).optional(),
+  })
+  .transform(d => ({
+    metric: d.metric,
+    values: d.values,
+  }));
+
+export const marshalMiniVectorIndexSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    endpointName: z.string().optional(),
+    primaryKey: z.string().optional(),
+    indexType: z.string().optional(),
+    indexSpec: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('directAccessIndexSpec'),
+          directAccessIndexSpec: z.lazy(
+            () => marshalDirectAccessVectorIndexSpecSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('deltaSyncIndexSpec'),
+          deltaSyncIndexSpec: z.lazy(
+            () => marshalDeltaSyncVectorIndexSpecSchema
+          ),
+        }),
+      ])
+      .optional(),
+    status: z.lazy(() => marshalVectorIndexStatusSchema).optional(),
+    creator: z.string().optional(),
+    indexSubtype: z.string().optional(),
+    endpointId: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    endpoint_name: d.endpointName,
+    primary_key: d.primaryKey,
+    index_type: d.indexType,
+    ...(d.indexSpec?.$case === 'directAccessIndexSpec' && {
+      direct_access_index_spec: d.indexSpec.directAccessIndexSpec,
+    }),
+    ...(d.indexSpec?.$case === 'deltaSyncIndexSpec' && {
+      delta_sync_index_spec: d.indexSpec.deltaSyncIndexSpec,
+    }),
+    status: d.status,
+    creator: d.creator,
+    index_subtype: d.indexSubtype,
+    endpoint_id: d.endpointId,
+  }));
+
 export const marshalPatchEndpointBudgetPolicyRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1834,6 +2140,16 @@ export const marshalPatchEndpointBudgetPolicyRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     budget_policy_id: d.budgetPolicyId,
+  }));
+
+export const marshalPatchEndpointBudgetPolicyResponseSchema: z.ZodType = z
+  .object({
+    budgetPolicyId: z.string().optional(),
+    effectiveBudgetPolicyId: z.string().optional(),
+  })
+  .transform(d => ({
+    budget_policy_id: d.budgetPolicyId,
+    effective_budget_policy_id: d.effectiveBudgetPolicyId,
   }));
 
 export const marshalPatchEndpointRequestSchema: z.ZodType = z
@@ -1890,6 +2206,20 @@ export const marshalQueryVectorIndexRequestSchema: z.ZodType = z
     facets: d.facets,
   }));
 
+export const marshalQueryVectorIndexResponseSchema: z.ZodType = z
+  .object({
+    manifest: z.lazy(() => marshalResultManifestSchema).optional(),
+    result: z.lazy(() => marshalResultDataSchema).optional(),
+    nextPageToken: z.string().optional(),
+    facetResult: z.lazy(() => marshalFacetResultDataSchema).optional(),
+  })
+  .transform(d => ({
+    manifest: d.manifest,
+    result: d.result,
+    next_page_token: d.nextPageToken,
+    facet_result: d.facetResult,
+  }));
+
 export const marshalRerankerConfigSchema: z.ZodType = z
   .object({
     model: z.string().optional(),
@@ -1909,6 +2239,30 @@ export const marshalRerankerConfig_RerankerParametersSchema: z.ZodType = z
   })
   .transform(d => ({
     columns_to_rerank: d.columnsToRerank,
+  }));
+
+export const marshalResultDataSchema: z.ZodType = z
+  .object({
+    rowCount: z.number().optional(),
+    dataArray: z.array(z.array(jsonValueSchema)).optional(),
+  })
+  .transform(d => ({
+    row_count: d.rowCount,
+    data_array: d.dataArray,
+  }));
+
+export const marshalResultManifestSchema: z.ZodType = z
+  .object({
+    columnCount: z.number().optional(),
+    columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
+    facetColumnCount: z.number().optional(),
+    facetColumns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    column_count: d.columnCount,
+    columns: d.columns,
+    facet_column_count: d.facetColumnCount,
+    facet_columns: d.facetColumns,
   }));
 
 export const marshalRetrieveUserVisibleMetricsRequestSchema: z.ZodType = z
@@ -1935,6 +2289,16 @@ export const marshalRetrieveUserVisibleMetricsRequestSchema: z.ZodType = z
     page_token: d.pageToken,
   }));
 
+export const marshalRetrieveUserVisibleMetricsResponseSchema: z.ZodType = z
+  .object({
+    metricValues: z.array(z.lazy(() => marshalMetricValuesSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    metric_values: d.metricValues,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalScanVectorIndexRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1944,6 +2308,16 @@ export const marshalScanVectorIndexRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     num_results: d.numResults,
+    last_primary_key: d.lastPrimaryKey,
+  }));
+
+export const marshalScanVectorIndexResponseSchema: z.ZodType = z
+  .object({
+    data: z.array(z.lazy(() => marshalStructSchema)).optional(),
+    lastPrimaryKey: z.string().optional(),
+  })
+  .transform(d => ({
+    data: d.data,
     last_primary_key: d.lastPrimaryKey,
   }));
 
@@ -1963,6 +2337,14 @@ export const marshalStopEndpointRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
+export const marshalStructSchema: z.ZodType = z
+  .object({
+    fields: z.array(z.lazy(() => marshalMapStringValueEntrySchema)).optional(),
+  })
+  .transform(d => ({
+    fields: d.fields,
+  }));
+
 export const marshalSyncVectorIndexRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1971,7 +2353,19 @@ export const marshalSyncVectorIndexRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
+export const marshalSyncVectorIndexResponseSchema: z.ZodType = z.object({});
+
 export const marshalUpdateEndpointCustomTagsRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    customTags: z.array(z.lazy(() => marshalCustomTagSchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    custom_tags: d.customTags,
+  }));
+
+export const marshalUpdateEndpointCustomTagsResponseSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     customTags: z.array(z.lazy(() => marshalCustomTagSchema)).optional(),
@@ -1989,4 +2383,121 @@ export const marshalUpsertDataVectorIndexRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     inputs_json: d.inputsJson,
+  }));
+
+export const marshalUpsertDataVectorIndexResponseSchema: z.ZodType = z
+  .object({
+    status: z.string().optional(),
+    result: z.lazy(() => marshalUpsertDeleteDataResultSchema).optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+    result: d.result,
+  }));
+
+export const marshalUpsertDeleteDataResultSchema: z.ZodType = z
+  .object({
+    successRowCount: z.bigint().optional(),
+    failedPrimaryKeys: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    success_row_count: d.successRowCount,
+    failed_primary_keys: d.failedPrimaryKeys,
+  }));
+
+export const marshalValueSchema: z.ZodType = z
+  .object({
+    kind: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('numberValue'), numberValue: z.number()}),
+        z.object({$case: z.literal('stringValue'), stringValue: z.string()}),
+        z.object({$case: z.literal('boolValue'), boolValue: z.boolean()}),
+        z.object({
+          $case: z.literal('structValue'),
+          structValue: z.lazy(() => marshalStructSchema),
+        }),
+        z.object({
+          $case: z.literal('listValue'),
+          listValue: z.lazy(() => marshalListValueSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.kind?.$case === 'numberValue' && {number_value: d.kind.numberValue}),
+    ...(d.kind?.$case === 'stringValue' && {string_value: d.kind.stringValue}),
+    ...(d.kind?.$case === 'boolValue' && {bool_value: d.kind.boolValue}),
+    ...(d.kind?.$case === 'structValue' && {struct_value: d.kind.structValue}),
+    ...(d.kind?.$case === 'listValue' && {list_value: d.kind.listValue}),
+  }));
+
+export const marshalVectorIndexSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    endpointName: z.string().optional(),
+    primaryKey: z.string().optional(),
+    indexType: z.string().optional(),
+    indexSpec: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('directAccessIndexSpec'),
+          directAccessIndexSpec: z.lazy(
+            () => marshalDirectAccessVectorIndexSpecSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('deltaSyncIndexSpec'),
+          deltaSyncIndexSpec: z.lazy(
+            () => marshalDeltaSyncVectorIndexSpecSchema
+          ),
+        }),
+      ])
+      .optional(),
+    status: z.lazy(() => marshalVectorIndexStatusSchema).optional(),
+    creator: z.string().optional(),
+    indexSubtype: z.string().optional(),
+    endpointId: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    endpoint_name: d.endpointName,
+    primary_key: d.primaryKey,
+    index_type: d.indexType,
+    ...(d.indexSpec?.$case === 'directAccessIndexSpec' && {
+      direct_access_index_spec: d.indexSpec.directAccessIndexSpec,
+    }),
+    ...(d.indexSpec?.$case === 'deltaSyncIndexSpec' && {
+      delta_sync_index_spec: d.indexSpec.deltaSyncIndexSpec,
+    }),
+    status: d.status,
+    creator: d.creator,
+    index_subtype: d.indexSubtype,
+    endpoint_id: d.endpointId,
+  }));
+
+export const marshalVectorIndexStatusSchema: z.ZodType = z
+  .object({
+    detailedState: z.string().optional(),
+    message: z.string().optional(),
+    indexedRowCount: z.bigint().optional(),
+    detailedStatus: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('failedStatus'),
+          failedStatus: z.lazy(() => marshalFailedStatusSchema),
+        }),
+      ])
+      .optional(),
+    ready: z.boolean().optional(),
+    indexUrl: z.string().optional(),
+  })
+  .transform(d => ({
+    detailed_state: d.detailedState,
+    message: d.message,
+    indexed_row_count: d.indexedRowCount,
+    ...(d.detailedStatus?.$case === 'failedStatus' && {
+      failed_status: d.detailedStatus.failedStatus,
+    }),
+    ready: d.ready,
+    index_url: d.indexUrl,
   }));

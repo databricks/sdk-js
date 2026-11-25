@@ -768,6 +768,9 @@ export const marshalAccountsCreateMetastoreAssignmentRequestSchema: z.ZodType =
       metastore_assignment: d.metastoreAssignment,
     }));
 
+export const marshalAccountsCreateMetastoreAssignmentResponseSchema: z.ZodType =
+  z.object({});
+
 export const marshalAccountsCreateMetastoreRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
@@ -779,6 +782,120 @@ export const marshalAccountsCreateMetastoreRequestSchema: z.ZodType = z
     account_id: d.accountId,
     metastore_info: d.metastoreInfo,
   }));
+
+export const marshalAccountsCreateMetastoreResponseSchema: z.ZodType = z
+  .object({
+    metastoreInfo: z.lazy(() => marshalMetastoreInfoSchema).optional(),
+  })
+  .transform(d => ({
+    metastore_info: d.metastoreInfo,
+  }));
+
+export const marshalAccountsDeleteMetastoreAssignmentRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      workspaceId: z.bigint().optional(),
+      metastoreId: z.string().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      workspace_id: d.workspaceId,
+      metastore_id: d.metastoreId,
+    }));
+
+export const marshalAccountsDeleteMetastoreAssignmentResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalAccountsDeleteMetastoreRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    metastoreId: z.string().optional(),
+    force: z.boolean().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    metastore_id: d.metastoreId,
+    force: d.force,
+  }));
+
+export const marshalAccountsDeleteMetastoreResponseSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalAccountsGetMetastoreAssignmentRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    workspaceId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    workspace_id: d.workspaceId,
+  }));
+
+export const marshalAccountsGetMetastoreAssignmentResponseSchema: z.ZodType = z
+  .object({
+    metastoreAssignment: z
+      .lazy(() => marshalMetastoreAssignmentSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    metastore_assignment: d.metastoreAssignment,
+  }));
+
+export const marshalAccountsGetMetastoreRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    metastoreId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    metastore_id: d.metastoreId,
+  }));
+
+export const marshalAccountsGetMetastoreResponseSchema: z.ZodType = z
+  .object({
+    metastoreInfo: z.lazy(() => marshalMetastoreInfoSchema).optional(),
+  })
+  .transform(d => ({
+    metastore_info: d.metastoreInfo,
+  }));
+
+export const marshalAccountsListMetastoresRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+  }));
+
+export const marshalAccountsListMetastoresResponseSchema: z.ZodType = z
+  .object({
+    metastores: z.array(z.lazy(() => marshalMetastoreInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    metastores: d.metastores,
+  }));
+
+export const marshalAccountsListWorkspaceIdsForMetastoreRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      metastoreId: z.string().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      metastore_id: d.metastoreId,
+    }));
+
+export const marshalAccountsListWorkspaceIdsForMetastoreResponseSchema: z.ZodType =
+  z
+    .object({
+      workspaceIds: z.array(z.bigint()).optional(),
+    })
+    .transform(d => ({
+      workspace_ids: d.workspaceIds,
+    }));
 
 export const marshalAccountsUpdateMetastoreAssignmentRequestSchema: z.ZodType =
   z
@@ -797,6 +914,9 @@ export const marshalAccountsUpdateMetastoreAssignmentRequestSchema: z.ZodType =
       metastore_assignment: d.metastoreAssignment,
     }));
 
+export const marshalAccountsUpdateMetastoreAssignmentResponseSchema: z.ZodType =
+  z.object({});
+
 export const marshalAccountsUpdateMetastoreRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
@@ -808,6 +928,14 @@ export const marshalAccountsUpdateMetastoreRequestSchema: z.ZodType = z
   .transform(d => ({
     account_id: d.accountId,
     metastore_id: d.metastoreId,
+    metastore_info: d.metastoreInfo,
+  }));
+
+export const marshalAccountsUpdateMetastoreResponseSchema: z.ZodType = z
+  .object({
+    metastoreInfo: z.lazy(() => marshalMetastoreInfoSchema).optional(),
+  })
+  .transform(d => ({
     metastore_info: d.metastoreInfo,
   }));
 
@@ -868,6 +996,9 @@ export const marshalCreateMetastoreAssignmentRequestSchema: z.ZodType = z
     default_catalog_name: d.defaultCatalogName,
   }));
 
+export const marshalCreateMetastoreAssignmentResponseSchema: z.ZodType =
+  z.object({});
+
 export const marshalCreateMetastoreRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -913,6 +1044,111 @@ export const marshalCreateMetastoreRequestSchema: z.ZodType = z
     external_access_enabled: d.externalAccessEnabled,
   }));
 
+export const marshalDeleteMetastoreAssignmentRequestSchema: z.ZodType = z
+  .object({
+    workspaceId: z.bigint().optional(),
+    metastoreId: z.string().optional(),
+  })
+  .transform(d => ({
+    workspace_id: d.workspaceId,
+    metastore_id: d.metastoreId,
+  }));
+
+export const marshalDeleteMetastoreAssignmentResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalDeleteMetastoreRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    force: z.boolean().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    force: d.force,
+  }));
+
+export const marshalDeleteMetastoreResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeltaSharingScopeSchema: z.ZodType = z.object({});
+
+export const marshalGetCurrentMetastoreAssignmentRequestSchema: z.ZodType =
+  z.object({});
+
+export const marshalGetMetastoreRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalGetMetastoreSummaryRequestSchema: z.ZodType = z.object({});
+
+export const marshalGetMetastoreSummaryResponseSchema: z.ZodType = z
+  .object({
+    metastoreId: z.string().optional(),
+    name: z.string().optional(),
+    defaultDataAccessConfigId: z.string().optional(),
+    storageRootCredentialId: z.string().optional(),
+    cloud: z.string().optional(),
+    region: z.string().optional(),
+    globalMetastoreId: z.string().optional(),
+    storageRootCredentialName: z.string().optional(),
+    privilegeModelVersion: z.string().optional(),
+    deltaSharingScope: z.string().optional(),
+    deltaSharingRecipientTokenLifetimeInSeconds: z.bigint().optional(),
+    deltaSharingOrganizationName: z.string().optional(),
+    storageRoot: z.string().optional(),
+    owner: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    externalAccessEnabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    metastore_id: d.metastoreId,
+    name: d.name,
+    default_data_access_config_id: d.defaultDataAccessConfigId,
+    storage_root_credential_id: d.storageRootCredentialId,
+    cloud: d.cloud,
+    region: d.region,
+    global_metastore_id: d.globalMetastoreId,
+    storage_root_credential_name: d.storageRootCredentialName,
+    privilege_model_version: d.privilegeModelVersion,
+    delta_sharing_scope: d.deltaSharingScope,
+    delta_sharing_recipient_token_lifetime_in_seconds:
+      d.deltaSharingRecipientTokenLifetimeInSeconds,
+    delta_sharing_organization_name: d.deltaSharingOrganizationName,
+    storage_root: d.storageRoot,
+    owner: d.owner,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    external_access_enabled: d.externalAccessEnabled,
+  }));
+
+export const marshalListMetastoresRequestSchema: z.ZodType = z
+  .object({
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListMetastoresResponseSchema: z.ZodType = z
+  .object({
+    metastores: z.array(z.lazy(() => marshalMetastoreInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    metastores: d.metastores,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalMetastoreAssignmentSchema: z.ZodType = z
   .object({
     workspaceId: z.bigint().optional(),
@@ -923,6 +1159,51 @@ export const marshalMetastoreAssignmentSchema: z.ZodType = z
     workspace_id: d.workspaceId,
     metastore_id: d.metastoreId,
     default_catalog_name: d.defaultCatalogName,
+  }));
+
+export const marshalMetastoreInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    storageRoot: z.string().optional(),
+    defaultDataAccessConfigId: z.string().optional(),
+    storageRootCredentialId: z.string().optional(),
+    deltaSharingScope: z.string().optional(),
+    deltaSharingRecipientTokenLifetimeInSeconds: z.bigint().optional(),
+    deltaSharingOrganizationName: z.string().optional(),
+    owner: z.string().optional(),
+    privilegeModelVersion: z.string().optional(),
+    region: z.string().optional(),
+    metastoreId: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    storageRootCredentialName: z.string().optional(),
+    cloud: z.string().optional(),
+    globalMetastoreId: z.string().optional(),
+    externalAccessEnabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    storage_root: d.storageRoot,
+    default_data_access_config_id: d.defaultDataAccessConfigId,
+    storage_root_credential_id: d.storageRootCredentialId,
+    delta_sharing_scope: d.deltaSharingScope,
+    delta_sharing_recipient_token_lifetime_in_seconds:
+      d.deltaSharingRecipientTokenLifetimeInSeconds,
+    delta_sharing_organization_name: d.deltaSharingOrganizationName,
+    owner: d.owner,
+    privilege_model_version: d.privilegeModelVersion,
+    region: d.region,
+    metastore_id: d.metastoreId,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    storage_root_credential_name: d.storageRootCredentialName,
+    cloud: d.cloud,
+    global_metastore_id: d.globalMetastoreId,
+    external_access_enabled: d.externalAccessEnabled,
   }));
 
 export const marshalUndropMetastoreByIdRequestSchema: z.ZodType = z
@@ -989,6 +1270,9 @@ export const marshalUpdateMetastoreAssignmentRequestSchema: z.ZodType = z
     metastore_id: d.metastoreId,
     default_catalog_name: d.defaultCatalogName,
   }));
+
+export const marshalUpdateMetastoreAssignmentResponseSchema: z.ZodType =
+  z.object({});
 
 export const marshalUpdateMetastoreRequestSchema: z.ZodType = z
   .object({

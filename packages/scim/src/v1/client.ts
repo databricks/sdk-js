@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -146,7 +147,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<AccountGroup> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Groups`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/Groups`;
     const body = marshalRequest(req, marshalCreateAccountGroupRequestSchema);
     let resp: AccountGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -171,8 +172,11 @@ export class ScimClient {
     req: DeleteAccountGroupRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/Groups/${encodePathVariable(req.id)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -190,8 +194,11 @@ export class ScimClient {
     req: GetAccountGroupRequest,
     options?: CallOptions
   ): Promise<AccountGroup> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/Groups/${encodePathVariable(req.id)}`;
     let resp: AccountGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -221,7 +228,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<ListAccountGroupsResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Groups`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/Groups`;
     const params = new URLSearchParams();
     if (req.filter !== undefined) {
       params.append('filter', req.filter);
@@ -287,8 +294,11 @@ export class ScimClient {
     req: PatchAccountGroupRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/Groups/${encodePathVariable(req.id)}`;
     const body = marshalRequest(req, marshalPatchAccountGroupRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -308,7 +318,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/Groups/${encodePathVariable(req.id ?? '')}`;
     const body = marshalRequest(req, marshalUpdateAccountGroupRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -328,7 +338,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<AccountServicePrincipal> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/ServicePrincipals`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/ServicePrincipals`;
     const body = marshalRequest(
       req,
       marshalCreateAccountServicePrincipalRequestSchema
@@ -356,8 +366,11 @@ export class ScimClient {
     req: DeleteAccountServicePrincipalRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/ServicePrincipals/${encodePathVariable(req.id)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -375,8 +388,11 @@ export class ScimClient {
     req: GetAccountServicePrincipalRequest,
     options?: CallOptions
   ): Promise<AccountServicePrincipal> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/ServicePrincipals/${encodePathVariable(req.id)}`;
     let resp: AccountServicePrincipal | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -401,7 +417,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<ListAccountServicePrincipalsResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/ServicePrincipals`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/ServicePrincipals`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
       params.append('attributes', req.attributes);
@@ -470,8 +486,11 @@ export class ScimClient {
     req: PatchAccountServicePrincipalRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/ServicePrincipals/${encodePathVariable(req.id)}`;
     const body = marshalRequest(
       req,
       marshalPatchAccountServicePrincipalRequestSchema
@@ -498,7 +517,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/ServicePrincipals/${encodePathVariable(req.id ?? '')}`;
     const body = marshalRequest(
       req,
       marshalUpdateAccountServicePrincipalRequestSchema
@@ -521,7 +540,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<AccountUser> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Users`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/Users`;
     const body = marshalRequest(req, marshalCreateAccountUserRequestSchema);
     let resp: AccountUser | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -546,8 +565,11 @@ export class ScimClient {
     req: DeleteAccountUserRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/Users/${encodePathVariable(req.id)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -565,8 +587,11 @@ export class ScimClient {
     req: GetAccountUserRequest,
     options?: CallOptions
   ): Promise<AccountUser> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/Users/${encodePathVariable(req.id)}`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
       params.append('attributes', req.attributes);
@@ -615,7 +640,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<ListAccountUsersResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Users`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/Users`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
       params.append('attributes', req.attributes);
@@ -684,8 +709,11 @@ export class ScimClient {
     req: PatchAccountUserRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/Users/${encodePathVariable(req.id)}`;
     const body = marshalRequest(req, marshalPatchAccountUserRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -708,7 +736,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/scim/v2/Users/${encodePathVariable(req.id ?? '')}`;
     const body = marshalRequest(req, marshalUpdateAccountUserRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -790,8 +818,11 @@ export class ScimClient {
     req: DeleteGroupRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/preview/scim/v2/Groups/${encodePathVariable(req.id)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -809,8 +840,11 @@ export class ScimClient {
 
   /** Gets the information for a specific group in the <Databricks> workspace. */
   async getGroup(req: GetGroupRequest, options?: CallOptions): Promise<Group> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/preview/scim/v2/Groups/${encodePathVariable(req.id)}`;
     let resp: Group | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -907,8 +941,11 @@ export class ScimClient {
     req: PatchGroupRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/preview/scim/v2/Groups/${encodePathVariable(req.id)}`;
     const body = marshalRequest(req, marshalPatchGroupRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -931,7 +968,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/preview/scim/v2/Groups/${encodePathVariable(req.id ?? '')}`;
     const body = marshalRequest(req, marshalUpdateGroupRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -985,8 +1022,11 @@ export class ScimClient {
     req: DeleteServicePrincipalRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals/${encodePathVariable(req.id)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -1007,8 +1047,11 @@ export class ScimClient {
     req: GetServicePrincipalRequest,
     options?: CallOptions
   ): Promise<ServicePrincipal> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals/${encodePathVariable(req.id)}`;
     let resp: ServicePrincipal | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1108,8 +1151,11 @@ export class ScimClient {
     req: PatchServicePrincipalRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals/${encodePathVariable(req.id)}`;
     const body = marshalRequest(req, marshalPatchServicePrincipalRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1136,7 +1182,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/preview/scim/v2/ServicePrincipals/${encodePathVariable(req.id ?? '')}`;
     const body = marshalRequest(
       req,
       marshalUpdateServicePrincipalRequestSchema
@@ -1190,8 +1236,11 @@ export class ScimClient {
     req: DeleteUserRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/preview/scim/v2/Users/${encodePathVariable(req.id)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -1268,8 +1317,11 @@ export class ScimClient {
 
   /** Gets information for a specific user in <Databricks> workspace. */
   async getUser(req: GetUserRequest, options?: CallOptions): Promise<User> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/preview/scim/v2/Users/${encodePathVariable(req.id)}`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
       params.append('attributes', req.attributes);
@@ -1390,8 +1442,11 @@ export class ScimClient {
    * The `userName` and `emails` attributes cannot be updated through this API; any supplied changes to them are ignored (no-op).
    */
   async patchUser(req: PatchUserRequest, options?: CallOptions): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/preview/scim/v2/Users/${encodePathVariable(req.id)}`;
     const body = marshalRequest(req, marshalPatchUserRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1475,7 +1530,7 @@ export class ScimClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/preview/scim/v2/Users/${encodePathVariable(req.id ?? '')}`;
     const body = marshalRequest(req, marshalUpdateUserRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

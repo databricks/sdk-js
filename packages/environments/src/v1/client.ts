@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -103,10 +104,13 @@ export class EnvironmentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.workspaceBaseEnvironment,
-      marshalWorkspaceBaseEnvironmentSchema
-    );
+    const body =
+      req.workspaceBaseEnvironment === undefined
+        ? 'null'
+        : marshalRequest(
+            req.workspaceBaseEnvironment,
+            marshalWorkspaceBaseEnvironmentSchema
+          );
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -163,8 +167,11 @@ export class EnvironmentsClient {
     req: DeleteWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/environments/v1/${req.name ?? ''}`;
+    const url = `${host}/api/environments/v1/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -190,8 +197,11 @@ export class EnvironmentsClient {
     req: GetDefaultWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<DefaultWorkspaceBaseEnvironment> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/environments/v1/${req.name ?? ''}`;
+    const url = `${host}/api/environments/v1/${encodePathVariable(req.name)}`;
     let resp: DefaultWorkspaceBaseEnvironment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -229,7 +239,7 @@ export class EnvironmentsClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/environments/v1/${req.name ?? ''}`;
+    const url = `${host}/api/environments/v1/${encodePathVariable(req.name ?? '')}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -256,8 +266,11 @@ export class EnvironmentsClient {
     req: GetWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<WorkspaceBaseEnvironment> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/environments/v1/${req.name ?? ''}`;
+    const url = `${host}/api/environments/v1/${encodePathVariable(req.name)}`;
     let resp: WorkspaceBaseEnvironment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -362,8 +375,11 @@ export class EnvironmentsClient {
     req: RefreshWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/environments/v1/${req.name ?? ''}/refresh`;
+    const url = `${host}/api/environments/v1/${encodePathVariable(req.name)}/refresh`;
     const body = marshalRequest(
       req,
       marshalRefreshWorkspaceBaseEnvironmentRequestSchema
@@ -421,17 +437,20 @@ export class EnvironmentsClient {
     options?: CallOptions
   ): Promise<DefaultWorkspaceBaseEnvironment> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/environments/v1/${req.defaultWorkspaceBaseEnvironment?.name ?? ''}`;
+    const url = `${host}/api/environments/v1/${encodePathVariable(req.defaultWorkspaceBaseEnvironment?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.defaultWorkspaceBaseEnvironment,
-      marshalDefaultWorkspaceBaseEnvironmentSchema
-    );
+    const body =
+      req.defaultWorkspaceBaseEnvironment === undefined
+        ? 'null'
+        : marshalRequest(
+            req.defaultWorkspaceBaseEnvironment,
+            marshalDefaultWorkspaceBaseEnvironmentSchema
+          );
     let resp: DefaultWorkspaceBaseEnvironment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -473,12 +492,18 @@ export class EnvironmentsClient {
     req: UpdateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/environments/v1/${req.name ?? ''}`;
-    const body = marshalRequest(
-      req.workspaceBaseEnvironment,
-      marshalWorkspaceBaseEnvironmentSchema
-    );
+    const url = `${host}/api/environments/v1/${encodePathVariable(req.name)}`;
+    const body =
+      req.workspaceBaseEnvironment === undefined
+        ? 'null'
+        : marshalRequest(
+            req.workspaceBaseEnvironment,
+            marshalWorkspaceBaseEnvironmentSchema
+          );
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

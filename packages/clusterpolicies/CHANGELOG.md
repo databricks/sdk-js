@@ -1,5 +1,7 @@
 # Version changelog
 
+## Release v0.52.6 (2026-11-25)
+
 ## Release v0.52.5 (2026-11-24)
 
 ### Bug Fixes

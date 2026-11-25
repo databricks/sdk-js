@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -83,7 +84,7 @@ export class BudgetsClient {
     options?: CallOptions
   ): Promise<CreateBudgetConfigurationResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.budget?.accountId ?? accountId ?? ''}/budgets`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.budget?.accountId ?? accountId ?? '')}/budgets`;
     const body = marshalRequest(
       req,
       marshalCreateBudgetConfigurationRequestSchema
@@ -114,8 +115,11 @@ export class BudgetsClient {
     req: DeleteBudgetConfigurationRequest,
     options?: CallOptions
   ): Promise<DeleteBudgetConfigurationResponse> {
+    if (req.budgetId === undefined) {
+      throw new Error('path parameter "budget_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/budgets/${encodePathVariable(req.budgetId)}`;
     let resp: DeleteBudgetConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -142,8 +146,11 @@ export class BudgetsClient {
     req: GetBudgetConfigurationRequest,
     options?: CallOptions
   ): Promise<GetBudgetConfigurationResponse> {
+    if (req.budgetId === undefined) {
+      throw new Error('path parameter "budget_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/budgets/${encodePathVariable(req.budgetId)}`;
     let resp: GetBudgetConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -175,8 +182,11 @@ export class BudgetsClient {
     req: GetBudgetSpendStatusRequest,
     options?: CallOptions
   ): Promise<BudgetSpendStatus> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     let resp: BudgetSpendStatus | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -204,7 +214,7 @@ export class BudgetsClient {
     options?: CallOptions
   ): Promise<ListBudgetConfigurationsResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/budgets`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/budgets`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -260,8 +270,11 @@ export class BudgetsClient {
     req: ListBudgetSpendStatusesRequest,
     options?: CallOptions
   ): Promise<ListBudgetSpendStatusesResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.parent ?? ''}/budget-spend-statuses`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.parent)}/budget-spend-statuses`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -303,8 +316,11 @@ export class BudgetsClient {
     req: UpdateBudgetConfigurationRequest,
     options?: CallOptions
   ): Promise<UpdateBudgetConfigurationResponse> {
+    if (req.budgetId === undefined) {
+      throw new Error('path parameter "budget_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.budget?.accountId ?? accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.budget?.accountId ?? accountId ?? '')}/budgets/${encodePathVariable(req.budgetId)}`;
     const body = marshalRequest(
       req,
       marshalUpdateBudgetConfigurationRequestSchema

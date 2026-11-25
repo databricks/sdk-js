@@ -311,6 +311,96 @@ export const unmarshalSoftwareArtifactVersionSchema: z.ZodType<SoftwareArtifactV
       updatedBy: d.updated_by,
     }));
 
+export const marshalDeleteSoftwareArtifactRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    force: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    force: d.force,
+  }));
+
+export const marshalDeleteSoftwareArtifactVersionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetSoftwareArtifactRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetSoftwareArtifactVersionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalImageAccelerationDetailSchema: z.ZodType = z
+  .object({
+    status: z.string().optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+  }));
+
+export const marshalListSoftwareArtifactVersionsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListSoftwareArtifactVersionsResponseSchema: z.ZodType = z
+  .object({
+    softwareArtifactVersions: z
+      .array(z.lazy(() => marshalSoftwareArtifactVersionSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    software_artifact_versions: d.softwareArtifactVersions,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSoftwareArtifactsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListSoftwareArtifactsResponseSchema: z.ZodType = z
+  .object({
+    softwareArtifacts: z
+      .array(z.lazy(() => marshalSoftwareArtifactSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    software_artifacts: d.softwareArtifacts,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalResolveSoftwareArtifactVersionRequestSchema: z.ZodType = z
   .object({
     parent: z.string().optional(),
@@ -319,6 +409,16 @@ export const marshalResolveSoftwareArtifactVersionRequestSchema: z.ZodType = z
   .transform(d => ({
     parent: d.parent,
     alias: d.alias,
+  }));
+
+export const marshalResolveSoftwareArtifactVersionResponseSchema: z.ZodType = z
+  .object({
+    softwareArtifactVersion: z
+      .lazy(() => marshalSoftwareArtifactVersionSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    software_artifact_version: d.softwareArtifactVersion,
   }));
 
 export const marshalSoftwareArtifactSchema: z.ZodType = z
@@ -343,6 +443,49 @@ export const marshalSoftwareArtifactSchema: z.ZodType = z
     created_by: d.createdBy,
     update_time: d.updateTime,
     updated_by: d.updatedBy,
+  }));
+
+export const marshalSoftwareArtifactVersionSchema: z.ZodType = z
+  .object({
+    digest: z.string().optional(),
+    name: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    imageAccelerationDetails: z
+      .lazy(() => marshalImageAccelerationDetailSchema)
+      .optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    createdBy: z.string().optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updatedBy: z.string().optional(),
+  })
+  .transform(d => ({
+    digest: d.digest,
+    name: d.name,
+    tags: d.tags,
+    image_acceleration_details: d.imageAccelerationDetails,
+    create_time: d.createTime,
+    created_by: d.createdBy,
+    update_time: d.updateTime,
+    updated_by: d.updatedBy,
+  }));
+
+export const marshalUpdateSoftwareArtifactRequestSchema: z.ZodType = z
+  .object({
+    softwareArtifact: z.lazy(() => marshalSoftwareArtifactSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    software_artifact: d.softwareArtifact,
+    update_mask: d.updateMask,
   }));
 
 const softwareArtifactFieldMaskSchema: FieldMaskSchema = {

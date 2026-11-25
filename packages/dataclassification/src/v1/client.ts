@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -75,9 +76,15 @@ export class DataClassificationClient {
     req: CreateCatalogConfigRequest,
     options?: CallOptions
   ): Promise<CatalogConfig> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-classification/v1/${req.parent ?? ''}/config`;
-    const body = marshalRequest(req.catalogConfig, marshalCatalogConfigSchema);
+    const url = `${host}/api/data-classification/v1/${encodePathVariable(req.parent)}/config`;
+    const body =
+      req.catalogConfig === undefined
+        ? 'null'
+        : marshalRequest(req.catalogConfig, marshalCatalogConfigSchema);
     let resp: CatalogConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -110,8 +117,11 @@ export class DataClassificationClient {
     req: DeleteCatalogConfigRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-classification/v1/${req.name ?? ''}`;
+    const url = `${host}/api/data-classification/v1/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -132,8 +142,11 @@ export class DataClassificationClient {
     req: GetCatalogConfigRequest,
     options?: CallOptions
   ): Promise<CatalogConfig> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-classification/v1/${req.name ?? ''}`;
+    const url = `${host}/api/data-classification/v1/${encodePathVariable(req.name)}`;
     let resp: CatalogConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -170,8 +183,11 @@ export class DataClassificationClient {
     req: RescanCatalogRequest,
     options?: CallOptions
   ): Promise<RescanCatalogResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-classification/v1/${req.name ?? ''}/rescan`;
+    const url = `${host}/api/data-classification/v1/${encodePathVariable(req.name)}/rescan`;
     const body = marshalRequest(req, marshalRescanCatalogRequestSchema);
     let resp: RescanCatalogResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -205,14 +221,17 @@ export class DataClassificationClient {
     options?: CallOptions
   ): Promise<CatalogConfig> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-classification/v1/${req.catalogConfig?.name ?? ''}`;
+    const url = `${host}/api/data-classification/v1/${encodePathVariable(req.catalogConfig?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.catalogConfig, marshalCatalogConfigSchema);
+    const body =
+      req.catalogConfig === undefined
+        ? 'null'
+        : marshalRequest(req.catalogConfig, marshalCatalogConfigSchema);
     let resp: CatalogConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

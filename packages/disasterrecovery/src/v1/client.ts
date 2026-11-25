@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -84,8 +85,11 @@ export class DisasterRecoveryClient {
     req: CreateFailoverGroupRequest,
     options?: CallOptions
   ): Promise<FailoverGroup> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/disaster-recovery/v1/${req.parent ?? ''}/failover-groups`;
+    const url = `${host}/api/disaster-recovery/v1/${encodePathVariable(req.parent)}/failover-groups`;
     const params = new URLSearchParams();
     if (req.validateOnly !== undefined) {
       params.append('validate_only', String(req.validateOnly));
@@ -95,7 +99,10 @@ export class DisasterRecoveryClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.failoverGroup, marshalFailoverGroupSchema);
+    const body =
+      req.failoverGroup === undefined
+        ? 'null'
+        : marshalRequest(req.failoverGroup, marshalFailoverGroupSchema);
     let resp: FailoverGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -128,8 +135,11 @@ export class DisasterRecoveryClient {
     req: CreateStableUrlRequest,
     options?: CallOptions
   ): Promise<StableUrl> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/disaster-recovery/v1/${req.parent ?? ''}/stable-urls`;
+    const url = `${host}/api/disaster-recovery/v1/${encodePathVariable(req.parent)}/stable-urls`;
     const params = new URLSearchParams();
     if (req.validateOnly !== undefined) {
       params.append('validate_only', String(req.validateOnly));
@@ -139,7 +149,10 @@ export class DisasterRecoveryClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.stableUrl, marshalStableUrlSchema);
+    const body =
+      req.stableUrl === undefined
+        ? 'null'
+        : marshalRequest(req.stableUrl, marshalStableUrlSchema);
     let resp: StableUrl | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -175,8 +188,11 @@ export class DisasterRecoveryClient {
     req: DeleteFailoverGroupRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/disaster-recovery/v1/${req.name ?? ''}`;
+    const url = `${host}/api/disaster-recovery/v1/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
       params.append('etag', req.etag);
@@ -203,8 +219,11 @@ export class DisasterRecoveryClient {
     req: DeleteStableUrlRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/disaster-recovery/v1/${req.name ?? ''}`;
+    const url = `${host}/api/disaster-recovery/v1/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -233,8 +252,11 @@ export class DisasterRecoveryClient {
     req: FailoverFailoverGroupRequest,
     options?: CallOptions
   ): Promise<FailoverGroup> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/disaster-recovery/v1/${req.name ?? ''}/failover`;
+    const url = `${host}/api/disaster-recovery/v1/${encodePathVariable(req.name)}/failover`;
     const body = marshalRequest(req, marshalFailoverFailoverGroupRequestSchema);
     let resp: FailoverGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -262,8 +284,11 @@ export class DisasterRecoveryClient {
     req: GetFailoverGroupRequest,
     options?: CallOptions
   ): Promise<FailoverGroup> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/disaster-recovery/v1/${req.name ?? ''}`;
+    const url = `${host}/api/disaster-recovery/v1/${encodePathVariable(req.name)}`;
     let resp: FailoverGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -290,8 +315,11 @@ export class DisasterRecoveryClient {
     req: GetStableUrlRequest,
     options?: CallOptions
   ): Promise<StableUrl> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/disaster-recovery/v1/${req.name ?? ''}`;
+    const url = `${host}/api/disaster-recovery/v1/${encodePathVariable(req.name)}`;
     let resp: StableUrl | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -324,8 +352,11 @@ export class DisasterRecoveryClient {
     req: ListFailoverGroupsRequest,
     options?: CallOptions
   ): Promise<ListFailoverGroupsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/disaster-recovery/v1/${req.parent ?? ''}/failover-groups`;
+    const url = `${host}/api/disaster-recovery/v1/${encodePathVariable(req.parent)}/failover-groups`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -378,8 +409,11 @@ export class DisasterRecoveryClient {
     req: ListStableUrlsRequest,
     options?: CallOptions
   ): Promise<ListStableUrlsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/disaster-recovery/v1/${req.parent ?? ''}/stable-urls`;
+    const url = `${host}/api/disaster-recovery/v1/${encodePathVariable(req.parent)}/stable-urls`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -439,7 +473,7 @@ export class DisasterRecoveryClient {
     options?: CallOptions
   ): Promise<FailoverGroup> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/disaster-recovery/v1/${req.failoverGroup?.name ?? ''}`;
+    const url = `${host}/api/disaster-recovery/v1/${encodePathVariable(req.failoverGroup?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -449,7 +483,10 @@ export class DisasterRecoveryClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.failoverGroup, marshalFailoverGroupSchema);
+    const body =
+      req.failoverGroup === undefined
+        ? 'null'
+        : marshalRequest(req.failoverGroup, marshalFailoverGroupSchema);
     let resp: FailoverGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-postgres",
-  "version": "0.53.8",
+  "version": "0.53.9",
   "description": "",
   "type": "module",
   "exports": {

@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -155,8 +156,11 @@ export class AgentKitClient {
     req: AppendSessionItemsRequest,
     options?: CallOptions
   ): Promise<AppendSessionItemsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/items:append`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.parent)}/items:append`;
     const body = marshalRequest(req, marshalAppendSessionItemsRequestSchema);
     let resp: AppendSessionItemsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -184,8 +188,11 @@ export class AgentKitClient {
     req: ClearSessionItemsRequest,
     options?: CallOptions
   ): Promise<ClearSessionItemsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/items:clear`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.parent)}/items:clear`;
     const body = marshalRequest(req, marshalClearSessionItemsRequestSchema);
     let resp: ClearSessionItemsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -220,18 +227,24 @@ export class AgentKitClient {
     req: CreateManagedMemoryEntryRequest,
     options?: CallOptions
   ): Promise<ManagedMemoryEntry> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/entries`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.parent)}/entries`;
     const params = new URLSearchParams();
     if (req.managedMemoryEntryId !== undefined) {
       params.append('managed_memory_entry_id', req.managedMemoryEntryId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.managedMemoryEntry,
-      marshalManagedMemoryEntrySchema
-    );
+    const body =
+      req.managedMemoryEntry === undefined
+        ? 'null'
+        : marshalRequest(
+            req.managedMemoryEntry,
+            marshalManagedMemoryEntrySchema
+          );
     let resp: ManagedMemoryEntry | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -275,10 +288,13 @@ export class AgentKitClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.managedMemoryStore,
-      marshalManagedMemoryStoreSchema
-    );
+    const body =
+      req.managedMemoryStore === undefined
+        ? 'null'
+        : marshalRequest(
+            req.managedMemoryStore,
+            marshalManagedMemoryStoreSchema
+          );
     let resp: ManagedMemoryStore | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -311,15 +327,21 @@ export class AgentKitClient {
     req: CreateSessionRequest,
     options?: CallOptions
   ): Promise<Session> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/sessions`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.parent)}/sessions`;
     const params = new URLSearchParams();
     if (req.sessionId !== undefined) {
       params.append('session_id', req.sessionId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.session, marshalSessionSchema);
+    const body =
+      req.session === undefined
+        ? 'null'
+        : marshalRequest(req.session, marshalSessionSchema);
     let resp: Session | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -360,7 +382,10 @@ export class AgentKitClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.sessionStore, marshalSessionStoreSchema);
+    const body =
+      req.sessionStore === undefined
+        ? 'null'
+        : marshalRequest(req.sessionStore, marshalSessionStoreSchema);
     let resp: SessionStore | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -399,8 +424,11 @@ export class AgentKitClient {
     req: DeleteManagedMemoryEntryRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -425,8 +453,11 @@ export class AgentKitClient {
     req: DeleteManagedMemoryStoreRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -450,8 +481,11 @@ export class AgentKitClient {
     req: DeleteSessionRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -475,8 +509,11 @@ export class AgentKitClient {
     req: DeleteSessionStoreRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -500,8 +537,14 @@ export class AgentKitClient {
     req: ExtractMemoriesRequest,
     options?: CallOptions
   ): Promise<ExtractMemoriesResponse> {
+    if (req.sessionStore === undefined) {
+      throw new Error('path parameter "session_store" is required');
+    }
+    if (req.sessionId === undefined) {
+      throw new Error('path parameter "session_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.sessionStore ?? ''}/sessions/${req.sessionId ?? ''}/extractions`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.sessionStore)}/sessions/${encodePathVariable(req.sessionId)}/extractions`;
     const body = marshalRequest(req, marshalExtractMemoriesRequestSchema);
     let resp: ExtractMemoriesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -529,8 +572,11 @@ export class AgentKitClient {
     req: ForkSessionRequest,
     options?: CallOptions
   ): Promise<ForkSessionResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/sessions:fork`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.parent)}/sessions:fork`;
     const body = marshalRequest(req, marshalForkSessionRequestSchema);
     let resp: ForkSessionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -554,16 +600,18 @@ export class AgentKitClient {
   }
 
   /**
-   * Retrieves a memory entry by resource name. `view` controls whether the response
-   * includes memory content. Returns `NOT_FOUND` when the entry does not exist in the caller's
-   * workspace.
+   * Retrieves a memory entry by resource name. Returns `NOT_FOUND` when the entry does not exist in
+   * the caller's workspace.
    */
   async getMemory(
     req: GetManagedMemoryEntryRequest,
     options?: CallOptions
   ): Promise<ManagedMemoryEntry> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.view !== undefined) {
       params.append('view', req.view);
@@ -599,8 +647,11 @@ export class AgentKitClient {
     req: GetManagedMemoryStoreRequest,
     options?: CallOptions
   ): Promise<ManagedMemoryStore> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}`;
     let resp: ManagedMemoryStore | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -627,8 +678,11 @@ export class AgentKitClient {
     req: GetMemoryStorePermissionRequest,
     options?: CallOptions
   ): Promise<MemoryStorePermission> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}/permissions/self`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}/permissions/self`;
     let resp: MemoryStorePermission | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -655,8 +709,11 @@ export class AgentKitClient {
     req: GetSessionRequest,
     options?: CallOptions
   ): Promise<Session> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}`;
     let resp: Session | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -683,8 +740,11 @@ export class AgentKitClient {
     req: GetSessionStoreRequest,
     options?: CallOptions
   ): Promise<SessionStore> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}`;
     let resp: SessionStore | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -711,8 +771,11 @@ export class AgentKitClient {
     req: GetSessionStorePermissionRequest,
     options?: CallOptions
   ): Promise<SessionStorePermission> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}/permissions/self`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}/permissions/self`;
     let resp: SessionStorePermission | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -739,8 +802,11 @@ export class AgentKitClient {
     req: GrantMemoryStorePermissionRequest,
     options?: CallOptions
   ): Promise<GrantMemoryStorePermissionResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}/permissions:grant`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}/permissions:grant`;
     const body = marshalRequest(
       req,
       marshalGrantMemoryStorePermissionRequestSchema
@@ -774,8 +840,11 @@ export class AgentKitClient {
     req: GrantSessionStorePermissionRequest,
     options?: CallOptions
   ): Promise<GrantSessionStorePermissionResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}/permissions:grant`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}/permissions:grant`;
     const body = marshalRequest(
       req,
       marshalGrantSessionStorePermissionRequestSchema
@@ -813,8 +882,11 @@ export class AgentKitClient {
     req: ListManagedMemoryEntriesRequest,
     options?: CallOptions
   ): Promise<ListManagedMemoryEntriesResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/entries`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.parent)}/entries`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -882,8 +954,11 @@ export class AgentKitClient {
     req: ListMemoryStorePermissionsRequest,
     options?: CallOptions
   ): Promise<ListMemoryStorePermissionsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/permissions`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.parent)}/permissions`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -996,8 +1071,11 @@ export class AgentKitClient {
     req: ListSessionItemsRequest,
     options?: CallOptions
   ): Promise<ListSessionItemsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/items`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.parent)}/items`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -1053,8 +1131,11 @@ export class AgentKitClient {
     req: ListSessionStorePermissionsRequest,
     options?: CallOptions
   ): Promise<ListSessionStorePermissionsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/permissions`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.parent)}/permissions`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -1164,8 +1245,11 @@ export class AgentKitClient {
     req: ListSessionsRequest,
     options?: CallOptions
   ): Promise<ListSessionsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/sessions`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.parent)}/sessions`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -1224,8 +1308,11 @@ export class AgentKitClient {
     req: PopSessionItemRequest,
     options?: CallOptions
   ): Promise<PopSessionItemResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/items:pop`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.parent)}/items:pop`;
     const body = marshalRequest(req, marshalPopSessionItemRequestSchema);
     let resp: PopSessionItemResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1253,8 +1340,11 @@ export class AgentKitClient {
     req: RevokeMemoryStorePermissionRequest,
     options?: CallOptions
   ): Promise<RevokeMemoryStorePermissionResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}/permissions:revoke`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}/permissions:revoke`;
     const body = marshalRequest(
       req,
       marshalRevokeMemoryStorePermissionRequestSchema
@@ -1288,8 +1378,11 @@ export class AgentKitClient {
     req: RevokeSessionStorePermissionRequest,
     options?: CallOptions
   ): Promise<RevokeSessionStorePermissionResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.name ?? ''}/permissions:revoke`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.name)}/permissions:revoke`;
     const body = marshalRequest(
       req,
       marshalRevokeSessionStorePermissionRequestSchema
@@ -1320,14 +1413,17 @@ export class AgentKitClient {
 
   /**
    * Searches memory entries by text query for one actor. Returns matching entries and
-   * scores ranked by relevance; `view` controls whether each returned entry includes content.
+   * scores ranked by relevance.
    */
   async searchMemories(
     req: SearchManagedMemoryEntriesRequest,
     options?: CallOptions
   ): Promise<SearchManagedMemoryEntriesResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.parent ?? ''}/entries:search`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.parent)}/entries:search`;
     const body = marshalRequest(
       req,
       marshalSearchManagedMemoryEntriesRequestSchema
@@ -1379,17 +1475,20 @@ export class AgentKitClient {
     options?: CallOptions
   ): Promise<ManagedMemoryEntry> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.managedMemoryEntry?.name ?? ''}`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.managedMemoryEntry?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.managedMemoryEntry,
-      marshalManagedMemoryEntrySchema
-    );
+    const body =
+      req.managedMemoryEntry === undefined
+        ? 'null'
+        : marshalRequest(
+            req.managedMemoryEntry,
+            marshalManagedMemoryEntrySchema
+          );
     let resp: ManagedMemoryEntry | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1423,17 +1522,20 @@ export class AgentKitClient {
     options?: CallOptions
   ): Promise<ManagedMemoryStore> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.managedMemoryStore?.name ?? ''}`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.managedMemoryStore?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.managedMemoryStore,
-      marshalManagedMemoryStoreSchema
-    );
+    const body =
+      req.managedMemoryStore === undefined
+        ? 'null'
+        : marshalRequest(
+            req.managedMemoryStore,
+            marshalManagedMemoryStoreSchema
+          );
     let resp: ManagedMemoryStore | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1467,14 +1569,17 @@ export class AgentKitClient {
     options?: CallOptions
   ): Promise<Session> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.session?.name ?? ''}`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.session?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.session, marshalSessionSchema);
+    const body =
+      req.session === undefined
+        ? 'null'
+        : marshalRequest(req.session, marshalSessionSchema);
     let resp: Session | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1508,14 +1613,17 @@ export class AgentKitClient {
     options?: CallOptions
   ): Promise<SessionStore> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/agents/${req.sessionStore?.name ?? ''}`;
+    const url = `${host}/api/2.0/agents/${encodePathVariable(req.sessionStore?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.sessionStore, marshalSessionStoreSchema);
+    const body =
+      req.sessionStore === undefined
+        ? 'null'
+        : marshalRequest(req.sessionStore, marshalSessionStoreSchema);
     let resp: SessionStore | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

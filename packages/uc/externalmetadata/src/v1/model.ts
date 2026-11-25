@@ -185,6 +185,22 @@ export const unmarshalListExternalMetadataResponseV2Schema: z.ZodType<ListExtern
       nextPageToken: d.next_page_token,
     }));
 
+export const marshalCreateExternalMetadataRequestSchema: z.ZodType = z
+  .object({
+    externalMetadata: z.lazy(() => marshalExternalMetadataSchema).optional(),
+  })
+  .transform(d => ({
+    external_metadata: d.externalMetadata,
+  }));
+
+export const marshalDeleteExternalMetadataRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalExternalMetadataSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -223,6 +239,49 @@ export const marshalExternalMetadataSchema: z.ZodType = z
     update_time: d.updateTime,
     updated_by: d.updatedBy,
     id: d.id,
+  }));
+
+export const marshalGetExternalMetadataRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalListExternalMetadataRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListExternalMetadataResponseV2Schema: z.ZodType = z
+  .object({
+    externalMetadata: z
+      .array(z.lazy(() => marshalExternalMetadataSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    external_metadata: d.externalMetadata,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalUpdateExternalMetadataRequestSchema: z.ZodType = z
+  .object({
+    externalMetadata: z.lazy(() => marshalExternalMetadataSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    external_metadata: d.externalMetadata,
+    update_mask: d.updateMask,
   }));
 
 const externalMetadataFieldMaskSchema: FieldMaskSchema = {

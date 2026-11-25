@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -87,8 +88,11 @@ export class ComputeMigrationsClient {
     req: ApproveMigrationExecutionRequest,
     options?: CallOptions
   ): Promise<Migration> {
+    if (req.migrationId === undefined) {
+      throw new Error('path parameter "migration_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/compute-migrations/v1/migrations/${req.migrationId ?? ''}/approveExecution`;
+    const url = `${host}/api/compute-migrations/v1/migrations/${encodePathVariable(req.migrationId)}/approveExecution`;
     const body = marshalRequest(
       req,
       marshalApproveMigrationExecutionRequestSchema
@@ -131,8 +135,11 @@ export class ComputeMigrationsClient {
     req: ApproveMigrationTranslationRequest,
     options?: CallOptions
   ): Promise<Migration> {
+    if (req.migrationId === undefined) {
+      throw new Error('path parameter "migration_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/compute-migrations/v1/migrations/${req.migrationId ?? ''}/approveTranslation`;
+    const url = `${host}/api/compute-migrations/v1/migrations/${encodePathVariable(req.migrationId)}/approveTranslation`;
     const body = marshalRequest(
       req,
       marshalApproveMigrationTranslationRequestSchema
@@ -173,8 +180,11 @@ export class ComputeMigrationsClient {
     req: CancelMigrationRequest,
     options?: CallOptions
   ): Promise<Migration> {
+    if (req.migrationId === undefined) {
+      throw new Error('path parameter "migration_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/compute-migrations/v1/migrations/${req.migrationId ?? ''}/cancel`;
+    const url = `${host}/api/compute-migrations/v1/migrations/${encodePathVariable(req.migrationId)}/cancel`;
     const body = marshalRequest(req, marshalCancelMigrationRequestSchema);
     let resp: Migration | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -221,7 +231,10 @@ export class ComputeMigrationsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.migration, marshalMigrationSchema);
+    const body =
+      req.migration === undefined
+        ? 'null'
+        : marshalRequest(req.migration, marshalMigrationSchema);
     let resp: Migration | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -265,8 +278,11 @@ export class ComputeMigrationsClient {
     req: DeleteMigrationRequest,
     options?: CallOptions
   ): Promise<Migration> {
+    if (req.migrationId === undefined) {
+      throw new Error('path parameter "migration_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/compute-migrations/v1/migrations/${req.migrationId ?? ''}`;
+    const url = `${host}/api/compute-migrations/v1/migrations/${encodePathVariable(req.migrationId)}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
       params.append('etag', req.etag);
@@ -305,8 +321,11 @@ export class ComputeMigrationsClient {
     req: GetMigrationRequest,
     options?: CallOptions
   ): Promise<Migration> {
+    if (req.migrationId === undefined) {
+      throw new Error('path parameter "migration_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/compute-migrations/v1/migrations/${req.migrationId ?? ''}`;
+    const url = `${host}/api/compute-migrations/v1/migrations/${encodePathVariable(req.migrationId)}`;
     let resp: Migration | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -409,8 +428,11 @@ export class ComputeMigrationsClient {
     req: RejectMigrationExecutionRequest,
     options?: CallOptions
   ): Promise<Migration> {
+    if (req.migrationId === undefined) {
+      throw new Error('path parameter "migration_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/compute-migrations/v1/migrations/${req.migrationId ?? ''}/rejectExecution`;
+    const url = `${host}/api/compute-migrations/v1/migrations/${encodePathVariable(req.migrationId)}/rejectExecution`;
     const body = marshalRequest(
       req,
       marshalRejectMigrationExecutionRequestSchema
@@ -451,8 +473,11 @@ export class ComputeMigrationsClient {
     req: RejectMigrationTranslationRequest,
     options?: CallOptions
   ): Promise<Migration> {
+    if (req.migrationId === undefined) {
+      throw new Error('path parameter "migration_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/compute-migrations/v1/migrations/${req.migrationId ?? ''}/rejectTranslation`;
+    const url = `${host}/api/compute-migrations/v1/migrations/${encodePathVariable(req.migrationId)}/rejectTranslation`;
     const body = marshalRequest(
       req,
       marshalRejectMigrationTranslationRequestSchema

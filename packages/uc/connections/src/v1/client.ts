@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -105,8 +106,11 @@ export class ConnectionsClient {
     req: DeleteConnectionRequest,
     options?: CallOptions
   ): Promise<DeleteConnectionResponse> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/connections/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/connections/${encodePathVariable(req.nameArg)}`;
     let resp: DeleteConnectionResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -133,8 +137,11 @@ export class ConnectionsClient {
     req: GetConnectionRequest,
     options?: CallOptions
   ): Promise<ConnectionInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/connections/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/connections/${encodePathVariable(req.nameArg)}`;
     let resp: ConnectionInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -228,8 +235,11 @@ export class ConnectionsClient {
     req: UpdateConnectionRequest,
     options?: CallOptions
   ): Promise<ConnectionInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/connections/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/connections/${encodePathVariable(req.nameArg)}`;
     const body = marshalRequest(req, marshalUpdateConnectionRequestSchema);
     let resp: ConnectionInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

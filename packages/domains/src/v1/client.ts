@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -76,7 +77,10 @@ export class DomainsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.domain, marshalDomainSchema);
+    const body =
+      req.domain === undefined
+        ? 'null'
+        : marshalRequest(req.domain, marshalDomainSchema);
     let resp: Domain | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -112,8 +116,11 @@ export class DomainsClient {
     req: DeleteDomainRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -144,8 +151,11 @@ export class DomainsClient {
     req: GetDomainRequest,
     options?: CallOptions
   ): Promise<Domain> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/${encodePathVariable(req.name)}`;
     let resp: Domain | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -239,14 +249,17 @@ export class DomainsClient {
     options?: CallOptions
   ): Promise<Domain> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/${req.domain?.name ?? ''}`;
+    const url = `${host}/api/2.0/${encodePathVariable(req.domain?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.domain, marshalDomainSchema);
+    const body =
+      req.domain === undefined
+        ? 'null'
+        : marshalRequest(req.domain, marshalDomainSchema);
     let resp: Domain | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

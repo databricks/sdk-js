@@ -592,6 +592,14 @@ export const marshalDatabricksAppTeamsConfigSchema: z.ZodType = z
     channel_id_set: d.channelIdSet,
   }));
 
+export const marshalDeleteNotificationDestinationRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
 export const marshalEmailConfigSchema: z.ZodType = z
   .object({
     addresses: z.array(z.string()).optional(),
@@ -599,6 +607,8 @@ export const marshalEmailConfigSchema: z.ZodType = z
   .transform(d => ({
     addresses: d.addresses,
   }));
+
+export const marshalEmptySchema: z.ZodType = z.object({});
 
 export const marshalGenericWebhookConfigSchema: z.ZodType = z
   .object({
@@ -616,6 +626,50 @@ export const marshalGenericWebhookConfigSchema: z.ZodType = z
     username_set: d.usernameSet,
     password: d.password,
     password_set: d.passwordSet,
+  }));
+
+export const marshalGetNotificationDestinationRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalListNotificationDestinationsRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.bigint().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListNotificationDestinationsResponseSchema: z.ZodType = z
+  .object({
+    results: z
+      .array(z.lazy(() => marshalListNotificationDestinationsResultSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    results: d.results,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListNotificationDestinationsResultSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    displayName: z.string().optional(),
+    destinationType: z.string().optional(),
+    config: z.lazy(() => marshalConfigSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    display_name: d.displayName,
+    destination_type: d.destinationType,
+    config: d.config,
   }));
 
 export const marshalMicrosoftTeamsConfigSchema: z.ZodType = z
@@ -642,6 +696,20 @@ export const marshalMicrosoftTeamsConfigSchema: z.ZodType = z
     channel_url_set: d.channelUrlSet,
     tenant_id: d.tenantId,
     tenant_id_set: d.tenantIdSet,
+  }));
+
+export const marshalNotificationDestinationSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    displayName: z.string().optional(),
+    destinationType: z.string().optional(),
+    config: z.lazy(() => marshalConfigSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    display_name: d.displayName,
+    destination_type: d.destinationType,
+    config: d.config,
   }));
 
 export const marshalPagerdutyConfigSchema: z.ZodType = z

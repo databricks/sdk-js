@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -71,7 +72,7 @@ export class UsageDashboardsClient {
     options?: CallOptions
   ): Promise<CreateBillingUsageDashboardResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/dashboard`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/dashboard`;
     const body = marshalRequest(
       req,
       marshalCreateBillingUsageDashboardRequestSchema
@@ -107,7 +108,7 @@ export class UsageDashboardsClient {
     options?: CallOptions
   ): Promise<GetBillingUsageDashboardResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/dashboard`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/dashboard`;
     const params = new URLSearchParams();
     if (req.workspaceId !== undefined) {
       params.append('workspace_id', String(req.workspaceId));

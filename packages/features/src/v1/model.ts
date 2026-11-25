@@ -2007,12 +2007,6 @@ export interface MaterializationSet {
    * in its update mask deletes omitted materialized features.
    */
   materializedFeatures?: MaterializedFeature[] | undefined;
-  /**
-   * Notification configuration around the materialization job or pipeline lifecycle. They are
-   * applied to every job and pipeline that materializes a feature in this set. Features which are
-   * materialized in the same pipeline will share the same notification.
-   */
-  notifications?: MaterializationNotifications | undefined;
 }
 
 /**
@@ -4287,15 +4281,10 @@ export const unmarshalMaterializationSetSchema: z.ZodType<MaterializationSet> =
       materialized_features: z
         .array(z.lazy(() => unmarshalMaterializedFeatureSchema))
         .optional(),
-      notifications: z
-        .lazy(() => unmarshalMaterializationNotificationsSchema)
-        .nullish()
-        .transform(v => v ?? undefined),
     })
     .transform(d => ({
       materializationSetId: d.materialization_set_id,
       materializedFeatures: d.materialized_features,
-      notifications: d.notifications,
     }));
 
 export const unmarshalMaterializationSetDeletionProgressSchema: z.ZodType<MaterializationSetDeletionProgress> =
@@ -5390,6 +5379,20 @@ export const marshalAggregationFunctionSchema: z.ZodType = z
     time_window: d.timeWindow,
   }));
 
+export const marshalApiErrorSchema: z.ZodType = z
+  .object({
+    errorCode: z.string().optional(),
+    message: z.string().optional(),
+    stackTrace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    error_code: d.errorCode,
+    message: d.message,
+    stack_trace: d.stackTrace,
+    details: d.details,
+  }));
+
 export const marshalApproxCountDistinctFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
@@ -5466,6 +5469,22 @@ export const marshalBackfillFeaturesRequestSchema: z.ZodType = z
     budget_policy_id: d.budgetPolicyId,
   }));
 
+export const marshalBackfillFeaturesResponseSchema: z.ZodType = z.object({});
+
+export const marshalBackfillOperationMetadataSchema: z.ZodType = z
+  .object({
+    featureFullNames: z.array(z.string()).optional(),
+    backfillRanges: z
+      .array(z.lazy(() => marshalBackfillRangeSchema))
+      .optional(),
+    state: z.string().optional(),
+  })
+  .transform(d => ({
+    feature_full_names: d.featureFullNames,
+    backfill_ranges: d.backfillRanges,
+    state: d.state,
+  }));
+
 export const marshalBackfillRangeSchema: z.ZodType = z
   .object({
     startTime: z
@@ -5516,6 +5535,16 @@ export const marshalBatchCreateMaterializedFeaturesRequestSchema: z.ZodType = z
     requests: d.requests,
   }));
 
+export const marshalBatchCreateMaterializedFeaturesResponseSchema: z.ZodType = z
+  .object({
+    materializedFeatures: z
+      .array(z.lazy(() => marshalMaterializedFeatureSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    materialized_features: d.materializedFeatures,
+  }));
+
 export const marshalCancelOperationRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -5564,6 +5593,42 @@ export const marshalCountFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
+export const marshalCreateFeatureRequestSchema: z.ZodType = z
+  .object({
+    feature: z.lazy(() => marshalFeatureSchema).optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+  }));
+
+export const marshalCreateFeatureSpecRequestSchema: z.ZodType = z
+  .object({
+    featureSpec: z.lazy(() => marshalFeatureSpecSchema).optional(),
+  })
+  .transform(d => ({
+    feature_spec: d.featureSpec,
+  }));
+
+export const marshalCreateKafkaConfigRequestSchema: z.ZodType = z
+  .object({
+    kafkaConfig: z.lazy(() => marshalKafkaConfigSchema).optional(),
+  })
+  .transform(d => ({
+    kafka_config: d.kafkaConfig,
+  }));
+
+export const marshalCreateMaterializationSetRequestSchema: z.ZodType = z
+  .object({
+    materializationSet: z
+      .lazy(() => marshalMaterializationSetSchema)
+      .optional(),
+    requestId: z.string().optional(),
+  })
+  .transform(d => ({
+    materialization_set: d.materializationSet,
+    request_id: d.requestId,
+  }));
+
 export const marshalCreateMaterializedFeatureRequestSchema: z.ZodType = z
   .object({
     materializedFeature: z
@@ -5572,6 +5637,14 @@ export const marshalCreateMaterializedFeatureRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     materialized_feature: d.materializedFeature,
+  }));
+
+export const marshalCreateStreamRequestSchema: z.ZodType = z
+  .object({
+    stream: z.lazy(() => marshalStreamSchema).optional(),
+  })
+  .transform(d => ({
+    stream: d.stream,
   }));
 
 export const marshalCronScheduleSchema: z.ZodType = z
@@ -5675,6 +5748,58 @@ export const marshalDefaultValueSchema: z.ZodType = z
   .transform(d => ({
     feature: d.feature,
     default_value: d.defaultValue,
+  }));
+
+export const marshalDeleteFeatureRequestSchema: z.ZodType = z
+  .object({
+    fullName: z.string().optional(),
+  })
+  .transform(d => ({
+    full_name: d.fullName,
+  }));
+
+export const marshalDeleteFeatureSpecRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteKafkaConfigRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteMaterializationSetRequestSchema: z.ZodType = z
+  .object({
+    materializationSetId: z.string().optional(),
+    allowMissing: z.boolean().optional(),
+    requestId: z.string().optional(),
+  })
+  .transform(d => ({
+    materialization_set_id: d.materializationSetId,
+    allow_missing: d.allowMissing,
+    request_id: d.requestId,
+  }));
+
+export const marshalDeleteMaterializedFeatureRequestSchema: z.ZodType = z
+  .object({
+    materializedFeatureId: z.string().optional(),
+  })
+  .transform(d => ({
+    materialized_feature_id: d.materializedFeatureId,
+  }));
+
+export const marshalDeleteStreamRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalDeltaTableSourceSchema: z.ZodType = z
@@ -6010,6 +6135,62 @@ export const marshalFunctionExtraParameterSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalGetFeatureRequestSchema: z.ZodType = z
+  .object({
+    fullName: z.string().optional(),
+  })
+  .transform(d => ({
+    full_name: d.fullName,
+  }));
+
+export const marshalGetFeatureSpecRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetKafkaConfigRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetMaterializationSetRequestSchema: z.ZodType = z
+  .object({
+    materializationSetId: z.string().optional(),
+  })
+  .transform(d => ({
+    materialization_set_id: d.materializationSetId,
+  }));
+
+export const marshalGetMaterializedFeatureRequestSchema: z.ZodType = z
+  .object({
+    materializedFeatureId: z.string().optional(),
+  })
+  .transform(d => ({
+    materialized_feature_id: d.materializedFeatureId,
+  }));
+
+export const marshalGetOperationRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetStreamRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalIcebergTableSourceSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
@@ -6247,6 +6428,96 @@ export const marshalLineageContextSchema: z.ZodType = z
     job_context: d.jobContext,
   }));
 
+export const marshalListFeaturesRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+  }));
+
+export const marshalListFeaturesResponseSchema: z.ZodType = z
+  .object({
+    features: z.array(z.lazy(() => marshalFeatureSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    features: d.features,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListKafkaConfigsRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListKafkaConfigsResponseSchema: z.ZodType = z
+  .object({
+    kafkaConfigs: z.array(z.lazy(() => marshalKafkaConfigSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    kafka_configs: d.kafkaConfigs,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListMaterializedFeaturesRequestSchema: z.ZodType = z
+  .object({
+    featureName: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    feature_name: d.featureName,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListMaterializedFeaturesResponseSchema: z.ZodType = z
+  .object({
+    materializedFeatures: z
+      .array(z.lazy(() => marshalMaterializedFeatureSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    materialized_features: d.materializedFeatures,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListStreamsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListStreamsResponseSchema: z.ZodType = z
+  .object({
+    streams: z.array(z.lazy(() => marshalStreamSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    streams: d.streams,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalLookupSchema: z.ZodType = z
   .object({
     feature: z.lazy(() => marshalFeatureReferenceSchema).optional(),
@@ -6283,20 +6554,112 @@ export const marshalMaterializationNotificationsSchema: z.ZodType = z
     on_failure: d.onFailure,
   }));
 
+export const marshalMaterializationRunProgressSchema: z.ZodType = z
+  .object({
+    materializedFeatureIds: z.array(z.string()).optional(),
+    state: z.string().optional(),
+    error: z.lazy(() => marshalApiErrorSchema).optional(),
+  })
+  .transform(d => ({
+    materialized_feature_ids: d.materializedFeatureIds,
+    state: d.state,
+    error: d.error,
+  }));
+
 export const marshalMaterializationSetSchema: z.ZodType = z
   .object({
     materializationSetId: z.string().optional(),
     materializedFeatures: z
       .array(z.lazy(() => marshalMaterializedFeatureSchema))
       .optional(),
-    notifications: z
-      .lazy(() => marshalMaterializationNotificationsSchema)
-      .optional(),
   })
   .transform(d => ({
     materialization_set_id: d.materializationSetId,
     materialized_features: d.materializedFeatures,
-    notifications: d.notifications,
+  }));
+
+export const marshalMaterializationSetDeletionProgressSchema: z.ZodType = z
+  .object({
+    deletedMaterializedFeatureIds: z.array(z.string()).optional(),
+    failedMaterializedFeatures: z
+      .array(z.lazy(() => marshalMaterializedFeatureChangeFailureSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    deleted_materialized_feature_ids: d.deletedMaterializedFeatureIds,
+    failed_materialized_features: d.failedMaterializedFeatures,
+  }));
+
+export const marshalMaterializationSetOperationMetadataSchema: z.ZodType = z
+  .object({
+    featureFullNames: z.array(z.string()).optional(),
+    state: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    materializationSetId: z.string().optional(),
+    progress: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('deletionProgress'),
+          deletionProgress: z.lazy(
+            () => marshalMaterializationSetDeletionProgressSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('updateProgress'),
+          updateProgress: z.lazy(
+            () => marshalMaterializationSetUpdateProgressSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('triggerProgress'),
+          triggerProgress: z.lazy(
+            () => marshalMaterializationSetTriggerProgressSchema
+          ),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    feature_full_names: d.featureFullNames,
+    state: d.state,
+    create_time: d.createTime,
+    materialization_set_id: d.materializationSetId,
+    ...(d.progress?.$case === 'deletionProgress' && {
+      deletion_progress: d.progress.deletionProgress,
+    }),
+    ...(d.progress?.$case === 'updateProgress' && {
+      update_progress: d.progress.updateProgress,
+    }),
+    ...(d.progress?.$case === 'triggerProgress' && {
+      trigger_progress: d.progress.triggerProgress,
+    }),
+  }));
+
+export const marshalMaterializationSetTriggerProgressSchema: z.ZodType = z
+  .object({
+    runs: z
+      .array(z.lazy(() => marshalMaterializationRunProgressSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    runs: d.runs,
+  }));
+
+export const marshalMaterializationSetUpdateProgressSchema: z.ZodType = z
+  .object({
+    updatedMaterializedFeatureIds: z.array(z.string()).optional(),
+    deletedMaterializedFeatureIds: z.array(z.string()).optional(),
+    failedMaterializedFeatures: z
+      .array(z.lazy(() => marshalMaterializedFeatureChangeFailureSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    updated_materialized_feature_ids: d.updatedMaterializedFeatureIds,
+    deleted_materialized_feature_ids: d.deletedMaterializedFeatureIds,
+    failed_materialized_features: d.failedMaterializedFeatures,
   }));
 
 export const marshalMaterializationSuccessNotificationSchema: z.ZodType = z
@@ -6402,6 +6765,18 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     operations: d.operations,
   }));
 
+export const marshalMaterializedFeatureChangeFailureSchema: z.ZodType = z
+  .object({
+    materializedFeatureId: z.string().optional(),
+    errorCode: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    materialized_feature_id: d.materializedFeatureId,
+    error_code: d.errorCode,
+    message: d.message,
+  }));
+
 export const marshalMaterializedFeatureOperationsSchema: z.ZodType = z
   .object({
     latestEntityPurgeOperation: z.string().optional(),
@@ -6474,6 +6849,32 @@ export const marshalOnlineStoreConfigSchema: z.ZodType = z
     online_store_name: d.onlineStoreName,
   }));
 
+export const marshalOperationSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+    done: z.boolean().optional(),
+    result: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('error'),
+          error: z.lazy(() => marshalApiErrorSchema),
+        }),
+        z.object({
+          $case: z.literal('response'),
+          response: z.record(z.string(), z.unknown()),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    metadata: d.metadata,
+    done: d.done,
+    ...(d.result?.$case === 'error' && {error: d.result.error}),
+    ...(d.result?.$case === 'response' && {response: d.result.response}),
+  }));
+
 export const marshalPipRequirementsSchema: z.ZodType = z
   .object({
     requirements: z.array(z.string()).optional(),
@@ -6490,6 +6891,29 @@ export const marshalProtoSchemaSpecSchema: z.ZodType = z
   .transform(d => ({
     schema_text: d.schemaText,
     message_name: d.messageName,
+  }));
+
+export const marshalPurgeFeatureEntitiesMetadataSchema: z.ZodType = z
+  .object({
+    features: z.array(z.string()).optional(),
+    entitiesTable: z.string().optional(),
+    entitiesTableVersion: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    state: z.string().optional(),
+    jobId: z.bigint().optional(),
+    deleteRows: z.boolean().optional(),
+  })
+  .transform(d => ({
+    features: d.features,
+    entities_table: d.entitiesTable,
+    entities_table_version: d.entitiesTableVersion,
+    create_time: d.createTime,
+    state: d.state,
+    job_id: d.jobId,
+    delete_rows: d.deleteRows,
   }));
 
 export const marshalPurgeFeatureEntitiesRequestSchema: z.ZodType = z
@@ -6517,6 +6941,38 @@ export const marshalPurgeFeatureEntitiesRequestSchema: z.ZodType = z
     tags: d.tags,
     budget_policy_id: d.budgetPolicyId,
     delete_rows: d.deleteRows,
+  }));
+
+export const marshalPurgeFeatureEntitiesResponseSchema: z.ZodType = z
+  .object({
+    metadata: z
+      .lazy(() => marshalPurgeFeatureEntitiesMetadataSchema)
+      .optional(),
+    results: z
+      .array(z.lazy(() => marshalPurgeFeatureEntitiesResultSchema))
+      .optional(),
+    state: z.string().optional(),
+    error: z.lazy(() => marshalApiErrorSchema).optional(),
+  })
+  .transform(d => ({
+    metadata: d.metadata,
+    results: d.results,
+    state: d.state,
+    error: d.error,
+  }));
+
+export const marshalPurgeFeatureEntitiesResultSchema: z.ZodType = z
+  .object({
+    feature: z.string().optional(),
+    offlineState: z.string().optional(),
+    onlineState: z.string().optional(),
+    error: z.lazy(() => marshalApiErrorSchema).optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+    offline_state: d.offlineState,
+    online_state: d.onlineState,
+    error: d.error,
   }));
 
 export const marshalRenameOutputSchema: z.ZodType = z
@@ -7014,6 +7470,9 @@ export const marshalTriggerMaterializationSetRequestSchema: z.ZodType = z
     request_id: d.requestId,
   }));
 
+export const marshalTriggerMaterializationSetResponseSchema: z.ZodType =
+  z.object({});
+
 export const marshalTumblingWindowSchema: z.ZodType = z
   .object({
     windowDuration: z
@@ -7033,6 +7492,77 @@ export const marshalTumblingWindowSchema: z.ZodType = z
     window_duration: d.windowDuration,
     delay: d.delay,
     offset: d.offset,
+  }));
+
+export const marshalUpdateFeatureRequestSchema: z.ZodType = z
+  .object({
+    feature: z.lazy(() => marshalFeatureSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    feature: d.feature,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateKafkaConfigRequestSchema: z.ZodType = z
+  .object({
+    kafkaConfig: z.lazy(() => marshalKafkaConfigSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    kafka_config: d.kafkaConfig,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateMaterializationSetRequestSchema: z.ZodType = z
+  .object({
+    materializationSet: z
+      .lazy(() => marshalMaterializationSetSchema)
+      .optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    requestId: z.string().optional(),
+  })
+  .transform(d => ({
+    materialization_set: d.materializationSet,
+    update_mask: d.updateMask,
+    request_id: d.requestId,
+  }));
+
+export const marshalUpdateMaterializedFeatureRequestSchema: z.ZodType = z
+  .object({
+    materializedFeature: z
+      .lazy(() => marshalMaterializedFeatureSchema)
+      .optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    materialized_feature: d.materializedFeature,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateStreamRequestSchema: z.ZodType = z
+  .object({
+    stream: z.lazy(() => marshalStreamSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    stream: d.stream,
+    update_mask: d.updateMask,
   }));
 
 export const marshalVarPopFunctionSchema: z.ZodType = z
@@ -7423,10 +7953,6 @@ const materializationNotificationsFieldMaskSchema: FieldMaskSchema = {
 const materializationSetFieldMaskSchema: FieldMaskSchema = {
   materializationSetId: {wire: 'materialization_set_id'},
   materializedFeatures: {wire: 'materialized_features'},
-  notifications: {
-    wire: 'notifications',
-    children: () => materializationNotificationsFieldMaskSchema,
-  },
 };
 
 export function materializationSetFieldMask(

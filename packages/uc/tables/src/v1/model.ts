@@ -1672,6 +1672,32 @@ export const marshalCredentialDependencySchema: z.ZodType = z
     credential_name: d.credentialName,
   }));
 
+export const marshalDeleteTableConstraintRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    constraintName: z.string().optional(),
+    cascade: z.boolean().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    constraint_name: d.constraintName,
+    cascade: d.cascade,
+  }));
+
+export const marshalDeleteTableConstraintResponseSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalDeleteTableRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+  }));
+
+export const marshalDeleteTableResponseSchema: z.ZodType = z.object({});
+
 export const marshalDeltaRuntimePropertiesKvPairsSchema: z.ZodType = z
   .object({
     deltaRuntimeProperties: z.record(z.string(), z.string()).optional(),
@@ -1769,6 +1795,82 @@ export const marshalFunctionDependencySchema: z.ZodType = z
   })
   .transform(d => ({
     function_full_name: d.functionFullName,
+  }));
+
+export const marshalGetTableRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    includeDeltaMetadata: z.boolean().optional(),
+    includeBrowse: z.boolean().optional(),
+    includeManifestCapabilities: z.boolean().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    include_delta_metadata: d.includeDeltaMetadata,
+    include_browse: d.includeBrowse,
+    include_manifest_capabilities: d.includeManifestCapabilities,
+  }));
+
+export const marshalListTableSummariesRequestSchema: z.ZodType = z
+  .object({
+    catalogName: z.string().optional(),
+    schemaNamePattern: z.string().optional(),
+    tableNamePattern: z.string().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+    includeManifestCapabilities: z.boolean().optional(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+    schema_name_pattern: d.schemaNamePattern,
+    table_name_pattern: d.tableNamePattern,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+    include_manifest_capabilities: d.includeManifestCapabilities,
+  }));
+
+export const marshalListTableSummariesResponseSchema: z.ZodType = z
+  .object({
+    tables: z.array(z.lazy(() => marshalTableSummarySchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    tables: d.tables,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListTablesRequestSchema: z.ZodType = z
+  .object({
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+    omitColumns: z.boolean().optional(),
+    omitProperties: z.boolean().optional(),
+    omitUsername: z.boolean().optional(),
+    includeBrowse: z.boolean().optional(),
+    includeManifestCapabilities: z.boolean().optional(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+    omit_columns: d.omitColumns,
+    omit_properties: d.omitProperties,
+    omit_username: d.omitUsername,
+    include_browse: d.includeBrowse,
+    include_manifest_capabilities: d.includeManifestCapabilities,
+  }));
+
+export const marshalListTablesResponseSchema: z.ZodType = z
+  .object({
+    tables: z.array(z.lazy(() => marshalTableInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    tables: d.tables,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalNamedTableConstraintSchema: z.ZodType = z
@@ -1920,6 +2022,117 @@ export const marshalTableDependencySchema: z.ZodType = z
     table_full_name: d.tableFullName,
   }));
 
+export const marshalTableExistsRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+  }));
+
+export const marshalTableExistsResponseSchema: z.ZodType = z
+  .object({
+    tableExists: z.boolean().optional(),
+  })
+  .transform(d => ({
+    table_exists: d.tableExists,
+  }));
+
+export const marshalTableInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    tableType: z.string().optional(),
+    dataSourceFormat: z.string().optional(),
+    storageLocation: z.string().optional(),
+    viewDefinition: z.string().optional(),
+    viewDependencies: z.lazy(() => marshalDependencyListSchema).optional(),
+    sqlPath: z.string().optional(),
+    owner: z.string().optional(),
+    comment: z.string().optional(),
+    storageCredentialName: z.string().optional(),
+    tableConstraints: z
+      .array(z.lazy(() => marshalTableConstraintSchema))
+      .optional(),
+    rowFilter: z.lazy(() => marshalRowFilterSchema).optional(),
+    pipelineId: z.string().optional(),
+    enablePredictiveOptimization: z.string().optional(),
+    metastoreId: z.string().optional(),
+    fullName: z.string().optional(),
+    dataAccessConfigurationId: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    tableId: z.string().optional(),
+    deltaRuntimePropertiesKvpairs: z
+      .lazy(() => marshalDeltaRuntimePropertiesKvPairsSchema)
+      .optional(),
+    deletedAt: z.bigint().optional(),
+    effectivePredictiveOptimizationFlag: z
+      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
+      .optional(),
+    accessPoint: z.string().optional(),
+    browseOnly: z.boolean().optional(),
+    encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
+    securableKindManifest: z
+      .lazy(() => marshalSecurableKindManifestSchema)
+      .optional(),
+    columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
+    properties: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    table_type: d.tableType,
+    data_source_format: d.dataSourceFormat,
+    storage_location: d.storageLocation,
+    view_definition: d.viewDefinition,
+    view_dependencies: d.viewDependencies,
+    sql_path: d.sqlPath,
+    owner: d.owner,
+    comment: d.comment,
+    storage_credential_name: d.storageCredentialName,
+    table_constraints: d.tableConstraints,
+    row_filter: d.rowFilter,
+    pipeline_id: d.pipelineId,
+    enable_predictive_optimization: d.enablePredictiveOptimization,
+    metastore_id: d.metastoreId,
+    full_name: d.fullName,
+    data_access_configuration_id: d.dataAccessConfigurationId,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    table_id: d.tableId,
+    delta_runtime_properties_kvpairs: d.deltaRuntimePropertiesKvpairs,
+    deleted_at: d.deletedAt,
+    effective_predictive_optimization_flag:
+      d.effectivePredictiveOptimizationFlag,
+    access_point: d.accessPoint,
+    browse_only: d.browseOnly,
+    encryption_details: d.encryptionDetails,
+    securable_kind_manifest: d.securableKindManifest,
+    columns: d.columns,
+    properties: d.properties,
+  }));
+
+export const marshalTableSummarySchema: z.ZodType = z
+  .object({
+    fullName: z.string().optional(),
+    tableType: z.string().optional(),
+    securableKindManifest: z
+      .lazy(() => marshalSecurableKindManifestSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    full_name: d.fullName,
+    table_type: d.tableType,
+    securable_kind_manifest: d.securableKindManifest,
+  }));
+
 export const marshalUpdateTableRequestSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
@@ -2002,3 +2215,5 @@ export const marshalUpdateTableRequestSchema: z.ZodType = z
     columns: d.columns,
     properties: d.properties,
   }));
+
+export const marshalUpdateTableResponseSchema: z.ZodType = z.object({});

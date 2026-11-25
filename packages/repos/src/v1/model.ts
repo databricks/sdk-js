@@ -342,6 +342,106 @@ export const marshalCreateRepoRequestSchema: z.ZodType = z
     git_credential_id: d.gitCredentialId,
   }));
 
+export const marshalCreateRepoResponseSchema: z.ZodType = z
+  .object({
+    id: z.bigint().optional(),
+    path: z.string().optional(),
+    url: z.string().optional(),
+    provider: z.string().optional(),
+    branch: z.string().optional(),
+    headCommitId: z.string().optional(),
+    sparseCheckout: z.lazy(() => marshalSparseCheckoutSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    path: d.path,
+    url: d.url,
+    provider: d.provider,
+    branch: d.branch,
+    head_commit_id: d.headCommitId,
+    sparse_checkout: d.sparseCheckout,
+  }));
+
+export const marshalDeleteRepoRequestSchema: z.ZodType = z
+  .object({
+    id: z.bigint().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalDeleteRepoResponseSchema: z.ZodType = z.object({});
+
+export const marshalGetRepoRequestSchema: z.ZodType = z
+  .object({
+    id: z.bigint().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalGetRepoResponseSchema: z.ZodType = z
+  .object({
+    id: z.bigint().optional(),
+    path: z.string().optional(),
+    url: z.string().optional(),
+    provider: z.string().optional(),
+    branch: z.string().optional(),
+    headCommitId: z.string().optional(),
+    sparseCheckout: z.lazy(() => marshalSparseCheckoutSchema).optional(),
+    gitCliEnabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    path: d.path,
+    url: d.url,
+    provider: d.provider,
+    branch: d.branch,
+    head_commit_id: d.headCommitId,
+    sparse_checkout: d.sparseCheckout,
+    git_cli_enabled: d.gitCliEnabled,
+  }));
+
+export const marshalListReposRequestSchema: z.ZodType = z
+  .object({
+    pathPrefix: z.string().optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    path_prefix: d.pathPrefix,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListReposResponseSchema: z.ZodType = z
+  .object({
+    repos: z.array(z.lazy(() => marshalRepoInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    repos: d.repos,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalRepoInfoSchema: z.ZodType = z
+  .object({
+    id: z.bigint().optional(),
+    path: z.string().optional(),
+    url: z.string().optional(),
+    provider: z.string().optional(),
+    branch: z.string().optional(),
+    headCommitId: z.string().optional(),
+    sparseCheckout: z.lazy(() => marshalSparseCheckoutSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    path: d.path,
+    url: d.url,
+    provider: d.provider,
+    branch: d.branch,
+    head_commit_id: d.headCommitId,
+    sparse_checkout: d.sparseCheckout,
+  }));
+
 export const marshalSparseCheckoutSchema: z.ZodType = z
   .object({
     patterns: z.array(z.string()).optional(),
@@ -375,3 +475,5 @@ export const marshalUpdateRepoRequestSchema: z.ZodType = z
     dangerously_force_discard_all: d.dangerouslyForceDiscardAll,
     git_credential_id: d.gitCredentialId,
   }));
+
+export const marshalUpdateRepoResponseSchema: z.ZodType = z.object({});

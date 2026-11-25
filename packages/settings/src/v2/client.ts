@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -80,8 +81,11 @@ export class SettingsClient {
     req: GetPublicAccountSettingRequest,
     options?: CallOptions
   ): Promise<Setting> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/settings/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/settings/${encodePathVariable(req.name)}`;
     let resp: Setting | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -109,8 +113,14 @@ export class SettingsClient {
     req: GetPublicAccountUserPreferenceRequest,
     options?: CallOptions
   ): Promise<UserPreference> {
+    if (req.userId === undefined) {
+      throw new Error('path parameter "user_id" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/users/${req.userId ?? ''}/settings/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/users/${encodePathVariable(req.userId)}/settings/${encodePathVariable(req.name)}`;
     let resp: UserPreference | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -134,8 +144,11 @@ export class SettingsClient {
     req: GetPublicWorkspaceSettingRequest,
     options?: CallOptions
   ): Promise<Setting> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/settings/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/settings/${encodePathVariable(req.name)}`;
     let resp: Setting | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -167,7 +180,7 @@ export class SettingsClient {
     options?: CallOptions
   ): Promise<ListAccountSettingsMetadataResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/settings-metadata`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/settings-metadata`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -226,8 +239,11 @@ export class SettingsClient {
     req: ListAccountUserPreferencesMetadataRequest,
     options?: CallOptions
   ): Promise<ListAccountUserPreferencesMetadataResponse> {
+    if (req.userId === undefined) {
+      throw new Error('path parameter "user_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/users/${req.userId ?? ''}/settings-metadata`;
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/users/${encodePathVariable(req.userId)}/settings-metadata`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -349,9 +365,15 @@ export class SettingsClient {
     req: PatchPublicAccountSettingRequest,
     options?: CallOptions
   ): Promise<Setting> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/settings/${req.name ?? ''}`;
-    const body = marshalRequest(req.setting, marshalSettingSchema);
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/settings/${encodePathVariable(req.name)}`;
+    const body =
+      req.setting === undefined
+        ? 'null'
+        : marshalRequest(req.setting, marshalSettingSchema);
     let resp: Setting | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -381,9 +403,18 @@ export class SettingsClient {
     req: PatchPublicAccountUserPreferenceRequest,
     options?: CallOptions
   ): Promise<UserPreference> {
+    if (req.userId === undefined) {
+      throw new Error('path parameter "user_id" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/accounts/${req.accountId ?? accountId ?? ''}/users/${req.userId ?? ''}/settings/${req.name ?? ''}`;
-    const body = marshalRequest(req.setting, marshalUserPreferenceSchema);
+    const url = `${host}/api/2.1/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/users/${encodePathVariable(req.userId)}/settings/${encodePathVariable(req.name)}`;
+    const body =
+      req.setting === undefined
+        ? 'null'
+        : marshalRequest(req.setting, marshalUserPreferenceSchema);
     let resp: UserPreference | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -412,9 +443,15 @@ export class SettingsClient {
     req: PatchPublicWorkspaceSettingRequest,
     options?: CallOptions
   ): Promise<Setting> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/settings/${req.name ?? ''}`;
-    const body = marshalRequest(req.setting, marshalSettingSchema);
+    const url = `${host}/api/2.1/settings/${encodePathVariable(req.name)}`;
+    const body =
+      req.setting === undefined
+        ? 'null'
+        : marshalRequest(req.setting, marshalSettingSchema);
     let resp: Setting | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

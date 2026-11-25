@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -90,7 +91,7 @@ export class KeyConfigurationsClient {
     options?: CallOptions
   ): Promise<CustomerManagedKey> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/customer-managed-keys`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/customer-managed-keys`;
     const body = marshalRequest(
       req,
       marshalCreateCustomerManagedKeyRequestSchema
@@ -118,8 +119,11 @@ export class KeyConfigurationsClient {
     req: DeleteCustomerManagedKeyRequest,
     options?: CallOptions
   ): Promise<CustomerManagedKey> {
+    if (req.customerManagedKeyId === undefined) {
+      throw new Error('path parameter "customer_managed_key_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/customer-managed-keys/${req.customerManagedKeyId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/customer-managed-keys/${encodePathVariable(req.customerManagedKeyId)}`;
     let resp: CustomerManagedKey | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -156,8 +160,11 @@ export class KeyConfigurationsClient {
     req: GetCustomerManagedKeyRequest,
     options?: CallOptions
   ): Promise<CustomerManagedKey> {
+    if (req.customerManagedKeyId === undefined) {
+      throw new Error('path parameter "customer_managed_key_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/customer-managed-keys/${req.customerManagedKeyId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/customer-managed-keys/${encodePathVariable(req.customerManagedKeyId)}`;
     let resp: CustomerManagedKey | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -182,7 +189,7 @@ export class KeyConfigurationsClient {
     options?: CallOptions
   ): Promise<ListCustomerManagedKeyResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/customer-managed-keys`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/customer-managed-keys`;
     let resp: ListCustomerManagedKeyResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();

@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -83,8 +84,11 @@ export class GrantsClient {
     req: GetEffectivePermissionsRequest,
     options?: CallOptions
   ): Promise<GetEffectivePermissionsResponse> {
+    if (req.securableType === undefined) {
+      throw new Error('path parameter "securable_type" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/effective-permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/effective-permissions/${encodePathVariable(req.securableType)}/${encodePathVariable(req.securableFullName ?? '')}`;
     const params = new URLSearchParams();
     if (req.principal !== undefined) {
       params.append('principal', req.principal);
@@ -133,8 +137,11 @@ export class GrantsClient {
     req: GetPermissionsRequest,
     options?: CallOptions
   ): Promise<GetPermissionsResponse> {
+    if (req.securableType === undefined) {
+      throw new Error('path parameter "securable_type" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/permissions/${encodePathVariable(req.securableType)}/${encodePathVariable(req.securableFullName ?? '')}`;
     const params = new URLSearchParams();
     if (req.principal !== undefined) {
       params.append('principal', req.principal);
@@ -176,8 +183,14 @@ export class GrantsClient {
     req: ListEffectivePrivilegeAssignmentsRequest,
     options?: CallOptions
   ): Promise<ListEffectivePrivilegeAssignmentsResponse> {
+    if (req.securableType === undefined) {
+      throw new Error('path parameter "securable_type" is required');
+    }
+    if (req.fullName === undefined) {
+      throw new Error('path parameter "full_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/effective-privilege-assignments/${req.securableType ?? ''}/${req.fullName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/effective-privilege-assignments/${encodePathVariable(req.securableType)}/${encodePathVariable(req.fullName)}`;
     const params = new URLSearchParams();
     if (req.principal !== undefined) {
       params.append('principal', req.principal);
@@ -242,8 +255,14 @@ export class GrantsClient {
     req: ListPrivilegeAssignmentsRequest,
     options?: CallOptions
   ): Promise<ListPrivilegeAssignmentsResponse> {
+    if (req.securableType === undefined) {
+      throw new Error('path parameter "securable_type" is required');
+    }
+    if (req.fullName === undefined) {
+      throw new Error('path parameter "full_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/privilege-assignments/${req.securableType ?? ''}/${req.fullName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/privilege-assignments/${encodePathVariable(req.securableType)}/${encodePathVariable(req.fullName)}`;
     const params = new URLSearchParams();
     if (req.principal !== undefined) {
       params.append('principal', req.principal);
@@ -302,8 +321,11 @@ export class GrantsClient {
     req: UpdatePermissionsRequest,
     options?: CallOptions
   ): Promise<UpdatePermissionsResponse> {
+    if (req.securableType === undefined) {
+      throw new Error('path parameter "securable_type" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/permissions/${encodePathVariable(req.securableType)}/${encodePathVariable(req.securableFullName ?? '')}`;
     const body = marshalRequest(req, marshalUpdatePermissionsRequestSchema);
     let resp: UpdatePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -118,8 +119,11 @@ export class ForecastingClient {
     req: GetForecastingExperimentRequest,
     options?: CallOptions
   ): Promise<ForecastingExperiment> {
+    if (req.experimentId === undefined) {
+      throw new Error('path parameter "experiment_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/automl/get-forecasting-experiment/${req.experimentId ?? ''}`;
+    const url = `${host}/api/2.0/automl/get-forecasting-experiment/${encodePathVariable(req.experimentId)}`;
     let resp: ForecastingExperiment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();

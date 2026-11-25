@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -70,7 +71,10 @@ export class TagAssignmentsClient {
   ): Promise<TagAssignment> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/entity-tag-assignments`;
-    const body = marshalRequest(req.tagAssignment, marshalTagAssignmentSchema);
+    const body =
+      req.tagAssignment === undefined
+        ? 'null'
+        : marshalRequest(req.tagAssignment, marshalTagAssignmentSchema);
     let resp: TagAssignment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -97,8 +101,17 @@ export class TagAssignmentsClient {
     req: DeleteTagAssignmentRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.entityType === undefined) {
+      throw new Error('path parameter "entity_type" is required');
+    }
+    if (req.entityId === undefined) {
+      throw new Error('path parameter "entity_id" is required');
+    }
+    if (req.tagKey === undefined) {
+      throw new Error('path parameter "tag_key" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/entity-tag-assignments/${req.entityType ?? ''}/${req.entityId ?? ''}/tags/${req.tagKey ?? ''}`;
+    const url = `${host}/api/2.0/entity-tag-assignments/${encodePathVariable(req.entityType)}/${encodePathVariable(req.entityId)}/tags/${encodePathVariable(req.tagKey)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -119,8 +132,17 @@ export class TagAssignmentsClient {
     req: GetTagAssignmentRequest,
     options?: CallOptions
   ): Promise<TagAssignment> {
+    if (req.entityType === undefined) {
+      throw new Error('path parameter "entity_type" is required');
+    }
+    if (req.entityId === undefined) {
+      throw new Error('path parameter "entity_id" is required');
+    }
+    if (req.tagKey === undefined) {
+      throw new Error('path parameter "tag_key" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/entity-tag-assignments/${req.entityType ?? ''}/${req.entityId ?? ''}/tags/${req.tagKey ?? ''}`;
+    const url = `${host}/api/2.0/entity-tag-assignments/${encodePathVariable(req.entityType)}/${encodePathVariable(req.entityId)}/tags/${encodePathVariable(req.tagKey)}`;
     let resp: TagAssignment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -147,8 +169,14 @@ export class TagAssignmentsClient {
     req: ListTagAssignmentsRequest,
     options?: CallOptions
   ): Promise<ListTagAssignmentsResponse> {
+    if (req.entityType === undefined) {
+      throw new Error('path parameter "entity_type" is required');
+    }
+    if (req.entityId === undefined) {
+      throw new Error('path parameter "entity_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/entity-tag-assignments/${req.entityType ?? ''}/${req.entityId ?? ''}/tags`;
+    const url = `${host}/api/2.0/entity-tag-assignments/${encodePathVariable(req.entityType)}/${encodePathVariable(req.entityId)}/tags`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -201,15 +229,27 @@ export class TagAssignmentsClient {
     req: UpdateTagAssignmentRequest,
     options?: CallOptions
   ): Promise<TagAssignment> {
+    if (req.tagAssignment?.entityType === undefined) {
+      throw new Error('path parameter "entity_type" is required');
+    }
+    if (req.tagAssignment?.entityId === undefined) {
+      throw new Error('path parameter "entity_id" is required');
+    }
+    if (req.tagAssignment?.tagKey === undefined) {
+      throw new Error('path parameter "tag_key" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/entity-tag-assignments/${req.tagAssignment?.entityType ?? ''}/${req.tagAssignment?.entityId ?? ''}/tags/${req.tagAssignment?.tagKey ?? ''}`;
+    const url = `${host}/api/2.0/entity-tag-assignments/${encodePathVariable(req.tagAssignment?.entityType)}/${encodePathVariable(req.tagAssignment?.entityId)}/tags/${encodePathVariable(req.tagAssignment?.tagKey)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.tagAssignment, marshalTagAssignmentSchema);
+    const body =
+      req.tagAssignment === undefined
+        ? 'null'
+        : marshalRequest(req.tagAssignment, marshalTagAssignmentSchema);
     let resp: TagAssignment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

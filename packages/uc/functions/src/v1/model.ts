@@ -885,6 +885,18 @@ export const marshalCredentialDependencySchema: z.ZodType = z
     credential_name: d.credentialName,
   }));
 
+export const marshalDeleteFunctionRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    force: z.boolean().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    force: d.force,
+  }));
+
+export const marshalDeleteFunctionResponseSchema: z.ZodType = z.object({});
+
 export const marshalDependencySchema: z.ZodType = z
   .object({
     value: z
@@ -931,6 +943,72 @@ export const marshalFunctionDependencySchema: z.ZodType = z
     function_full_name: d.functionFullName,
   }));
 
+export const marshalFunctionInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    inputParams: z.lazy(() => marshalFunctionParameterInfosSchema).optional(),
+    dataType: z.string().optional(),
+    fullDataType: z.string().optional(),
+    routineBody: z.string().optional(),
+    routineDefinition: z.string().optional(),
+    parameterStyle: z.string().optional(),
+    isDeterministic: z.boolean().optional(),
+    sqlDataAccess: z.string().optional(),
+    isNullCall: z.boolean().optional(),
+    securityType: z.string().optional(),
+    specificName: z.string().optional(),
+    returnParams: z.lazy(() => marshalFunctionParameterInfosSchema).optional(),
+    externalName: z.string().optional(),
+    externalLanguage: z.string().optional(),
+    sqlPath: z.string().optional(),
+    owner: z.string().optional(),
+    comment: z.string().optional(),
+    properties: z.string().optional(),
+    routineDependencies: z.lazy(() => marshalDependencyListSchema).optional(),
+    metastoreId: z.string().optional(),
+    fullName: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    functionId: z.string().optional(),
+    browseOnly: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    input_params: d.inputParams,
+    data_type: d.dataType,
+    full_data_type: d.fullDataType,
+    routine_body: d.routineBody,
+    routine_definition: d.routineDefinition,
+    parameter_style: d.parameterStyle,
+    is_deterministic: d.isDeterministic,
+    sql_data_access: d.sqlDataAccess,
+    is_null_call: d.isNullCall,
+    security_type: d.securityType,
+    specific_name: d.specificName,
+    return_params: d.returnParams,
+    external_name: d.externalName,
+    external_language: d.externalLanguage,
+    sql_path: d.sqlPath,
+    owner: d.owner,
+    comment: d.comment,
+    properties: d.properties,
+    routine_dependencies: d.routineDependencies,
+    metastore_id: d.metastoreId,
+    full_name: d.fullName,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    function_id: d.functionId,
+    browse_only: d.browseOnly,
+  }));
+
 export const marshalFunctionParameterInfoSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -969,6 +1047,42 @@ export const marshalFunctionParameterInfosSchema: z.ZodType = z
   })
   .transform(d => ({
     parameters: d.parameters,
+  }));
+
+export const marshalGetFunctionRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    includeBrowse: z.boolean().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    include_browse: d.includeBrowse,
+  }));
+
+export const marshalListFunctionsRequestSchema: z.ZodType = z
+  .object({
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    includeBrowse: z.boolean().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    include_browse: d.includeBrowse,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListFunctionsResponseSchema: z.ZodType = z
+  .object({
+    functions: z.array(z.lazy(() => marshalFunctionInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    functions: d.functions,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalTableDependencySchema: z.ZodType = z

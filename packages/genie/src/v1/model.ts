@@ -2806,6 +2806,149 @@ export const unmarshalThoughtSchema: z.ZodType<Thought> = z
     content: d.content,
   }));
 
+export const marshalChunkInfoSchema: z.ZodType = z
+  .object({
+    chunkIndex: z.number().optional(),
+    rowOffset: z.bigint().optional(),
+    rowCount: z.bigint().optional(),
+    byteCount: z.bigint().optional(),
+    nextChunkIndex: z.number().optional(),
+    nextChunkInternalLink: z.string().optional(),
+  })
+  .transform(d => ({
+    chunk_index: d.chunkIndex,
+    row_offset: d.rowOffset,
+    row_count: d.rowCount,
+    byte_count: d.byteCount,
+    next_chunk_index: d.nextChunkIndex,
+    next_chunk_internal_link: d.nextChunkInternalLink,
+  }));
+
+export const marshalColumnInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    typeText: z.string().optional(),
+    typeName: z.string().optional(),
+    position: z.number().optional(),
+    typePrecision: z.number().optional(),
+    typeScale: z.number().optional(),
+    typeIntervalType: z.string().optional(),
+    typeJson: z.string().optional(),
+    comment: z.string().optional(),
+    nullable: z.boolean().optional(),
+    partitionIndex: z.number().optional(),
+    mask: z.lazy(() => marshalColumnMaskSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    type_text: d.typeText,
+    type_name: d.typeName,
+    position: d.position,
+    type_precision: d.typePrecision,
+    type_scale: d.typeScale,
+    type_interval_type: d.typeIntervalType,
+    type_json: d.typeJson,
+    comment: d.comment,
+    nullable: d.nullable,
+    partition_index: d.partitionIndex,
+    mask: d.mask,
+  }));
+
+export const marshalColumnMaskSchema: z.ZodType = z
+  .object({
+    functionName: z.string().optional(),
+    usingColumnNames: z.array(z.string()).optional(),
+    usingArguments: z
+      .array(z.lazy(() => marshalPolicyFunctionArgumentSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    function_name: d.functionName,
+    using_column_names: d.usingColumnNames,
+    using_arguments: d.usingArguments,
+  }));
+
+export const marshalDatabricksServiceExceptionProtoSchema: z.ZodType = z
+  .object({
+    errorCode: z.string().optional(),
+    message: z.string().optional(),
+    stackTrace: z.string().optional(),
+  })
+  .transform(d => ({
+    error_code: d.errorCode,
+    message: d.message,
+    stack_trace: d.stackTrace,
+  }));
+
+export const marshalDownloadMessageAttachmentVisualizationRequestSchema: z.ZodType =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+    }));
+
+export const marshalExternalLinkSchema: z.ZodType = z
+  .object({
+    externalLink: z.string().optional(),
+    expiration: z.string().optional(),
+    httpHeaders: z.record(z.string(), z.string()).optional(),
+    chunkIndex: z.number().optional(),
+    rowOffset: z.bigint().optional(),
+    rowCount: z.bigint().optional(),
+    byteCount: z.bigint().optional(),
+    nextChunkIndex: z.number().optional(),
+    nextChunkInternalLink: z.string().optional(),
+  })
+  .transform(d => ({
+    external_link: d.externalLink,
+    expiration: d.expiration,
+    http_headers: d.httpHeaders,
+    chunk_index: d.chunkIndex,
+    row_offset: d.rowOffset,
+    row_count: d.rowCount,
+    byte_count: d.byteCount,
+    next_chunk_index: d.nextChunkIndex,
+    next_chunk_internal_link: d.nextChunkInternalLink,
+  }));
+
+export const marshalGenieAttachmentSchema: z.ZodType = z
+  .object({
+    attachment: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('text'),
+          text: z.lazy(() => marshalTextAttachmentSchema),
+        }),
+        z.object({
+          $case: z.literal('query'),
+          query: z.lazy(() => marshalGenieQueryAttachmentSchema),
+        }),
+        z.object({
+          $case: z.literal('suggestedQuestions'),
+          suggestedQuestions: z.lazy(
+            () => marshalGenieSuggestedQuestionsAttachmentSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('viz'),
+          viz: z.lazy(() => marshalGenieVizAttachmentSchema),
+        }),
+      ])
+      .optional(),
+    attachmentId: z.string().optional(),
+  })
+  .transform(d => ({
+    ...(d.attachment?.$case === 'text' && {text: d.attachment.text}),
+    ...(d.attachment?.$case === 'query' && {query: d.attachment.query}),
+    ...(d.attachment?.$case === 'suggestedQuestions' && {
+      suggested_questions: d.attachment.suggestedQuestions,
+    }),
+    ...(d.attachment?.$case === 'viz' && {viz: d.attachment.viz}),
+    attachment_id: d.attachmentId,
+  }));
+
 export const marshalGenieCancelResponseRequestSchema: z.ZodType = z
   .object({
     agentId: z.string().optional(),
@@ -2816,6 +2959,40 @@ export const marshalGenieCancelResponseRequestSchema: z.ZodType = z
     agent_id: d.agentId,
     conversation_id: d.conversationId,
     response_id: d.responseId,
+  }));
+
+export const marshalGenieConversationSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    spaceId: z.string().optional(),
+    userId: z.bigint().optional(),
+    createdTimestamp: z.bigint().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    title: z.string().optional(),
+    conversationId: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    space_id: d.spaceId,
+    user_id: d.userId,
+    created_timestamp: d.createdTimestamp,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    title: d.title,
+    conversation_id: d.conversationId,
+  }));
+
+export const marshalGenieConversationSummarySchema: z.ZodType = z
+  .object({
+    conversationId: z.string().optional(),
+    title: z.string().optional(),
+    createdTimestamp: z.bigint().optional(),
+    agentType: z.string().optional(),
+  })
+  .transform(d => ({
+    conversation_id: d.conversationId,
+    title: d.title,
+    created_timestamp: d.createdTimestamp,
+    agent_type: d.agentType,
   }));
 
 export const marshalGenieCreateConversationMessageRequestSchema: z.ZodType = z
@@ -2872,6 +3049,112 @@ export const marshalGenieCreateSpaceRequestSchema: z.ZodType = z
     description: d.description,
   }));
 
+export const marshalGenieDeleteConversationMessageRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+    messageId: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+    message_id: d.messageId,
+  }));
+
+export const marshalGenieDeleteConversationRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+  }));
+
+export const marshalGenieEvalResponseSchema: z.ZodType = z
+  .object({
+    response: z.string().optional(),
+    sqlExecutionResult: z.lazy(() => marshalStatementResponseSchema).optional(),
+    responseType: z.string().optional(),
+  })
+  .transform(d => ({
+    response: d.response,
+    sql_execution_result: d.sqlExecutionResult,
+    response_type: d.responseType,
+  }));
+
+export const marshalGenieEvalResultSchema: z.ZodType = z
+  .object({
+    resultId: z.string().optional(),
+    spaceId: z.string().optional(),
+    benchmarkQuestionId: z.string().optional(),
+    status: z.string().optional(),
+    question: z.string().optional(),
+    benchmarkAnswer: z.string().optional(),
+    createdByUser: z.bigint().optional(),
+  })
+  .transform(d => ({
+    result_id: d.resultId,
+    space_id: d.spaceId,
+    benchmark_question_id: d.benchmarkQuestionId,
+    status: d.status,
+    question: d.question,
+    benchmark_answer: d.benchmarkAnswer,
+    created_by_user: d.createdByUser,
+  }));
+
+export const marshalGenieEvalResultDetailsSchema: z.ZodType = z
+  .object({
+    resultId: z.string().optional(),
+    spaceId: z.string().optional(),
+    benchmarkQuestionId: z.string().optional(),
+    evalRunStatus: z.string().optional(),
+    assessment: z.string().optional(),
+    manualAssessment: z.boolean().optional(),
+    assessmentReasons: z.array(z.string()).optional(),
+    actualResponse: z
+      .array(z.lazy(() => marshalGenieEvalResponseSchema))
+      .optional(),
+    expectedResponse: z
+      .array(z.lazy(() => marshalGenieEvalResponseSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    result_id: d.resultId,
+    space_id: d.spaceId,
+    benchmark_question_id: d.benchmarkQuestionId,
+    eval_run_status: d.evalRunStatus,
+    assessment: d.assessment,
+    manual_assessment: d.manualAssessment,
+    assessment_reasons: d.assessmentReasons,
+    actual_response: d.actualResponse,
+    expected_response: d.expectedResponse,
+  }));
+
+export const marshalGenieEvalRunResponseSchema: z.ZodType = z
+  .object({
+    evalRunId: z.string().optional(),
+    evalRunStatus: z.string().optional(),
+    runByUser: z.bigint().optional(),
+    createdTimestamp: z.bigint().optional(),
+    numQuestions: z.bigint().optional(),
+    numCorrect: z.bigint().optional(),
+    numNeedsReview: z.bigint().optional(),
+    numDone: z.bigint().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+  })
+  .transform(d => ({
+    eval_run_id: d.evalRunId,
+    eval_run_status: d.evalRunStatus,
+    run_by_user: d.runByUser,
+    created_timestamp: d.createdTimestamp,
+    num_questions: d.numQuestions,
+    num_correct: d.numCorrect,
+    num_needs_review: d.numNeedsReview,
+    num_done: d.numDone,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+  }));
+
 export const marshalGenieExecuteMessageAttachmentQueryRequestSchema: z.ZodType =
   z
     .object({
@@ -2899,6 +3182,16 @@ export const marshalGenieExecuteMessageQueryRequestSchema: z.ZodType = z
     conversation_id: d.conversationId,
   }));
 
+export const marshalGenieFeedbackSchema: z.ZodType = z
+  .object({
+    rating: z.string().optional(),
+    comment: z.string().optional(),
+  })
+  .transform(d => ({
+    rating: d.rating,
+    comment: d.comment,
+  }));
+
 export const marshalGenieGenerateDownloadFullQueryResultRequestSchema: z.ZodType =
   z
     .object({
@@ -2913,6 +3206,398 @@ export const marshalGenieGenerateDownloadFullQueryResultRequestSchema: z.ZodType
       message_id: d.messageId,
       attachment_id: d.attachmentId,
     }));
+
+export const marshalGenieGenerateDownloadFullQueryResultResponseSchema: z.ZodType =
+  z
+    .object({
+      downloadId: z.string().optional(),
+      downloadIdSignature: z.string().optional(),
+    })
+    .transform(d => ({
+      download_id: d.downloadId,
+      download_id_signature: d.downloadIdSignature,
+    }));
+
+export const marshalGenieGetConversationMessageRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+    messageId: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+    message_id: d.messageId,
+  }));
+
+export const marshalGenieGetDownloadFullQueryResultRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+    messageId: z.string().optional(),
+    attachmentId: z.string().optional(),
+    downloadId: z.string().optional(),
+    downloadIdSignature: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+    message_id: d.messageId,
+    attachment_id: d.attachmentId,
+    download_id: d.downloadId,
+    download_id_signature: d.downloadIdSignature,
+  }));
+
+export const marshalGenieGetDownloadFullQueryResultResponseSchema: z.ZodType = z
+  .object({
+    statementResponse: z.lazy(() => marshalStatementResponseSchema).optional(),
+  })
+  .transform(d => ({
+    statement_response: d.statementResponse,
+  }));
+
+export const marshalGenieGetEvalResultDetailsRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    evalRunId: z.string().optional(),
+    resultId: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    eval_run_id: d.evalRunId,
+    result_id: d.resultId,
+  }));
+
+export const marshalGenieGetEvalRunRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    evalRunId: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    eval_run_id: d.evalRunId,
+  }));
+
+export const marshalGenieGetMessageAttachmentQueryResultRequestSchema: z.ZodType =
+  z
+    .object({
+      messageId: z.string().optional(),
+      spaceId: z.string().optional(),
+      conversationId: z.string().optional(),
+      attachmentId: z.string().optional(),
+    })
+    .transform(d => ({
+      message_id: d.messageId,
+      space_id: d.spaceId,
+      conversation_id: d.conversationId,
+      attachment_id: d.attachmentId,
+    }));
+
+export const marshalGenieGetMessageQueryResultRequestSchema: z.ZodType = z
+  .object({
+    messageId: z.string().optional(),
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+  })
+  .transform(d => ({
+    message_id: d.messageId,
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+  }));
+
+export const marshalGenieGetMessageQueryResultResponseSchema: z.ZodType = z
+  .object({
+    statementResponse: z.lazy(() => marshalStatementResponseSchema).optional(),
+  })
+  .transform(d => ({
+    statement_response: d.statementResponse,
+  }));
+
+export const marshalGenieGetQueryResultByAttachmentRequestSchema: z.ZodType = z
+  .object({
+    messageId: z.string().optional(),
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+    attachmentId: z.string().optional(),
+  })
+  .transform(d => ({
+    message_id: d.messageId,
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+    attachment_id: d.attachmentId,
+  }));
+
+export const marshalGenieGetSpaceRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    includeSerializedSpace: z.boolean().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    include_serialized_space: d.includeSerializedSpace,
+  }));
+
+export const marshalGenieListConversationCommentsRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalGenieListConversationCommentsResponseSchema: z.ZodType = z
+  .object({
+    comments: z
+      .array(z.lazy(() => marshalGenieMessageCommentSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    comments: d.comments,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalGenieListConversationMessagesRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalGenieListConversationMessagesResponseSchema: z.ZodType = z
+  .object({
+    messages: z.array(z.lazy(() => marshalGenieMessageSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    messages: d.messages,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalGenieListConversationsRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    includeAll: z.boolean().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    include_all: d.includeAll,
+  }));
+
+export const marshalGenieListConversationsResponseSchema: z.ZodType = z
+  .object({
+    conversations: z
+      .array(z.lazy(() => marshalGenieConversationSummarySchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    conversations: d.conversations,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalGenieListEvalResultsRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    evalRunId: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    eval_run_id: d.evalRunId,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalGenieListEvalResultsResponseSchema: z.ZodType = z
+  .object({
+    evalResults: z.array(z.lazy(() => marshalGenieEvalResultSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    eval_results: d.evalResults,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalGenieListEvalRunsRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalGenieListEvalRunsResponseSchema: z.ZodType = z
+  .object({
+    evalRuns: z
+      .array(z.lazy(() => marshalGenieEvalRunResponseSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    eval_runs: d.evalRuns,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalGenieListMessageCommentsRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+    messageId: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+    message_id: d.messageId,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalGenieListMessageCommentsResponseSchema: z.ZodType = z
+  .object({
+    comments: z
+      .array(z.lazy(() => marshalGenieMessageCommentSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    comments: d.comments,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalGenieListSpacesRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalGenieListSpacesResponseSchema: z.ZodType = z
+  .object({
+    spaces: z.array(z.lazy(() => marshalGenieSpaceSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    spaces: d.spaces,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalGenieMessageSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+    userId: z.bigint().optional(),
+    createdTimestamp: z.bigint().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    status: z.string().optional(),
+    content: z.string().optional(),
+    attachments: z.array(z.lazy(() => marshalGenieAttachmentSchema)).optional(),
+    queryResult: z.lazy(() => marshalResultSchema).optional(),
+    error: z.lazy(() => marshalMessageErrorSchema).optional(),
+    messageId: z.string().optional(),
+    feedback: z.lazy(() => marshalGenieFeedbackSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+    user_id: d.userId,
+    created_timestamp: d.createdTimestamp,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    status: d.status,
+    content: d.content,
+    attachments: d.attachments,
+    query_result: d.queryResult,
+    error: d.error,
+    message_id: d.messageId,
+    feedback: d.feedback,
+  }));
+
+export const marshalGenieMessageCommentSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    conversationId: z.string().optional(),
+    messageId: z.string().optional(),
+    messageCommentId: z.string().optional(),
+    userId: z.bigint().optional(),
+    content: z.string().optional(),
+    createdTimestamp: z.bigint().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    conversation_id: d.conversationId,
+    message_id: d.messageId,
+    message_comment_id: d.messageCommentId,
+    user_id: d.userId,
+    content: d.content,
+    created_timestamp: d.createdTimestamp,
+  }));
+
+export const marshalGenieQueryAttachmentSchema: z.ZodType = z
+  .object({
+    title: z.string().optional(),
+    query: z.string().optional(),
+    description: z.string().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    parameters: z
+      .array(z.lazy(() => marshalQueryAttachmentParameterSchema))
+      .optional(),
+    id: z.string().optional(),
+    statementId: z.string().optional(),
+    queryResultMetadata: z
+      .lazy(() => marshalGenieResultMetadataSchema)
+      .optional(),
+    thoughts: z.array(z.lazy(() => marshalThoughtSchema)).optional(),
+  })
+  .transform(d => ({
+    title: d.title,
+    query: d.query,
+    description: d.description,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    parameters: d.parameters,
+    id: d.id,
+    statement_id: d.statementId,
+    query_result_metadata: d.queryResultMetadata,
+    thoughts: d.thoughts,
+  }));
+
+export const marshalGenieResultMetadataSchema: z.ZodType = z
+  .object({
+    rowCount: z.bigint().optional(),
+    isTruncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    row_count: d.rowCount,
+    is_truncated: d.isTruncated,
+  }));
 
 export const marshalGenieSendMessageFeedbackRequestSchema: z.ZodType = z
   .object({
@@ -2930,6 +3615,36 @@ export const marshalGenieSendMessageFeedbackRequestSchema: z.ZodType = z
     comment: d.comment,
   }));
 
+export const marshalGenieSpaceSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+    title: z.string().optional(),
+    description: z.string().optional(),
+    warehouseId: z.string().optional(),
+    parentPath: z.string().optional(),
+    serializedSpace: z.string().optional(),
+    etag: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
+    title: d.title,
+    description: d.description,
+    warehouse_id: d.warehouseId,
+    parent_path: d.parentPath,
+    serialized_space: d.serializedSpace,
+    etag: d.etag,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+  }));
+
 export const marshalGenieStartConversationRequestSchema: z.ZodType = z
   .object({
     spaceId: z.string().optional(),
@@ -2940,6 +3655,36 @@ export const marshalGenieStartConversationRequestSchema: z.ZodType = z
     space_id: d.spaceId,
     content: d.content,
     enable_visualization: d.enableVisualization,
+  }));
+
+export const marshalGenieStartConversationResponseSchema: z.ZodType = z
+  .object({
+    messageId: z.string().optional(),
+    message: z.lazy(() => marshalGenieMessageSchema).optional(),
+    conversationId: z.string().optional(),
+    conversation: z.lazy(() => marshalGenieConversationSchema).optional(),
+  })
+  .transform(d => ({
+    message_id: d.messageId,
+    message: d.message,
+    conversation_id: d.conversationId,
+    conversation: d.conversation,
+  }));
+
+export const marshalGenieSuggestedQuestionsAttachmentSchema: z.ZodType = z
+  .object({
+    questions: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    questions: d.questions,
+  }));
+
+export const marshalGenieTrashSpaceRequestSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
   }));
 
 export const marshalGenieUpdateSpaceRequestSchema: z.ZodType = z
@@ -2960,4 +3705,168 @@ export const marshalGenieUpdateSpaceRequestSchema: z.ZodType = z
     warehouse_id: d.warehouseId,
     etag: d.etag,
     parent_path: d.parentPath,
+  }));
+
+export const marshalGenieVizAttachmentSchema: z.ZodType = z
+  .object({
+    title: z.string().optional(),
+    queryAttachmentId: z.string().optional(),
+  })
+  .transform(d => ({
+    title: d.title,
+    query_attachment_id: d.queryAttachmentId,
+  }));
+
+export const marshalMessageErrorSchema: z.ZodType = z
+  .object({
+    error: z.string().optional(),
+    type: z.string().optional(),
+  })
+  .transform(d => ({
+    error: d.error,
+    type: d.type,
+  }));
+
+export const marshalMessageStatusSchema: z.ZodType = z.object({});
+
+export const marshalPolicyFunctionArgumentSchema: z.ZodType = z
+  .object({
+    arg: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('column'), column: z.string()}),
+        z.object({$case: z.literal('constant'), constant: z.string()}),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.arg?.$case === 'column' && {column: d.arg.column}),
+    ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
+  }));
+
+export const marshalQueryAttachmentParameterSchema: z.ZodType = z
+  .object({
+    keyword: z.string().optional(),
+    value: z.string().optional(),
+    sqlType: z.string().optional(),
+  })
+  .transform(d => ({
+    keyword: d.keyword,
+    value: d.value,
+    sql_type: d.sqlType,
+  }));
+
+export const marshalResultSchema: z.ZodType = z
+  .object({
+    statementId: z.string().optional(),
+    rowCount: z.bigint().optional(),
+    isTruncated: z.boolean().optional(),
+    statementIdSignature: z.string().optional(),
+  })
+  .transform(d => ({
+    statement_id: d.statementId,
+    row_count: d.rowCount,
+    is_truncated: d.isTruncated,
+    statement_id_signature: d.statementIdSignature,
+  }));
+
+export const marshalResultDataSchema: z.ZodType = z
+  .object({
+    externalLinks: z.array(z.lazy(() => marshalExternalLinkSchema)).optional(),
+    dataArray: z.array(z.array(jsonValueSchema)).optional(),
+    chunkIndex: z.number().optional(),
+    rowOffset: z.bigint().optional(),
+    rowCount: z.bigint().optional(),
+    byteCount: z.bigint().optional(),
+    nextChunkIndex: z.number().optional(),
+    nextChunkInternalLink: z.string().optional(),
+  })
+  .transform(d => ({
+    external_links: d.externalLinks,
+    data_array: d.dataArray,
+    chunk_index: d.chunkIndex,
+    row_offset: d.rowOffset,
+    row_count: d.rowCount,
+    byte_count: d.byteCount,
+    next_chunk_index: d.nextChunkIndex,
+    next_chunk_internal_link: d.nextChunkInternalLink,
+  }));
+
+export const marshalResultManifestSchema: z.ZodType = z
+  .object({
+    format: z.string().optional(),
+    schema: z.lazy(() => marshalSchemaSchema).optional(),
+    totalChunkCount: z.number().optional(),
+    chunks: z.array(z.lazy(() => marshalChunkInfoSchema)).optional(),
+    totalRowCount: z.bigint().optional(),
+    totalByteCount: z.bigint().optional(),
+    truncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    format: d.format,
+    schema: d.schema,
+    total_chunk_count: d.totalChunkCount,
+    chunks: d.chunks,
+    total_row_count: d.totalRowCount,
+    total_byte_count: d.totalByteCount,
+    truncated: d.truncated,
+  }));
+
+export const marshalSchemaSchema: z.ZodType = z
+  .object({
+    columnCount: z.number().optional(),
+    columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    column_count: d.columnCount,
+    columns: d.columns,
+  }));
+
+export const marshalStatementResponseSchema: z.ZodType = z
+  .object({
+    statementId: z.string().optional(),
+    status: z.lazy(() => marshalStatementStatusSchema).optional(),
+    manifest: z.lazy(() => marshalResultManifestSchema).optional(),
+    result: z.lazy(() => marshalResultDataSchema).optional(),
+  })
+  .transform(d => ({
+    statement_id: d.statementId,
+    status: d.status,
+    manifest: d.manifest,
+    result: d.result,
+  }));
+
+export const marshalStatementStatusSchema: z.ZodType = z
+  .object({
+    state: z.string().optional(),
+    error: z
+      .lazy(() => marshalDatabricksServiceExceptionProtoSchema)
+      .optional(),
+    sqlState: z.string().optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+    error: d.error,
+    sql_state: d.sqlState,
+  }));
+
+export const marshalTextAttachmentSchema: z.ZodType = z
+  .object({
+    content: z.string().optional(),
+    id: z.string().optional(),
+    purpose: z.string().optional(),
+  })
+  .transform(d => ({
+    content: d.content,
+    id: d.id,
+    purpose: d.purpose,
+  }));
+
+export const marshalThoughtSchema: z.ZodType = z
+  .object({
+    thoughtType: z.string().optional(),
+    content: z.string().optional(),
+  })
+  .transform(d => ({
+    thought_type: d.thoughtType,
+    content: d.content,
   }));

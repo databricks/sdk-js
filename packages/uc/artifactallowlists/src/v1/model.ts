@@ -92,6 +92,22 @@ export const unmarshalArtifactMatcherSchema: z.ZodType<ArtifactMatcher> = z
     matchType: d.match_type,
   }));
 
+export const marshalArtifactAllowlistInfoSchema: z.ZodType = z
+  .object({
+    artifactMatchers: z
+      .array(z.lazy(() => marshalArtifactMatcherSchema))
+      .optional(),
+    metastoreId: z.string().optional(),
+    createdBy: z.string().optional(),
+    createdAt: z.bigint().optional(),
+  })
+  .transform(d => ({
+    artifact_matchers: d.artifactMatchers,
+    metastore_id: d.metastoreId,
+    created_by: d.createdBy,
+    created_at: d.createdAt,
+  }));
+
 export const marshalArtifactMatcherSchema: z.ZodType = z
   .object({
     artifact: z.string().optional(),
@@ -100,6 +116,14 @@ export const marshalArtifactMatcherSchema: z.ZodType = z
   .transform(d => ({
     artifact: d.artifact,
     match_type: d.matchType,
+  }));
+
+export const marshalGetArtifactAllowlistRequestSchema: z.ZodType = z
+  .object({
+    artifactType: z.string().optional(),
+  })
+  .transform(d => ({
+    artifact_type: d.artifactType,
   }));
 
 export const marshalSetArtifactAllowlistRequestSchema: z.ZodType = z

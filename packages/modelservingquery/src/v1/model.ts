@@ -314,6 +314,30 @@ export const marshalDataframeSplitInputSchema: z.ZodType = z
     data: d.data,
   }));
 
+export const marshalEmbeddingsV1ResponseEmbeddingElementSchema: z.ZodType = z
+  .object({
+    embedding: z.array(z.number()).optional(),
+    index: z.number().optional(),
+    object: z.string().optional(),
+  })
+  .transform(d => ({
+    embedding: d.embedding,
+    index: d.index,
+    object: d.object,
+  }));
+
+export const marshalExternalModelUsageElementSchema: z.ZodType = z
+  .object({
+    promptTokens: z.number().optional(),
+    completionTokens: z.number().optional(),
+    totalTokens: z.number().optional(),
+  })
+  .transform(d => ({
+    prompt_tokens: d.promptTokens,
+    completion_tokens: d.completionTokens,
+    total_tokens: d.totalTokens,
+  }));
+
 export const marshalQueryEndpointRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -350,4 +374,20 @@ export const marshalQueryEndpointRequestSchema: z.ZodType = z
     inputs: d.inputs,
     client_request_id: d.clientRequestId,
     usage_context: d.usageContext,
+  }));
+
+export const marshalV1ResponseChoiceElementSchema: z.ZodType = z
+  .object({
+    text: z.string().optional(),
+    message: z.lazy(() => marshalChatMessageSchema).optional(),
+    index: z.number().optional(),
+    finishReason: z.string().optional(),
+    logprobs: z.number().optional(),
+  })
+  .transform(d => ({
+    text: d.text,
+    message: d.message,
+    index: d.index,
+    finishReason: d.finishReason,
+    logprobs: d.logprobs,
   }));

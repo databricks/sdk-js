@@ -5253,12 +5253,111 @@ export const marshalAcknowledgeAssessmentWarningsRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
+export const marshalAcknowledgeAssessmentWarningsResponseSchema: z.ZodType = z
+  .object({
+    assessment: z.lazy(() => marshalAssessmentSchema).optional(),
+  })
+  .transform(d => ({
+    assessment: d.assessment,
+  }));
+
+export const marshalApiErrorSchema: z.ZodType = z
+  .object({
+    errorCode: z.string().optional(),
+    message: z.string().optional(),
+    stackTrace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    error_code: d.errorCode,
+    message: d.message,
+    stack_trace: d.stackTrace,
+    details: d.details,
+  }));
+
 export const marshalAssessMigrationRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalAssessMigrationResponseSchema: z.ZodType = z
+  .object({
+    assessment: z.lazy(() => marshalAssessmentSchema).optional(),
+  })
+  .transform(d => ({
+    assessment: d.assessment,
+  }));
+
+export const marshalAssessmentSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    state: z.string().optional(),
+    checks: z.array(z.lazy(() => marshalAssessmentCheckSchema)).optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    completeTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    expireTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    state: d.state,
+    checks: d.checks,
+    create_time: d.createTime,
+    complete_time: d.completeTime,
+    expire_time: d.expireTime,
+  }));
+
+export const marshalAssessmentCheckSchema: z.ZodType = z
+  .object({
+    checkId: z.string().optional(),
+    verdict: z.string().optional(),
+    blocksMigration: z.boolean().optional(),
+    reason: z.string().optional(),
+    database: z.string().optional(),
+    details: z.lazy(() => marshalAssessmentCheckDetailsSchema).optional(),
+  })
+  .transform(d => ({
+    check_id: d.checkId,
+    verdict: d.verdict,
+    blocks_migration: d.blocksMigration,
+    reason: d.reason,
+    database: d.database,
+    details: d.details,
+  }));
+
+export const marshalAssessmentCheckDetailsSchema: z.ZodType = z
+  .object({
+    kind: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('databaseSize'),
+          databaseSize: z.lazy(() => marshalDatabaseSizeDetailsSchema),
+        }),
+        z.object({
+          $case: z.literal('longTransaction'),
+          longTransaction: z.lazy(() => marshalLongTransactionDetailsSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.kind?.$case === 'databaseSize' && {
+      database_size: d.kind.databaseSize,
+    }),
+    ...(d.kind?.$case === 'longTransaction' && {
+      long_transaction: d.kind.longTransaction,
+    }),
   }));
 
 export const marshalBranchSchema: z.ZodType = z
@@ -5288,6 +5387,8 @@ export const marshalBranchSchema: z.ZodType = z
     status: d.status,
     branch_id: d.branchId,
   }));
+
+export const marshalBranchOperationMetadataSchema: z.ZodType = z.object({});
 
 export const marshalBranchSpecSchema: z.ZodType = z
   .object({
@@ -5433,6 +5534,8 @@ export const marshalCatalog_CatalogStatusSchema: z.ZodType = z
     branch: d.branch,
   }));
 
+export const marshalCatalogOperationMetadataSchema: z.ZodType = z.object({});
+
 export const marshalCdfConfigSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -5454,6 +5557,166 @@ export const marshalCdfConfigSchema: z.ZodType = z
     cdf_config_id: d.cdfConfigId,
     postgres_schema: d.postgresSchema,
     service_principal: d.servicePrincipal,
+  }));
+
+export const marshalCdfConfigOperationMetadataSchema: z.ZodType = z.object({});
+
+export const marshalCdfStatusSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    postgresTable: z.string().optional(),
+    ucTable: z.string().optional(),
+    state: z.string().optional(),
+    committedLsn: z.string().optional(),
+    lastSyncTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    statusDetail: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    postgres_table: d.postgresTable,
+    uc_table: d.ucTable,
+    state: d.state,
+    committed_lsn: d.committedLsn,
+    last_sync_time: d.lastSyncTime,
+    create_time: d.createTime,
+    status_detail: d.statusDetail,
+  }));
+
+export const marshalCreateBranchRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    branchId: z.string().optional(),
+    branch: z.lazy(() => marshalBranchSchema).optional(),
+    replaceExisting: z.boolean().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    branch_id: d.branchId,
+    branch: d.branch,
+    replace_existing: d.replaceExisting,
+  }));
+
+export const marshalCreateCatalogRequestSchema: z.ZodType = z
+  .object({
+    catalogId: z.string().optional(),
+    catalog: z.lazy(() => marshalCatalogSchema).optional(),
+  })
+  .transform(d => ({
+    catalog_id: d.catalogId,
+    catalog: d.catalog,
+  }));
+
+export const marshalCreateCdfConfigRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    cdfConfig: z.lazy(() => marshalCdfConfigSchema).optional(),
+    cdfConfigId: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    cdf_config: d.cdfConfig,
+    cdf_config_id: d.cdfConfigId,
+  }));
+
+export const marshalCreateDataApiRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    dataApi: z.lazy(() => marshalDataApiSchema).optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    data_api: d.dataApi,
+  }));
+
+export const marshalCreateDatabaseRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    databaseId: z.string().optional(),
+    database: z.lazy(() => marshalDatabaseSchema).optional(),
+    replaceExisting: z.boolean().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    database_id: d.databaseId,
+    database: d.database,
+    replace_existing: d.replaceExisting,
+  }));
+
+export const marshalCreateEndpointRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    endpointId: z.string().optional(),
+    endpoint: z.lazy(() => marshalEndpointSchema).optional(),
+    replaceExisting: z.boolean().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    endpoint_id: d.endpointId,
+    endpoint: d.endpoint,
+    replace_existing: d.replaceExisting,
+  }));
+
+export const marshalCreateMigrationRequestSchema: z.ZodType = z
+  .object({
+    migrationId: z.string().optional(),
+    migration: z.lazy(() => marshalMigrationSchema).optional(),
+  })
+  .transform(d => ({
+    migration_id: d.migrationId,
+    migration: d.migration,
+  }));
+
+export const marshalCreateProjectRequestSchema: z.ZodType = z
+  .object({
+    projectId: z.string().optional(),
+    project: z.lazy(() => marshalProjectSchema).optional(),
+  })
+  .transform(d => ({
+    project_id: d.projectId,
+    project: d.project,
+  }));
+
+export const marshalCreateRoleRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    roleId: z.string().optional(),
+    role: z.lazy(() => marshalRoleSchema).optional(),
+    replaceExisting: z.boolean().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    role_id: d.roleId,
+    role: d.role,
+    replace_existing: d.replaceExisting,
+  }));
+
+export const marshalCreateSnapshotRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    snapshot: z.lazy(() => marshalSnapshotSchema).optional(),
+    snapshotId: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    snapshot: d.snapshot,
+    snapshot_id: d.snapshotId,
+  }));
+
+export const marshalCreateSyncedTableRequestSchema: z.ZodType = z
+  .object({
+    syncedTableId: z.string().optional(),
+    syncedTable: z.lazy(() => marshalSyncedTableSchema).optional(),
+  })
+  .transform(d => ({
+    synced_table_id: d.syncedTableId,
+    synced_table: d.syncedTable,
   }));
 
 export const marshalDailyScheduleSchema: z.ZodType = z
@@ -5548,6 +5811,8 @@ export const marshalDataApi_DataApiStatusSchema: z.ZodType = z
     available_schemas: d.availableSchemas,
   }));
 
+export const marshalDataApiOperationMetadataSchema: z.ZodType = z.object({});
+
 export const marshalDatabaseSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -5598,6 +5863,19 @@ export const marshalDatabase_DatabaseStatusSchema: z.ZodType = z
     database_id: d.databaseId,
   }));
 
+export const marshalDatabaseCredentialSchema: z.ZodType = z
+  .object({
+    token: z.string().optional(),
+    expireTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    token: d.token,
+    expire_time: d.expireTime,
+  }));
+
 export const marshalDatabaseMappingSchema: z.ZodType = z
   .object({
     sourceDatabase: z.string().optional(),
@@ -5608,6 +5886,112 @@ export const marshalDatabaseMappingSchema: z.ZodType = z
     source_database: d.sourceDatabase,
     target_database: d.targetDatabase,
     effective_target_database: d.effectiveTargetDatabase,
+  }));
+
+export const marshalDatabaseOperationMetadataSchema: z.ZodType = z.object({});
+
+export const marshalDatabaseSizeDetailsSchema: z.ZodType = z
+  .object({
+    sizeBytes: z.bigint().optional(),
+  })
+  .transform(d => ({
+    size_bytes: d.sizeBytes,
+  }));
+
+export const marshalDeleteBranchRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    purge: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    purge: d.purge,
+  }));
+
+export const marshalDeleteCatalogRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteCdfConfigRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    force: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    force: d.force,
+  }));
+
+export const marshalDeleteDataApiRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteDatabaseRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteMigrationRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteProjectRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    purge: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    purge: d.purge,
+  }));
+
+export const marshalDeleteRoleRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    reassignOwnedTo: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    reassign_owned_to: d.reassignOwnedTo,
+  }));
+
+export const marshalDeleteSnapshotRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteSyncedTableRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
@@ -5688,6 +6072,8 @@ export const marshalEndpointHostsSchema: z.ZodType = z
     read_write_pooled_host: d.readWritePooledHost,
     read_only_pooled_host: d.readOnlyPooledHost,
   }));
+
+export const marshalEndpointOperationMetadataSchema: z.ZodType = z.object({});
 
 export const marshalEndpointSettingsSchema: z.ZodType = z
   .object({
@@ -5802,6 +6188,126 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
     }),
   }));
 
+export const marshalGetAssessmentRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetBranchRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetCatalogRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetCdfConfigRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetCdfStatusRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetDataApiRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetDatabaseRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetMigrationRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetOperationRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetProjectRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetRoleRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetSnapshotRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetSnapshotScheduleRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetSyncedTableRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalInitialBranchSpecSchema: z.ZodType = z
   .object({
     isProtected: z.boolean().optional(),
@@ -5839,6 +6345,239 @@ export const marshalInitialEndpointSpecSchema: z.ZodType = z
     ...(d.suspension?.$case === 'noSuspension' && {
       no_suspension: d.suspension.noSuspension,
     }),
+  }));
+
+export const marshalListAssessmentsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListAssessmentsResponseSchema: z.ZodType = z
+  .object({
+    assessments: z.array(z.lazy(() => marshalAssessmentSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    assessments: d.assessments,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListBranchesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+    showDeleted: z.boolean().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+    show_deleted: d.showDeleted,
+  }));
+
+export const marshalListBranchesResponseSchema: z.ZodType = z
+  .object({
+    branches: z.array(z.lazy(() => marshalBranchSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    branches: d.branches,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListCdfConfigsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListCdfConfigsResponseSchema: z.ZodType = z
+  .object({
+    cdfConfigs: z.array(z.lazy(() => marshalCdfConfigSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    cdf_configs: d.cdfConfigs,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListCdfStatusesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListCdfStatusesResponseSchema: z.ZodType = z
+  .object({
+    cdfStatuses: z.array(z.lazy(() => marshalCdfStatusSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    cdf_statuses: d.cdfStatuses,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListDatabasesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListDatabasesResponseSchema: z.ZodType = z
+  .object({
+    databases: z.array(z.lazy(() => marshalDatabaseSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    databases: d.databases,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListEndpointsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListEndpointsResponseSchema: z.ZodType = z
+  .object({
+    endpoints: z.array(z.lazy(() => marshalEndpointSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    endpoints: d.endpoints,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListMigrationsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    showDeleted: z.boolean().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    show_deleted: d.showDeleted,
+  }));
+
+export const marshalListMigrationsResponseSchema: z.ZodType = z
+  .object({
+    migrations: z.array(z.lazy(() => marshalMigrationSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    migrations: d.migrations,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListProjectsRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+    showDeleted: z.boolean().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+    show_deleted: d.showDeleted,
+  }));
+
+export const marshalListProjectsResponseSchema: z.ZodType = z
+  .object({
+    projects: z.array(z.lazy(() => marshalProjectSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    projects: d.projects,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListRolesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListRolesResponseSchema: z.ZodType = z
+  .object({
+    roles: z.array(z.lazy(() => marshalRoleSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    roles: d.roles,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSnapshotsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListSnapshotsResponseSchema: z.ZodType = z
+  .object({
+    snapshots: z.array(z.lazy(() => marshalSnapshotSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    snapshots: d.snapshots,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalLongTransactionDetailsSchema: z.ZodType = z
+  .object({
+    oldestTransactionAge: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+  })
+  .transform(d => ({
+    oldest_transaction_age: d.oldestTransactionAge,
   }));
 
 export const marshalMigrationSchema: z.ZodType = z
@@ -5893,6 +6632,8 @@ export const marshalMigrationErrorSchema: z.ZodType = z
     message: d.message,
   }));
 
+export const marshalMigrationOperationMetadataSchema: z.ZodType = z.object({});
+
 export const marshalMonthlyScheduleSchema: z.ZodType = z
   .object({
     day: z.number().optional(),
@@ -5915,6 +6656,32 @@ export const marshalNewPipelineSpecSchema: z.ZodType = z
     storage_schema: d.storageSchema,
     budget_policy_id: d.budgetPolicyId,
     pipeline_channel: d.pipelineChannel,
+  }));
+
+export const marshalOperationSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+    done: z.boolean().optional(),
+    result: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('error'),
+          error: z.lazy(() => marshalApiErrorSchema),
+        }),
+        z.object({
+          $case: z.literal('response'),
+          response: z.record(z.string(), z.unknown()),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    metadata: d.metadata,
+    done: d.done,
+    ...(d.result?.$case === 'error' && {error: d.result.error}),
+    ...(d.result?.$case === 'response' && {response: d.result.response}),
   }));
 
 export const marshalProjectSchema: z.ZodType = z
@@ -6000,6 +6767,8 @@ export const marshalProjectDefaultEndpointSettingsSchema: z.ZodType = z
     pg_settings: d.pgSettings,
   }));
 
+export const marshalProjectOperationMetadataSchema: z.ZodType = z.object({});
+
 export const marshalProjectSpecSchema: z.ZodType = z
   .object({
     displayName: z.string().optional(),
@@ -6069,6 +6838,8 @@ export const marshalProjectStatusSchema: z.ZodType = z
     compute_policy_id: d.computePolicyId,
   }));
 
+export const marshalProvisioningInfoSchema: z.ZodType = z.object({});
+
 export const marshalRequestedClaimsSchema: z.ZodType = z
   .object({
     permissionSet: z.string().optional(),
@@ -6099,6 +6870,14 @@ export const marshalRevealRolePasswordRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalRevealRolePasswordResponseSchema: z.ZodType = z
+  .object({
+    password: z.string().optional(),
+  })
+  .transform(d => ({
+    password: d.password,
   }));
 
 export const marshalRoleSchema: z.ZodType = z
@@ -6176,6 +6955,8 @@ export const marshalRole_RoleStatusSchema: z.ZodType = z
     role_id: d.roleId,
   }));
 
+export const marshalRoleOperationMetadataSchema: z.ZodType = z.object({});
+
 export const marshalScheduleCadenceSchema: z.ZodType = z
   .object({
     schedule: z
@@ -6233,6 +7014,8 @@ export const marshalSnapshotSchema: z.ZodType = z
     snapshot_id: d.snapshotId,
   }));
 
+export const marshalSnapshotOperationMetadataSchema: z.ZodType = z.object({});
+
 export const marshalSnapshotScheduleSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -6242,6 +7025,9 @@ export const marshalSnapshotScheduleSchema: z.ZodType = z
     name: d.name,
     schedule: d.schedule,
   }));
+
+export const marshalSnapshotScheduleOperationMetadataSchema: z.ZodType =
+  z.object({});
 
 export const marshalSnapshotSpecSchema: z.ZodType = z
   .object({
@@ -6328,6 +7114,14 @@ export const marshalStartMigrationRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalStartMigrationResponseSchema: z.ZodType = z
+  .object({
+    migration: z.lazy(() => marshalMigrationSchema).optional(),
+  })
+  .transform(d => ({
+    migration: d.migration,
   }));
 
 export const marshalSyncedTableSchema: z.ZodType = z
@@ -6449,6 +7243,10 @@ export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
     project: d.project,
   }));
 
+export const marshalSyncedTableOperationMetadataSchema: z.ZodType = z.object(
+  {}
+);
+
 export const marshalSyncedTablePipelineProgressSchema: z.ZodType = z
   .object({
     latestVersionCurrentlyProcessing: z.bigint().optional(),
@@ -6508,12 +7306,124 @@ export const marshalUndeleteMigrationRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
+export const marshalUndeleteMigrationResponseSchema: z.ZodType = z
+  .object({
+    migration: z.lazy(() => marshalMigrationSchema).optional(),
+  })
+  .transform(d => ({
+    migration: d.migration,
+  }));
+
 export const marshalUndeleteProjectRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalUpdateBranchRequestSchema: z.ZodType = z
+  .object({
+    branch: z.lazy(() => marshalBranchSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    branch: d.branch,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateDataApiRequestSchema: z.ZodType = z
+  .object({
+    dataApi: z.lazy(() => marshalDataApiSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    data_api: d.dataApi,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateDatabaseRequestSchema: z.ZodType = z
+  .object({
+    database: z.lazy(() => marshalDatabaseSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    database: d.database,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateEndpointRequestSchema: z.ZodType = z
+  .object({
+    endpoint: z.lazy(() => marshalEndpointSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    endpoint: d.endpoint,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateMigrationRequestSchema: z.ZodType = z
+  .object({
+    migration: z.lazy(() => marshalMigrationSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    migration: d.migration,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateProjectRequestSchema: z.ZodType = z
+  .object({
+    project: z.lazy(() => marshalProjectSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    project: d.project,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateRoleRequestSchema: z.ZodType = z
+  .object({
+    role: z.lazy(() => marshalRoleSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    role: d.role,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateSnapshotScheduleRequestSchema: z.ZodType = z
+  .object({
+    snapshotSchedule: z.lazy(() => marshalSnapshotScheduleSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    snapshot_schedule: d.snapshotSchedule,
+    update_mask: d.updateMask,
   }));
 
 export const marshalWeeklyScheduleSchema: z.ZodType = z

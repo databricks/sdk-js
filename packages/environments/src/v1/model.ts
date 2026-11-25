@@ -932,6 +932,34 @@ export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnv
 export const unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema: z.ZodType<WorkspaceBaseEnvironmentOperationMetadata> =
   z.object({});
 
+export const marshalApiErrorSchema: z.ZodType = z
+  .object({
+    errorCode: z.string().optional(),
+    message: z.string().optional(),
+    stackTrace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    error_code: d.errorCode,
+    message: d.message,
+    stack_trace: d.stackTrace,
+    details: d.details,
+  }));
+
+export const marshalCreateWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
+  .object({
+    workspaceBaseEnvironment: z
+      .lazy(() => marshalWorkspaceBaseEnvironmentSchema)
+      .optional(),
+    workspaceBaseEnvironmentId: z.string().optional(),
+    requestId: z.string().optional(),
+  })
+  .transform(d => ({
+    workspace_base_environment: d.workspaceBaseEnvironment,
+    workspace_base_environment_id: d.workspaceBaseEnvironmentId,
+    request_id: d.requestId,
+  }));
+
 export const marshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -944,6 +972,14 @@ export const marshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType = z
     gpu_workspace_base_environment: d.gpuWorkspaceBaseEnvironment,
   }));
 
+export const marshalDeleteWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalEnvironmentSpecSchema: z.ZodType = z
   .object({
     dependencies: z.array(z.string()).optional(),
@@ -954,12 +990,113 @@ export const marshalEnvironmentSpecSchema: z.ZodType = z
     environment_version: d.environmentVersion,
   }));
 
+export const marshalGetDefaultWorkspaceBaseEnvironmentRequestSchema: z.ZodType =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+    }));
+
+export const marshalGetOperationRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalListWorkspaceBaseEnvironmentsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListWorkspaceBaseEnvironmentsResponseSchema: z.ZodType = z
+  .object({
+    workspaceBaseEnvironments: z
+      .array(z.lazy(() => marshalWorkspaceBaseEnvironmentSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    workspace_base_environments: d.workspaceBaseEnvironments,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalOperationSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+    done: z.boolean().optional(),
+    result: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('error'),
+          error: z.lazy(() => marshalApiErrorSchema),
+        }),
+        z.object({
+          $case: z.literal('response'),
+          response: z.record(z.string(), z.unknown()),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    metadata: d.metadata,
+    done: d.done,
+    ...(d.result?.$case === 'error' && {error: d.result.error}),
+    ...(d.result?.$case === 'response' && {response: d.result.response}),
+  }));
+
 export const marshalRefreshWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalUpdateDefaultWorkspaceBaseEnvironmentRequestSchema: z.ZodType =
+  z
+    .object({
+      defaultWorkspaceBaseEnvironment: z
+        .lazy(() => marshalDefaultWorkspaceBaseEnvironmentSchema)
+        .optional(),
+      updateMask: z
+        .any()
+        .transform((m: FieldMask) => m.toString())
+        .optional(),
+    })
+    .transform(d => ({
+      default_workspace_base_environment: d.defaultWorkspaceBaseEnvironment,
+      update_mask: d.updateMask,
+    }));
+
+export const marshalUpdateWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    workspaceBaseEnvironment: z
+      .lazy(() => marshalWorkspaceBaseEnvironmentSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    workspace_base_environment: d.workspaceBaseEnvironment,
   }));
 
 export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
@@ -997,6 +1134,13 @@ export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
     base_environment_type: d.baseEnvironmentType,
     spec: d.spec,
   }));
+
+export const marshalWorkspaceBaseEnvironmentCacheSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalWorkspaceBaseEnvironmentOperationMetadataSchema: z.ZodType =
+  z.object({});
 
 const defaultWorkspaceBaseEnvironmentFieldMaskSchema: FieldMaskSchema = {
   cpuWorkspaceBaseEnvironment: {wire: 'cpu_workspace_base_environment'},

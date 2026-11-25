@@ -557,6 +557,51 @@ export const unmarshalListAlertsResponseAlertSchema: z.ZodType<ListAlertsRespons
       notifyOnOk: d.notify_on_ok,
     }));
 
+export const marshalAlertSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    displayName: z.string().optional(),
+    queryId: z.string().optional(),
+    state: z.string().optional(),
+    secondsToRetrigger: z.number().optional(),
+    lifecycleState: z.string().optional(),
+    triggerTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    customBody: z.string().optional(),
+    customSubject: z.string().optional(),
+    condition: z.lazy(() => marshalAlertConditionSchema).optional(),
+    ownerUserName: z.string().optional(),
+    parentPath: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    notifyOnOk: z.boolean().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    display_name: d.displayName,
+    query_id: d.queryId,
+    state: d.state,
+    seconds_to_retrigger: d.secondsToRetrigger,
+    lifecycle_state: d.lifecycleState,
+    trigger_time: d.triggerTime,
+    custom_body: d.customBody,
+    custom_subject: d.customSubject,
+    condition: d.condition,
+    owner_user_name: d.ownerUserName,
+    parent_path: d.parentPath,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    notify_on_ok: d.notifyOnOk,
+  }));
+
 export const marshalAlertConditionSchema: z.ZodType = z
   .object({
     op: z.string().optional(),
@@ -651,6 +696,89 @@ export const marshalCreateAlertRequestAlertSchema: z.ZodType = z
     condition: d.condition,
     parent_path: d.parentPath,
     notify_on_ok: d.notifyOnOk,
+  }));
+
+export const marshalEmptySchema: z.ZodType = z.object({});
+
+export const marshalGetAlertRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalListAlertsRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListAlertsResponseSchema: z.ZodType = z
+  .object({
+    results: z
+      .array(z.lazy(() => marshalListAlertsResponseAlertSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    results: d.results,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListAlertsResponseAlertSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    displayName: z.string().optional(),
+    queryId: z.string().optional(),
+    state: z.string().optional(),
+    secondsToRetrigger: z.number().optional(),
+    lifecycleState: z.string().optional(),
+    triggerTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    customBody: z.string().optional(),
+    customSubject: z.string().optional(),
+    condition: z.lazy(() => marshalAlertConditionSchema).optional(),
+    ownerUserName: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    notifyOnOk: z.boolean().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    display_name: d.displayName,
+    query_id: d.queryId,
+    state: d.state,
+    seconds_to_retrigger: d.secondsToRetrigger,
+    lifecycle_state: d.lifecycleState,
+    trigger_time: d.triggerTime,
+    custom_body: d.customBody,
+    custom_subject: d.customSubject,
+    condition: d.condition,
+    owner_user_name: d.ownerUserName,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    notify_on_ok: d.notifyOnOk,
+  }));
+
+export const marshalTrashAlertRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
   }));
 
 export const marshalUpdateAlertRequestSchema: z.ZodType = z

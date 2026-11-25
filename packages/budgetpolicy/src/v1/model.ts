@@ -254,6 +254,16 @@ export const marshalCustomPolicyTagSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalDeleteBudgetPolicyRequestSchema: z.ZodType = z
+  .object({
+    policyId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    policy_id: d.policyId,
+    account_id: d.accountId,
+  }));
+
 export const marshalFilterSchema: z.ZodType = z
   .object({
     policyName: z.string().optional(),
@@ -266,7 +276,45 @@ export const marshalFilterSchema: z.ZodType = z
     creator_user_name: d.creatorUserName,
   }));
 
+export const marshalGetBudgetPolicyRequestSchema: z.ZodType = z
+  .object({
+    policyId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    policy_id: d.policyId,
+    account_id: d.accountId,
+  }));
+
 export const marshalLimitConfigSchema: z.ZodType = z.object({});
+
+export const marshalListBudgetPoliciesRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    filterBy: z.lazy(() => marshalFilterSchema).optional(),
+    sortSpec: z.lazy(() => marshalSortSpecSchema).optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    filter_by: d.filterBy,
+    sort_spec: d.sortSpec,
+    account_id: d.accountId,
+  }));
+
+export const marshalListBudgetPoliciesResponseSchema: z.ZodType = z
+  .object({
+    policies: z.array(z.lazy(() => marshalBudgetPolicySchema)).optional(),
+    nextPageToken: z.string().optional(),
+    previousPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    policies: d.policies,
+    next_page_token: d.nextPageToken,
+    previous_page_token: d.previousPageToken,
+  }));
 
 export const marshalSortSpecSchema: z.ZodType = z
   .object({
@@ -276,4 +324,16 @@ export const marshalSortSpecSchema: z.ZodType = z
   .transform(d => ({
     field: d.field,
     descending: d.descending,
+  }));
+
+export const marshalUpdateBudgetPolicyRequestSchema: z.ZodType = z
+  .object({
+    policy: z.lazy(() => marshalBudgetPolicySchema).optional(),
+    accountId: z.string().optional(),
+    limitConfig: z.lazy(() => marshalLimitConfigSchema).optional(),
+  })
+  .transform(d => ({
+    policy: d.policy,
+    account_id: d.accountId,
+    limit_config: d.limitConfig,
   }));

@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -86,7 +87,7 @@ export class WorkspacesClient {
     options?: CallOptions
   ): Promise<Workspace> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces`;
     const body = marshalRequest(req, marshalCreateWorkspaceRequestSchema);
     let resp: Workspace | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -137,8 +138,11 @@ export class WorkspacesClient {
     req: DeleteWorkspaceRequest,
     options?: CallOptions
   ): Promise<Workspace> {
+    if (req.workspaceId === undefined) {
+      throw new Error('path parameter "workspace_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces/${String(req.workspaceId)}`;
     let resp: Workspace | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -165,8 +169,11 @@ export class WorkspacesClient {
     req: GetWorkspaceRequest,
     options?: CallOptions
   ): Promise<Workspace> {
+    if (req.workspaceId === undefined) {
+      throw new Error('path parameter "workspace_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces/${String(req.workspaceId)}`;
     let resp: Workspace | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -191,7 +198,7 @@ export class WorkspacesClient {
     options?: CallOptions
   ): Promise<ListWorkspacesResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces`;
     let resp: ListWorkspacesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -221,17 +228,17 @@ export class WorkspacesClient {
     options?: CallOptions
   ): Promise<Workspace> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.customerFacingWorkspace?.accountId ?? accountId ?? ''}/workspaces/${String(req.customerFacingWorkspace?.workspaceId ?? '')}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.customerFacingWorkspace?.accountId ?? accountId ?? '')}/workspaces/${String(req.customerFacingWorkspace?.workspaceId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.customerFacingWorkspace,
-      marshalWorkspaceSchema
-    );
+    const body =
+      req.customerFacingWorkspace === undefined
+        ? 'null'
+        : marshalRequest(req.customerFacingWorkspace, marshalWorkspaceSchema);
     let resp: Workspace | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

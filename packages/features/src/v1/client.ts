@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -223,7 +224,7 @@ export class FeaturesClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/${req.name ?? ''}:cancel`;
+    const url = `${host}/api/2.0/feature-engineering/${encodePathVariable(req.name ?? '')}:cancel`;
     const body = marshalRequest(req, marshalCancelOperationRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -247,7 +248,10 @@ export class FeaturesClient {
   ): Promise<Feature> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/feature-engineering/features`;
-    const body = marshalRequest(req.feature, marshalFeatureSchema);
+    const body =
+      req.feature === undefined
+        ? 'null'
+        : marshalRequest(req.feature, marshalFeatureSchema);
     let resp: Feature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -276,7 +280,10 @@ export class FeaturesClient {
   ): Promise<FeatureSpec> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/feature-engineering/feature-specs`;
-    const body = marshalRequest(req.featureSpec, marshalFeatureSpecSchema);
+    const body =
+      req.featureSpec === undefined
+        ? 'null'
+        : marshalRequest(req.featureSpec, marshalFeatureSpecSchema);
     let resp: FeatureSpec | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -309,7 +316,10 @@ export class FeaturesClient {
   ): Promise<KafkaConfig> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/feature-engineering/features/kafka-configs`;
-    const body = marshalRequest(req.kafkaConfig, marshalKafkaConfigSchema);
+    const body =
+      req.kafkaConfig === undefined
+        ? 'null'
+        : marshalRequest(req.kafkaConfig, marshalKafkaConfigSchema);
     let resp: KafkaConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -344,10 +354,13 @@ export class FeaturesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.materializationSet,
-      marshalMaterializationSetSchema
-    );
+    const body =
+      req.materializationSet === undefined
+        ? 'null'
+        : marshalRequest(
+            req.materializationSet,
+            marshalMaterializationSetSchema
+          );
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -396,10 +409,13 @@ export class FeaturesClient {
   ): Promise<MaterializedFeature> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/feature-engineering/materialized-features`;
-    const body = marshalRequest(
-      req.materializedFeature,
-      marshalMaterializedFeatureSchema
-    );
+    const body =
+      req.materializedFeature === undefined
+        ? 'null'
+        : marshalRequest(
+            req.materializedFeature,
+            marshalMaterializedFeatureSchema
+          );
     let resp: MaterializedFeature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -428,7 +444,10 @@ export class FeaturesClient {
   ): Promise<Stream> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/feature-engineering/streams`;
-    const body = marshalRequest(req.stream, marshalStreamSchema);
+    const body =
+      req.stream === undefined
+        ? 'null'
+        : marshalRequest(req.stream, marshalStreamSchema);
     let resp: Stream | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -455,8 +474,11 @@ export class FeaturesClient {
     req: DeleteFeatureRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.fullName === undefined) {
+      throw new Error('path parameter "full_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/features/${req.fullName ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/features/${encodePathVariable(req.fullName)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -477,8 +499,11 @@ export class FeaturesClient {
     req: DeleteFeatureSpecRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/feature-specs/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/feature-specs/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -503,8 +528,11 @@ export class FeaturesClient {
     req: DeleteKafkaConfigRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/features/kafka-configs/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/features/kafka-configs/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -528,8 +556,11 @@ export class FeaturesClient {
     req: DeleteMaterializationSetRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.materializationSetId === undefined) {
+      throw new Error('path parameter "materialization_set_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/materialization-sets/${req.materializationSetId ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/materialization-sets/${encodePathVariable(req.materializationSetId)}`;
     const params = new URLSearchParams();
     if (req.allowMissing !== undefined) {
       params.append('allow_missing', String(req.allowMissing));
@@ -582,8 +613,11 @@ export class FeaturesClient {
     req: DeleteMaterializedFeatureRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.materializedFeatureId === undefined) {
+      throw new Error('path parameter "materialized_feature_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/materialized-features/${req.materializedFeatureId ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/materialized-features/${encodePathVariable(req.materializedFeatureId)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -604,8 +638,11 @@ export class FeaturesClient {
     req: DeleteStreamRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/streams/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/streams/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -626,8 +663,11 @@ export class FeaturesClient {
     req: GetFeatureRequest,
     options?: CallOptions
   ): Promise<Feature> {
+    if (req.fullName === undefined) {
+      throw new Error('path parameter "full_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/features/${req.fullName ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/features/${encodePathVariable(req.fullName)}`;
     let resp: Feature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -654,8 +694,11 @@ export class FeaturesClient {
     req: GetFeatureSpecRequest,
     options?: CallOptions
   ): Promise<FeatureSpec> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/feature-specs/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/feature-specs/${encodePathVariable(req.name)}`;
     let resp: FeatureSpec | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -686,8 +729,11 @@ export class FeaturesClient {
     req: GetKafkaConfigRequest,
     options?: CallOptions
   ): Promise<KafkaConfig> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/features/kafka-configs/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/features/kafka-configs/${encodePathVariable(req.name)}`;
     let resp: KafkaConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -717,8 +763,11 @@ export class FeaturesClient {
     req: GetMaterializationSetRequest,
     options?: CallOptions
   ): Promise<MaterializationSet> {
+    if (req.materializationSetId === undefined) {
+      throw new Error('path parameter "materialization_set_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/materialization-sets/${req.materializationSetId ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/materialization-sets/${encodePathVariable(req.materializationSetId)}`;
     let resp: MaterializationSet | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -745,8 +794,11 @@ export class FeaturesClient {
     req: GetMaterializedFeatureRequest,
     options?: CallOptions
   ): Promise<MaterializedFeature> {
+    if (req.materializedFeatureId === undefined) {
+      throw new Error('path parameter "materialized_feature_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/materialized-features/${req.materializedFeatureId ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/materialized-features/${encodePathVariable(req.materializedFeatureId)}`;
     let resp: MaterializedFeature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -774,7 +826,7 @@ export class FeaturesClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/${encodePathVariable(req.name ?? '')}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -801,8 +853,11 @@ export class FeaturesClient {
     req: GetStreamRequest,
     options?: CallOptions
   ): Promise<Stream> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/streams/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/streams/${encodePathVariable(req.name)}`;
     let resp: Stream | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1122,8 +1177,11 @@ export class FeaturesClient {
     req: TriggerMaterializationSetRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.materializationSetId === undefined) {
+      throw new Error('path parameter "materialization_set_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/materialization-sets/${req.materializationSetId ?? ''}/trigger`;
+    const url = `${host}/api/2.0/feature-engineering/materialization-sets/${encodePathVariable(req.materializationSetId)}/trigger`;
     const body = marshalRequest(
       req,
       marshalTriggerMaterializationSetRequestSchema
@@ -1185,15 +1243,21 @@ export class FeaturesClient {
     req: UpdateFeatureRequest,
     options?: CallOptions
   ): Promise<Feature> {
+    if (req.feature?.fullName === undefined) {
+      throw new Error('path parameter "full_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/features/${req.feature?.fullName ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/features/${encodePathVariable(req.feature?.fullName)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.feature, marshalFeatureSchema);
+    const body =
+      req.feature === undefined
+        ? 'null'
+        : marshalRequest(req.feature, marshalFeatureSchema);
     let resp: Feature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1230,15 +1294,21 @@ export class FeaturesClient {
     req: UpdateKafkaConfigRequest,
     options?: CallOptions
   ): Promise<KafkaConfig> {
+    if (req.kafkaConfig?.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/features/kafka-configs/${req.kafkaConfig?.name ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/features/kafka-configs/${encodePathVariable(req.kafkaConfig?.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.kafkaConfig, marshalKafkaConfigSchema);
+    const body =
+      req.kafkaConfig === undefined
+        ? 'null'
+        : marshalRequest(req.kafkaConfig, marshalKafkaConfigSchema);
     let resp: KafkaConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1279,7 +1349,7 @@ export class FeaturesClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/materialization-sets/${req.materializationSet?.materializationSetId ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/materialization-sets/${encodePathVariable(req.materializationSet?.materializationSetId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -1289,10 +1359,13 @@ export class FeaturesClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.materializationSet,
-      marshalMaterializationSetSchema
-    );
+    const body =
+      req.materializationSet === undefined
+        ? 'null'
+        : marshalRequest(
+            req.materializationSet,
+            marshalMaterializationSetSchema
+          );
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1347,17 +1420,20 @@ export class FeaturesClient {
     options?: CallOptions
   ): Promise<MaterializedFeature> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/materialized-features/${req.materializedFeature?.materializedFeatureId ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/materialized-features/${encodePathVariable(req.materializedFeature?.materializedFeatureId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.materializedFeature,
-      marshalMaterializedFeatureSchema
-    );
+    const body =
+      req.materializedFeature === undefined
+        ? 'null'
+        : marshalRequest(
+            req.materializedFeature,
+            marshalMaterializedFeatureSchema
+          );
     let resp: MaterializedFeature | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1390,15 +1466,21 @@ export class FeaturesClient {
     req: UpdateStreamRequest,
     options?: CallOptions
   ): Promise<Stream> {
+    if (req.stream?.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-engineering/streams/${req.stream?.name ?? ''}`;
+    const url = `${host}/api/2.0/feature-engineering/streams/${encodePathVariable(req.stream?.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.stream, marshalStreamSchema);
+    const body =
+      req.stream === undefined
+        ? 'null'
+        : marshalRequest(req.stream, marshalStreamSchema);
     let resp: Stream | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

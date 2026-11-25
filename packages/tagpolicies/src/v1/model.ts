@@ -116,6 +116,50 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
     name: d.name,
   }));
 
+export const marshalCreateTagPolicyRequestSchema: z.ZodType = z
+  .object({
+    tagPolicy: z.lazy(() => marshalTagPolicySchema).optional(),
+  })
+  .transform(d => ({
+    tag_policy: d.tagPolicy,
+  }));
+
+export const marshalDeleteTagPolicyRequestSchema: z.ZodType = z
+  .object({
+    tagKey: z.string().optional(),
+  })
+  .transform(d => ({
+    tag_key: d.tagKey,
+  }));
+
+export const marshalGetTagPolicyRequestSchema: z.ZodType = z
+  .object({
+    tagKey: z.string().optional(),
+  })
+  .transform(d => ({
+    tag_key: d.tagKey,
+  }));
+
+export const marshalListTagPoliciesRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListTagPoliciesResponseSchema: z.ZodType = z
+  .object({
+    tagPolicies: z.array(z.lazy(() => marshalTagPolicySchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    tag_policies: d.tagPolicies,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalTagPolicySchema: z.ZodType = z
   .object({
     tagKey: z.string().optional(),
@@ -138,6 +182,19 @@ export const marshalTagPolicySchema: z.ZodType = z
     values: d.values,
     create_time: d.createTime,
     update_time: d.updateTime,
+  }));
+
+export const marshalUpdateTagPolicyRequestSchema: z.ZodType = z
+  .object({
+    tagPolicy: z.lazy(() => marshalTagPolicySchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    tag_policy: d.tagPolicy,
+    update_mask: d.updateMask,
   }));
 
 export const marshalValueSchema: z.ZodType = z

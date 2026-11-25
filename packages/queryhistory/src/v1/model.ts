@@ -728,6 +728,75 @@ export const unmarshalTaskTimeOverRangeEntrySchema: z.ZodType<TaskTimeOverRangeE
       taskCompletedTimeMs: d.task_completed_time_ms,
     }));
 
+export const marshalChannelInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    dbsqlVersion: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    dbsql_version: d.dbsqlVersion,
+  }));
+
+export const marshalExternalQuerySourceSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+    legacyDashboardId: z.string().optional(),
+    alertId: z.string().optional(),
+    notebookId: z.string().optional(),
+    sqlQueryId: z.string().optional(),
+    jobInfo: z.lazy(() => marshalExternalQuerySource_JobInfoSchema).optional(),
+    genieSpaceId: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+    legacy_dashboard_id: d.legacyDashboardId,
+    alert_id: d.alertId,
+    notebook_id: d.notebookId,
+    sql_query_id: d.sqlQueryId,
+    job_info: d.jobInfo,
+    genie_space_id: d.genieSpaceId,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalExternalQuerySource_JobInfoSchema: z.ZodType = z
+  .object({
+    jobId: z.string().optional(),
+    jobRunId: z.string().optional(),
+    jobTaskRunId: z.string().optional(),
+  })
+  .transform(d => ({
+    job_id: d.jobId,
+    job_run_id: d.jobRunId,
+    job_task_run_id: d.jobTaskRunId,
+  }));
+
+export const marshalListQueriesRequestSchema: z.ZodType = z
+  .object({
+    filterBy: z.lazy(() => marshalQueryFilterSchema).optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+    includeMetrics: z.boolean().optional(),
+  })
+  .transform(d => ({
+    filter_by: d.filterBy,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+    include_metrics: d.includeMetrics,
+  }));
+
+export const marshalListQueriesResponseSchema: z.ZodType = z
+  .object({
+    nextPageToken: z.string().optional(),
+    hasNextPage: z.boolean().optional(),
+    res: z.array(z.lazy(() => marshalQueryInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    next_page_token: d.nextPageToken,
+    has_next_page: d.hasNextPage,
+    res: d.res,
+  }));
+
 export const marshalQueryFilterSchema: z.ZodType = z
   .object({
     queryStartTimeRange: z.lazy(() => marshalTimeRangeSchema).optional(),
@@ -742,6 +811,162 @@ export const marshalQueryFilterSchema: z.ZodType = z
     statuses: d.statuses,
     warehouse_ids: d.warehouseIds,
     statement_ids: d.statementIds,
+  }));
+
+export const marshalQueryInfoSchema: z.ZodType = z
+  .object({
+    queryId: z.string().optional(),
+    status: z.string().optional(),
+    queryText: z.string().optional(),
+    queryStartTimeMs: z.bigint().optional(),
+    executionEndTimeMs: z.bigint().optional(),
+    queryEndTimeMs: z.bigint().optional(),
+    userId: z.bigint().optional(),
+    userName: z.string().optional(),
+    sparkUiUrl: z.string().optional(),
+    endpointId: z.string().optional(),
+    rowsProduced: z.bigint().optional(),
+    errorMessage: z.string().optional(),
+    lookupKey: z.string().optional(),
+    metrics: z.lazy(() => marshalQueryMetricsSchema).optional(),
+    executedAsUserId: z.bigint().optional(),
+    executedAsUserName: z.string().optional(),
+    sessionId: z.string().optional(),
+    isFinal: z.boolean().optional(),
+    channelUsed: z.lazy(() => marshalChannelInfoSchema).optional(),
+    plansState: z.string().optional(),
+    statementType: z.string().optional(),
+    warehouseId: z.string().optional(),
+    duration: z.bigint().optional(),
+    clientApplication: z.string().optional(),
+    querySource: z.lazy(() => marshalExternalQuerySourceSchema).optional(),
+    cacheQueryId: z.string().optional(),
+    queryTags: z.array(z.lazy(() => marshalQueryTagSchema)).optional(),
+  })
+  .transform(d => ({
+    query_id: d.queryId,
+    status: d.status,
+    query_text: d.queryText,
+    query_start_time_ms: d.queryStartTimeMs,
+    execution_end_time_ms: d.executionEndTimeMs,
+    query_end_time_ms: d.queryEndTimeMs,
+    user_id: d.userId,
+    user_name: d.userName,
+    spark_ui_url: d.sparkUiUrl,
+    endpoint_id: d.endpointId,
+    rows_produced: d.rowsProduced,
+    error_message: d.errorMessage,
+    lookup_key: d.lookupKey,
+    metrics: d.metrics,
+    executed_as_user_id: d.executedAsUserId,
+    executed_as_user_name: d.executedAsUserName,
+    session_id: d.sessionId,
+    is_final: d.isFinal,
+    channel_used: d.channelUsed,
+    plans_state: d.plansState,
+    statement_type: d.statementType,
+    warehouse_id: d.warehouseId,
+    duration: d.duration,
+    client_application: d.clientApplication,
+    query_source: d.querySource,
+    cache_query_id: d.cacheQueryId,
+    query_tags: d.queryTags,
+  }));
+
+export const marshalQueryMetricsSchema: z.ZodType = z
+  .object({
+    totalTimeMs: z.bigint().optional(),
+    readBytes: z.bigint().optional(),
+    rowsProducedCount: z.bigint().optional(),
+    compilationTimeMs: z.bigint().optional(),
+    executionTimeMs: z.bigint().optional(),
+    readRemoteBytes: z.bigint().optional(),
+    writeRemoteBytes: z.bigint().optional(),
+    readCacheBytes: z.bigint().optional(),
+    spillToDiskBytes: z.bigint().optional(),
+    taskTotalTimeMs: z.bigint().optional(),
+    readFilesCount: z.bigint().optional(),
+    readPartitionsCount: z.bigint().optional(),
+    photonTotalTimeMs: z.bigint().optional(),
+    rowsReadCount: z.bigint().optional(),
+    resultFetchTimeMs: z.bigint().optional(),
+    networkSentBytes: z.bigint().optional(),
+    resultFromCache: z.boolean().optional(),
+    prunedBytes: z.bigint().optional(),
+    prunedFilesCount: z.bigint().optional(),
+    provisioningQueueStartTimestamp: z.bigint().optional(),
+    overloadingQueueStartTimestamp: z.bigint().optional(),
+    queryCompilationStartTimestamp: z.bigint().optional(),
+    taskTimeOverTimeRange: z
+      .lazy(() => marshalTaskTimeOverRangeSchema)
+      .optional(),
+    workToBeDone: z.bigint().optional(),
+    runnableTasks: z.bigint().optional(),
+    projectedRemainingTaskTotalTimeMs: z.bigint().optional(),
+    remainingTaskCount: z.bigint().optional(),
+    projectedRemainingWallclockTimeMs: z.bigint().optional(),
+    readFilesBytes: z.bigint().optional(),
+  })
+  .transform(d => ({
+    total_time_ms: d.totalTimeMs,
+    read_bytes: d.readBytes,
+    rows_produced_count: d.rowsProducedCount,
+    compilation_time_ms: d.compilationTimeMs,
+    execution_time_ms: d.executionTimeMs,
+    read_remote_bytes: d.readRemoteBytes,
+    write_remote_bytes: d.writeRemoteBytes,
+    read_cache_bytes: d.readCacheBytes,
+    spill_to_disk_bytes: d.spillToDiskBytes,
+    task_total_time_ms: d.taskTotalTimeMs,
+    read_files_count: d.readFilesCount,
+    read_partitions_count: d.readPartitionsCount,
+    photon_total_time_ms: d.photonTotalTimeMs,
+    rows_read_count: d.rowsReadCount,
+    result_fetch_time_ms: d.resultFetchTimeMs,
+    network_sent_bytes: d.networkSentBytes,
+    result_from_cache: d.resultFromCache,
+    pruned_bytes: d.prunedBytes,
+    pruned_files_count: d.prunedFilesCount,
+    provisioning_queue_start_timestamp: d.provisioningQueueStartTimestamp,
+    overloading_queue_start_timestamp: d.overloadingQueueStartTimestamp,
+    query_compilation_start_timestamp: d.queryCompilationStartTimestamp,
+    task_time_over_time_range: d.taskTimeOverTimeRange,
+    work_to_be_done: d.workToBeDone,
+    runnable_tasks: d.runnableTasks,
+    projected_remaining_task_total_time_ms: d.projectedRemainingTaskTotalTimeMs,
+    remaining_task_count: d.remainingTaskCount,
+    projected_remaining_wallclock_time_ms: d.projectedRemainingWallclockTimeMs,
+    read_files_bytes: d.readFilesBytes,
+  }));
+
+export const marshalQueryTagSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalTaskTimeOverRangeSchema: z.ZodType = z
+  .object({
+    entries: z
+      .array(z.lazy(() => marshalTaskTimeOverRangeEntrySchema))
+      .optional(),
+    interval: z.bigint().optional(),
+  })
+  .transform(d => ({
+    entries: d.entries,
+    interval: d.interval,
+  }));
+
+export const marshalTaskTimeOverRangeEntrySchema: z.ZodType = z
+  .object({
+    taskCompletedTimeMs: z.bigint().optional(),
+  })
+  .transform(d => ({
+    task_completed_time_ms: d.taskCompletedTimeMs,
   }));
 
 export const marshalTimeRangeSchema: z.ZodType = z

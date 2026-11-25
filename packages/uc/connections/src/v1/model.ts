@@ -451,6 +451,54 @@ export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
     state: d.state,
   }));
 
+export const marshalConnectionInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    connectionType: z.string().optional(),
+    owner: z.string().optional(),
+    readOnly: z.boolean().optional(),
+    comment: z.string().optional(),
+    environmentSettings: z
+      .lazy(() => marshalEnvironmentSettingsSchema)
+      .optional(),
+    fullName: z.string().optional(),
+    url: z.string().optional(),
+    credentialType: z.string().optional(),
+    connectionId: z.string().optional(),
+    metastoreId: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    securableType: z.string().optional(),
+    provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
+    options: z.record(z.string(), z.string()).optional(),
+    secrets: z.record(z.string(), z.string()).optional(),
+    properties: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    connection_type: d.connectionType,
+    owner: d.owner,
+    read_only: d.readOnly,
+    comment: d.comment,
+    environment_settings: d.environmentSettings,
+    full_name: d.fullName,
+    url: d.url,
+    credential_type: d.credentialType,
+    connection_id: d.connectionId,
+    metastore_id: d.metastoreId,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    securable_type: d.securableType,
+    provisioning_info: d.provisioningInfo,
+    options: d.options,
+    secrets: d.secrets,
+    properties: d.properties,
+  }));
+
 export const marshalCreateConnectionRequestSchema: z.ZodType = z
   .object({
     parent: z.string().optional(),
@@ -501,6 +549,16 @@ export const marshalCreateConnectionRequestSchema: z.ZodType = z
     properties: d.properties,
   }));
 
+export const marshalDeleteConnectionRequestSchema: z.ZodType = z
+  .object({
+    nameArg: z.string().optional(),
+  })
+  .transform(d => ({
+    name_arg: d.nameArg,
+  }));
+
+export const marshalDeleteConnectionResponseSchema: z.ZodType = z.object({});
+
 export const marshalEnvironmentSettingsSchema: z.ZodType = z
   .object({
     javaDependencies: z.array(z.string()).optional(),
@@ -509,6 +567,36 @@ export const marshalEnvironmentSettingsSchema: z.ZodType = z
   .transform(d => ({
     java_dependencies: d.javaDependencies,
     environment_version: d.environmentVersion,
+  }));
+
+export const marshalGetConnectionRequestSchema: z.ZodType = z
+  .object({
+    nameArg: z.string().optional(),
+  })
+  .transform(d => ({
+    name_arg: d.nameArg,
+  }));
+
+export const marshalListConnectionsRequestSchema: z.ZodType = z
+  .object({
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+    parent: z.string().optional(),
+  })
+  .transform(d => ({
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+    parent: d.parent,
+  }));
+
+export const marshalListConnectionsResponseSchema: z.ZodType = z
+  .object({
+    connections: z.array(z.lazy(() => marshalConnectionInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    connections: d.connections,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalProvisioningInfoSchema: z.ZodType = z

@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -70,8 +71,11 @@ export class CustomLlmsClient {
     req: CancelCustomLlmOptimizationRunRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/custom-llms/${req.id ?? ''}/optimize/cancel`;
+    const url = `${host}/api/2.0/custom-llms/${encodePathVariable(req.id)}/optimize/cancel`;
     const body = marshalRequest(
       req,
       marshalCancelCustomLlmOptimizationRunRequestSchema
@@ -125,8 +129,11 @@ export class CustomLlmsClient {
     req: DeleteCustomLlmRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/custom-llms/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/custom-llms/${encodePathVariable(req.id)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -147,8 +154,11 @@ export class CustomLlmsClient {
     req: GetCustomLlmRequest,
     options?: CallOptions
   ): Promise<CustomLlm> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/custom-llms/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/custom-llms/${encodePathVariable(req.id)}`;
     let resp: CustomLlm | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -175,8 +185,11 @@ export class CustomLlmsClient {
     req: StartCustomLlmOptimizationRunRequest,
     options?: CallOptions
   ): Promise<CustomLlm> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/custom-llms/${req.id ?? ''}/optimize`;
+    const url = `${host}/api/2.0/custom-llms/${encodePathVariable(req.id)}/optimize`;
     const body = marshalRequest(
       req,
       marshalStartCustomLlmOptimizationRunRequestSchema
@@ -208,7 +221,7 @@ export class CustomLlmsClient {
     options?: CallOptions
   ): Promise<CustomLlm> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/custom-llms/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/custom-llms/${encodePathVariable(req.id ?? '')}`;
     const body = marshalRequest(req, marshalUpdateCustomLlmRequestSchema);
     let resp: CustomLlm | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

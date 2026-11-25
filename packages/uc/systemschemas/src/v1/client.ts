@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -72,8 +73,14 @@ export class SystemSchemasClient {
     req: DisableSystemSchemaRequest,
     options?: CallOptions
   ): Promise<DisableSystemSchemaResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
+    if (req.schema === undefined) {
+      throw new Error('path parameter "schema" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas/${req.schema ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/metastores/${encodePathVariable(req.metastoreId)}/systemschemas/${encodePathVariable(req.schema)}`;
     let resp: DisableSystemSchemaResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -106,8 +113,14 @@ export class SystemSchemasClient {
     req: EnableSystemSchemaRequest,
     options?: CallOptions
   ): Promise<EnableSystemSchemaResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
+    if (req.schema === undefined) {
+      throw new Error('path parameter "schema" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas/${req.schema ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/metastores/${encodePathVariable(req.metastoreId)}/systemschemas/${encodePathVariable(req.schema)}`;
     const body = marshalRequest(req, marshalEnableSystemSchemaRequestSchema);
     let resp: EnableSystemSchemaResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -143,8 +156,11 @@ export class SystemSchemasClient {
     req: ListSystemSchemasRequest,
     options?: CallOptions
   ): Promise<ListSystemSchemasResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas`;
+    const url = `${host}/api/2.1/unity-catalog/metastores/${encodePathVariable(req.metastoreId)}/systemschemas`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));

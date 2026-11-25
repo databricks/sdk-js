@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -110,7 +111,7 @@ export class AccessManagementClient {
     options?: CallOptions
   ): Promise<DeleteWorkspacePermissionAssignmentResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
     let resp: DeleteWorkspacePermissionAssignmentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -138,7 +139,7 @@ export class AccessManagementClient {
     options?: CallOptions
   ): Promise<ListWorkspacePermissionAssignmentsResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments`;
     let resp: ListWorkspacePermissionAssignmentsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -166,7 +167,7 @@ export class AccessManagementClient {
     options?: CallOptions
   ): Promise<ListWorkspacePermissionsResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/permissions`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/permissions`;
     let resp: ListWorkspacePermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -194,7 +195,7 @@ export class AccessManagementClient {
     options?: CallOptions
   ): Promise<WorkspacePermissionAssignmentOutput> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
     const body = marshalRequest(
       req,
       marshalUpdateWorkspacePermissionAssignmentRequestSchema
@@ -229,7 +230,7 @@ export class AccessManagementClient {
     options?: CallOptions
   ): Promise<RuleSet> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/accounts/${req.accountId ?? accountId ?? ''}/access-control/rule-sets`;
+    const url = `${host}/api/2.0/preview/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/access-control/rule-sets`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
       params.append('name', req.name);
@@ -309,7 +310,7 @@ export class AccessManagementClient {
     options?: CallOptions
   ): Promise<ListAssignableRolesForResourceResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/accounts/${req.accountId ?? accountId ?? ''}/access-control/assignable-roles`;
+    const url = `${host}/api/2.0/preview/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/access-control/assignable-roles`;
     const params = new URLSearchParams();
     if (req.resource !== undefined) {
       params.append('resource', req.resource);
@@ -389,7 +390,7 @@ export class AccessManagementClient {
     options?: CallOptions
   ): Promise<RuleSet> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/preview/accounts/${req.accountId ?? accountId ?? ''}/access-control/rule-sets`;
+    const url = `${host}/api/2.0/preview/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/access-control/rule-sets`;
     const body = marshalRequest(req, marshalUpdateRuleSetRequestSchema);
     let resp: RuleSet | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -460,10 +461,13 @@ export class AccessManagementClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.restrictedSharingGroup,
-      marshalRestrictedSharingGroupSchema
-    );
+    const body =
+      req.restrictedSharingGroup === undefined
+        ? 'null'
+        : marshalRequest(
+            req.restrictedSharingGroup,
+            marshalRestrictedSharingGroupSchema
+          );
     let resp: RestrictedSharingGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -499,8 +503,11 @@ export class AccessManagementClient {
     req: DeleteRestrictedSharingGroupRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/access-control/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/access-control/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -524,8 +531,11 @@ export class AccessManagementClient {
     req: GetRestrictedSharingGroupRequest,
     options?: CallOptions
   ): Promise<RestrictedSharingGroup> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/access-control/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/access-control/${encodePathVariable(req.name)}`;
     let resp: RestrictedSharingGroup | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -642,7 +652,7 @@ export class AccessManagementClient {
     options?: CallOptions
   ): Promise<PermissionsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
+    const url = `${host}/api/2.0/permissions/${encodePathVariable(req.requestObjectType ?? '')}/${encodePathVariable(req.requestObjectId ?? '')}`;
     let resp: PermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -670,7 +680,7 @@ export class AccessManagementClient {
     options?: CallOptions
   ): Promise<ListPermissionLevelsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}/permissionLevels`;
+    const url = `${host}/api/2.0/permissions/${encodePathVariable(req.requestObjectType ?? '')}/${encodePathVariable(req.requestObjectId ?? '')}/permissionLevels`;
     let resp: ListPermissionLevelsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -701,7 +711,7 @@ export class AccessManagementClient {
     options?: CallOptions
   ): Promise<PermissionsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
+    const url = `${host}/api/2.0/permissions/${encodePathVariable(req.requestObjectType ?? '')}/${encodePathVariable(req.requestObjectId ?? '')}`;
     const body = marshalRequest(req, marshalSetObjectPermissionsRequestSchema);
     let resp: PermissionsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -730,7 +740,7 @@ export class AccessManagementClient {
     options?: CallOptions
   ): Promise<PermissionsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
+    const url = `${host}/api/2.0/permissions/${encodePathVariable(req.requestObjectType ?? '')}/${encodePathVariable(req.requestObjectId ?? '')}`;
     const body = marshalRequest(
       req,
       marshalUpdateObjectPermissionsRequestSchema

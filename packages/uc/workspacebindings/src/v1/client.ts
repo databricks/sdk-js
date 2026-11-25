@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -76,8 +77,11 @@ export class WorkspaceBindingsClient {
     req: GetCatalogWorkspaceBindingsRequest,
     options?: CallOptions
   ): Promise<GetCatalogWorkspaceBindingsResponse> {
+    if (req.catalogName === undefined) {
+      throw new Error('path parameter "catalog_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/workspace-bindings/catalogs/${req.catalogName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/workspace-bindings/catalogs/${encodePathVariable(req.catalogName)}`;
     let resp: GetCatalogWorkspaceBindingsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -115,8 +119,14 @@ export class WorkspaceBindingsClient {
     req: GetWorkspaceBindingsRequest,
     options?: CallOptions
   ): Promise<GetWorkspaceBindingsResponse> {
+    if (req.securableType === undefined) {
+      throw new Error('path parameter "securable_type" is required');
+    }
+    if (req.securableFullName === undefined) {
+      throw new Error('path parameter "securable_full_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/bindings/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/bindings/${encodePathVariable(req.securableType)}/${encodePathVariable(req.securableFullName)}`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -175,8 +185,11 @@ export class WorkspaceBindingsClient {
     req: UpdateCatalogWorkspaceBindingsRequest,
     options?: CallOptions
   ): Promise<UpdateCatalogWorkspaceBindingsResponse> {
+    if (req.catalogName === undefined) {
+      throw new Error('path parameter "catalog_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/workspace-bindings/catalogs/${req.catalogName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/workspace-bindings/catalogs/${encodePathVariable(req.catalogName)}`;
     const body = marshalRequest(
       req,
       marshalUpdateCatalogWorkspaceBindingsRequestSchema
@@ -213,8 +226,14 @@ export class WorkspaceBindingsClient {
     req: UpdateWorkspaceBindingsRequest,
     options?: CallOptions
   ): Promise<UpdateWorkspaceBindingsResponse> {
+    if (req.securableType === undefined) {
+      throw new Error('path parameter "securable_type" is required');
+    }
+    if (req.securableFullName === undefined) {
+      throw new Error('path parameter "securable_full_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/bindings/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/bindings/${encodePathVariable(req.securableType)}/${encodePathVariable(req.securableFullName)}`;
     const body = marshalRequest(
       req,
       marshalUpdateWorkspaceBindingsRequestSchema

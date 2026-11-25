@@ -720,6 +720,43 @@ export const marshalCredentialDependencySchema: z.ZodType = z
     credential_name: d.credentialName,
   }));
 
+export const marshalDeleteModelVersionRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    versionArg: z.bigint().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    version_arg: d.versionArg,
+  }));
+
+export const marshalDeleteModelVersionResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteRegisteredModelAliasRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    aliasArg: z.string().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    alias_arg: d.aliasArg,
+  }));
+
+export const marshalDeleteRegisteredModelAliasResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalDeleteRegisteredModelRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+  }));
+
+export const marshalDeleteRegisteredModelResponseSchema: z.ZodType = z.object(
+  {}
+);
+
 export const marshalDependencySchema: z.ZodType = z
   .object({
     value: z
@@ -766,6 +803,144 @@ export const marshalFunctionDependencySchema: z.ZodType = z
     function_full_name: d.functionFullName,
   }));
 
+export const marshalGetModelVersionByAliasRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    aliasArg: z.string().optional(),
+    includeAliases: z.boolean().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    alias_arg: d.aliasArg,
+    include_aliases: d.includeAliases,
+  }));
+
+export const marshalGetModelVersionRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    versionArg: z.bigint().optional(),
+    includeAliases: z.boolean().optional(),
+    includeBrowse: z.boolean().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    version_arg: d.versionArg,
+    include_aliases: d.includeAliases,
+    include_browse: d.includeBrowse,
+  }));
+
+export const marshalGetRegisteredModelRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    includeAliases: z.boolean().optional(),
+    includeBrowse: z.boolean().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    include_aliases: d.includeAliases,
+    include_browse: d.includeBrowse,
+  }));
+
+export const marshalListModelVersionsRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    maxResults: z.bigint().optional(),
+    pageToken: z.string().optional(),
+    includeBrowse: z.boolean().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+    include_browse: d.includeBrowse,
+  }));
+
+export const marshalListModelVersionsResponseSchema: z.ZodType = z
+  .object({
+    modelVersions: z
+      .array(z.lazy(() => marshalModelVersionInfoSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    model_versions: d.modelVersions,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListRegisteredModelsRequestSchema: z.ZodType = z
+  .object({
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    includeBrowse: z.boolean().optional(),
+    maxResults: z.bigint().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    include_browse: d.includeBrowse,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListRegisteredModelsResponseSchema: z.ZodType = z
+  .object({
+    registeredModels: z
+      .array(z.lazy(() => marshalRegisteredModelInfoSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    registered_models: d.registeredModels,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalModelVersionInfoSchema: z.ZodType = z
+  .object({
+    modelName: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    source: z.string().optional(),
+    comment: z.string().optional(),
+    runId: z.string().optional(),
+    runWorkspaceId: z.bigint().optional(),
+    modelVersionDependencies: z
+      .lazy(() => marshalDependencyListSchema)
+      .optional(),
+    status: z.string().optional(),
+    version: z.bigint().optional(),
+    storageLocation: z.string().optional(),
+    metastoreId: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    id: z.string().optional(),
+    aliases: z
+      .array(z.lazy(() => marshalRegisteredModelAliasInfoSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    model_name: d.modelName,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    source: d.source,
+    comment: d.comment,
+    run_id: d.runId,
+    run_workspace_id: d.runWorkspaceId,
+    model_version_dependencies: d.modelVersionDependencies,
+    status: d.status,
+    version: d.version,
+    storage_location: d.storageLocation,
+    metastore_id: d.metastoreId,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    id: d.id,
+    aliases: d.aliases,
+  }));
+
 export const marshalRegisteredModelAliasInfoSchema: z.ZodType = z
   .object({
     aliasName: z.string().optional(),
@@ -782,6 +957,42 @@ export const marshalRegisteredModelAliasInfoSchema: z.ZodType = z
     model_name: d.modelName,
     catalog_name: d.catalogName,
     schema_name: d.schemaName,
+  }));
+
+export const marshalRegisteredModelInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    owner: z.string().optional(),
+    comment: z.string().optional(),
+    storageLocation: z.string().optional(),
+    metastoreId: z.string().optional(),
+    fullName: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    aliases: z
+      .array(z.lazy(() => marshalRegisteredModelAliasInfoSchema))
+      .optional(),
+    browseOnly: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    owner: d.owner,
+    comment: d.comment,
+    storage_location: d.storageLocation,
+    metastore_id: d.metastoreId,
+    full_name: d.fullName,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    aliases: d.aliases,
+    browse_only: d.browseOnly,
   }));
 
 export const marshalSetRegisteredModelAliasRequestSchema: z.ZodType = z

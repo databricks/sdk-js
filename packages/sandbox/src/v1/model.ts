@@ -718,6 +718,24 @@ export const unmarshalSandboxStatusSchema: z.ZodType<SandboxStatus> = z
 export const unmarshalUploadFileResponseSchema: z.ZodType<UploadFileResponse> =
   z.object({});
 
+export const marshalCommandSchema: z.ZodType = z
+  .object({
+    commandId: z.string().optional(),
+    cmd: z.string().optional(),
+    args: z.array(z.string()).optional(),
+    pid: z.bigint().optional(),
+    finished: z.boolean().optional(),
+    exitCode: z.number().optional(),
+  })
+  .transform(d => ({
+    command_id: d.commandId,
+    cmd: d.cmd,
+    args: d.args,
+    pid: d.pid,
+    finished: d.finished,
+    exit_code: d.exitCode,
+  }));
+
 export const marshalComputeSpecSchema: z.ZodType = z
   .object({
     inactivityTimeout: z
@@ -741,6 +759,18 @@ export const marshalCreateDirectoryRequestSchema: z.ZodType = z
     parents: d.parents,
   }));
 
+export const marshalCreateDirectoryResponseSchema: z.ZodType = z.object({});
+
+export const marshalCreateSandboxRequestSchema: z.ZodType = z
+  .object({
+    sandbox: z.lazy(() => marshalSandboxSchema).optional(),
+    sandboxId: z.string().optional(),
+  })
+  .transform(d => ({
+    sandbox: d.sandbox,
+    sandbox_id: d.sandboxId,
+  }));
+
 export const marshalDeletePathRequestSchema: z.ZodType = z
   .object({
     parent: z.string().optional(),
@@ -751,6 +781,38 @@ export const marshalDeletePathRequestSchema: z.ZodType = z
     parent: d.parent,
     path: d.path,
     recursive: d.recursive,
+  }));
+
+export const marshalDeletePathResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteSandboxRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDownloadFileRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    path: z.string().optional(),
+    range: z.string().optional(),
+    ifRange: z.string().optional(),
+    ifMatch: z.string().optional(),
+    ifNoneMatch: z.string().optional(),
+    ifModifiedSince: z.string().optional(),
+    ifUnmodifiedSince: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    path: d.path,
+    byte_range: d.range,
+    if_range: d.ifRange,
+    if_match: d.ifMatch,
+    if_none_match: d.ifNoneMatch,
+    if_modified_since: d.ifModifiedSince,
+    if_unmodified_since: d.ifUnmodifiedSince,
   }));
 
 export const marshalEnvironmentSpecSchema: z.ZodType = z
@@ -780,6 +842,116 @@ export const marshalExecuteCommandSyncRequestSchema: z.ZodType = z
     execution_timeout: d.executionTimeout,
   }));
 
+export const marshalExecuteCommandSyncResponseSchema: z.ZodType = z
+  .object({
+    exitCode: z.number().optional(),
+    status: z.string().optional(),
+    stdout: z.string().optional(),
+    stderr: z.string().optional(),
+    commandId: z.string().optional(),
+    truncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    exit_code: d.exitCode,
+    status: d.status,
+    stdout: d.stdout,
+    stderr: d.stderr,
+    command_id: d.commandId,
+    truncated: d.truncated,
+  }));
+
+export const marshalGetMetadataRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    path: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    path: d.path,
+  }));
+
+export const marshalGetMetadataResponseSchema: z.ZodType = z
+  .object({
+    file: z.lazy(() => marshalSandboxFileInfoSchema).optional(),
+  })
+  .transform(d => ({
+    file: d.file,
+  }));
+
+export const marshalGetSandboxRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalListCommandsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    parent: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    parent: d.parent,
+  }));
+
+export const marshalListCommandsResponseSchema: z.ZodType = z
+  .object({
+    commands: z.array(z.lazy(() => marshalCommandSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    commands: d.commands,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListDirectoryContentsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    path: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    path: d.path,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListDirectoryContentsResponseSchema: z.ZodType = z
+  .object({
+    contents: z.array(z.lazy(() => marshalSandboxFileInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    contents: d.contents,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSandboxesRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListSandboxesResponseSchema: z.ZodType = z
+  .object({
+    sandboxes: z.array(z.lazy(() => marshalSandboxSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    sandboxes: d.sandboxes,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalNetworkSpecSchema: z.ZodType = z
   .object({
     internetAccess: z.boolean().optional(),
@@ -799,6 +971,8 @@ export const marshalRenamePathRequestSchema: z.ZodType = z
     source: d.source,
     destination: d.destination,
   }));
+
+export const marshalRenamePathResponseSchema: z.ZodType = z.object({});
 
 export const marshalSandboxSchema: z.ZodType = z
   .object({
@@ -824,6 +998,35 @@ export const marshalSandboxSchema: z.ZodType = z
     create_time: d.createTime,
     update_time: d.updateTime,
     display_name: d.displayName,
+  }));
+
+export const marshalSandboxFileInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    path: z.string().optional(),
+    fileType: z.string().optional(),
+    size: z.bigint().optional(),
+    mode: z.number().optional(),
+    permissions: z.string().optional(),
+    owner: z.string().optional(),
+    group: z.string().optional(),
+    modifyTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    symlinkTarget: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    path: d.path,
+    file_type: d.fileType,
+    size: d.size,
+    mode: d.mode,
+    permissions: d.permissions,
+    owner: d.owner,
+    group: d.group,
+    modify_time: d.modifyTime,
+    symlink_target: d.symlinkTarget,
   }));
 
 export const marshalSandboxMetadataSchema: z.ZodType = z
@@ -869,6 +1072,23 @@ export const marshalStopSandboxRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
   }));
+
+export const marshalUpdateSandboxRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    sandbox: z.lazy(() => marshalSandboxSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    sandbox: d.sandbox,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUploadFileResponseSchema: z.ZodType = z.object({});
 
 const computeSpecFieldMaskSchema: FieldMaskSchema = {
   inactivityTimeout: {wire: 'inactivity_timeout'},

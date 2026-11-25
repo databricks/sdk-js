@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -106,8 +107,11 @@ export class SchemasClient {
     req: DeleteSchemaRequest,
     options?: CallOptions
   ): Promise<DeleteSchemaResponse> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/schemas/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/schemas/${encodePathVariable(req.fullNameArg)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -143,8 +147,11 @@ export class SchemasClient {
     req: GetSchemaRequest,
     options?: CallOptions
   ): Promise<SchemaInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/schemas/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/schemas/${encodePathVariable(req.fullNameArg)}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
       params.append('include_browse', String(req.includeBrowse));
@@ -251,8 +258,11 @@ export class SchemasClient {
     req: UpdateSchemaRequest,
     options?: CallOptions
   ): Promise<SchemaInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/schemas/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/schemas/${encodePathVariable(req.fullNameArg)}`;
     const body = marshalRequest(req, marshalUpdateSchemaRequestSchema);
     let resp: SchemaInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

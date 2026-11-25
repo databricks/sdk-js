@@ -1976,9 +1976,10 @@ export interface UpdateModelServiceRequest {
    */
   modelService?: ModelService | undefined;
   /**
-   * Fields to update. Use `config` to replace the entire configuration. The
-   * replacement must include every required field; any optional field you omit
-   * is cleared. To preserve sibling fields, use one or more granular paths:
+   * Fields to update. Use `config` for a broad configuration replacement. The
+   * replacement must include every required field; optional fields in its
+   * replacement scope are cleared when omitted. To preserve sibling fields,
+   * use one or more granular paths:
    * `comment`, `config.routing.destinations`,
    * `config.routing.fallback.destinations`,
    * `config.rate_limits`, or `config.inference_table`. Intermediate paths such
@@ -3093,6 +3094,190 @@ export const unmarshalSkillSchema: z.ZodType<Skill> = z
     comment: d.comment,
   }));
 
+export const marshalCreateMcpServiceRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    mcpServiceId: z.string().optional(),
+    mcpService: z.lazy(() => marshalMcpServiceSchema).optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    mcp_service_id: d.mcpServiceId,
+    mcp_service: d.mcpService,
+  }));
+
+export const marshalCreateMcpServiceUserMappedCredentialRequestSchema: z.ZodType =
+  z
+    .object({
+      name: z.string().optional(),
+      login: z
+        .lazy(() => marshalMcpServiceUserMappedCredentialLoginSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      login: d.login,
+    }));
+
+export const marshalCreateModelProviderServiceRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    modelProviderServiceId: z.string().optional(),
+    modelProviderService: z
+      .lazy(() => marshalModelProviderServiceSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    model_provider_service_id: d.modelProviderServiceId,
+    model_provider_service: d.modelProviderService,
+  }));
+
+export const marshalCreateModelServiceRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    modelServiceId: z.string().optional(),
+    modelService: z.lazy(() => marshalModelServiceSchema).optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    model_service_id: d.modelServiceId,
+    model_service: d.modelService,
+  }));
+
+export const marshalCreateSkillRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    skillId: z.string().optional(),
+    skill: z.lazy(() => marshalSkillSchema).optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    skill_id: d.skillId,
+    skill: d.skill,
+  }));
+
+export const marshalDeleteMcpServiceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    etag: z
+      .any()
+      .transform((d: Uint8Array) =>
+        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    etag: d.etag,
+  }));
+
+export const marshalDeleteMcpServiceUserMappedCredentialRequestSchema: z.ZodType =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+    }));
+
+export const marshalDeleteMcpServiceUserMappedCredentialResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalDeleteModelProviderServiceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    etag: z
+      .any()
+      .transform((d: Uint8Array) =>
+        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    etag: d.etag,
+  }));
+
+export const marshalDeleteModelServiceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    etag: z
+      .any()
+      .transform((d: Uint8Array) =>
+        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    etag: d.etag,
+  }));
+
+export const marshalDeleteSkillRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    etag: z
+      .any()
+      .transform((d: Uint8Array) =>
+        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    etag: d.etag,
+  }));
+
+export const marshalFinalizeSkillRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetMcpServiceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetMcpServiceUserMappedCredentialRequestSchema: z.ZodType =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+    }));
+
+export const marshalGetModelProviderServiceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetModelServiceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetSkillRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalInferenceTableConfigSchema: z.ZodType = z
   .object({
     parent: z.string().optional(),
@@ -3105,6 +3290,102 @@ export const marshalInferenceTableConfigSchema: z.ZodType = z
     table_name_prefix: d.tableNamePrefix,
     table: d.table,
     is_deleted: d.isDeleted,
+  }));
+
+export const marshalListMcpServicesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    view: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    view: d.view,
+  }));
+
+export const marshalListMcpServicesResponseSchema: z.ZodType = z
+  .object({
+    mcpServices: z.array(z.lazy(() => marshalMcpServiceSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    mcp_services: d.mcpServices,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListModelProviderServicesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    view: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    view: d.view,
+  }));
+
+export const marshalListModelProviderServicesResponseSchema: z.ZodType = z
+  .object({
+    modelProviderServices: z
+      .array(z.lazy(() => marshalModelProviderServiceSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    model_provider_services: d.modelProviderServices,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListModelServicesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    view: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    view: d.view,
+  }));
+
+export const marshalListModelServicesResponseSchema: z.ZodType = z
+  .object({
+    modelServices: z.array(z.lazy(() => marshalModelServiceSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    model_services: d.modelServices,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSkillsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListSkillsResponseSchema: z.ZodType = z
+  .object({
+    skills: z.array(z.lazy(() => marshalSkillSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    skills: d.skills,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalMcpServiceSchema: z.ZodType = z
@@ -3178,6 +3459,16 @@ export const marshalMcpServiceConfig_SourceConnectionSchema: z.ZodType = z
     name: d.name,
     is_deleted: d.isDeleted,
     options: d.options,
+  }));
+
+export const marshalMcpServiceUserMappedCredentialSchema: z.ZodType = z
+  .object({
+    options: z.record(z.string(), z.string()).optional(),
+    provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
+  })
+  .transform(d => ({
+    options: d.options,
+    provisioning_info: d.provisioningInfo,
   }));
 
 export const marshalMcpServiceUserMappedCredentialLoginSchema: z.ZodType = z
@@ -3994,6 +4285,14 @@ export const marshalModelServiceConfig_RoutingConfigSchema: z.ZodType = z
     fallback: d.fallback,
   }));
 
+export const marshalProvisioningInfoSchema: z.ZodType = z
+  .object({
+    state: z.string().optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+  }));
+
 export const marshalRateLimitSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
@@ -4052,6 +4351,88 @@ export const marshalSkillSchema: z.ZodType = z
     effective_owner: d.effectiveOwner,
     metastore_id: d.metastoreId,
     comment: d.comment,
+  }));
+
+export const marshalUpdateMcpServiceRequestSchema: z.ZodType = z
+  .object({
+    mcpService: z.lazy(() => marshalMcpServiceSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    etag: z
+      .any()
+      .transform((d: Uint8Array) =>
+        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    mcp_service: d.mcpService,
+    update_mask: d.updateMask,
+    etag: d.etag,
+  }));
+
+export const marshalUpdateModelProviderServiceRequestSchema: z.ZodType = z
+  .object({
+    modelProviderService: z
+      .lazy(() => marshalModelProviderServiceSchema)
+      .optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    etag: z
+      .any()
+      .transform((d: Uint8Array) =>
+        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    model_provider_service: d.modelProviderService,
+    update_mask: d.updateMask,
+    etag: d.etag,
+  }));
+
+export const marshalUpdateModelServiceRequestSchema: z.ZodType = z
+  .object({
+    modelService: z.lazy(() => marshalModelServiceSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    etag: z
+      .any()
+      .transform((d: Uint8Array) =>
+        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    model_service: d.modelService,
+    update_mask: d.updateMask,
+    etag: d.etag,
+  }));
+
+export const marshalUpdateSkillRequestSchema: z.ZodType = z
+  .object({
+    skill: z.lazy(() => marshalSkillSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    etag: z
+      .any()
+      .transform((d: Uint8Array) =>
+        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    skill: d.skill,
+    update_mask: d.updateMask,
+    etag: d.etag,
   }));
 
 const inferenceTableConfigFieldMaskSchema: FieldMaskSchema = {

@@ -2084,6 +2084,18 @@ export const marshalChannelSchema: z.ZodType = z
     dbsql_version: d.dbsqlVersion,
   }));
 
+export const marshalCreateDefaultWarehouseOverrideRequestSchema: z.ZodType = z
+  .object({
+    defaultWarehouseOverrideId: z.string().optional(),
+    defaultWarehouseOverride: z
+      .lazy(() => marshalDefaultWarehouseOverrideSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    default_warehouse_override_id: d.defaultWarehouseOverrideId,
+    default_warehouse_override: d.defaultWarehouseOverride,
+  }));
+
 export const marshalCreateWarehouseRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -2124,6 +2136,14 @@ export const marshalCreateWarehouseRequestSchema: z.ZodType = z
     max_dbu: d.maxDbu,
   }));
 
+export const marshalCreateWarehouseResponseSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
 export const marshalDefaultWarehouseOverrideSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -2137,6 +2157,16 @@ export const marshalDefaultWarehouseOverrideSchema: z.ZodType = z
     type: d.type,
     warehouse_id: d.warehouseId,
   }));
+
+export const marshalDeleteDefaultWarehouseOverrideRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteWarehouseResponseSchema: z.ZodType = z.object({});
 
 export const marshalEditWarehouseRequestSchema: z.ZodType = z
   .object({
@@ -2180,6 +2210,8 @@ export const marshalEditWarehouseRequestSchema: z.ZodType = z
     max_dbu: d.maxDbu,
   }));
 
+export const marshalEditWarehouseResponseSchema: z.ZodType = z.object({});
+
 export const marshalEndpointConfPairSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
@@ -2188,6 +2220,76 @@ export const marshalEndpointConfPairSchema: z.ZodType = z
   .transform(d => ({
     key: d.key,
     value: d.value,
+  }));
+
+export const marshalEndpointHealthSchema: z.ZodType = z
+  .object({
+    status: z.string().optional(),
+    message: z.string().optional(),
+    failureReason: z.lazy(() => marshalTerminationReasonSchema).optional(),
+    summary: z.string().optional(),
+    details: z.string().optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+    message: d.message,
+    failure_reason: d.failureReason,
+    summary: d.summary,
+    details: d.details,
+  }));
+
+export const marshalEndpointInfoSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+    clusterSize: z.string().optional(),
+    minNumClusters: z.number().optional(),
+    maxNumClusters: z.number().optional(),
+    autoStopMins: z.number().optional(),
+    creatorName: z.string().optional(),
+    instanceProfileArn: z.string().optional(),
+    tags: z.lazy(() => marshalEndpointTagsSchema).optional(),
+    spotInstancePolicy: z.string().optional(),
+    enablePhoton: z.boolean().optional(),
+    channel: z.lazy(() => marshalChannelSchema).optional(),
+    enableServerlessCompute: z.boolean().optional(),
+    warehouseType: z.string().optional(),
+    statementTimeout: z.number().optional(),
+    reydenClusterSizeMultiplier: z.number().optional(),
+    customerVersionLabel: z.string().optional(),
+    maxDbu: z.number().optional(),
+    numClusters: z.number().optional(),
+    numActiveSessions: z.bigint().optional(),
+    state: z.string().optional(),
+    jdbcUrl: z.string().optional(),
+    odbcParams: z.lazy(() => marshalOdbcParamsSchema).optional(),
+    health: z.lazy(() => marshalEndpointHealthSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    name: d.name,
+    cluster_size: d.clusterSize,
+    min_num_clusters: d.minNumClusters,
+    max_num_clusters: d.maxNumClusters,
+    auto_stop_mins: d.autoStopMins,
+    creator_name: d.creatorName,
+    instance_profile_arn: d.instanceProfileArn,
+    tags: d.tags,
+    spot_instance_policy: d.spotInstancePolicy,
+    enable_photon: d.enablePhoton,
+    channel: d.channel,
+    enable_serverless_compute: d.enableServerlessCompute,
+    warehouse_type: d.warehouseType,
+    statement_timeout: d.statementTimeout,
+    reyden_cluster_size_multiplier: d.reydenClusterSizeMultiplier,
+    customer_version_label: d.customerVersionLabel,
+    max_dbu: d.maxDbu,
+    num_clusters: d.numClusters,
+    num_active_sessions: d.numActiveSessions,
+    state: d.state,
+    jdbc_url: d.jdbcUrl,
+    odbc_params: d.odbcParams,
+    health: d.health,
   }));
 
 export const marshalEndpointTagPairSchema: z.ZodType = z
@@ -2206,6 +2308,161 @@ export const marshalEndpointTagsSchema: z.ZodType = z
   })
   .transform(d => ({
     custom_tags: d.customTags,
+  }));
+
+export const marshalGetDefaultWarehouseOverrideRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetWarehouseRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalGetWarehouseResponseSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+    clusterSize: z.string().optional(),
+    minNumClusters: z.number().optional(),
+    maxNumClusters: z.number().optional(),
+    autoStopMins: z.number().optional(),
+    creatorName: z.string().optional(),
+    instanceProfileArn: z.string().optional(),
+    tags: z.lazy(() => marshalEndpointTagsSchema).optional(),
+    spotInstancePolicy: z.string().optional(),
+    enablePhoton: z.boolean().optional(),
+    channel: z.lazy(() => marshalChannelSchema).optional(),
+    enableServerlessCompute: z.boolean().optional(),
+    warehouseType: z.string().optional(),
+    statementTimeout: z.number().optional(),
+    reydenClusterSizeMultiplier: z.number().optional(),
+    customerVersionLabel: z.string().optional(),
+    maxDbu: z.number().optional(),
+    numClusters: z.number().optional(),
+    numActiveSessions: z.bigint().optional(),
+    state: z.string().optional(),
+    jdbcUrl: z.string().optional(),
+    odbcParams: z.lazy(() => marshalOdbcParamsSchema).optional(),
+    health: z.lazy(() => marshalEndpointHealthSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    name: d.name,
+    cluster_size: d.clusterSize,
+    min_num_clusters: d.minNumClusters,
+    max_num_clusters: d.maxNumClusters,
+    auto_stop_mins: d.autoStopMins,
+    creator_name: d.creatorName,
+    instance_profile_arn: d.instanceProfileArn,
+    tags: d.tags,
+    spot_instance_policy: d.spotInstancePolicy,
+    enable_photon: d.enablePhoton,
+    channel: d.channel,
+    enable_serverless_compute: d.enableServerlessCompute,
+    warehouse_type: d.warehouseType,
+    statement_timeout: d.statementTimeout,
+    reyden_cluster_size_multiplier: d.reydenClusterSizeMultiplier,
+    customer_version_label: d.customerVersionLabel,
+    max_dbu: d.maxDbu,
+    num_clusters: d.numClusters,
+    num_active_sessions: d.numActiveSessions,
+    state: d.state,
+    jdbc_url: d.jdbcUrl,
+    odbc_params: d.odbcParams,
+    health: d.health,
+  }));
+
+export const marshalGetWorkspaceWarehouseConfigRequestSchema: z.ZodType =
+  z.object({});
+
+export const marshalGetWorkspaceWarehouseConfigResponseSchema: z.ZodType = z
+  .object({
+    securityPolicy: z.string().optional(),
+    dataAccessConfig: z
+      .array(z.lazy(() => marshalEndpointConfPairSchema))
+      .optional(),
+    instanceProfileArn: z.string().optional(),
+    channel: z.lazy(() => marshalChannelSchema).optional(),
+    enableServerlessCompute: z.boolean().optional(),
+    globalParam: z
+      .lazy(() => marshalRepeatedEndpointConfPairsSchema)
+      .optional(),
+    configParam: z
+      .lazy(() => marshalRepeatedEndpointConfPairsSchema)
+      .optional(),
+    sqlConfigurationParameters: z
+      .lazy(() => marshalRepeatedEndpointConfPairsSchema)
+      .optional(),
+    googleServiceAccount: z.string().optional(),
+    enabledWarehouseTypes: z
+      .array(z.lazy(() => marshalWarehouseTypePairSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    security_policy: d.securityPolicy,
+    data_access_config: d.dataAccessConfig,
+    instance_profile_arn: d.instanceProfileArn,
+    channel: d.channel,
+    enable_serverless_compute: d.enableServerlessCompute,
+    global_param: d.globalParam,
+    config_param: d.configParam,
+    sql_configuration_parameters: d.sqlConfigurationParameters,
+    google_service_account: d.googleServiceAccount,
+    enabled_warehouse_types: d.enabledWarehouseTypes,
+  }));
+
+export const marshalListDefaultWarehouseOverridesRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListDefaultWarehouseOverridesResponseSchema: z.ZodType = z
+  .object({
+    defaultWarehouseOverrides: z
+      .array(z.lazy(() => marshalDefaultWarehouseOverrideSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    default_warehouse_overrides: d.defaultWarehouseOverrides,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListWarehousesResponseSchema: z.ZodType = z
+  .object({
+    warehouses: z.array(z.lazy(() => marshalEndpointInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    warehouses: d.warehouses,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalOdbcParamsSchema: z.ZodType = z
+  .object({
+    hostname: z.string().optional(),
+    path: z.string().optional(),
+    protocol: z.string().optional(),
+    port: z.number().optional(),
+  })
+  .transform(d => ({
+    hostname: d.hostname,
+    path: d.path,
+    protocol: d.protocol,
+    port: d.port,
   }));
 
 export const marshalRepeatedEndpointConfPairsSchema: z.ZodType = z
@@ -2256,6 +2513,42 @@ export const marshalSetWorkspaceWarehouseConfigRequestSchema: z.ZodType = z
     enabled_warehouse_types: d.enabledWarehouseTypes,
   }));
 
+export const marshalSetWorkspaceWarehouseConfigResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalStartResponseSchema: z.ZodType = z.object({});
+
+export const marshalStopResponseSchema: z.ZodType = z.object({});
+
+export const marshalTerminationReasonSchema: z.ZodType = z
+  .object({
+    code: z.string().optional(),
+    type: z.string().optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    code: d.code,
+    type: d.type,
+    parameters: d.parameters,
+  }));
+
+export const marshalUpdateDefaultWarehouseOverrideRequestSchema: z.ZodType = z
+  .object({
+    defaultWarehouseOverride: z
+      .lazy(() => marshalDefaultWarehouseOverrideSchema)
+      .optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    allowMissing: z.boolean().optional(),
+  })
+  .transform(d => ({
+    default_warehouse_override: d.defaultWarehouseOverride,
+    update_mask: d.updateMask,
+    allow_missing: d.allowMissing,
+  }));
+
 export const marshalWarehouseTypePairSchema: z.ZodType = z
   .object({
     warehouseType: z.string().optional(),
@@ -2264,6 +2557,26 @@ export const marshalWarehouseTypePairSchema: z.ZodType = z
   .transform(d => ({
     warehouse_type: d.warehouseType,
     enabled: d.enabled,
+  }));
+
+export const marshalDeleteWarehouseRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalListWarehousesRequestSchema: z.ZodType = z
+  .object({
+    runAsUserId: z.bigint().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    run_as_user_id: d.runAsUserId,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
   }));
 
 export const marshalStartRequestSchema: z.ZodType = z

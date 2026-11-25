@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -305,8 +306,11 @@ export class MarketplacesClient {
     req: CreatePersonalizationRequest,
     options?: CallOptions
   ): Promise<CreatePersonalizationResponse> {
+    if (req.listingId === undefined) {
+      throw new Error('path parameter "listing_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${encodePathVariable(req.listingId)}/personalization-requests`;
     const body = marshalRequest(req, marshalCreatePersonalizationRequestSchema);
     let resp: CreatePersonalizationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -337,8 +341,11 @@ export class MarketplacesClient {
     req: GetInstallationDetailsRequest,
     options?: CallOptions
   ): Promise<ListInstallationsResponse> {
+    if (req.listingId === undefined) {
+      throw new Error('path parameter "listing_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${encodePathVariable(req.listingId)}/installations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -391,8 +398,11 @@ export class MarketplacesClient {
     req: GetListingContentMetadataRequest,
     options?: CallOptions
   ): Promise<GetListingContentMetadataResponse> {
+    if (req.listingId === undefined) {
+      throw new Error('path parameter "listing_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/content`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${encodePathVariable(req.listingId)}/content`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -448,8 +458,11 @@ export class MarketplacesClient {
     req: GetPersonalizationRequestsForConsumerRequest,
     options?: CallOptions
   ): Promise<GetPersonalizationRequestsForConsumerResponse> {
+    if (req.listingId === undefined) {
+      throw new Error('path parameter "listing_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${encodePathVariable(req.listingId)}/personalization-requests`;
     let resp: GetPersonalizationRequestsForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -479,8 +492,11 @@ export class MarketplacesClient {
     req: GetPublishedListingForConsumerRequest,
     options?: CallOptions
   ): Promise<GetPublishedListingForConsumerResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.id ?? ''}`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${encodePathVariable(req.id)}`;
     let resp: GetPublishedListingForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -510,8 +526,11 @@ export class MarketplacesClient {
     req: GetPublishedProviderForConsumerRequest,
     options?: CallOptions
   ): Promise<GetPublishedProviderForConsumerResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/marketplace-consumer/providers/${req.id ?? ''}`;
+    const url = `${host}/api/2.1/marketplace-consumer/providers/${encodePathVariable(req.id)}`;
     let resp: GetPublishedProviderForConsumerResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -541,8 +560,11 @@ export class MarketplacesClient {
     req: CreateInstallationRequest,
     options?: CallOptions
   ): Promise<CreateInstallationResponse> {
+    if (req.listingId === undefined) {
+      throw new Error('path parameter "listing_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${encodePathVariable(req.listingId)}/installations`;
     const body = marshalRequest(req, marshalCreateInstallationRequestSchema);
     let resp: CreateInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -631,8 +653,11 @@ export class MarketplacesClient {
     req: ListListingFulfillmentsRequest,
     options?: CallOptions
   ): Promise<ListFulfillmentsResponse> {
+    if (req.listingId === undefined) {
+      throw new Error('path parameter "listing_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/fulfillments`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${encodePathVariable(req.listingId)}/fulfillments`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -974,8 +999,14 @@ export class MarketplacesClient {
     req: DeleteInstallationRequest,
     options?: CallOptions
   ): Promise<DeleteInstallationResponse> {
+    if (req.listingId === undefined) {
+      throw new Error('path parameter "listing_id" is required');
+    }
+    if (req.installationId === undefined) {
+      throw new Error('path parameter "installation_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${encodePathVariable(req.listingId)}/installations/${encodePathVariable(req.installationId)}`;
     let resp: DeleteInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1007,8 +1038,14 @@ export class MarketplacesClient {
     req: UpdateInstallationRequest,
     options?: CallOptions
   ): Promise<UpdateInstallationResponse> {
+    if (req.listingId === undefined) {
+      throw new Error('path parameter "listing_id" is required');
+    }
+    if (req.installationId === undefined) {
+      throw new Error('path parameter "installation_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
+    const url = `${host}/api/2.1/marketplace-consumer/listings/${encodePathVariable(req.listingId)}/installations/${encodePathVariable(req.installationId)}`;
     const body = marshalRequest(req, marshalUpdateInstallationRequestSchema);
     let resp: UpdateInstallationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1263,8 +1300,11 @@ export class MarketplacesClient {
     req: DeleteExchangeRequest,
     options?: CallOptions
   ): Promise<DeleteExchangeResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-exchange/exchanges/${encodePathVariable(req.id)}`;
     let resp: DeleteExchangeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1291,8 +1331,11 @@ export class MarketplacesClient {
     req: DeleteExchangeFilterRequest,
     options?: CallOptions
   ): Promise<DeleteExchangeFilterResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-exchange/filters/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-exchange/filters/${encodePathVariable(req.id)}`;
     let resp: DeleteExchangeFilterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1322,8 +1365,11 @@ export class MarketplacesClient {
     req: DeleteFileRequest,
     options?: CallOptions
   ): Promise<DeleteFileResponse> {
+    if (req.fileId === undefined) {
+      throw new Error('path parameter "file_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-provider/files/${encodePathVariable(req.fileId)}`;
     let resp: DeleteFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1353,8 +1399,11 @@ export class MarketplacesClient {
     req: DeleteListingRequest,
     options?: CallOptions
   ): Promise<DeleteListingResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-provider/listings/${encodePathVariable(req.id)}`;
     let resp: DeleteListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1381,8 +1430,11 @@ export class MarketplacesClient {
     req: DeleteProviderRequest,
     options?: CallOptions
   ): Promise<DeleteProviderResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-provider/providers/${encodePathVariable(req.id)}`;
     let resp: DeleteProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1409,8 +1461,11 @@ export class MarketplacesClient {
     req: GetExchangeRequest,
     options?: CallOptions
   ): Promise<GetExchangeResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-exchange/exchanges/${encodePathVariable(req.id)}`;
     let resp: GetExchangeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1437,8 +1492,11 @@ export class MarketplacesClient {
     req: GetFileRequest,
     options?: CallOptions
   ): Promise<GetFileResponse> {
+    if (req.fileId === undefined) {
+      throw new Error('path parameter "file_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-provider/files/${encodePathVariable(req.fileId)}`;
     let resp: GetFileResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1496,8 +1554,11 @@ export class MarketplacesClient {
     req: GetListingRequest,
     options?: CallOptions
   ): Promise<GetListingResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-provider/listings/${encodePathVariable(req.id)}`;
     let resp: GetListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1587,8 +1648,11 @@ export class MarketplacesClient {
     req: GetProviderRequest,
     options?: CallOptions
   ): Promise<GetProviderResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-provider/providers/${encodePathVariable(req.id)}`;
     let resp: GetProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -2052,8 +2116,11 @@ export class MarketplacesClient {
     req: RemoveExchangeForListingRequest,
     options?: CallOptions
   ): Promise<RemoveExchangeForListingResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-exchange/exchanges-for-listing/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-exchange/exchanges-for-listing/${encodePathVariable(req.id)}`;
     let resp: RemoveExchangeForListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -2083,8 +2150,11 @@ export class MarketplacesClient {
     req: UpdateExchangeRequest,
     options?: CallOptions
   ): Promise<UpdateExchangeResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-exchange/exchanges/${encodePathVariable(req.id)}`;
     const body = marshalRequest(req, marshalUpdateExchangeRequestSchema);
     let resp: UpdateExchangeResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2112,8 +2182,11 @@ export class MarketplacesClient {
     req: UpdateExchangeFilterRequest,
     options?: CallOptions
   ): Promise<UpdateExchangeFilterResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-exchange/filters/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-exchange/filters/${encodePathVariable(req.id)}`;
     const body = marshalRequest(req, marshalUpdateExchangeFilterRequestSchema);
     let resp: UpdateExchangeFilterResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2147,8 +2220,11 @@ export class MarketplacesClient {
     req: UpdateListingRequest,
     options?: CallOptions
   ): Promise<UpdateListingResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-provider/listings/${encodePathVariable(req.id)}`;
     const body = marshalRequest(req, marshalUpdateListingRequestSchema);
     let resp: UpdateListingResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2180,8 +2256,14 @@ export class MarketplacesClient {
     req: UpdatePersonalizationRequestStatusRequest,
     options?: CallOptions
   ): Promise<UpdatePersonalizationRequestStatusResponse> {
+    if (req.listingId === undefined) {
+      throw new Error('path parameter "listing_id" is required');
+    }
+    if (req.requestId === undefined) {
+      throw new Error('path parameter "request_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-provider/listings/${req.listingId ?? ''}/personalization-requests/${req.requestId ?? ''}/request-status`;
+    const url = `${host}/api/2.0/marketplace-provider/listings/${encodePathVariable(req.listingId)}/personalization-requests/${encodePathVariable(req.requestId)}/request-status`;
     const body = marshalRequest(
       req,
       marshalUpdatePersonalizationRequestStatusRequestSchema
@@ -2215,8 +2297,11 @@ export class MarketplacesClient {
     req: UpdateProviderRequest,
     options?: CallOptions
   ): Promise<UpdateProviderResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-provider/providers/${encodePathVariable(req.id)}`;
     const body = marshalRequest(req, marshalUpdateProviderRequestSchema);
     let resp: UpdateProviderResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2247,8 +2332,11 @@ export class MarketplacesClient {
     req: UpdateProviderAnalyticsDashboardRequest,
     options?: CallOptions
   ): Promise<UpdateProviderAnalyticsDashboardResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/marketplace-provider/analytics_dashboard/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/marketplace-provider/analytics_dashboard/${encodePathVariable(req.id)}`;
     const body = marshalRequest(
       req,
       marshalUpdateProviderAnalyticsDashboardRequestSchema

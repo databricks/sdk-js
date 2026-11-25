@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -73,10 +74,10 @@ export class ExternalMetadataClient {
   ): Promise<ExternalMetadata> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/lineage-tracking/external-metadata`;
-    const body = marshalRequest(
-      req.externalMetadata,
-      marshalExternalMetadataSchema
-    );
+    const body =
+      req.externalMetadata === undefined
+        ? 'null'
+        : marshalRequest(req.externalMetadata, marshalExternalMetadataSchema);
     let resp: ExternalMetadata | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -108,7 +109,7 @@ export class ExternalMetadataClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lineage-tracking/external-metadata/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lineage-tracking/external-metadata/${encodePathVariable(req.name ?? '')}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -133,7 +134,7 @@ export class ExternalMetadataClient {
     options?: CallOptions
   ): Promise<ExternalMetadata> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lineage-tracking/external-metadata/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/lineage-tracking/external-metadata/${encodePathVariable(req.name ?? '')}`;
     let resp: ExternalMetadata | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -226,18 +227,21 @@ export class ExternalMetadataClient {
     req: UpdateExternalMetadataRequest,
     options?: CallOptions
   ): Promise<ExternalMetadata> {
+    if (req.externalMetadata?.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lineage-tracking/external-metadata/${req.externalMetadata?.name ?? ''}`;
+    const url = `${host}/api/2.0/lineage-tracking/external-metadata/${encodePathVariable(req.externalMetadata?.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.externalMetadata,
-      marshalExternalMetadataSchema
-    );
+    const body =
+      req.externalMetadata === undefined
+        ? 'null'
+        : marshalRequest(req.externalMetadata, marshalExternalMetadataSchema);
     let resp: ExternalMetadata | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

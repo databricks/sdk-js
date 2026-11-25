@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -202,8 +203,11 @@ export class VectorSearchClient {
     req: DeleteDataVectorIndexRequest,
     options?: CallOptions
   ): Promise<DeleteDataVectorIndexResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/delete-data`;
+    const url = `${host}/api/2.0/vector-search/indexes/${encodePathVariable(req.name)}/delete-data`;
     const params = new URLSearchParams();
     if (req.primaryKeys !== undefined) {
       flattenQueryParams('primary_keys', req.primaryKeys, params);
@@ -239,8 +243,11 @@ export class VectorSearchClient {
     req: DeleteEndpointRequest,
     options?: CallOptions
   ): Promise<DeleteEndpointResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/vector-search/endpoints/${encodePathVariable(req.name)}`;
     let resp: DeleteEndpointResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -267,8 +274,11 @@ export class VectorSearchClient {
     req: DeleteVectorIndexRequest,
     options?: CallOptions
   ): Promise<DeleteVectorIndexResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/vector-search/indexes/${encodePathVariable(req.name)}`;
     let resp: DeleteVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -295,8 +305,11 @@ export class VectorSearchClient {
     req: GetEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/vector-search/endpoints/${encodePathVariable(req.name)}`;
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -323,8 +336,11 @@ export class VectorSearchClient {
     req: GetVectorIndexRequest,
     options?: CallOptions
   ): Promise<VectorIndex> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/vector-search/indexes/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.ensureRerankerCompatible !== undefined) {
       params.append(
@@ -468,8 +484,11 @@ export class VectorSearchClient {
     req: PatchEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/vector-search/endpoints/${encodePathVariable(req.name)}`;
     const body = marshalRequest(req, marshalPatchEndpointRequestSchema);
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -497,8 +516,11 @@ export class VectorSearchClient {
     req: PatchEndpointBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<PatchEndpointBudgetPolicyResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/budget-policy`;
+    const url = `${host}/api/2.0/vector-search/endpoints/${encodePathVariable(req.name)}/budget-policy`;
     const body = marshalRequest(
       req,
       marshalPatchEndpointBudgetPolicyRequestSchema
@@ -535,8 +557,11 @@ export class VectorSearchClient {
     req: QueryVectorIndexRequest,
     options?: CallOptions
   ): Promise<QueryVectorIndexResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/query`;
+    const url = `${host}/api/2.0/vector-search/indexes/${encodePathVariable(req.name)}/query`;
     const body = marshalRequest(req, marshalQueryVectorIndexRequestSchema);
     let resp: QueryVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -564,8 +589,11 @@ export class VectorSearchClient {
     req: QueryVectorIndexNextPageRequest,
     options?: CallOptions
   ): Promise<QueryVectorIndexResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/query-next-page`;
+    const url = `${host}/api/2.0/vector-search/indexes/${encodePathVariable(req.name)}/query-next-page`;
     const body = marshalRequest(
       req,
       marshalQueryVectorIndexNextPageRequestSchema
@@ -599,8 +627,11 @@ export class VectorSearchClient {
     req: RetrieveUserVisibleMetricsRequest,
     options?: CallOptions
   ): Promise<RetrieveUserVisibleMetricsResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/metrics`;
+    const url = `${host}/api/2.0/vector-search/endpoints/${encodePathVariable(req.name)}/metrics`;
     const body = marshalRequest(
       req,
       marshalRetrieveUserVisibleMetricsRequestSchema
@@ -637,8 +668,11 @@ export class VectorSearchClient {
     req: ScanVectorIndexRequest,
     options?: CallOptions
   ): Promise<ScanVectorIndexResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/scan`;
+    const url = `${host}/api/2.0/vector-search/indexes/${encodePathVariable(req.name)}/scan`;
     const body = marshalRequest(req, marshalScanVectorIndexRequestSchema);
     let resp: ScanVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -666,8 +700,11 @@ export class VectorSearchClient {
     req: StartEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/start`;
+    const url = `${host}/api/2.0/vector-search/endpoints/${encodePathVariable(req.name)}/start`;
     const body = marshalRequest(req, marshalStartEndpointRequestSchema);
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -698,8 +735,11 @@ export class VectorSearchClient {
     req: StopEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/stop`;
+    const url = `${host}/api/2.0/vector-search/endpoints/${encodePathVariable(req.name)}/stop`;
     const body = marshalRequest(req, marshalStopEndpointRequestSchema);
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -730,8 +770,11 @@ export class VectorSearchClient {
     req: SyncVectorIndexRequest,
     options?: CallOptions
   ): Promise<SyncVectorIndexResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/sync`;
+    const url = `${host}/api/2.0/vector-search/indexes/${encodePathVariable(req.name)}/sync`;
     const body = marshalRequest(req, marshalSyncVectorIndexRequestSchema);
     let resp: SyncVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -759,8 +802,11 @@ export class VectorSearchClient {
     req: UpdateEndpointCustomTagsRequest,
     options?: CallOptions
   ): Promise<UpdateEndpointCustomTagsResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/tags`;
+    const url = `${host}/api/2.0/vector-search/endpoints/${encodePathVariable(req.name)}/tags`;
     const body = marshalRequest(
       req,
       marshalUpdateEndpointCustomTagsRequestSchema
@@ -798,8 +844,11 @@ export class VectorSearchClient {
     req: UpsertDataVectorIndexRequest,
     options?: CallOptions
   ): Promise<UpsertDataVectorIndexResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/vector-search/indexes/${req.name ?? ''}/upsert-data`;
+    const url = `${host}/api/2.0/vector-search/indexes/${encodePathVariable(req.name)}/upsert-data`;
     const body = marshalRequest(req, marshalUpsertDataVectorIndexRequestSchema);
     let resp: UpsertDataVectorIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

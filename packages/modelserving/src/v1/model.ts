@@ -2453,6 +2453,16 @@ export const marshalCustomProviderConfigSchema: z.ZodType = z
     api_key_auth: d.apiKeyAuth,
   }));
 
+export const marshalDataPlaneInfoSchema: z.ZodType = z
+  .object({
+    endpointUrl: z.string().optional(),
+    authorizationDetails: z.string().optional(),
+  })
+  .transform(d => ({
+    endpoint_url: d.endpointUrl,
+    authorization_details: d.authorizationDetails,
+  }));
+
 export const marshalDatabricksModelServingConfigSchema: z.ZodType = z
   .object({
     databricksApiToken: z.string().optional(),
@@ -2464,6 +2474,18 @@ export const marshalDatabricksModelServingConfigSchema: z.ZodType = z
     databricks_workspace_url: d.databricksWorkspaceUrl,
     databricks_api_token_plaintext: d.databricksApiTokenPlaintext,
   }));
+
+export const marshalDeleteInferenceEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteInferenceEndpointResponseSchema: z.ZodType = z.object(
+  {}
+);
 
 export const marshalEmailNotificationsSchema: z.ZodType = z
   .object({
@@ -2487,6 +2509,36 @@ export const marshalEndpointCoreConfigSchema: z.ZodType = z
     served_models: d.servedModels,
     traffic_config: d.trafficConfig,
     auto_capture_config: d.autoCaptureConfig,
+  }));
+
+export const marshalEndpointCoreConfigOutputSchema: z.ZodType = z
+  .object({
+    configVersion: z.bigint().optional(),
+    servedEntities: z.array(z.lazy(() => marshalServedModelSchema)).optional(),
+    servedModels: z.array(z.lazy(() => marshalServedModelSchema)).optional(),
+    trafficConfig: z.lazy(() => marshalTrafficConfigSchema).optional(),
+    autoCaptureConfig: z.lazy(() => marshalAutoCaptureConfigSchema).optional(),
+  })
+  .transform(d => ({
+    config_version: d.configVersion,
+    served_entities: d.servedEntities,
+    served_models: d.servedModels,
+    traffic_config: d.trafficConfig,
+    auto_capture_config: d.autoCaptureConfig,
+  }));
+
+export const marshalEndpointCoreConfigSummarySchema: z.ZodType = z
+  .object({
+    servedEntities: z
+      .array(z.lazy(() => marshalServedModelLiteSchema))
+      .optional(),
+    servedModels: z
+      .array(z.lazy(() => marshalServedModelLiteSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    served_entities: d.servedEntities,
+    served_models: d.servedModels,
   }));
 
 export const marshalEndpointTagSchema: z.ZodType = z
@@ -2622,6 +2674,66 @@ export const marshalFoundationModelSchema: z.ZodType = z
     description: d.description,
   }));
 
+export const marshalGetExportEndpointMetricsRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetInferenceEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetInferenceEndpointSchemaRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetServedModelBuildLogsRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    servedModelName: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    served_model_name: d.servedModelName,
+  }));
+
+export const marshalGetServedModelBuildLogsResponseSchema: z.ZodType = z
+  .object({
+    logs: z.string().optional(),
+  })
+  .transform(d => ({
+    logs: d.logs,
+  }));
+
+export const marshalGetServedModelLogsRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    servedModelName: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    served_model_name: d.servedModelName,
+  }));
+
+export const marshalGetServedModelLogsResponseSchema: z.ZodType = z
+  .object({
+    logs: z.string().optional(),
+  })
+  .transform(d => ({
+    logs: d.logs,
+  }));
+
 export const marshalGoogleCloudVertexAiConfigSchema: z.ZodType = z
   .object({
     privateKey: z.string().optional(),
@@ -2636,6 +2748,96 @@ export const marshalGoogleCloudVertexAiConfigSchema: z.ZodType = z
     private_key_plaintext: d.privateKeyPlaintext,
   }));
 
+export const marshalInferenceEndpointSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    creator: z.string().optional(),
+    creationTimestamp: z.bigint().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    state: z.lazy(() => marshalInferenceEndpointStateSchema).optional(),
+    config: z.lazy(() => marshalEndpointCoreConfigSummarySchema).optional(),
+    tags: z.array(z.lazy(() => marshalEndpointTagSchema)).optional(),
+    id: z.string().optional(),
+    task: z.string().optional(),
+    aiGateway: z.lazy(() => marshalAiGatewayConfigSchema).optional(),
+    budgetPolicyId: z.string().optional(),
+    description: z.string().optional(),
+    usagePolicyId: z.string().optional(),
+    telemetryConfig: z.lazy(() => marshalTelemetryConfigSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    creator: d.creator,
+    creation_timestamp: d.creationTimestamp,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    state: d.state,
+    config: d.config,
+    tags: d.tags,
+    id: d.id,
+    task: d.task,
+    ai_gateway: d.aiGateway,
+    budget_policy_id: d.budgetPolicyId,
+    description: d.description,
+    usage_policy_id: d.usagePolicyId,
+    telemetry_config: d.telemetryConfig,
+  }));
+
+export const marshalInferenceEndpointDetailedSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    creator: z.string().optional(),
+    creationTimestamp: z.bigint().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    state: z.lazy(() => marshalInferenceEndpointStateSchema).optional(),
+    config: z.lazy(() => marshalEndpointCoreConfigOutputSchema).optional(),
+    pendingConfig: z.lazy(() => marshalPendingConfigSchema).optional(),
+    id: z.string().optional(),
+    permissionLevel: z.string().optional(),
+    tags: z.array(z.lazy(() => marshalEndpointTagSchema)).optional(),
+    task: z.string().optional(),
+    routeOptimized: z.boolean().optional(),
+    endpointUrl: z.string().optional(),
+    dataPlaneInfo: z.lazy(() => marshalModelDataPlaneInfoSchema).optional(),
+    aiGateway: z.lazy(() => marshalAiGatewayConfigSchema).optional(),
+    budgetPolicyId: z.string().optional(),
+    emailNotifications: z
+      .lazy(() => marshalEmailNotificationsSchema)
+      .optional(),
+    description: z.string().optional(),
+    telemetryConfig: z.lazy(() => marshalTelemetryConfigSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    creator: d.creator,
+    creation_timestamp: d.creationTimestamp,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    state: d.state,
+    config: d.config,
+    pending_config: d.pendingConfig,
+    id: d.id,
+    permission_level: d.permissionLevel,
+    tags: d.tags,
+    task: d.task,
+    route_optimized: d.routeOptimized,
+    endpoint_url: d.endpointUrl,
+    data_plane_info: d.dataPlaneInfo,
+    ai_gateway: d.aiGateway,
+    budget_policy_id: d.budgetPolicyId,
+    email_notifications: d.emailNotifications,
+    description: d.description,
+    telemetry_config: d.telemetryConfig,
+  }));
+
+export const marshalInferenceEndpointStateSchema: z.ZodType = z
+  .object({
+    ready: z.string().optional(),
+    configUpdate: z.string().optional(),
+  })
+  .transform(d => ({
+    ready: d.ready,
+    config_update: d.configUpdate,
+  }));
+
 export const marshalInferenceTableConfigSchema: z.ZodType = z
   .object({
     catalogName: z.string().optional(),
@@ -2648,6 +2850,26 @@ export const marshalInferenceTableConfigSchema: z.ZodType = z
     schema_name: d.schemaName,
     table_name_prefix: d.tableNamePrefix,
     enabled: d.enabled,
+  }));
+
+export const marshalListInferenceEndpointsRequestSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalListInferenceEndpointsResponseSchema: z.ZodType = z
+  .object({
+    endpoints: z.array(z.lazy(() => marshalInferenceEndpointSchema)).optional(),
+  })
+  .transform(d => ({
+    endpoints: d.endpoints,
+  }));
+
+export const marshalModelDataPlaneInfoSchema: z.ZodType = z
+  .object({
+    queryInfo: z.lazy(() => marshalDataPlaneInfoSchema).optional(),
+  })
+  .transform(d => ({
+    query_info: d.queryInfo,
   }));
 
 export const marshalOpenAiConfigSchema: z.ZodType = z
@@ -2701,6 +2923,14 @@ export const marshalPatchInferenceEndpointTagsRequestSchema: z.ZodType = z
     delete_tags: d.deleteTags,
   }));
 
+export const marshalPatchInferenceEndpointTagsResponseSchema: z.ZodType = z
+  .object({
+    tags: z.array(z.lazy(() => marshalEndpointTagSchema)).optional(),
+  })
+  .transform(d => ({
+    tags: d.tags,
+  }));
+
 export const marshalPatchInferenceEndpointTelemetryConfigRequestSchema: z.ZodType =
   z
     .object({
@@ -2722,6 +2952,24 @@ export const marshalPayloadTableSchema: z.ZodType = z
     name: d.name,
     status: d.status,
     status_message: d.statusMessage,
+  }));
+
+export const marshalPendingConfigSchema: z.ZodType = z
+  .object({
+    servedEntities: z.array(z.lazy(() => marshalServedModelSchema)).optional(),
+    servedModels: z.array(z.lazy(() => marshalServedModelSchema)).optional(),
+    trafficConfig: z.lazy(() => marshalTrafficConfigSchema).optional(),
+    configVersion: z.number().optional(),
+    startTime: z.bigint().optional(),
+    autoCaptureConfig: z.lazy(() => marshalAutoCaptureConfigSchema).optional(),
+  })
+  .transform(d => ({
+    served_entities: d.servedEntities,
+    served_models: d.servedModels,
+    traffic_config: d.trafficConfig,
+    config_version: d.configVersion,
+    start_time: d.startTime,
+    auto_capture_config: d.autoCaptureConfig,
   }));
 
 export const marshalPiiSettingsSchema: z.ZodType = z
@@ -2786,6 +3034,28 @@ export const marshalPutInferenceEndpointAiGatewayRequestSchema: z.ZodType = z
     fallback_config: d.fallbackConfig,
   }));
 
+export const marshalPutInferenceEndpointAiGatewayResponseSchema: z.ZodType = z
+  .object({
+    usageTrackingConfig: z
+      .lazy(() => marshalUsageTrackingConfigSchema)
+      .optional(),
+    inferenceTableConfig: z
+      .lazy(() => marshalInferenceTableConfigSchema)
+      .optional(),
+    rateLimits: z
+      .array(z.lazy(() => marshalAiGatewayRateLimitSchema))
+      .optional(),
+    guardrails: z.lazy(() => marshalAiGuardrailsSchema).optional(),
+    fallbackConfig: z.lazy(() => marshalFallbackConfigSchema).optional(),
+  })
+  .transform(d => ({
+    usage_tracking_config: d.usageTrackingConfig,
+    inference_table_config: d.inferenceTableConfig,
+    rate_limits: d.rateLimits,
+    guardrails: d.guardrails,
+    fallback_config: d.fallbackConfig,
+  }));
+
 export const marshalPutInferenceEndpointConfigRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -2809,6 +3079,14 @@ export const marshalPutInferenceEndpointRateLimitsRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     name: d.name,
+    rate_limits: d.rateLimits,
+  }));
+
+export const marshalPutInferenceEndpointRateLimitsResponseSchema: z.ZodType = z
+  .object({
+    rateLimits: z.array(z.lazy(() => marshalRateLimitSchema)).optional(),
+  })
+  .transform(d => ({
     rate_limits: d.rateLimits,
   }));
 
@@ -2892,6 +3170,26 @@ export const marshalServedModelSchema: z.ZodType = z
     creation_timestamp: d.creationTimestamp,
   }));
 
+export const marshalServedModelLiteSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    modelName: z.string().optional(),
+    entityName: z.string().optional(),
+    modelVersion: z.string().optional(),
+    entityVersion: z.string().optional(),
+    externalModel: z.lazy(() => marshalExternalModelSchema).optional(),
+    foundationModel: z.lazy(() => marshalFoundationModelSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    model_name: d.modelName,
+    entity_name: d.entityName,
+    model_version: d.modelVersion,
+    entity_version: d.entityVersion,
+    external_model: d.externalModel,
+    foundation_model: d.foundationModel,
+  }));
+
 export const marshalServedModelStateSchema: z.ZodType = z
   .object({
     deployment: z.string().optional(),
@@ -2965,6 +3263,19 @@ export const marshalUnityCatalogTableNamesSchema: z.ZodType = z
   }));
 
 export const marshalUpdateInferenceEndpointNotificationsRequestSchema: z.ZodType =
+  z
+    .object({
+      name: z.string().optional(),
+      emailNotifications: z
+        .lazy(() => marshalEmailNotificationsSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      email_notifications: d.emailNotifications,
+    }));
+
+export const marshalUpdateInferenceEndpointNotificationsResponseSchema: z.ZodType =
   z
     .object({
       name: z.string().optional(),
