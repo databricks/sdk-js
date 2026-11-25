@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -125,7 +126,7 @@ export class MetastoresClient {
     options?: CallOptions
   ): Promise<AccountsCreateMetastoreResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/metastores`;
     const body = marshalRequest(
       req,
       marshalAccountsCreateMetastoreRequestSchema
@@ -156,8 +157,11 @@ export class MetastoresClient {
     req: AccountsCreateMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<AccountsCreateMetastoreAssignmentResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastores/${req.metastoreId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces/${String(req.workspaceId ?? '')}/metastores/${encodePathVariable(req.metastoreId)}`;
     const body = marshalRequest(
       req,
       marshalAccountsCreateMetastoreAssignmentRequestSchema
@@ -188,8 +192,11 @@ export class MetastoresClient {
     req: AccountsDeleteMetastoreRequest,
     options?: CallOptions
   ): Promise<AccountsDeleteMetastoreResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/metastores/${encodePathVariable(req.metastoreId)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -222,8 +229,11 @@ export class MetastoresClient {
     req: AccountsDeleteMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<AccountsDeleteMetastoreAssignmentResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastores/${req.metastoreId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces/${String(req.workspaceId ?? '')}/metastores/${encodePathVariable(req.metastoreId)}`;
     let resp: AccountsDeleteMetastoreAssignmentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -250,8 +260,11 @@ export class MetastoresClient {
     req: AccountsGetMetastoreRequest,
     options?: CallOptions
   ): Promise<AccountsGetMetastoreResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/metastores/${encodePathVariable(req.metastoreId)}`;
     let resp: AccountsGetMetastoreResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -283,8 +296,11 @@ export class MetastoresClient {
     req: AccountsGetMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<AccountsGetMetastoreAssignmentResponse> {
+    if (req.workspaceId === undefined) {
+      throw new Error('path parameter "workspace_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastore`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces/${String(req.workspaceId)}/metastore`;
     let resp: AccountsGetMetastoreAssignmentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -312,7 +328,7 @@ export class MetastoresClient {
     options?: CallOptions
   ): Promise<AccountsListMetastoresResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/metastores`;
     let resp: AccountsListMetastoresResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -339,8 +355,11 @@ export class MetastoresClient {
     req: AccountsListWorkspaceIdsForMetastoreRequest,
     options?: CallOptions
   ): Promise<AccountsListWorkspaceIdsForMetastoreResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}/workspaces`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/metastores/${encodePathVariable(req.metastoreId)}/workspaces`;
     let resp: AccountsListWorkspaceIdsForMetastoreResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -367,8 +386,11 @@ export class MetastoresClient {
     req: AccountsUpdateMetastoreRequest,
     options?: CallOptions
   ): Promise<AccountsUpdateMetastoreResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/metastores/${encodePathVariable(req.metastoreId)}`;
     const body = marshalRequest(
       req,
       marshalAccountsUpdateMetastoreRequestSchema
@@ -399,8 +421,11 @@ export class MetastoresClient {
     req: AccountsUpdateMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<AccountsUpdateMetastoreAssignmentResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastores/${req.metastoreId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces/${String(req.workspaceId ?? '')}/metastores/${encodePathVariable(req.metastoreId)}`;
     const body = marshalRequest(
       req,
       marshalAccountsUpdateMetastoreAssignmentRequestSchema
@@ -469,8 +494,11 @@ export class MetastoresClient {
     req: CreateMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<CreateMetastoreAssignmentResponse> {
+    if (req.workspaceId === undefined) {
+      throw new Error('path parameter "workspace_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
+    const url = `${host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId)}/metastore`;
     const body = marshalRequest(
       req,
       marshalCreateMetastoreAssignmentRequestSchema
@@ -504,8 +532,11 @@ export class MetastoresClient {
     req: DeleteMetastoreRequest,
     options?: CallOptions
   ): Promise<DeleteMetastoreResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/metastores/${encodePathVariable(req.id)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -538,8 +569,11 @@ export class MetastoresClient {
     req: DeleteMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<DeleteMetastoreAssignmentResponse> {
+    if (req.workspaceId === undefined) {
+      throw new Error('path parameter "workspace_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
+    const url = `${host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId)}/metastore`;
     const params = new URLSearchParams();
     if (req.metastoreId !== undefined) {
       params.append('metastore_id', req.metastoreId);
@@ -603,8 +637,11 @@ export class MetastoresClient {
     req: GetMetastoreRequest,
     options?: CallOptions
   ): Promise<MetastoreInfo> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/metastores/${encodePathVariable(req.id)}`;
     let resp: MetastoreInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -764,8 +801,11 @@ export class MetastoresClient {
     req: UpdateMetastoreRequest,
     options?: CallOptions
   ): Promise<MetastoreInfo> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/metastores/${encodePathVariable(req.id)}`;
     const body = marshalRequest(req, marshalUpdateMetastoreRequestSchema);
     let resp: MetastoreInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -797,8 +837,11 @@ export class MetastoresClient {
     req: UpdateMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<UpdateMetastoreAssignmentResponse> {
+    if (req.workspaceId === undefined) {
+      throw new Error('path parameter "workspace_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
+    const url = `${host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId)}/metastore`;
     const body = marshalRequest(
       req,
       marshalUpdateMetastoreAssignmentRequestSchema

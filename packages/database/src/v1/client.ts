@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -119,7 +120,10 @@ export class DatabaseClient {
   ): Promise<DatabaseCatalog> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/database/catalogs`;
-    const body = marshalRequest(req.catalog, marshalDatabaseCatalogSchema);
+    const body =
+      req.catalog === undefined
+        ? 'null'
+        : marshalRequest(req.catalog, marshalDatabaseCatalogSchema);
     let resp: DatabaseCatalog | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -153,10 +157,10 @@ export class DatabaseClient {
   ): Promise<DatabaseInstance> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/database/instances`;
-    const body = marshalRequest(
-      req.databaseInstance,
-      marshalDatabaseInstanceSchema
-    );
+    const body =
+      req.databaseInstance === undefined
+        ? 'null'
+        : marshalRequest(req.databaseInstance, marshalDatabaseInstanceSchema);
     let resp: DatabaseInstance | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -206,17 +210,20 @@ export class DatabaseClient {
     options?: CallOptions
   ): Promise<DatabaseInstanceRole> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles`;
+    const url = `${host}/api/2.0/database/instances/${encodePathVariable(req.instanceName ?? '')}/roles`;
     const params = new URLSearchParams();
     if (req.databaseInstanceName !== undefined) {
       params.append('database_instance_name', req.databaseInstanceName);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.databaseInstanceRole,
-      marshalDatabaseInstanceRoleSchema
-    );
+    const body =
+      req.databaseInstanceRole === undefined
+        ? 'null'
+        : marshalRequest(
+            req.databaseInstanceRole,
+            marshalDatabaseInstanceRoleSchema
+          );
     let resp: DatabaseInstanceRole | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -258,7 +265,10 @@ export class DatabaseClient {
   ): Promise<DatabaseTable> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/database/tables`;
-    const body = marshalRequest(req.table, marshalDatabaseTableSchema);
+    const body =
+      req.table === undefined
+        ? 'null'
+        : marshalRequest(req.table, marshalDatabaseTableSchema);
     let resp: DatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -296,10 +306,10 @@ export class DatabaseClient {
   ): Promise<SyncedDatabaseTable> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/database/synced_tables`;
-    const body = marshalRequest(
-      req.syncedTable,
-      marshalSyncedDatabaseTableSchema
-    );
+    const body =
+      req.syncedTable === undefined
+        ? 'null'
+        : marshalRequest(req.syncedTable, marshalSyncedDatabaseTableSchema);
     let resp: SyncedDatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -332,8 +342,11 @@ export class DatabaseClient {
     req: DeleteDatabaseCatalogRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/catalogs/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/database/catalogs/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -360,7 +373,7 @@ export class DatabaseClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/instances/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/database/instances/${encodePathVariable(req.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -395,8 +408,14 @@ export class DatabaseClient {
     req: DeleteDatabaseInstanceRoleRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.instanceName === undefined) {
+      throw new Error('path parameter "instance_name" is required');
+    }
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/database/instances/${encodePathVariable(req.instanceName)}/roles/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.reassignOwnedTo !== undefined) {
       params.append('reassign_owned_to', req.reassignOwnedTo);
@@ -431,8 +450,11 @@ export class DatabaseClient {
     req: DeleteDatabaseTableRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/tables/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/database/tables/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -458,8 +480,11 @@ export class DatabaseClient {
     req: DeleteSyncedDatabaseTableRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/synced_tables/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/database/synced_tables/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.purgeData !== undefined) {
       params.append('purge_data', String(req.purgeData));
@@ -565,8 +590,11 @@ export class DatabaseClient {
     req: GetDatabaseCatalogRequest,
     options?: CallOptions
   ): Promise<DatabaseCatalog> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/catalogs/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/database/catalogs/${encodePathVariable(req.name)}`;
     let resp: DatabaseCatalog | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -599,7 +627,7 @@ export class DatabaseClient {
     options?: CallOptions
   ): Promise<DatabaseInstance> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/instances/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/database/instances/${encodePathVariable(req.name ?? '')}`;
     let resp: DatabaseInstance | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -632,7 +660,7 @@ export class DatabaseClient {
     options?: CallOptions
   ): Promise<DatabaseInstanceRole> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/database/instances/${encodePathVariable(req.instanceName ?? '')}/roles/${encodePathVariable(req.name ?? '')}`;
     let resp: DatabaseInstanceRole | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -663,8 +691,11 @@ export class DatabaseClient {
     req: GetDatabaseTableRequest,
     options?: CallOptions
   ): Promise<DatabaseTable> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/tables/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/database/tables/${encodePathVariable(req.name)}`;
     let resp: DatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -696,8 +727,11 @@ export class DatabaseClient {
     req: GetSyncedDatabaseTableRequest,
     options?: CallOptions
   ): Promise<SyncedDatabaseTable> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/synced_tables/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/database/synced_tables/${encodePathVariable(req.name)}`;
     let resp: SyncedDatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -725,7 +759,7 @@ export class DatabaseClient {
     options?: CallOptions
   ): Promise<ListDatabaseCatalogsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/instances/${req.instanceName ?? ''}/catalogs`;
+    const url = `${host}/api/2.0/database/instances/${encodePathVariable(req.instanceName ?? '')}/catalogs`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -787,7 +821,7 @@ export class DatabaseClient {
     options?: CallOptions
   ): Promise<ListDatabaseInstanceRolesResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles`;
+    const url = `${host}/api/2.0/database/instances/${encodePathVariable(req.instanceName ?? '')}/roles`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -906,7 +940,7 @@ export class DatabaseClient {
     options?: CallOptions
   ): Promise<ListSyncedDatabaseTablesResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/instances/${req.instanceName ?? ''}/synced_tables`;
+    const url = `${host}/api/2.0/database/instances/${encodePathVariable(req.instanceName ?? '')}/synced_tables`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -962,18 +996,21 @@ export class DatabaseClient {
     req: UpdateDatabaseCatalogRequest,
     options?: CallOptions
   ): Promise<DatabaseCatalog> {
+    if (req.databaseCatalog?.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/catalogs/${req.databaseCatalog?.name ?? ''}`;
+    const url = `${host}/api/2.0/database/catalogs/${encodePathVariable(req.databaseCatalog?.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.databaseCatalog,
-      marshalDatabaseCatalogSchema
-    );
+    const body =
+      req.databaseCatalog === undefined
+        ? 'null'
+        : marshalRequest(req.databaseCatalog, marshalDatabaseCatalogSchema);
     let resp: DatabaseCatalog | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1012,18 +1049,21 @@ export class DatabaseClient {
     req: UpdateDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<DatabaseInstance> {
+    if (req.databaseInstance?.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/instances/${req.databaseInstance?.name ?? ''}`;
+    const url = `${host}/api/2.0/database/instances/${encodePathVariable(req.databaseInstance?.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.databaseInstance,
-      marshalDatabaseInstanceSchema
-    );
+    const body =
+      req.databaseInstance === undefined
+        ? 'null'
+        : marshalRequest(req.databaseInstance, marshalDatabaseInstanceSchema);
     let resp: DatabaseInstance | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1056,18 +1096,21 @@ export class DatabaseClient {
     req: UpdateSyncedDatabaseTableRequest,
     options?: CallOptions
   ): Promise<SyncedDatabaseTable> {
+    if (req.syncedTable?.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/database/synced_tables/${req.syncedTable?.name ?? ''}`;
+    const url = `${host}/api/2.0/database/synced_tables/${encodePathVariable(req.syncedTable?.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.syncedTable,
-      marshalSyncedDatabaseTableSchema
-    );
+    const body =
+      req.syncedTable === undefined
+        ? 'null'
+        : marshalRequest(req.syncedTable, marshalSyncedDatabaseTableSchema);
     let resp: SyncedDatabaseTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

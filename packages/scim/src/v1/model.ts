@@ -1532,6 +1532,30 @@ export const marshalAccountComplexValueSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalAccountGetSortOrderSchema: z.ZodType = z.object({});
+
+export const marshalAccountGroupSchema: z.ZodType = z
+  .object({
+    displayName: z.string().optional(),
+    externalId: z.string().optional(),
+    id: z.string().optional(),
+    members: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    meta: z.lazy(() => marshalAccountResourceMetaSchema).optional(),
+    roles: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    displayName: d.displayName,
+    externalId: d.externalId,
+    id: d.id,
+    members: d.members,
+    meta: d.meta,
+    roles: d.roles,
+    account_id: d.accountId,
+  }));
+
+export const marshalAccountListSortSchema: z.ZodType = z.object({});
+
 export const marshalAccountNameSchema: z.ZodType = z
   .object({
     familyName: z.string().optional(),
@@ -1554,12 +1578,60 @@ export const marshalAccountPatchSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalAccountPatchOpSchema: z.ZodType = z.object({});
+
+export const marshalAccountPatchSchemaSchema: z.ZodType = z.object({});
+
 export const marshalAccountResourceMetaSchema: z.ZodType = z
   .object({
     resourceType: z.string().optional(),
   })
   .transform(d => ({
     resourceType: d.resourceType,
+  }));
+
+export const marshalAccountServicePrincipalSchema: z.ZodType = z
+  .object({
+    active: z.boolean().optional(),
+    applicationId: z.string().optional(),
+    displayName: z.string().optional(),
+    externalId: z.string().optional(),
+    id: z.string().optional(),
+    roles: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    active: d.active,
+    applicationId: d.applicationId,
+    displayName: d.displayName,
+    externalId: d.externalId,
+    id: d.id,
+    roles: d.roles,
+    account_id: d.accountId,
+  }));
+
+export const marshalAccountUserSchema: z.ZodType = z
+  .object({
+    active: z.boolean().optional(),
+    displayName: z.string().optional(),
+    emails: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    externalId: z.string().optional(),
+    id: z.string().optional(),
+    name: z.lazy(() => marshalAccountNameSchema).optional(),
+    roles: z.array(z.lazy(() => marshalAccountComplexValueSchema)).optional(),
+    userName: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    active: d.active,
+    displayName: d.displayName,
+    emails: d.emails,
+    externalId: d.externalId,
+    id: d.id,
+    name: d.name,
+    roles: d.roles,
+    userName: d.userName,
+    account_id: d.accountId,
   }));
 
 export const marshalComplexValueSchema: z.ZodType = z
@@ -1718,6 +1790,413 @@ export const marshalCreateUserRequestSchema: z.ZodType = z
     userName: d.userName,
   }));
 
+export const marshalDeleteAccountGroupRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    account_id: d.accountId,
+  }));
+
+export const marshalDeleteAccountServicePrincipalRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    account_id: d.accountId,
+  }));
+
+export const marshalDeleteAccountUserRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    account_id: d.accountId,
+  }));
+
+export const marshalDeleteGroupRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalDeleteServicePrincipalRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalDeleteUserRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalGetAccountGroupRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    account_id: d.accountId,
+  }));
+
+export const marshalGetAccountServicePrincipalRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    account_id: d.accountId,
+  }));
+
+export const marshalGetAccountUserRequestSchema: z.ZodType = z
+  .object({
+    attributes: z.string().optional(),
+    count: z.number().optional(),
+    excludedAttributes: z.string().optional(),
+    filter: z.string().optional(),
+    id: z.string().optional(),
+    sortBy: z.string().optional(),
+    sortOrder: z.string().optional(),
+    startIndex: z.number().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    attributes: d.attributes,
+    count: d.count,
+    excludedAttributes: d.excludedAttributes,
+    filter: d.filter,
+    id: d.id,
+    sortBy: d.sortBy,
+    sortOrder: d.sortOrder,
+    startIndex: d.startIndex,
+    account_id: d.accountId,
+  }));
+
+export const marshalGetGroupRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalGetPasswordPermissionLevelsRequestSchema: z.ZodType =
+  z.object({});
+
+export const marshalGetPasswordPermissionLevelsResponseSchema: z.ZodType = z
+  .object({
+    permissionLevels: z
+      .array(z.lazy(() => marshalPasswordPermissionsDescriptionSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    permission_levels: d.permissionLevels,
+  }));
+
+export const marshalGetPasswordPermissionsRequestSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalGetServicePrincipalRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalGetUserRequestSchema: z.ZodType = z
+  .object({
+    attributes: z.string().optional(),
+    count: z.number().optional(),
+    excludedAttributes: z.string().optional(),
+    filter: z.string().optional(),
+    id: z.string().optional(),
+    sortBy: z.string().optional(),
+    sortOrder: z.string().optional(),
+    startIndex: z.number().optional(),
+  })
+  .transform(d => ({
+    attributes: d.attributes,
+    count: d.count,
+    excludedAttributes: d.excludedAttributes,
+    filter: d.filter,
+    id: d.id,
+    sortBy: d.sortBy,
+    sortOrder: d.sortOrder,
+    startIndex: d.startIndex,
+  }));
+
+export const marshalGroupSchema: z.ZodType = z
+  .object({
+    displayName: z.string().optional(),
+    entitlements: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    externalId: z.string().optional(),
+    groups: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    id: z.string().optional(),
+    members: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    meta: z.lazy(() => marshalResourceMetaSchema).optional(),
+    roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    displayName: d.displayName,
+    entitlements: d.entitlements,
+    externalId: d.externalId,
+    groups: d.groups,
+    id: d.id,
+    members: d.members,
+    meta: d.meta,
+    roles: d.roles,
+    schemas: d.schemas,
+  }));
+
+export const marshalListAccountGroupsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    filter: z.string().optional(),
+    attributes: z.string().optional(),
+    excludedAttributes: z.string().optional(),
+    startIndex: z.bigint().optional(),
+    count: z.bigint().optional(),
+    sortBy: z.string().optional(),
+    sortOrder: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    filter: d.filter,
+    attributes: d.attributes,
+    excludedAttributes: d.excludedAttributes,
+    startIndex: d.startIndex,
+    count: d.count,
+    sortBy: d.sortBy,
+    sortOrder: d.sortOrder,
+  }));
+
+export const marshalListAccountGroupsResponseSchema: z.ZodType = z
+  .object({
+    itemsPerPage: z.number().optional(),
+    resources: z.array(z.lazy(() => marshalAccountGroupSchema)).optional(),
+    startIndex: z.bigint().optional(),
+    totalResults: z.number().optional(),
+  })
+  .transform(d => ({
+    itemsPerPage: d.itemsPerPage,
+    Resources: d.resources,
+    startIndex: d.startIndex,
+    totalResults: d.totalResults,
+  }));
+
+export const marshalListAccountServicePrincipalsRequestSchema: z.ZodType = z
+  .object({
+    attributes: z.string().optional(),
+    count: z.bigint().optional(),
+    excludedAttributes: z.string().optional(),
+    filter: z.string().optional(),
+    sortBy: z.string().optional(),
+    sortOrder: z.string().optional(),
+    startIndex: z.bigint().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    attributes: d.attributes,
+    count: d.count,
+    excludedAttributes: d.excludedAttributes,
+    filter: d.filter,
+    sortBy: d.sortBy,
+    sortOrder: d.sortOrder,
+    startIndex: d.startIndex,
+    account_id: d.accountId,
+  }));
+
+export const marshalListAccountServicePrincipalsResponseSchema: z.ZodType = z
+  .object({
+    itemsPerPage: z.number().optional(),
+    resources: z
+      .array(z.lazy(() => marshalAccountServicePrincipalSchema))
+      .optional(),
+    startIndex: z.bigint().optional(),
+    totalResults: z.number().optional(),
+  })
+  .transform(d => ({
+    itemsPerPage: d.itemsPerPage,
+    Resources: d.resources,
+    startIndex: d.startIndex,
+    totalResults: d.totalResults,
+  }));
+
+export const marshalListAccountUsersRequestSchema: z.ZodType = z
+  .object({
+    attributes: z.string().optional(),
+    count: z.bigint().optional(),
+    excludedAttributes: z.string().optional(),
+    filter: z.string().optional(),
+    sortBy: z.string().optional(),
+    sortOrder: z.string().optional(),
+    startIndex: z.bigint().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    attributes: d.attributes,
+    count: d.count,
+    excludedAttributes: d.excludedAttributes,
+    filter: d.filter,
+    sortBy: d.sortBy,
+    sortOrder: d.sortOrder,
+    startIndex: d.startIndex,
+    account_id: d.accountId,
+  }));
+
+export const marshalListAccountUsersResponseSchema: z.ZodType = z
+  .object({
+    itemsPerPage: z.number().optional(),
+    resources: z.array(z.lazy(() => marshalAccountUserSchema)).optional(),
+    startIndex: z.bigint().optional(),
+    totalResults: z.number().optional(),
+  })
+  .transform(d => ({
+    itemsPerPage: d.itemsPerPage,
+    Resources: d.resources,
+    startIndex: d.startIndex,
+    totalResults: d.totalResults,
+  }));
+
+export const marshalListGroupsRequestSchema: z.ZodType = z
+  .object({
+    filter: z.string().optional(),
+    attributes: z.string().optional(),
+    excludedAttributes: z.string().optional(),
+    startIndex: z.bigint().optional(),
+    count: z.bigint().optional(),
+    sortBy: z.string().optional(),
+    sortOrder: z.string().optional(),
+  })
+  .transform(d => ({
+    filter: d.filter,
+    attributes: d.attributes,
+    excludedAttributes: d.excludedAttributes,
+    startIndex: d.startIndex,
+    count: d.count,
+    sortBy: d.sortBy,
+    sortOrder: d.sortOrder,
+  }));
+
+export const marshalListGroupsResponseSchema: z.ZodType = z
+  .object({
+    itemsPerPage: z.number().optional(),
+    resources: z.array(z.lazy(() => marshalGroupSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
+    startIndex: z.bigint().optional(),
+    totalResults: z.number().optional(),
+  })
+  .transform(d => ({
+    itemsPerPage: d.itemsPerPage,
+    Resources: d.resources,
+    schemas: d.schemas,
+    startIndex: d.startIndex,
+    totalResults: d.totalResults,
+  }));
+
+export const marshalListServicePrincipalResponseSchema: z.ZodType = z
+  .object({
+    itemsPerPage: z.number().optional(),
+    resources: z.array(z.lazy(() => marshalServicePrincipalSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
+    startIndex: z.bigint().optional(),
+    totalResults: z.number().optional(),
+  })
+  .transform(d => ({
+    itemsPerPage: d.itemsPerPage,
+    Resources: d.resources,
+    schemas: d.schemas,
+    startIndex: d.startIndex,
+    totalResults: d.totalResults,
+  }));
+
+export const marshalListServicePrincipalsRequestSchema: z.ZodType = z
+  .object({
+    attributes: z.string().optional(),
+    count: z.bigint().optional(),
+    excludedAttributes: z.string().optional(),
+    filter: z.string().optional(),
+    sortBy: z.string().optional(),
+    sortOrder: z.string().optional(),
+    startIndex: z.bigint().optional(),
+  })
+  .transform(d => ({
+    attributes: d.attributes,
+    count: d.count,
+    excludedAttributes: d.excludedAttributes,
+    filter: d.filter,
+    sortBy: d.sortBy,
+    sortOrder: d.sortOrder,
+    startIndex: d.startIndex,
+  }));
+
+export const marshalListSortSchema: z.ZodType = z.object({});
+
+export const marshalListUsersRequestSchema: z.ZodType = z
+  .object({
+    attributes: z.string().optional(),
+    count: z.bigint().optional(),
+    excludedAttributes: z.string().optional(),
+    filter: z.string().optional(),
+    sortBy: z.string().optional(),
+    sortOrder: z.string().optional(),
+    startIndex: z.bigint().optional(),
+  })
+  .transform(d => ({
+    attributes: d.attributes,
+    count: d.count,
+    excludedAttributes: d.excludedAttributes,
+    filter: d.filter,
+    sortBy: d.sortBy,
+    sortOrder: d.sortOrder,
+    startIndex: d.startIndex,
+  }));
+
+export const marshalListUsersResponseSchema: z.ZodType = z
+  .object({
+    itemsPerPage: z.number().optional(),
+    resources: z.array(z.lazy(() => marshalUserSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
+    startIndex: z.bigint().optional(),
+    totalResults: z.number().optional(),
+  })
+  .transform(d => ({
+    itemsPerPage: d.itemsPerPage,
+    Resources: d.resources,
+    schemas: d.schemas,
+    startIndex: d.startIndex,
+    totalResults: d.totalResults,
+  }));
+
+export const marshalMeRequestSchema: z.ZodType = z
+  .object({
+    attributes: z.string().optional(),
+    excludedAttributes: z.string().optional(),
+  })
+  .transform(d => ({
+    attributes: d.attributes,
+    excludedAttributes: d.excludedAttributes,
+  }));
+
 export const marshalNameSchema: z.ZodType = z
   .object({
     familyName: z.string().optional(),
@@ -1740,6 +2219,60 @@ export const marshalPasswordAccessControlRequestSchema: z.ZodType = z
     permission_level: d.permissionLevel,
     service_principal_name: d.servicePrincipalName,
     user_name: d.userName,
+  }));
+
+export const marshalPasswordAccessControlResponseSchema: z.ZodType = z
+  .object({
+    allPermissions: z
+      .array(z.lazy(() => marshalPasswordPermissionSchema))
+      .optional(),
+    displayName: z.string().optional(),
+    groupName: z.string().optional(),
+    servicePrincipalName: z.string().optional(),
+    userName: z.string().optional(),
+  })
+  .transform(d => ({
+    all_permissions: d.allPermissions,
+    display_name: d.displayName,
+    group_name: d.groupName,
+    service_principal_name: d.servicePrincipalName,
+    user_name: d.userName,
+  }));
+
+export const marshalPasswordPermissionSchema: z.ZodType = z
+  .object({
+    inherited: z.boolean().optional(),
+    inheritedFromObject: z.array(z.string()).optional(),
+    permissionLevel: z.string().optional(),
+  })
+  .transform(d => ({
+    inherited: d.inherited,
+    inherited_from_object: d.inheritedFromObject,
+    permission_level: d.permissionLevel,
+  }));
+
+export const marshalPasswordPermissionsSchema: z.ZodType = z
+  .object({
+    accessControlList: z
+      .array(z.lazy(() => marshalPasswordAccessControlResponseSchema))
+      .optional(),
+    objectId: z.string().optional(),
+    objectType: z.string().optional(),
+  })
+  .transform(d => ({
+    access_control_list: d.accessControlList,
+    object_id: d.objectId,
+    object_type: d.objectType,
+  }));
+
+export const marshalPasswordPermissionsDescriptionSchema: z.ZodType = z
+  .object({
+    description: z.string().optional(),
+    permissionLevel: z.string().optional(),
+  })
+  .transform(d => ({
+    description: d.description,
+    permission_level: d.permissionLevel,
   }));
 
 export const marshalPasswordPermissionsRequestSchema: z.ZodType = z
@@ -1848,6 +2381,30 @@ export const marshalResourceMetaSchema: z.ZodType = z
   })
   .transform(d => ({
     resourceType: d.resourceType,
+  }));
+
+export const marshalServicePrincipalSchema: z.ZodType = z
+  .object({
+    active: z.boolean().optional(),
+    applicationId: z.string().optional(),
+    displayName: z.string().optional(),
+    entitlements: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    externalId: z.string().optional(),
+    groups: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    id: z.string().optional(),
+    roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    active: d.active,
+    applicationId: d.applicationId,
+    displayName: d.displayName,
+    entitlements: d.entitlements,
+    externalId: d.externalId,
+    groups: d.groups,
+    id: d.id,
+    roles: d.roles,
+    schemas: d.schemas,
   }));
 
 export const marshalUpdateAccountGroupRequestSchema: z.ZodType = z
@@ -1963,6 +2520,34 @@ export const marshalUpdateServicePrincipalRequestSchema: z.ZodType = z
   }));
 
 export const marshalUpdateUserRequestSchema: z.ZodType = z
+  .object({
+    active: z.boolean().optional(),
+    displayName: z.string().optional(),
+    emails: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    entitlements: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    externalId: z.string().optional(),
+    groups: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    id: z.string().optional(),
+    name: z.lazy(() => marshalNameSchema).optional(),
+    roles: z.array(z.lazy(() => marshalComplexValueSchema)).optional(),
+    schemas: z.array(z.string()).optional(),
+    userName: z.string().optional(),
+  })
+  .transform(d => ({
+    active: d.active,
+    displayName: d.displayName,
+    emails: d.emails,
+    entitlements: d.entitlements,
+    externalId: d.externalId,
+    groups: d.groups,
+    id: d.id,
+    name: d.name,
+    roles: d.roles,
+    schemas: d.schemas,
+    userName: d.userName,
+  }));
+
+export const marshalUserSchema: z.ZodType = z
   .object({
     active: z.boolean().optional(),
     displayName: z.string().optional(),

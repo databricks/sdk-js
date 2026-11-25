@@ -633,6 +633,67 @@ export const marshalAzureEncryptionSettingsSchema: z.ZodType = z
     azure_cmk_managed_identity_id: d.azureCmkManagedIdentityId,
   }));
 
+export const marshalCatalogInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    owner: z.string().optional(),
+    comment: z.string().optional(),
+    storageRoot: z.string().optional(),
+    enablePredictiveOptimization: z.string().optional(),
+    catalogType: z.string().optional(),
+    providerName: z.string().optional(),
+    shareName: z.string().optional(),
+    connectionName: z.string().optional(),
+    metastoreId: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    storageLocation: z.string().optional(),
+    isolationMode: z.string().optional(),
+    effectivePredictiveOptimizationFlag: z
+      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
+      .optional(),
+    browseOnly: z.boolean().optional(),
+    provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
+    fullName: z.string().optional(),
+    securableType: z.string().optional(),
+    customMaxRetentionHours: z.bigint().optional(),
+    managedEncryptionSettings: z
+      .lazy(() => marshalEncryptionSettingsSchema)
+      .optional(),
+    properties: z.record(z.string(), z.string()).optional(),
+    options: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    owner: d.owner,
+    comment: d.comment,
+    storage_root: d.storageRoot,
+    enable_predictive_optimization: d.enablePredictiveOptimization,
+    catalog_type: d.catalogType,
+    provider_name: d.providerName,
+    share_name: d.shareName,
+    connection_name: d.connectionName,
+    metastore_id: d.metastoreId,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    storage_location: d.storageLocation,
+    isolation_mode: d.isolationMode,
+    effective_predictive_optimization_flag:
+      d.effectivePredictiveOptimizationFlag,
+    browse_only: d.browseOnly,
+    provisioning_info: d.provisioningInfo,
+    full_name: d.fullName,
+    securable_type: d.securableType,
+    custom_max_retention_hours: d.customMaxRetentionHours,
+    managed_encryption_settings: d.managedEncryptionSettings,
+    properties: d.properties,
+    options: d.options,
+  }));
+
 export const marshalCreateCatalogRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -694,6 +755,18 @@ export const marshalCreateCatalogRequestSchema: z.ZodType = z
     options: d.options,
   }));
 
+export const marshalDeleteCatalogRequestSchema: z.ZodType = z
+  .object({
+    nameArg: z.string().optional(),
+    force: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name_arg: d.nameArg,
+    force: d.force,
+  }));
+
+export const marshalDeleteCatalogResponseSchema: z.ZodType = z.object({});
+
 export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
   .object({
     value: z.string().optional(),
@@ -718,6 +791,40 @@ export const marshalEncryptionSettingsSchema: z.ZodType = z
     customer_managed_key_id: d.customerManagedKeyId,
     azure_key_vault_key_id: d.azureKeyVaultKeyId,
     azure_encryption_settings: d.azureEncryptionSettings,
+  }));
+
+export const marshalGetCatalogRequestSchema: z.ZodType = z
+  .object({
+    nameArg: z.string().optional(),
+    includeBrowse: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name_arg: d.nameArg,
+    include_browse: d.includeBrowse,
+  }));
+
+export const marshalListCatalogsRequestSchema: z.ZodType = z
+  .object({
+    includeBrowse: z.boolean().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+    includeUnbound: z.boolean().optional(),
+  })
+  .transform(d => ({
+    include_browse: d.includeBrowse,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+    include_unbound: d.includeUnbound,
+  }));
+
+export const marshalListCatalogsResponseSchema: z.ZodType = z
+  .object({
+    catalogs: z.array(z.lazy(() => marshalCatalogInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    catalogs: d.catalogs,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalProvisioningInfoSchema: z.ZodType = z

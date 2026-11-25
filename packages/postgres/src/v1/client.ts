@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -231,8 +232,11 @@ export class PostgresClient {
     req: AcknowledgeAssessmentWarningsRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/acknowledgeWarnings`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}/acknowledgeWarnings`;
     const body = marshalRequest(
       req,
       marshalAcknowledgeAssessmentWarningsRequestSchema
@@ -277,8 +281,11 @@ export class PostgresClient {
     req: AssessMigrationRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/assess`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}/assess`;
     const body = marshalRequest(req, marshalAssessMigrationRequestSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -320,8 +327,11 @@ export class PostgresClient {
     req: CreateBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/branches`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/branches`;
     const params = new URLSearchParams();
     if (req.branchId !== undefined) {
       params.append('branch_id', req.branchId);
@@ -331,7 +341,10 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.branch, marshalBranchSchema);
+    const body =
+      req.branch === undefined
+        ? 'null'
+        : marshalRequest(req.branch, marshalBranchSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -392,7 +405,10 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.catalog, marshalCatalogSchema);
+    const body =
+      req.catalog === undefined
+        ? 'null'
+        : marshalRequest(req.catalog, marshalCatalogSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -450,15 +466,21 @@ export class PostgresClient {
     req: CreateCdfConfigRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/cdf-configs`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/cdf-configs`;
     const params = new URLSearchParams();
     if (req.cdfConfigId !== undefined) {
       params.append('cdf_config_id', req.cdfConfigId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.cdfConfig, marshalCdfConfigSchema);
+    const body =
+      req.cdfConfig === undefined
+        ? 'null'
+        : marshalRequest(req.cdfConfig, marshalCdfConfigSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -510,9 +532,15 @@ export class PostgresClient {
     req: CreateDataApiRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/data-api`;
-    const body = marshalRequest(req.dataApi, marshalDataApiSchema);
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/data-api`;
+    const body =
+      req.dataApi === undefined
+        ? 'null'
+        : marshalRequest(req.dataApi, marshalDataApiSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -557,8 +585,11 @@ export class PostgresClient {
     req: CreateDatabaseRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/databases`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/databases`;
     const params = new URLSearchParams();
     if (req.databaseId !== undefined) {
       params.append('database_id', req.databaseId);
@@ -568,7 +599,10 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.database, marshalDatabaseSchema);
+    const body =
+      req.database === undefined
+        ? 'null'
+        : marshalRequest(req.database, marshalDatabaseSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -623,8 +657,11 @@ export class PostgresClient {
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/endpoints`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/endpoints`;
     const params = new URLSearchParams();
     if (req.endpointId !== undefined) {
       params.append('endpoint_id', req.endpointId);
@@ -634,7 +671,10 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.endpoint, marshalEndpointSchema);
+    const body =
+      req.endpoint === undefined
+        ? 'null'
+        : marshalRequest(req.endpoint, marshalEndpointSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -693,7 +733,10 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.migration, marshalMigrationSchema);
+    const body =
+      req.migration === undefined
+        ? 'null'
+        : marshalRequest(req.migration, marshalMigrationSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -752,7 +795,10 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.project, marshalProjectSchema);
+    const body =
+      req.project === undefined
+        ? 'null'
+        : marshalRequest(req.project, marshalProjectSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -803,8 +849,11 @@ export class PostgresClient {
     req: CreateRoleRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/roles`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/roles`;
     const params = new URLSearchParams();
     if (req.roleId !== undefined) {
       params.append('role_id', req.roleId);
@@ -814,7 +863,10 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.role, marshalRoleSchema);
+    const body =
+      req.role === undefined
+        ? 'null'
+        : marshalRequest(req.role, marshalRoleSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -865,15 +917,21 @@ export class PostgresClient {
     req: CreateSnapshotRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/snapshots`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/snapshots`;
     const params = new URLSearchParams();
     if (req.snapshotId !== undefined) {
       params.append('snapshot_id', req.snapshotId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.snapshot, marshalSnapshotSchema);
+    const body =
+      req.snapshot === undefined
+        ? 'null'
+        : marshalRequest(req.snapshot, marshalSnapshotSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -935,7 +993,10 @@ export class PostgresClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.syncedTable, marshalSyncedTableSchema);
+    const body =
+      req.syncedTable === undefined
+        ? 'null'
+        : marshalRequest(req.syncedTable, marshalSyncedTableSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -985,8 +1046,11 @@ export class PostgresClient {
     req: DeleteBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.purge !== undefined) {
       params.append('purge', String(req.purge));
@@ -1037,8 +1101,11 @@ export class PostgresClient {
     req: DeleteCatalogRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1087,8 +1154,11 @@ export class PostgresClient {
     req: DeleteCdfConfigRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -1139,8 +1209,11 @@ export class PostgresClient {
     req: DeleteDataApiRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1181,8 +1254,11 @@ export class PostgresClient {
     req: DeleteDatabaseRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1227,8 +1303,11 @@ export class PostgresClient {
     req: DeleteEndpointRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1273,8 +1352,11 @@ export class PostgresClient {
     req: DeleteMigrationRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1319,7 +1401,7 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.purge !== undefined) {
       params.append('purge', String(req.purge));
@@ -1369,8 +1451,11 @@ export class PostgresClient {
     req: DeleteRoleRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.reassignOwnedTo !== undefined) {
       params.append('reassign_owned_to', req.reassignOwnedTo);
@@ -1420,8 +1505,11 @@ export class PostgresClient {
     req: DeleteSnapshotRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1468,8 +1556,11 @@ export class PostgresClient {
     req: DeleteSyncedTableRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1545,8 +1636,11 @@ export class PostgresClient {
     req: GetAssessmentRequest,
     options?: CallOptions
   ): Promise<Assessment> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Assessment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1573,8 +1667,11 @@ export class PostgresClient {
     req: GetBranchRequest,
     options?: CallOptions
   ): Promise<Branch> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Branch | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1604,8 +1701,11 @@ export class PostgresClient {
     req: GetCatalogRequest,
     options?: CallOptions
   ): Promise<Catalog> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Catalog | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1635,8 +1735,11 @@ export class PostgresClient {
     req: GetCdfConfigRequest,
     options?: CallOptions
   ): Promise<CdfConfig> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: CdfConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1666,8 +1769,11 @@ export class PostgresClient {
     req: GetCdfStatusRequest,
     options?: CallOptions
   ): Promise<CdfStatus> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: CdfStatus | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1694,8 +1800,11 @@ export class PostgresClient {
     req: GetDataApiRequest,
     options?: CallOptions
   ): Promise<DataApi> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: DataApi | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1722,8 +1831,11 @@ export class PostgresClient {
     req: GetDatabaseRequest,
     options?: CallOptions
   ): Promise<Database> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Database | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1750,8 +1862,11 @@ export class PostgresClient {
     req: GetEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1778,8 +1893,11 @@ export class PostgresClient {
     req: GetMigrationRequest,
     options?: CallOptions
   ): Promise<Migration> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Migration | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1807,7 +1925,7 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name ?? '')}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1835,7 +1953,7 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<Project> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name ?? '')}`;
     let resp: Project | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1859,8 +1977,11 @@ export class PostgresClient {
 
   /** Retrieves information about the specified Postgres role, including its authentication method and permissions. */
   async getRole(req: GetRoleRequest, options?: CallOptions): Promise<Role> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Role | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1887,8 +2008,11 @@ export class PostgresClient {
     req: GetSnapshotRequest,
     options?: CallOptions
   ): Promise<Snapshot> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: Snapshot | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1918,8 +2042,11 @@ export class PostgresClient {
     req: GetSnapshotScheduleRequest,
     options?: CallOptions
   ): Promise<SnapshotSchedule> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: SnapshotSchedule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1946,8 +2073,11 @@ export class PostgresClient {
     req: GetSyncedTableRequest,
     options?: CallOptions
   ): Promise<SyncedTable> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}`;
     let resp: SyncedTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1974,8 +2104,11 @@ export class PostgresClient {
     req: ListAssessmentsRequest,
     options?: CallOptions
   ): Promise<ListAssessmentsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/assessments`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/assessments`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -2028,8 +2161,11 @@ export class PostgresClient {
     req: ListBranchesRequest,
     options?: CallOptions
   ): Promise<ListBranchesResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/branches`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/branches`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -2089,8 +2225,11 @@ export class PostgresClient {
     req: ListCdfConfigsRequest,
     options?: CallOptions
   ): Promise<ListCdfConfigsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/cdf-configs`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/cdf-configs`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -2147,8 +2286,11 @@ export class PostgresClient {
     req: ListCdfStatusesRequest,
     options?: CallOptions
   ): Promise<ListCdfStatusesResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/cdf-statuses`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/cdf-statuses`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -2201,8 +2343,11 @@ export class PostgresClient {
     req: ListDatabasesRequest,
     options?: CallOptions
   ): Promise<ListDatabasesResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/databases`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/databases`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -2258,8 +2403,11 @@ export class PostgresClient {
     req: ListEndpointsRequest,
     options?: CallOptions
   ): Promise<ListEndpointsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/endpoints`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/endpoints`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -2426,8 +2574,11 @@ export class PostgresClient {
     req: ListRolesRequest,
     options?: CallOptions
   ): Promise<ListRolesResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/roles`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/roles`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -2480,8 +2631,11 @@ export class PostgresClient {
     req: ListSnapshotsRequest,
     options?: CallOptions
   ): Promise<ListSnapshotsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.parent ?? ''}/snapshots`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.parent)}/snapshots`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -2534,8 +2688,11 @@ export class PostgresClient {
     req: RevealRolePasswordRequest,
     options?: CallOptions
   ): Promise<RevealRolePasswordResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/password`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}/password`;
     const body = marshalRequest(req, marshalRevealRolePasswordRequestSchema);
     let resp: RevealRolePasswordResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2567,8 +2724,11 @@ export class PostgresClient {
     req: StartMigrationRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/start`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}/start`;
     const body = marshalRequest(req, marshalStartMigrationRequestSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2614,8 +2774,11 @@ export class PostgresClient {
     req: UndeleteBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}/undelete`;
     const body = marshalRequest(req, marshalUndeleteBranchRequestSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2657,8 +2820,11 @@ export class PostgresClient {
     req: UndeleteMigrationRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}/undelete`;
     const body = marshalRequest(req, marshalUndeleteMigrationRequestSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2704,8 +2870,11 @@ export class PostgresClient {
     req: UndeleteProjectRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.name)}/undelete`;
     const body = marshalRequest(req, marshalUndeleteProjectRequestSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2752,14 +2921,17 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.branch?.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.branch?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.branch, marshalBranchSchema);
+    const body =
+      req.branch === undefined
+        ? 'null'
+        : marshalRequest(req.branch, marshalBranchSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -2807,14 +2979,17 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.dataApi?.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.dataApi?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.dataApi, marshalDataApiSchema);
+    const body =
+      req.dataApi === undefined
+        ? 'null'
+        : marshalRequest(req.dataApi, marshalDataApiSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -2862,14 +3037,17 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.database?.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.database?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.database, marshalDatabaseSchema);
+    const body =
+      req.database === undefined
+        ? 'null'
+        : marshalRequest(req.database, marshalDatabaseSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -2921,14 +3099,17 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.endpoint?.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.endpoint?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.endpoint, marshalEndpointSchema);
+    const body =
+      req.endpoint === undefined
+        ? 'null'
+        : marshalRequest(req.endpoint, marshalEndpointSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -2980,14 +3161,17 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.migration?.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.migration?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.migration, marshalMigrationSchema);
+    const body =
+      req.migration === undefined
+        ? 'null'
+        : marshalRequest(req.migration, marshalMigrationSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -3035,14 +3219,17 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.project?.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.project?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.project, marshalProjectSchema);
+    const body =
+      req.project === undefined
+        ? 'null'
+        : marshalRequest(req.project, marshalProjectSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -3098,14 +3285,17 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.role?.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.role?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.role, marshalRoleSchema);
+    const body =
+      req.role === undefined
+        ? 'null'
+        : marshalRequest(req.role, marshalRoleSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -3164,17 +3354,17 @@ export class PostgresClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/postgres/${req.snapshotSchedule?.name ?? ''}`;
+    const url = `${host}/api/2.0/postgres/${encodePathVariable(req.snapshotSchedule?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.snapshotSchedule,
-      marshalSnapshotScheduleSchema
-    );
+    const body =
+      req.snapshotSchedule === undefined
+        ? 'null'
+        : marshalRequest(req.snapshotSchedule, marshalSnapshotScheduleSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

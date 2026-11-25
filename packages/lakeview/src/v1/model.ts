@@ -884,6 +884,59 @@ export const unmarshalTrashDashboardResponseSchema: z.ZodType<TrashDashboardResp
 export const unmarshalUnpublishDashboardResponseSchema: z.ZodType<UnpublishDashboardResponse> =
   z.object({});
 
+export const marshalAuthorizationDetailsSchema: z.ZodType = z
+  .object({
+    type: z.string().optional(),
+    resourceName: z.string().optional(),
+    resourceLegacyAclPath: z.string().optional(),
+    grantRules: z
+      .array(z.lazy(() => marshalAuthorizationDetails_GrantRuleSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    type: d.type,
+    resource_name: d.resourceName,
+    resource_legacy_acl_path: d.resourceLegacyAclPath,
+    grant_rules: d.grantRules,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalAuthorizationDetails_GrantRuleSchema: z.ZodType = z
+  .object({
+    permissionSet: z.string().optional(),
+  })
+  .transform(d => ({
+    permission_set: d.permissionSet,
+  }));
+
+export const marshalCreateDashboardRequestSchema: z.ZodType = z
+  .object({
+    dashboard: z.lazy(() => marshalDashboardCreateSchema).optional(),
+    datasetCatalog: z.string().optional(),
+    datasetSchema: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard: d.dashboard,
+    dataset_catalog: d.datasetCatalog,
+    dataset_schema: d.datasetSchema,
+  }));
+
+export const marshalCreateScheduleRequestSchema: z.ZodType = z
+  .object({
+    schedule: z.lazy(() => marshalScheduleCreateSchema).optional(),
+  })
+  .transform(d => ({
+    schedule: d.schedule,
+  }));
+
+export const marshalCreateSubscriptionRequestSchema: z.ZodType = z
+  .object({
+    subscription: z.lazy(() => marshalSubscriptionCreateSchema).optional(),
+  })
+  .transform(d => ({
+    subscription: d.subscription,
+  }));
+
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronExpression: z.string().optional(),
@@ -956,6 +1009,166 @@ export const marshalDashboardCreateSchema: z.ZodType = z
     parent_path: d.parentPath,
   }));
 
+export const marshalDeleteScheduleRequestSchema: z.ZodType = z
+  .object({
+    scheduleId: z.string().optional(),
+    dashboardId: z.string().optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    schedule_id: d.scheduleId,
+    dashboard_id: d.dashboardId,
+    etag: d.etag,
+  }));
+
+export const marshalDeleteSubscriptionRequestSchema: z.ZodType = z
+  .object({
+    subscriptionId: z.string().optional(),
+    scheduleId: z.string().optional(),
+    dashboardId: z.string().optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    subscription_id: d.subscriptionId,
+    schedule_id: d.scheduleId,
+    dashboard_id: d.dashboardId,
+    etag: d.etag,
+  }));
+
+export const marshalGetDashboardRequestSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+  }));
+
+export const marshalGetPublishedDashboardRequestSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+  }));
+
+export const marshalGetPublishedDashboardTokenInfoRequestSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+    externalValue: z.string().optional(),
+    externalViewerId: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+    external_value: d.externalValue,
+    external_viewer_id: d.externalViewerId,
+  }));
+
+export const marshalGetPublishedDashboardTokenInfoResponseSchema: z.ZodType = z
+  .object({
+    customClaim: z.string().optional(),
+    scope: z.string().optional(),
+    authorizationDetails: z
+      .array(z.lazy(() => marshalAuthorizationDetailsSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    custom_claim: d.customClaim,
+    scope: d.scope,
+    authorization_details: d.authorizationDetails,
+  }));
+
+export const marshalGetScheduleRequestSchema: z.ZodType = z
+  .object({
+    scheduleId: z.string().optional(),
+    dashboardId: z.string().optional(),
+  })
+  .transform(d => ({
+    schedule_id: d.scheduleId,
+    dashboard_id: d.dashboardId,
+  }));
+
+export const marshalGetSubscriptionRequestSchema: z.ZodType = z
+  .object({
+    subscriptionId: z.string().optional(),
+    scheduleId: z.string().optional(),
+    dashboardId: z.string().optional(),
+  })
+  .transform(d => ({
+    subscription_id: d.subscriptionId,
+    schedule_id: d.scheduleId,
+    dashboard_id: d.dashboardId,
+  }));
+
+export const marshalListDashboardsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    showTrashed: z.boolean().optional(),
+    view: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    show_trashed: d.showTrashed,
+    view: d.view,
+  }));
+
+export const marshalListDashboardsResponseSchema: z.ZodType = z
+  .object({
+    dashboards: z.array(z.lazy(() => marshalDashboardSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboards: d.dashboards,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSchedulesRequestSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListSchedulesResponseSchema: z.ZodType = z
+  .object({
+    schedules: z.array(z.lazy(() => marshalScheduleSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    schedules: d.schedules,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSubscriptionsRequestSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+    scheduleId: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+    schedule_id: d.scheduleId,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListSubscriptionsResponseSchema: z.ZodType = z
+  .object({
+    subscriptions: z.array(z.lazy(() => marshalSubscriptionSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    subscriptions: d.subscriptions,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalMigrateDashboardRequestSchema: z.ZodType = z
   .object({
     sourceDashboardId: z.string().optional(),
@@ -982,6 +1195,23 @@ export const marshalPublishDashboardRequestSchema: z.ZodType = z
     warehouse_id: d.warehouseId,
   }));
 
+export const marshalPublishedDashboardSchema: z.ZodType = z
+  .object({
+    displayName: z.string().optional(),
+    warehouseId: z.string().optional(),
+    embedCredentials: z.boolean().optional(),
+    revisionCreateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    display_name: d.displayName,
+    warehouse_id: d.warehouseId,
+    embed_credentials: d.embedCredentials,
+    revision_create_time: d.revisionCreateTime,
+  }));
+
 export const marshalRevertDashboardRequestSchema: z.ZodType = z
   .object({
     dashboardId: z.string().optional(),
@@ -990,6 +1220,14 @@ export const marshalRevertDashboardRequestSchema: z.ZodType = z
   .transform(d => ({
     dashboard_id: d.dashboardId,
     etag: d.etag,
+  }));
+
+export const marshalRevertDashboardResponseSchema: z.ZodType = z
+  .object({
+    dashboard: z.lazy(() => marshalDashboardSchema).optional(),
+  })
+  .transform(d => ({
+    dashboard: d.dashboard,
   }));
 
 export const marshalScheduleSchema: z.ZodType = z
@@ -1048,6 +1286,36 @@ export const marshalScheduleCreateSchema: z.ZodType = z
     create_time: d.createTime,
     update_time: d.updateTime,
     warehouse_id: d.warehouseId,
+  }));
+
+export const marshalSubscriptionSchema: z.ZodType = z
+  .object({
+    subscriptionId: z.string().optional(),
+    scheduleId: z.string().optional(),
+    dashboardId: z.string().optional(),
+    subscriber: z.lazy(() => marshalSubscription_SubscriberSchema).optional(),
+    createdByUserId: z.bigint().optional(),
+    etag: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    skipNotify: z.boolean().optional(),
+  })
+  .transform(d => ({
+    subscription_id: d.subscriptionId,
+    schedule_id: d.scheduleId,
+    dashboard_id: d.dashboardId,
+    subscriber: d.subscriber,
+    created_by_user_id: d.createdByUserId,
+    etag: d.etag,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    skip_notify: d.skipNotify,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1109,4 +1377,44 @@ export const marshalSubscriptionCreateSchema: z.ZodType = z
     create_time: d.createTime,
     update_time: d.updateTime,
     skip_notify: d.skipNotify,
+  }));
+
+export const marshalTrashDashboardRequestSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+  }));
+
+export const marshalTrashDashboardResponseSchema: z.ZodType = z.object({});
+
+export const marshalUnpublishDashboardRequestSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+  }));
+
+export const marshalUnpublishDashboardResponseSchema: z.ZodType = z.object({});
+
+export const marshalUpdateDashboardRequestSchema: z.ZodType = z
+  .object({
+    dashboard: z.lazy(() => marshalDashboardSchema).optional(),
+    datasetCatalog: z.string().optional(),
+    datasetSchema: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard: d.dashboard,
+    dataset_catalog: d.datasetCatalog,
+    dataset_schema: d.datasetSchema,
+  }));
+
+export const marshalUpdateScheduleRequestSchema: z.ZodType = z
+  .object({
+    schedule: z.lazy(() => marshalScheduleSchema).optional(),
+  })
+  .transform(d => ({
+    schedule: d.schedule,
   }));

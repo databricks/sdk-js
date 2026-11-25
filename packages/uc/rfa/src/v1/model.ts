@@ -413,6 +413,16 @@ export const marshalBatchCreateAccessRequestsRequestSchema: z.ZodType = z
     requests: d.requests,
   }));
 
+export const marshalBatchCreateAccessRequestsResponseSchema: z.ZodType = z
+  .object({
+    responses: z
+      .array(z.lazy(() => marshalCreateAccessRequestResponseSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    responses: d.responses,
+  }));
+
 export const marshalCreateAccessRequestSchema: z.ZodType = z
   .object({
     behalfOf: z.lazy(() => marshalPrincipalSchema).optional(),
@@ -425,6 +435,28 @@ export const marshalCreateAccessRequestSchema: z.ZodType = z
     behalf_of: d.behalfOf,
     comment: d.comment,
     securable_permissions: d.securablePermissions,
+  }));
+
+export const marshalCreateAccessRequestResponseSchema: z.ZodType = z
+  .object({
+    behalfOf: z.lazy(() => marshalPrincipalSchema).optional(),
+    requestDestinations: z
+      .array(z.lazy(() => marshalAccessRequestDestinationsSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    behalf_of: d.behalfOf,
+    request_destinations: d.requestDestinations,
+  }));
+
+export const marshalGetAccessRequestDestinationsRequestSchema: z.ZodType = z
+  .object({
+    securableType: z.string().optional(),
+    fullName: z.string().optional(),
+  })
+  .transform(d => ({
+    securable_type: d.securableType,
+    full_name: d.fullName,
   }));
 
 export const marshalNotificationDestinationSchema: z.ZodType = z
@@ -469,6 +501,21 @@ export const marshalSecurablePermissionsSchema: z.ZodType = z
   .transform(d => ({
     securable: d.securable,
     permissions: d.permissions,
+  }));
+
+export const marshalUpdateAccessRequestDestinationsRequestSchema: z.ZodType = z
+  .object({
+    accessRequestDestinations: z
+      .lazy(() => marshalAccessRequestDestinationsSchema)
+      .optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    access_request_destinations: d.accessRequestDestinations,
+    update_mask: d.updateMask,
   }));
 
 export const marshalUrlConfigurationSchema: z.ZodType = z

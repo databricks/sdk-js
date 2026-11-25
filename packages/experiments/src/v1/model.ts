@@ -850,7 +850,7 @@ export interface Metric {
   key?: string | undefined;
   /** The value of the metric. */
   value?: number | undefined;
-  /** The timestamp at which the metric was recorded. */
+  /** Time at which the metric was recorded, as a Unix timestamp in milliseconds. */
   timestamp?: bigint | undefined;
   /** The step at which the metric was logged. */
   step?: bigint | undefined;
@@ -961,7 +961,7 @@ export interface RunInfo {
    * be removed in a future MLflow version.
    */
   runUuid?: string | undefined;
-  /** The experiment ID. */
+  /** ID of the experiment that the run belongs to. */
   experimentId?: string | undefined;
   /** The name of the run. */
   runName?: string | undefined;
@@ -978,19 +978,17 @@ export interface RunInfo {
   /** Unix timestamp of when the run ended in milliseconds. */
   endTime?: bigint | undefined;
   /**
-   * URI of the directory where artifacts should be uploaded.
-   * This can be a local path (starting with "/"), or a distributed file system (DFS)
-   * path, like ``s3://bucket/directory`` or ``dbfs:/my/directory``.
-   * If not set, the local ``./mlruns`` directory is  chosen.
+   * URI of the directory where the run's artifacts are stored. MLflow sets it when the run is
+   * created, as the `artifact_location` of the run's experiment followed by `/<run_id>/artifacts`.
    */
   artifactUri?: string | undefined;
-  /** Current life cycle stage of the experiment : OneOf("active", "deleted") */
+  /** Current life cycle stage of the run: `active` or `deleted`. */
   lifecycleStage?: string | undefined;
 }
 
 /** Run inputs. */
 export interface RunInputs {
-  /** Run metrics. */
+  /** Datasets used as inputs to the run. */
   datasetInputs?: DatasetInput[] | undefined;
   /** Model inputs to the Run. */
   modelInputs?: ModelInput[] | undefined;
@@ -1982,6 +1980,26 @@ export const marshalCreateExperimentRequestSchema: z.ZodType = z
     trace_location: d.traceLocation,
   }));
 
+export const marshalCreateExperimentResponseSchema: z.ZodType = z
+  .object({
+    experimentId: z.string().optional(),
+  })
+  .transform(d => ({
+    experiment_id: d.experimentId,
+  }));
+
+export const marshalCreateIssueRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    issue: z.lazy(() => marshalIssueSchema).optional(),
+    issueId: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    issue: d.issue,
+    issue_id: d.issueId,
+  }));
+
 export const marshalCreateLoggedModelRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
@@ -2000,6 +2018,14 @@ export const marshalCreateLoggedModelRequestSchema: z.ZodType = z
     tags: d.tags,
   }));
 
+export const marshalCreateLoggedModelResponseSchema: z.ZodType = z
+  .object({
+    model: z.lazy(() => marshalLoggedModelSchema).optional(),
+  })
+  .transform(d => ({
+    model: d.model,
+  }));
+
 export const marshalCreateRunRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
@@ -2014,6 +2040,14 @@ export const marshalCreateRunRequestSchema: z.ZodType = z
     run_name: d.runName,
     start_time: d.startTime,
     tags: d.tags,
+  }));
+
+export const marshalCreateRunResponseSchema: z.ZodType = z
+  .object({
+    run: z.lazy(() => marshalRunSchema).optional(),
+  })
+  .transform(d => ({
+    run: d.run,
   }));
 
 export const marshalDatasetSchema: z.ZodType = z
@@ -2052,6 +2086,32 @@ export const marshalDeleteExperimentRequestSchema: z.ZodType = z
     experiment_id: d.experimentId,
   }));
 
+export const marshalDeleteExperimentResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteLoggedModelRequestSchema: z.ZodType = z
+  .object({
+    modelId: z.string().optional(),
+  })
+  .transform(d => ({
+    model_id: d.modelId,
+  }));
+
+export const marshalDeleteLoggedModelResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteLoggedModelTagRequestSchema: z.ZodType = z
+  .object({
+    modelId: z.string().optional(),
+    tagKey: z.string().optional(),
+  })
+  .transform(d => ({
+    model_id: d.modelId,
+    tag_key: d.tagKey,
+  }));
+
+export const marshalDeleteLoggedModelTagResponseSchema: z.ZodType = z.object(
+  {}
+);
+
 export const marshalDeleteRunRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
@@ -2059,6 +2119,8 @@ export const marshalDeleteRunRequestSchema: z.ZodType = z
   .transform(d => ({
     run_id: d.runId,
   }));
+
+export const marshalDeleteRunResponseSchema: z.ZodType = z.object({});
 
 export const marshalDeleteRunsRequestSchema: z.ZodType = z
   .object({
@@ -2072,6 +2134,14 @@ export const marshalDeleteRunsRequestSchema: z.ZodType = z
     max_runs: d.maxRuns,
   }));
 
+export const marshalDeleteRunsResponseSchema: z.ZodType = z
+  .object({
+    runsDeleted: z.number().optional(),
+  })
+  .transform(d => ({
+    runs_deleted: d.runsDeleted,
+  }));
+
 export const marshalDeleteTagRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
@@ -2080,6 +2150,32 @@ export const marshalDeleteTagRequestSchema: z.ZodType = z
   .transform(d => ({
     run_id: d.runId,
     key: d.key,
+  }));
+
+export const marshalDeleteTagResponseSchema: z.ZodType = z.object({});
+
+export const marshalExperimentSchema: z.ZodType = z
+  .object({
+    experimentId: z.string().optional(),
+    name: z.string().optional(),
+    artifactLocation: z.string().optional(),
+    lifecycleStage: z.string().optional(),
+    lastUpdateTime: z.bigint().optional(),
+    creationTime: z.bigint().optional(),
+    tags: z.array(z.lazy(() => marshalExperimentTagSchema)).optional(),
+    traceLocation: z
+      .lazy(() => marshalExperimentTraceLocationSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    experiment_id: d.experimentId,
+    name: d.name,
+    artifact_location: d.artifactLocation,
+    lifecycle_stage: d.lifecycleStage,
+    last_update_time: d.lastUpdateTime,
+    creation_time: d.creationTime,
+    tags: d.tags,
+    trace_location: d.traceLocation,
   }));
 
 export const marshalExperimentTagSchema: z.ZodType = z
@@ -2109,6 +2205,18 @@ export const marshalExperimentTraceLocationSchema: z.ZodType = z
     }),
   }));
 
+export const marshalFileInfoSchema: z.ZodType = z
+  .object({
+    path: z.string().optional(),
+    isDir: z.boolean().optional(),
+    fileSize: z.bigint().optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+    is_dir: d.isDir,
+    file_size: d.fileSize,
+  }));
+
 export const marshalFinalizeLoggedModelRequestSchema: z.ZodType = z
   .object({
     modelId: z.string().optional(),
@@ -2117,6 +2225,100 @@ export const marshalFinalizeLoggedModelRequestSchema: z.ZodType = z
   .transform(d => ({
     model_id: d.modelId,
     status: d.status,
+  }));
+
+export const marshalFinalizeLoggedModelResponseSchema: z.ZodType = z
+  .object({
+    model: z.lazy(() => marshalLoggedModelSchema).optional(),
+  })
+  .transform(d => ({
+    model: d.model,
+  }));
+
+export const marshalGetExperimentByNameRequestSchema: z.ZodType = z
+  .object({
+    experimentName: z.string().optional(),
+  })
+  .transform(d => ({
+    experiment_name: d.experimentName,
+  }));
+
+export const marshalGetExperimentByNameResponseSchema: z.ZodType = z
+  .object({
+    experiment: z.lazy(() => marshalExperimentSchema).optional(),
+  })
+  .transform(d => ({
+    experiment: d.experiment,
+  }));
+
+export const marshalGetExperimentRequestSchema: z.ZodType = z
+  .object({
+    experimentId: z.string().optional(),
+  })
+  .transform(d => ({
+    experiment_id: d.experimentId,
+  }));
+
+export const marshalGetExperimentResponseSchema: z.ZodType = z
+  .object({
+    experiment: z.lazy(() => marshalExperimentSchema).optional(),
+    runs: z.array(z.lazy(() => marshalRunInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    experiment: d.experiment,
+    runs: d.runs,
+  }));
+
+export const marshalGetIssueRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetLoggedModelRequestSchema: z.ZodType = z
+  .object({
+    modelId: z.string().optional(),
+  })
+  .transform(d => ({
+    model_id: d.modelId,
+  }));
+
+export const marshalGetLoggedModelResponseSchema: z.ZodType = z
+  .object({
+    model: z.lazy(() => marshalLoggedModelSchema).optional(),
+  })
+  .transform(d => ({
+    model: d.model,
+  }));
+
+export const marshalGetMetricHistoryResponseSchema: z.ZodType = z
+  .object({
+    metrics: z.array(z.lazy(() => marshalMetricSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    metrics: d.metrics,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalGetRunRequestSchema: z.ZodType = z
+  .object({
+    runId: z.string().optional(),
+    runUuid: z.string().optional(),
+  })
+  .transform(d => ({
+    run_id: d.runId,
+    run_uuid: d.runUuid,
+  }));
+
+export const marshalGetRunResponseSchema: z.ZodType = z
+  .object({
+    run: z.lazy(() => marshalRunSchema).optional(),
+  })
+  .transform(d => ({
+    run: d.run,
   }));
 
 export const marshalInputTagSchema: z.ZodType = z
@@ -2186,6 +2388,70 @@ export const marshalIssueTagFilterSchema: z.ZodType = z
     values: d.values,
   }));
 
+export const marshalListArtifactsRequestSchema: z.ZodType = z
+  .object({
+    runId: z.string().optional(),
+    runUuid: z.string().optional(),
+    path: z.string().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    run_id: d.runId,
+    run_uuid: d.runUuid,
+    path: d.path,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListArtifactsResponseSchema: z.ZodType = z
+  .object({
+    rootUri: z.string().optional(),
+    files: z.array(z.lazy(() => marshalFileInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    root_uri: d.rootUri,
+    files: d.files,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListExperimentsRequestSchema: z.ZodType = z
+  .object({
+    viewType: z.string().optional(),
+    maxResults: z.bigint().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    view_type: d.viewType,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListExperimentsResponseSchema: z.ZodType = z
+  .object({
+    experiments: z.array(z.lazy(() => marshalExperimentSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    experiments: d.experiments,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListMetricHistoryRequestSchema: z.ZodType = z
+  .object({
+    runId: z.string().optional(),
+    runUuid: z.string().optional(),
+    metricKey: z.string().optional(),
+    pageToken: z.string().optional(),
+    maxResults: z.number().optional(),
+  })
+  .transform(d => ({
+    run_id: d.runId,
+    run_uuid: d.runUuid,
+    metric_key: d.metricKey,
+    page_token: d.pageToken,
+    max_results: d.maxResults,
+  }));
+
 export const marshalLogBatchRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
@@ -2200,6 +2466,8 @@ export const marshalLogBatchRequestSchema: z.ZodType = z
     tags: d.tags,
   }));
 
+export const marshalLogBatchResponseSchema: z.ZodType = z.object({});
+
 export const marshalLogInputsRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
@@ -2212,6 +2480,8 @@ export const marshalLogInputsRequestSchema: z.ZodType = z
     models: d.models,
   }));
 
+export const marshalLogInputsResponseSchema: z.ZodType = z.object({});
+
 export const marshalLogLoggedModelParamsRequestSchema: z.ZodType = z
   .object({
     modelId: z.string().optional(),
@@ -2221,6 +2491,10 @@ export const marshalLogLoggedModelParamsRequestSchema: z.ZodType = z
     model_id: d.modelId,
     params: d.params,
   }));
+
+export const marshalLogLoggedModelParamsResponseSchema: z.ZodType = z.object(
+  {}
+);
 
 export const marshalLogMetricRequestSchema: z.ZodType = z
   .object({
@@ -2246,6 +2520,8 @@ export const marshalLogMetricRequestSchema: z.ZodType = z
     dataset_digest: d.datasetDigest,
   }));
 
+export const marshalLogMetricResponseSchema: z.ZodType = z.object({});
+
 export const marshalLogModelRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
@@ -2256,6 +2532,8 @@ export const marshalLogModelRequestSchema: z.ZodType = z
     model_json: d.modelJson,
   }));
 
+export const marshalLogModelResponseSchema: z.ZodType = z.object({});
+
 export const marshalLogOutputsRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
@@ -2265,6 +2543,8 @@ export const marshalLogOutputsRequestSchema: z.ZodType = z
     run_id: d.runId,
     models: d.models,
   }));
+
+export const marshalLogOutputsResponseSchema: z.ZodType = z.object({});
 
 export const marshalLogParamRequestSchema: z.ZodType = z
   .object({
@@ -2278,6 +2558,58 @@ export const marshalLogParamRequestSchema: z.ZodType = z
     run_uuid: d.runUuid,
     key: d.key,
     value: d.value,
+  }));
+
+export const marshalLogParamResponseSchema: z.ZodType = z.object({});
+
+export const marshalLoggedModelSchema: z.ZodType = z
+  .object({
+    info: z.lazy(() => marshalLoggedModelInfoSchema).optional(),
+    data: z.lazy(() => marshalLoggedModelDataSchema).optional(),
+  })
+  .transform(d => ({
+    info: d.info,
+    data: d.data,
+  }));
+
+export const marshalLoggedModelDataSchema: z.ZodType = z
+  .object({
+    params: z.array(z.lazy(() => marshalLoggedModelParameterSchema)).optional(),
+    metrics: z.array(z.lazy(() => marshalMetricSchema)).optional(),
+  })
+  .transform(d => ({
+    params: d.params,
+    metrics: d.metrics,
+  }));
+
+export const marshalLoggedModelInfoSchema: z.ZodType = z
+  .object({
+    modelId: z.string().optional(),
+    experimentId: z.string().optional(),
+    name: z.string().optional(),
+    creationTimestampMs: z.bigint().optional(),
+    lastUpdatedTimestampMs: z.bigint().optional(),
+    artifactUri: z.string().optional(),
+    status: z.string().optional(),
+    creatorId: z.bigint().optional(),
+    modelType: z.string().optional(),
+    sourceRunId: z.string().optional(),
+    statusMessage: z.string().optional(),
+    tags: z.array(z.lazy(() => marshalLoggedModelTagSchema)).optional(),
+  })
+  .transform(d => ({
+    model_id: d.modelId,
+    experiment_id: d.experimentId,
+    name: d.name,
+    creation_timestamp_ms: d.creationTimestampMs,
+    last_updated_timestamp_ms: d.lastUpdatedTimestampMs,
+    artifact_uri: d.artifactUri,
+    status: d.status,
+    creator_id: d.creatorId,
+    model_type: d.modelType,
+    source_run_id: d.sourceRunId,
+    status_message: d.statusMessage,
+    tags: d.tags,
   }));
 
 export const marshalLoggedModelParameterSchema: z.ZodType = z
@@ -2358,6 +2690,8 @@ export const marshalRestoreExperimentRequestSchema: z.ZodType = z
     experiment_id: d.experimentId,
   }));
 
+export const marshalRestoreExperimentResponseSchema: z.ZodType = z.object({});
+
 export const marshalRestoreRunRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
@@ -2365,6 +2699,8 @@ export const marshalRestoreRunRequestSchema: z.ZodType = z
   .transform(d => ({
     run_id: d.runId,
   }));
+
+export const marshalRestoreRunResponseSchema: z.ZodType = z.object({});
 
 export const marshalRestoreRunsRequestSchema: z.ZodType = z
   .object({
@@ -2376,6 +2712,74 @@ export const marshalRestoreRunsRequestSchema: z.ZodType = z
     experiment_id: d.experimentId,
     min_timestamp_millis: d.minTimestampMillis,
     max_runs: d.maxRuns,
+  }));
+
+export const marshalRestoreRunsResponseSchema: z.ZodType = z
+  .object({
+    runsRestored: z.number().optional(),
+  })
+  .transform(d => ({
+    runs_restored: d.runsRestored,
+  }));
+
+export const marshalRunSchema: z.ZodType = z
+  .object({
+    info: z.lazy(() => marshalRunInfoSchema).optional(),
+    data: z.lazy(() => marshalRunDataSchema).optional(),
+    inputs: z.lazy(() => marshalRunInputsSchema).optional(),
+  })
+  .transform(d => ({
+    info: d.info,
+    data: d.data,
+    inputs: d.inputs,
+  }));
+
+export const marshalRunDataSchema: z.ZodType = z
+  .object({
+    metrics: z.array(z.lazy(() => marshalMetricSchema)).optional(),
+    params: z.array(z.lazy(() => marshalParamSchema)).optional(),
+    tags: z.array(z.lazy(() => marshalRunTagSchema)).optional(),
+  })
+  .transform(d => ({
+    metrics: d.metrics,
+    params: d.params,
+    tags: d.tags,
+  }));
+
+export const marshalRunInfoSchema: z.ZodType = z
+  .object({
+    runId: z.string().optional(),
+    runUuid: z.string().optional(),
+    experimentId: z.string().optional(),
+    runName: z.string().optional(),
+    userId: z.string().optional(),
+    status: z.string().optional(),
+    startTime: z.bigint().optional(),
+    endTime: z.bigint().optional(),
+    artifactUri: z.string().optional(),
+    lifecycleStage: z.string().optional(),
+  })
+  .transform(d => ({
+    run_id: d.runId,
+    run_uuid: d.runUuid,
+    experiment_id: d.experimentId,
+    run_name: d.runName,
+    user_id: d.userId,
+    status: d.status,
+    start_time: d.startTime,
+    end_time: d.endTime,
+    artifact_uri: d.artifactUri,
+    lifecycle_stage: d.lifecycleStage,
+  }));
+
+export const marshalRunInputsSchema: z.ZodType = z
+  .object({
+    datasetInputs: z.array(z.lazy(() => marshalDatasetInputSchema)).optional(),
+    modelInputs: z.array(z.lazy(() => marshalModelInputSchema)).optional(),
+  })
+  .transform(d => ({
+    dataset_inputs: d.datasetInputs,
+    model_inputs: d.modelInputs,
   }));
 
 export const marshalRunTagSchema: z.ZodType = z
@@ -2404,6 +2808,16 @@ export const marshalSearchExperimentsRequestSchema: z.ZodType = z
     view_type: d.viewType,
   }));
 
+export const marshalSearchExperimentsResponseSchema: z.ZodType = z
+  .object({
+    experiments: z.array(z.lazy(() => marshalExperimentSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    experiments: d.experiments,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalSearchIssuesRequestSchema: z.ZodType = z
   .object({
     parent: z.string().optional(),
@@ -2430,6 +2844,18 @@ export const marshalSearchIssuesRequestSchema: z.ZodType = z
     page_size: d.pageSize,
     page_token: d.pageToken,
     view: d.view,
+  }));
+
+export const marshalSearchIssuesResponseSchema: z.ZodType = z
+  .object({
+    issues: z.array(z.lazy(() => marshalIssueSchema)).optional(),
+    nextPageToken: z.string().optional(),
+    totalSize: z.number().optional(),
+  })
+  .transform(d => ({
+    issues: d.issues,
+    next_page_token: d.nextPageToken,
+    total_size: d.totalSize,
   }));
 
 export const marshalSearchLoggedModelsRequestSchema: z.ZodType = z
@@ -2480,6 +2906,16 @@ export const marshalSearchLoggedModelsRequest_OrderBySchema: z.ZodType = z
     dataset_digest: d.datasetDigest,
   }));
 
+export const marshalSearchLoggedModelsResponseSchema: z.ZodType = z
+  .object({
+    models: z.array(z.lazy(() => marshalLoggedModelSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    models: d.models,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalSearchRunsRequestSchema: z.ZodType = z
   .object({
     experimentIds: z.array(z.string()).optional(),
@@ -2498,6 +2934,16 @@ export const marshalSearchRunsRequestSchema: z.ZodType = z
     page_token: d.pageToken,
   }));
 
+export const marshalSearchRunsResponseSchema: z.ZodType = z
+  .object({
+    runs: z.array(z.lazy(() => marshalRunSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    runs: d.runs,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalSetExperimentTagRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
@@ -2510,6 +2956,8 @@ export const marshalSetExperimentTagRequestSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalSetExperimentTagResponseSchema: z.ZodType = z.object({});
+
 export const marshalSetLoggedModelTagsRequestSchema: z.ZodType = z
   .object({
     modelId: z.string().optional(),
@@ -2519,6 +2967,8 @@ export const marshalSetLoggedModelTagsRequestSchema: z.ZodType = z
     model_id: d.modelId,
     tags: d.tags,
   }));
+
+export const marshalSetLoggedModelTagsResponseSchema: z.ZodType = z.object({});
 
 export const marshalSetTagRequestSchema: z.ZodType = z
   .object({
@@ -2533,6 +2983,8 @@ export const marshalSetTagRequestSchema: z.ZodType = z
     key: d.key,
     value: d.value,
   }));
+
+export const marshalSetTagResponseSchema: z.ZodType = z.object({});
 
 export const marshalUcTraceLocationSchema: z.ZodType = z
   .object({
@@ -2558,6 +3010,21 @@ export const marshalUpdateExperimentRequestSchema: z.ZodType = z
     new_name: d.newName,
   }));
 
+export const marshalUpdateExperimentResponseSchema: z.ZodType = z.object({});
+
+export const marshalUpdateIssueRequestSchema: z.ZodType = z
+  .object({
+    issue: z.lazy(() => marshalIssueSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    issue: d.issue,
+    update_mask: d.updateMask,
+  }));
+
 export const marshalUpdateRunRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
@@ -2572,6 +3039,14 @@ export const marshalUpdateRunRequestSchema: z.ZodType = z
     status: d.status,
     end_time: d.endTime,
     run_name: d.runName,
+  }));
+
+export const marshalUpdateRunResponseSchema: z.ZodType = z
+  .object({
+    runInfo: z.lazy(() => marshalRunInfoSchema).optional(),
+  })
+  .transform(d => ({
+    run_info: d.runInfo,
   }));
 
 const issueFieldMaskSchema: FieldMaskSchema = {

@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -90,8 +91,17 @@ export class DataQualityClient {
     req: CancelRefreshRequest,
     options?: CallOptions
   ): Promise<CancelRefreshResponse> {
+    if (req.objectType === undefined) {
+      throw new Error('path parameter "object_type" is required');
+    }
+    if (req.objectId === undefined) {
+      throw new Error('path parameter "object_id" is required');
+    }
+    if (req.refreshId === undefined) {
+      throw new Error('path parameter "refresh_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}/cancel`;
+    const url = `${host}/api/data-quality/v1/monitors/${encodePathVariable(req.objectType)}/${encodePathVariable(req.objectId)}/refreshes/${String(req.refreshId)}/cancel`;
     const body = marshalRequest(req, marshalCancelRefreshRequestSchema);
     let resp: CancelRefreshResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -134,7 +144,10 @@ export class DataQualityClient {
   ): Promise<Monitor> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/data-quality/v1/monitors`;
-    const body = marshalRequest(req.monitor, marshalMonitorSchema);
+    const body =
+      req.monitor === undefined
+        ? 'null'
+        : marshalRequest(req.monitor, marshalMonitorSchema);
     let resp: Monitor | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -169,9 +182,18 @@ export class DataQualityClient {
     req: CreateRefreshRequest,
     options?: CallOptions
   ): Promise<Refresh> {
+    if (req.refresh?.objectType === undefined) {
+      throw new Error('path parameter "object_type" is required');
+    }
+    if (req.refresh?.objectId === undefined) {
+      throw new Error('path parameter "object_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-quality/v1/monitors/${req.refresh?.objectType ?? ''}/${req.refresh?.objectId ?? ''}/refreshes`;
-    const body = marshalRequest(req.refresh, marshalRefreshSchema);
+    const url = `${host}/api/data-quality/v1/monitors/${encodePathVariable(req.refresh?.objectType)}/${encodePathVariable(req.refresh?.objectId)}/refreshes`;
+    const body =
+      req.refresh === undefined
+        ? 'null'
+        : marshalRequest(req.refresh, marshalRefreshSchema);
     let resp: Refresh | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -212,8 +234,14 @@ export class DataQualityClient {
     req: DeleteMonitorRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.objectType === undefined) {
+      throw new Error('path parameter "object_type" is required');
+    }
+    if (req.objectId === undefined) {
+      throw new Error('path parameter "object_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
+    const url = `${host}/api/data-quality/v1/monitors/${encodePathVariable(req.objectType)}/${encodePathVariable(req.objectId)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -234,8 +262,17 @@ export class DataQualityClient {
     req: DeleteRefreshRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.objectType === undefined) {
+      throw new Error('path parameter "object_type" is required');
+    }
+    if (req.objectId === undefined) {
+      throw new Error('path parameter "object_id" is required');
+    }
+    if (req.refreshId === undefined) {
+      throw new Error('path parameter "refresh_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
+    const url = `${host}/api/data-quality/v1/monitors/${encodePathVariable(req.objectType)}/${encodePathVariable(req.objectId)}/refreshes/${String(req.refreshId)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -271,8 +308,14 @@ export class DataQualityClient {
     req: GetMonitorRequest,
     options?: CallOptions
   ): Promise<Monitor> {
+    if (req.objectType === undefined) {
+      throw new Error('path parameter "object_type" is required');
+    }
+    if (req.objectId === undefined) {
+      throw new Error('path parameter "object_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
+    const url = `${host}/api/data-quality/v1/monitors/${encodePathVariable(req.objectType)}/${encodePathVariable(req.objectId)}`;
     let resp: Monitor | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -310,8 +353,17 @@ export class DataQualityClient {
     req: GetRefreshRequest,
     options?: CallOptions
   ): Promise<Refresh> {
+    if (req.objectType === undefined) {
+      throw new Error('path parameter "object_type" is required');
+    }
+    if (req.objectId === undefined) {
+      throw new Error('path parameter "object_id" is required');
+    }
+    if (req.refreshId === undefined) {
+      throw new Error('path parameter "refresh_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
+    const url = `${host}/api/data-quality/v1/monitors/${encodePathVariable(req.objectType)}/${encodePathVariable(req.objectId)}/refreshes/${String(req.refreshId)}`;
     let resp: Refresh | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -403,8 +455,14 @@ export class DataQualityClient {
     req: ListRefreshRequest,
     options?: CallOptions
   ): Promise<ListRefreshResponse> {
+    if (req.objectType === undefined) {
+      throw new Error('path parameter "object_type" is required');
+    }
+    if (req.objectId === undefined) {
+      throw new Error('path parameter "object_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes`;
+    const url = `${host}/api/data-quality/v1/monitors/${encodePathVariable(req.objectType)}/${encodePathVariable(req.objectId)}/refreshes`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -468,15 +526,24 @@ export class DataQualityClient {
     req: UpdateMonitorRequest,
     options?: CallOptions
   ): Promise<Monitor> {
+    if (req.objectType === undefined) {
+      throw new Error('path parameter "object_type" is required');
+    }
+    if (req.objectId === undefined) {
+      throw new Error('path parameter "object_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
+    const url = `${host}/api/data-quality/v1/monitors/${encodePathVariable(req.objectType)}/${encodePathVariable(req.objectId)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.monitor, marshalMonitorSchema);
+    const body =
+      req.monitor === undefined
+        ? 'null'
+        : marshalRequest(req.monitor, marshalMonitorSchema);
     let resp: Monitor | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -509,15 +576,27 @@ export class DataQualityClient {
     req: UpdateRefreshRequest,
     options?: CallOptions
   ): Promise<Refresh> {
+    if (req.objectType === undefined) {
+      throw new Error('path parameter "object_type" is required');
+    }
+    if (req.objectId === undefined) {
+      throw new Error('path parameter "object_id" is required');
+    }
+    if (req.refreshId === undefined) {
+      throw new Error('path parameter "refresh_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
+    const url = `${host}/api/data-quality/v1/monitors/${encodePathVariable(req.objectType)}/${encodePathVariable(req.objectId)}/refreshes/${String(req.refreshId)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.refresh, marshalRefreshSchema);
+    const body =
+      req.refresh === undefined
+        ? 'null'
+        : marshalRequest(req.refresh, marshalRefreshSchema);
     let resp: Refresh | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

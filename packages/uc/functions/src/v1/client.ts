@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -114,8 +115,11 @@ export class FunctionsClient {
     req: DeleteFunctionRequest,
     options?: CallOptions
   ): Promise<DeleteFunctionResponse> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/functions/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/functions/${encodePathVariable(req.fullNameArg)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -155,8 +159,11 @@ export class FunctionsClient {
     req: GetFunctionRequest,
     options?: CallOptions
   ): Promise<FunctionInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/functions/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/functions/${encodePathVariable(req.fullNameArg)}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
       params.append('include_browse', String(req.includeBrowse));
@@ -269,8 +276,11 @@ export class FunctionsClient {
     req: UpdateFunctionRequest,
     options?: CallOptions
   ): Promise<FunctionInfo> {
+    if (req.fullNameArg === undefined) {
+      throw new Error('path parameter "full_name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/functions/${req.fullNameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/functions/${encodePathVariable(req.fullNameArg)}`;
     const body = marshalRequest(req, marshalUpdateFunctionRequestSchema);
     let resp: FunctionInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

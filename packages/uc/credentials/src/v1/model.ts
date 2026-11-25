@@ -2273,6 +2273,71 @@ export const marshalAccountsCreateStorageCredentialRequestSchema: z.ZodType = z
     skip_validation: d.skipValidation,
   }));
 
+export const marshalAccountsCreateStorageCredentialResponseSchema: z.ZodType = z
+  .object({
+    credentialInfo: z.lazy(() => marshalStorageCredentialInfoSchema).optional(),
+  })
+  .transform(d => ({
+    credential_info: d.credentialInfo,
+  }));
+
+export const marshalAccountsDeleteStorageCredentialRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    metastoreId: z.string().optional(),
+    nameArg: z.string().optional(),
+    force: z.boolean().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    metastore_id: d.metastoreId,
+    name_arg: d.nameArg,
+    force: d.force,
+  }));
+
+export const marshalAccountsDeleteStorageCredentialResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalAccountsGetStorageCredentialRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    metastoreId: z.string().optional(),
+    nameArg: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    metastore_id: d.metastoreId,
+    name_arg: d.nameArg,
+  }));
+
+export const marshalAccountsGetStorageCredentialResponseSchema: z.ZodType = z
+  .object({
+    credentialInfo: z.lazy(() => marshalStorageCredentialInfoSchema).optional(),
+  })
+  .transform(d => ({
+    credential_info: d.credentialInfo,
+  }));
+
+export const marshalAccountsListStorageCredentialsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    metastoreId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    metastore_id: d.metastoreId,
+  }));
+
+export const marshalAccountsListStorageCredentialsResponseSchema: z.ZodType = z
+  .object({
+    storageCredentials: z
+      .array(z.lazy(() => marshalStorageCredentialInfoSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    storage_credentials: d.storageCredentials,
+  }));
+
 export const marshalAccountsUpdateStorageCredentialRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
@@ -2289,6 +2354,29 @@ export const marshalAccountsUpdateStorageCredentialRequestSchema: z.ZodType = z
     name_arg: d.nameArg,
     credential_info: d.credentialInfo,
     skip_validation: d.skipValidation,
+  }));
+
+export const marshalAccountsUpdateStorageCredentialResponseSchema: z.ZodType = z
+  .object({
+    credentialInfo: z.lazy(() => marshalStorageCredentialInfoSchema).optional(),
+  })
+  .transform(d => ({
+    credential_info: d.credentialInfo,
+  }));
+
+export const marshalAwsCredentialsSchema: z.ZodType = z
+  .object({
+    creds: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('stsRole'),
+          stsRole: z.lazy(() => marshalAwsCredentials_StsRoleSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.creds?.$case === 'stsRole' && {sts_role: d.creds.stsRole}),
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2310,6 +2398,14 @@ export const marshalAwsIamRoleSchema: z.ZodType = z
     role_arn: d.roleArn,
     unity_catalog_iam_arn: d.unityCatalogIamArn,
     external_id: d.externalId,
+  }));
+
+export const marshalAzureActiveDirectoryTokenSchema: z.ZodType = z
+  .object({
+    aadToken: z.string().optional(),
+  })
+  .transform(d => ({
+    aad_token: d.aadToken,
   }));
 
 export const marshalAzureManagedIdentitySchema: z.ZodType = z
@@ -2334,6 +2430,14 @@ export const marshalAzureServicePrincipalSchema: z.ZodType = z
     directory_id: d.directoryId,
     application_id: d.applicationId,
     client_secret: d.clientSecret,
+  }));
+
+export const marshalAzureUserDelegationSasSchema: z.ZodType = z
+  .object({
+    sasToken: z.string().optional(),
+  })
+  .transform(d => ({
+    sas_token: d.sasToken,
   }));
 
 export const marshalCloudflareApiTokenSchema: z.ZodType = z
@@ -2636,6 +2740,113 @@ export const marshalCreateStorageCredentialRequestSchema: z.ZodType = z
     isolation_mode: d.isolationMode,
   }));
 
+export const marshalCredentialInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    credential: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsIamRole'),
+          awsIamRole: z.lazy(() => marshalAwsIamRoleSchema),
+        }),
+        z.object({
+          $case: z.literal('azureServicePrincipal'),
+          azureServicePrincipal: z.lazy(
+            () => marshalAzureServicePrincipalSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('gcpServiceAccountKey'),
+          gcpServiceAccountKey: z.lazy(() => marshalGcpServiceAccountKeySchema),
+        }),
+        z.object({
+          $case: z.literal('azureManagedIdentity'),
+          azureManagedIdentity: z.lazy(() => marshalAzureManagedIdentitySchema),
+        }),
+        z.object({
+          $case: z.literal('databricksGcpServiceAccount'),
+          databricksGcpServiceAccount: z.lazy(
+            () => marshalDatabricksGcpServiceAccountSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('cloudflareApiToken'),
+          cloudflareApiToken: z.lazy(() => marshalCloudflareApiTokenSchema),
+        }),
+      ])
+      .optional(),
+    comment: z.string().optional(),
+    readOnly: z.boolean().optional(),
+    owner: z.string().optional(),
+    id: z.string().optional(),
+    metastoreId: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    usedForManagedStorage: z.boolean().optional(),
+    fullName: z.string().optional(),
+    isolationMode: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    ...(d.credential?.$case === 'awsIamRole' && {
+      aws_iam_role: d.credential.awsIamRole,
+    }),
+    ...(d.credential?.$case === 'azureServicePrincipal' && {
+      azure_service_principal: d.credential.azureServicePrincipal,
+    }),
+    ...(d.credential?.$case === 'gcpServiceAccountKey' && {
+      gcp_service_account_key: d.credential.gcpServiceAccountKey,
+    }),
+    ...(d.credential?.$case === 'azureManagedIdentity' && {
+      azure_managed_identity: d.credential.azureManagedIdentity,
+    }),
+    ...(d.credential?.$case === 'databricksGcpServiceAccount' && {
+      databricks_gcp_service_account: d.credential.databricksGcpServiceAccount,
+    }),
+    ...(d.credential?.$case === 'cloudflareApiToken' && {
+      cloudflare_api_token: d.credential.cloudflareApiToken,
+    }),
+    comment: d.comment,
+    read_only: d.readOnly,
+    owner: d.owner,
+    id: d.id,
+    metastore_id: d.metastoreId,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    used_for_managed_storage: d.usedForManagedStorage,
+    full_name: d.fullName,
+    isolation_mode: d.isolationMode,
+  }));
+
+export const marshalCredentialsSchema: z.ZodType = z
+  .object({
+    credentialsId: z.string().optional(),
+    accountId: z.string().optional(),
+    cloudCredentials: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsCredentials'),
+          awsCredentials: z.lazy(() => marshalAwsCredentialsSchema),
+        }),
+      ])
+      .optional(),
+    credentialsName: z.string().optional(),
+    creationTime: z.bigint().optional(),
+  })
+  .transform(d => ({
+    credentials_id: d.credentialsId,
+    account_id: d.accountId,
+    ...(d.cloudCredentials?.$case === 'awsCredentials' && {
+      aws_credentials: d.cloudCredentials.awsCredentials,
+    }),
+    credentials_name: d.credentialsName,
+    creation_time: d.creationTime,
+  }));
+
 export const marshalDatabricksGcpServiceAccountSchema: z.ZodType = z
   .object({
     email: z.string().optional(),
@@ -2646,6 +2857,50 @@ export const marshalDatabricksGcpServiceAccountSchema: z.ZodType = z
     email: d.email,
     private_key_id: d.privateKeyId,
     credential_id: d.credentialId,
+  }));
+
+export const marshalDeleteCredentialRequestSchema: z.ZodType = z
+  .object({
+    nameArg: z.string().optional(),
+    force: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name_arg: d.nameArg,
+    force: d.force,
+  }));
+
+export const marshalDeleteCredentialResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteCredentialsRequestSchema: z.ZodType = z
+  .object({
+    credentialsId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    credentials_id: d.credentialsId,
+    account_id: d.accountId,
+  }));
+
+export const marshalDeleteStorageCredentialRequestSchema: z.ZodType = z
+  .object({
+    nameArg: z.string().optional(),
+    force: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name_arg: d.nameArg,
+    force: d.force,
+  }));
+
+export const marshalDeleteStorageCredentialResponseSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalGcpOauthTokenSchema: z.ZodType = z
+  .object({
+    oauthToken: z.string().optional(),
+  })
+  .transform(d => ({
+    oauth_token: d.oauthToken,
   }));
 
 export const marshalGcpServiceAccountKeySchema: z.ZodType = z
@@ -2670,6 +2925,59 @@ export const marshalGenerateTemporaryPathCredentialRequestSchema: z.ZodType = z
     url: d.url,
     operation: d.operation,
     dry_run: d.dryRun,
+  }));
+
+export const marshalGenerateTemporaryPathCredentialResponseSchema: z.ZodType = z
+  .object({
+    credentials: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsTempCredentials'),
+          awsTempCredentials: z.lazy(
+            () => marshalTemporaryAwsCredentialsSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('azureUserDelegationSas'),
+          azureUserDelegationSas: z.lazy(
+            () => marshalAzureUserDelegationSasSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('gcpOauthToken'),
+          gcpOauthToken: z.lazy(() => marshalGcpOauthTokenSchema),
+        }),
+        z.object({
+          $case: z.literal('azureAad'),
+          azureAad: z.lazy(() => marshalAzureActiveDirectoryTokenSchema),
+        }),
+        z.object({
+          $case: z.literal('r2TempCredentials'),
+          r2TempCredentials: z.lazy(() => marshalR2CredentialsSchema),
+        }),
+      ])
+      .optional(),
+    expirationTime: z.bigint().optional(),
+    url: z.string().optional(),
+  })
+  .transform(d => ({
+    ...(d.credentials?.$case === 'awsTempCredentials' && {
+      aws_temp_credentials: d.credentials.awsTempCredentials,
+    }),
+    ...(d.credentials?.$case === 'azureUserDelegationSas' && {
+      azure_user_delegation_sas: d.credentials.azureUserDelegationSas,
+    }),
+    ...(d.credentials?.$case === 'gcpOauthToken' && {
+      gcp_oauth_token: d.credentials.gcpOauthToken,
+    }),
+    ...(d.credentials?.$case === 'azureAad' && {
+      azure_aad: d.credentials.azureAad,
+    }),
+    ...(d.credentials?.$case === 'r2TempCredentials' && {
+      r2_temp_credentials: d.credentials.r2TempCredentials,
+    }),
+    expiration_time: d.expirationTime,
+    url: d.url,
   }));
 
 export const marshalGenerateTemporaryServiceCredentialRequestSchema: z.ZodType =
@@ -2735,6 +3043,60 @@ export const marshalGenerateTemporaryTableCredentialRequestSchema: z.ZodType = z
     operation: d.operation,
   }));
 
+export const marshalGenerateTemporaryTableCredentialResponseSchema: z.ZodType =
+  z
+    .object({
+      credentials: z
+        .discriminatedUnion('$case', [
+          z.object({
+            $case: z.literal('awsTempCredentials'),
+            awsTempCredentials: z.lazy(
+              () => marshalTemporaryAwsCredentialsSchema
+            ),
+          }),
+          z.object({
+            $case: z.literal('azureUserDelegationSas'),
+            azureUserDelegationSas: z.lazy(
+              () => marshalAzureUserDelegationSasSchema
+            ),
+          }),
+          z.object({
+            $case: z.literal('gcpOauthToken'),
+            gcpOauthToken: z.lazy(() => marshalGcpOauthTokenSchema),
+          }),
+          z.object({
+            $case: z.literal('azureAad'),
+            azureAad: z.lazy(() => marshalAzureActiveDirectoryTokenSchema),
+          }),
+          z.object({
+            $case: z.literal('r2TempCredentials'),
+            r2TempCredentials: z.lazy(() => marshalR2CredentialsSchema),
+          }),
+        ])
+        .optional(),
+      expirationTime: z.bigint().optional(),
+      url: z.string().optional(),
+    })
+    .transform(d => ({
+      ...(d.credentials?.$case === 'awsTempCredentials' && {
+        aws_temp_credentials: d.credentials.awsTempCredentials,
+      }),
+      ...(d.credentials?.$case === 'azureUserDelegationSas' && {
+        azure_user_delegation_sas: d.credentials.azureUserDelegationSas,
+      }),
+      ...(d.credentials?.$case === 'gcpOauthToken' && {
+        gcp_oauth_token: d.credentials.gcpOauthToken,
+      }),
+      ...(d.credentials?.$case === 'azureAad' && {
+        azure_aad: d.credentials.azureAad,
+      }),
+      ...(d.credentials?.$case === 'r2TempCredentials' && {
+        r2_temp_credentials: d.credentials.r2TempCredentials,
+      }),
+      expiration_time: d.expirationTime,
+      url: d.url,
+    }));
+
 export const marshalGenerateTemporaryVolumeCredentialRequestSchema: z.ZodType =
   z
     .object({
@@ -2745,6 +3107,310 @@ export const marshalGenerateTemporaryVolumeCredentialRequestSchema: z.ZodType =
       volume_id: d.volumeId,
       operation: d.operation,
     }));
+
+export const marshalGenerateTemporaryVolumeCredentialResponseSchema: z.ZodType =
+  z
+    .object({
+      credentials: z
+        .discriminatedUnion('$case', [
+          z.object({
+            $case: z.literal('awsTempCredentials'),
+            awsTempCredentials: z.lazy(
+              () => marshalTemporaryAwsCredentialsSchema
+            ),
+          }),
+          z.object({
+            $case: z.literal('azureUserDelegationSas'),
+            azureUserDelegationSas: z.lazy(
+              () => marshalAzureUserDelegationSasSchema
+            ),
+          }),
+          z.object({
+            $case: z.literal('gcpOauthToken'),
+            gcpOauthToken: z.lazy(() => marshalGcpOauthTokenSchema),
+          }),
+          z.object({
+            $case: z.literal('azureAad'),
+            azureAad: z.lazy(() => marshalAzureActiveDirectoryTokenSchema),
+          }),
+          z.object({
+            $case: z.literal('r2TempCredentials'),
+            r2TempCredentials: z.lazy(() => marshalR2CredentialsSchema),
+          }),
+        ])
+        .optional(),
+      expirationTime: z.bigint().optional(),
+      url: z.string().optional(),
+    })
+    .transform(d => ({
+      ...(d.credentials?.$case === 'awsTempCredentials' && {
+        aws_temp_credentials: d.credentials.awsTempCredentials,
+      }),
+      ...(d.credentials?.$case === 'azureUserDelegationSas' && {
+        azure_user_delegation_sas: d.credentials.azureUserDelegationSas,
+      }),
+      ...(d.credentials?.$case === 'gcpOauthToken' && {
+        gcp_oauth_token: d.credentials.gcpOauthToken,
+      }),
+      ...(d.credentials?.$case === 'azureAad' && {
+        azure_aad: d.credentials.azureAad,
+      }),
+      ...(d.credentials?.$case === 'r2TempCredentials' && {
+        r2_temp_credentials: d.credentials.r2TempCredentials,
+      }),
+      expiration_time: d.expirationTime,
+      url: d.url,
+    }));
+
+export const marshalGetCredentialRequestSchema: z.ZodType = z
+  .object({
+    nameArg: z.string().optional(),
+  })
+  .transform(d => ({
+    name_arg: d.nameArg,
+  }));
+
+export const marshalGetCredentialsRequestSchema: z.ZodType = z
+  .object({
+    credentialsId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    credentials_id: d.credentialsId,
+    account_id: d.accountId,
+  }));
+
+export const marshalGetStorageCredentialRequestSchema: z.ZodType = z
+  .object({
+    nameArg: z.string().optional(),
+  })
+  .transform(d => ({
+    name_arg: d.nameArg,
+  }));
+
+export const marshalListCredentialsPublicRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+  }));
+
+export const marshalListCredentialsRequestSchema: z.ZodType = z
+  .object({
+    includeUnbound: z.boolean().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    include_unbound: d.includeUnbound,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalListCredentialsRequest_ResponseSchema: z.ZodType = z
+  .object({
+    credentials: z.array(z.lazy(() => marshalCredentialInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    credentials: d.credentials,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListCredentialsResponseSchema: z.ZodType = z
+  .object({
+    credentials: z.array(z.lazy(() => marshalCredentialsSchema)).optional(),
+  })
+  .transform(d => ({
+    credentials: d.credentials,
+  }));
+
+export const marshalListStorageCredentialsRequestSchema: z.ZodType = z
+  .object({
+    includeUnbound: z.boolean().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    include_unbound: d.includeUnbound,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListStorageCredentialsResponseSchema: z.ZodType = z
+  .object({
+    storageCredentials: z
+      .array(z.lazy(() => marshalStorageCredentialInfoSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    storage_credentials: d.storageCredentials,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalR2CredentialsSchema: z.ZodType = z
+  .object({
+    accessKeyId: z.string().optional(),
+    secretAccessKey: z.string().optional(),
+    sessionToken: z.string().optional(),
+  })
+  .transform(d => ({
+    access_key_id: d.accessKeyId,
+    secret_access_key: d.secretAccessKey,
+    session_token: d.sessionToken,
+  }));
+
+export const marshalStorageCredentialInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    credential: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsIamRole'),
+          awsIamRole: z.lazy(() => marshalAwsIamRoleSchema),
+        }),
+        z.object({
+          $case: z.literal('azureServicePrincipal'),
+          azureServicePrincipal: z.lazy(
+            () => marshalAzureServicePrincipalSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('gcpServiceAccountKey'),
+          gcpServiceAccountKey: z.lazy(() => marshalGcpServiceAccountKeySchema),
+        }),
+        z.object({
+          $case: z.literal('azureManagedIdentity'),
+          azureManagedIdentity: z.lazy(() => marshalAzureManagedIdentitySchema),
+        }),
+        z.object({
+          $case: z.literal('databricksGcpServiceAccount'),
+          databricksGcpServiceAccount: z.lazy(
+            () => marshalDatabricksGcpServiceAccountSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('cloudflareApiToken'),
+          cloudflareApiToken: z.lazy(() => marshalCloudflareApiTokenSchema),
+        }),
+      ])
+      .optional(),
+    comment: z.string().optional(),
+    readOnly: z.boolean().optional(),
+    owner: z.string().optional(),
+    id: z.string().optional(),
+    metastoreId: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    usedForManagedStorage: z.boolean().optional(),
+    fullName: z.string().optional(),
+    isolationMode: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    ...(d.credential?.$case === 'awsIamRole' && {
+      aws_iam_role: d.credential.awsIamRole,
+    }),
+    ...(d.credential?.$case === 'azureServicePrincipal' && {
+      azure_service_principal: d.credential.azureServicePrincipal,
+    }),
+    ...(d.credential?.$case === 'gcpServiceAccountKey' && {
+      gcp_service_account_key: d.credential.gcpServiceAccountKey,
+    }),
+    ...(d.credential?.$case === 'azureManagedIdentity' && {
+      azure_managed_identity: d.credential.azureManagedIdentity,
+    }),
+    ...(d.credential?.$case === 'databricksGcpServiceAccount' && {
+      databricks_gcp_service_account: d.credential.databricksGcpServiceAccount,
+    }),
+    ...(d.credential?.$case === 'cloudflareApiToken' && {
+      cloudflare_api_token: d.credential.cloudflareApiToken,
+    }),
+    comment: d.comment,
+    read_only: d.readOnly,
+    owner: d.owner,
+    id: d.id,
+    metastore_id: d.metastoreId,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    used_for_managed_storage: d.usedForManagedStorage,
+    full_name: d.fullName,
+    isolation_mode: d.isolationMode,
+  }));
+
+export const marshalTemporaryAwsCredentialsSchema: z.ZodType = z
+  .object({
+    accessKeyId: z.string().optional(),
+    secretAccessKey: z.string().optional(),
+    sessionToken: z.string().optional(),
+    accessPoint: z.string().optional(),
+  })
+  .transform(d => ({
+    access_key_id: d.accessKeyId,
+    secret_access_key: d.secretAccessKey,
+    session_token: d.sessionToken,
+    access_point: d.accessPoint,
+  }));
+
+export const marshalTemporaryCredentialsSchema: z.ZodType = z
+  .object({
+    credentials: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsTempCredentials'),
+          awsTempCredentials: z.lazy(
+            () => marshalTemporaryAwsCredentialsSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('azureUserDelegationSas'),
+          azureUserDelegationSas: z.lazy(
+            () => marshalAzureUserDelegationSasSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('gcpOauthToken'),
+          gcpOauthToken: z.lazy(() => marshalGcpOauthTokenSchema),
+        }),
+        z.object({
+          $case: z.literal('azureAad'),
+          azureAad: z.lazy(() => marshalAzureActiveDirectoryTokenSchema),
+        }),
+        z.object({
+          $case: z.literal('r2TempCredentials'),
+          r2TempCredentials: z.lazy(() => marshalR2CredentialsSchema),
+        }),
+      ])
+      .optional(),
+    expirationTime: z.bigint().optional(),
+    url: z.string().optional(),
+  })
+  .transform(d => ({
+    ...(d.credentials?.$case === 'awsTempCredentials' && {
+      aws_temp_credentials: d.credentials.awsTempCredentials,
+    }),
+    ...(d.credentials?.$case === 'azureUserDelegationSas' && {
+      azure_user_delegation_sas: d.credentials.azureUserDelegationSas,
+    }),
+    ...(d.credentials?.$case === 'gcpOauthToken' && {
+      gcp_oauth_token: d.credentials.gcpOauthToken,
+    }),
+    ...(d.credentials?.$case === 'azureAad' && {
+      azure_aad: d.credentials.azureAad,
+    }),
+    ...(d.credentials?.$case === 'r2TempCredentials' && {
+      r2_temp_credentials: d.credentials.r2TempCredentials,
+    }),
+    expiration_time: d.expirationTime,
+    url: d.url,
+  }));
 
 export const marshalUpdateAccountsStorageCredentialSchema: z.ZodType = z
   .object({
@@ -3054,6 +3720,32 @@ export const marshalValidateCredentialRequestSchema: z.ZodType = z
     read_only: d.readOnly,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalValidateCredentialRequest_ValidationResultSchema: z.ZodType =
+  z
+    .object({
+      result: z.string().optional(),
+      message: z.string().optional(),
+    })
+    .transform(d => ({
+      result: d.result,
+      message: d.message,
+    }));
+
+export const marshalValidateCredentialResponseSchema: z.ZodType = z
+  .object({
+    results: z
+      .array(
+        z.lazy(() => marshalValidateCredentialRequest_ValidationResultSchema)
+      )
+      .optional(),
+    isDir: z.boolean().optional(),
+  })
+  .transform(d => ({
+    results: d.results,
+    isDir: d.isDir,
+  }));
+
 export const marshalValidateStorageCredentialRequestSchema: z.ZodType = z
   .object({
     credential: z
@@ -3114,4 +3806,34 @@ export const marshalValidateStorageCredentialRequestSchema: z.ZodType = z
     external_location_name: d.externalLocationName,
     url: d.url,
     read_only: d.readOnly,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalValidateStorageCredentialRequest_ValidationResultSchema: z.ZodType =
+  z
+    .object({
+      operation: z.string().optional(),
+      result: z.string().optional(),
+      message: z.string().optional(),
+    })
+    .transform(d => ({
+      operation: d.operation,
+      result: d.result,
+      message: d.message,
+    }));
+
+export const marshalValidateStorageCredentialResponseSchema: z.ZodType = z
+  .object({
+    isDir: z.boolean().optional(),
+    results: z
+      .array(
+        z.lazy(
+          () => marshalValidateStorageCredentialRequest_ValidationResultSchema
+        )
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    isDir: d.isDir,
+    results: d.results,
   }));

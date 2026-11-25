@@ -62,3 +62,47 @@ export const unmarshalPolicyFamilySchema: z.ZodType<PolicyFamily> = z
     description: d.description,
     definition: d.definition,
   }));
+
+export const marshalGetPolicyFamilyRequestSchema: z.ZodType = z
+  .object({
+    policyFamilyId: z.string().optional(),
+    version: z.bigint().optional(),
+  })
+  .transform(d => ({
+    policy_family_id: d.policyFamilyId,
+    version: d.version,
+  }));
+
+export const marshalListPolicyFamiliesRequestSchema: z.ZodType = z
+  .object({
+    maxResults: z.bigint().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListPolicyFamiliesResponseSchema: z.ZodType = z
+  .object({
+    policyFamilies: z.array(z.lazy(() => marshalPolicyFamilySchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    policy_families: d.policyFamilies,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalPolicyFamilySchema: z.ZodType = z
+  .object({
+    policyFamilyId: z.string().optional(),
+    name: z.string().optional(),
+    description: z.string().optional(),
+    definition: z.string().optional(),
+  })
+  .transform(d => ({
+    policy_family_id: d.policyFamilyId,
+    name: d.name,
+    description: d.description,
+    definition: d.definition,
+  }));

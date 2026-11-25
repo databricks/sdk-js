@@ -1379,6 +1379,40 @@ export const unmarshalUpsertDataResponseSchema: z.ZodType<UpsertDataResponse> =
       result: d.result,
     }));
 
+export const marshalColumnInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    typeText: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    type_text: d.typeText,
+  }));
+
+export const marshalCreateEndpointRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    endpoint: z.lazy(() => marshalEndpointSchema).optional(),
+    endpointId: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    endpoint: d.endpoint,
+    endpoint_id: d.endpointId,
+  }));
+
+export const marshalCreateIndexRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    index: z.lazy(() => marshalIndexSchema).optional(),
+    indexId: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    index: d.index,
+    index_id: d.indexId,
+  }));
+
 export const marshalCustomTagSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
@@ -1387,6 +1421,32 @@ export const marshalCustomTagSchema: z.ZodType = z
   .transform(d => ({
     key: d.key,
     value: d.value,
+  }));
+
+export const marshalDataModificationResultSchema: z.ZodType = z
+  .object({
+    successRowCount: z.bigint().optional(),
+    failedPrimaryKeys: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    success_row_count: d.successRowCount,
+    failed_primary_keys: d.failedPrimaryKeys,
+  }));
+
+export const marshalDeleteEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteIndexRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalDeltaSyncIndexSpecSchema: z.ZodType = z
@@ -1560,6 +1620,32 @@ export const marshalEndpointThroughputInfoSchema: z.ZodType = z
     current_num_replicas: d.currentNumReplicas,
   }));
 
+export const marshalFacetResultDataSchema: z.ZodType = z
+  .object({
+    facetRowCount: z.number().optional(),
+    facetArray: z.array(z.array(jsonValueSchema)).optional(),
+  })
+  .transform(d => ({
+    facet_row_count: d.facetRowCount,
+    facet_array: d.facetArray,
+  }));
+
+export const marshalGetEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetIndexRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalIndexSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1616,6 +1702,50 @@ export const marshalIndexStatusSchema: z.ZodType = z
     index_url: d.indexUrl,
   }));
 
+export const marshalListEndpointsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListEndpointsResponseSchema: z.ZodType = z
+  .object({
+    endpoints: z.array(z.lazy(() => marshalEndpointSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    endpoints: d.endpoints,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListIndexesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListIndexesResponseSchema: z.ZodType = z
+  .object({
+    indexes: z.array(z.lazy(() => marshalIndexSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    indexes: d.indexes,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalQueryIndexRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1648,6 +1778,18 @@ export const marshalQueryIndexRequestSchema: z.ZodType = z
     max_results: d.maxResults,
   }));
 
+export const marshalQueryIndexResponseSchema: z.ZodType = z
+  .object({
+    manifest: z.lazy(() => marshalResultManifestSchema).optional(),
+    result: z.lazy(() => marshalResultDataSchema).optional(),
+    facetResult: z.lazy(() => marshalFacetResultDataSchema).optional(),
+  })
+  .transform(d => ({
+    manifest: d.manifest,
+    result: d.result,
+    facet_result: d.facetResult,
+  }));
+
 export const marshalRemoveDataRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1656,6 +1798,16 @@ export const marshalRemoveDataRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     primary_keys: d.primaryKeys,
+  }));
+
+export const marshalRemoveDataResponseSchema: z.ZodType = z
+  .object({
+    status: z.string().optional(),
+    result: z.lazy(() => marshalDataModificationResultSchema).optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+    result: d.result,
   }));
 
 export const marshalRerankerConfigSchema: z.ZodType = z
@@ -1681,6 +1833,30 @@ export const marshalRerankerConfig_RerankerParametersSchema: z.ZodType = z
     columns_to_rerank: d.columnsToRerank,
   }));
 
+export const marshalResultDataSchema: z.ZodType = z
+  .object({
+    rowCount: z.number().optional(),
+    dataArray: z.array(z.array(jsonValueSchema)).optional(),
+  })
+  .transform(d => ({
+    row_count: d.rowCount,
+    data_array: d.dataArray,
+  }));
+
+export const marshalResultManifestSchema: z.ZodType = z
+  .object({
+    columnCount: z.number().optional(),
+    columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
+    facetColumnCount: z.number().optional(),
+    facetColumns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    column_count: d.columnCount,
+    columns: d.columns,
+    facet_column_count: d.facetColumnCount,
+    facet_columns: d.facetColumns,
+  }));
+
 export const marshalScanIndexRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1693,12 +1869,37 @@ export const marshalScanIndexRequestSchema: z.ZodType = z
     page_token: d.pageToken,
   }));
 
+export const marshalScanIndexResponseSchema: z.ZodType = z
+  .object({
+    data: z.array(jsonObjectSchema).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    data: d.data,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalSyncIndexRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalSyncIndexResponseSchema: z.ZodType = z.object({});
+
+export const marshalUpdateEndpointRequestSchema: z.ZodType = z
+  .object({
+    endpoint: z.lazy(() => marshalEndpointSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    endpoint: d.endpoint,
+    update_mask: d.updateMask,
   }));
 
 export const marshalUpsertDataRequestSchema: z.ZodType = z
@@ -1709,6 +1910,16 @@ export const marshalUpsertDataRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     inputs_json: d.inputsJson,
+  }));
+
+export const marshalUpsertDataResponseSchema: z.ZodType = z
+  .object({
+    status: z.string().optional(),
+    result: z.lazy(() => marshalDataModificationResultSchema).optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+    result: d.result,
   }));
 
 const endpointFieldMaskSchema: FieldMaskSchema = {

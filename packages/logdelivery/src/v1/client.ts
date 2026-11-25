@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -88,7 +89,7 @@ export class LogDeliveryClient {
     options?: CallOptions
   ): Promise<CreateLogDeliveryConfigurationResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.logDeliveryConfiguration?.accountId ?? accountId ?? ''}/log-delivery`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.logDeliveryConfiguration?.accountId ?? accountId ?? '')}/log-delivery`;
     const body = marshalRequest(
       req,
       marshalCreateLogDeliveryConfigurationRequestSchema
@@ -119,8 +120,11 @@ export class LogDeliveryClient {
     req: GetLogDeliveryConfigurationRequest,
     options?: CallOptions
   ): Promise<GetLogDeliveryConfigurationResponse> {
+    if (req.configId === undefined) {
+      throw new Error('path parameter "config_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/log-delivery/${req.configId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/log-delivery/${encodePathVariable(req.configId)}`;
     let resp: GetLogDeliveryConfigurationResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -148,7 +152,7 @@ export class LogDeliveryClient {
     options?: CallOptions
   ): Promise<ListLogDeliveryConfigurationResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/log-delivery`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/log-delivery`;
     const params = new URLSearchParams();
     if (req.credentialsId !== undefined) {
       params.append('credentials_id', req.credentialsId);
@@ -211,8 +215,11 @@ export class LogDeliveryClient {
     req: UpdateLogDeliveryConfigurationRequest,
     options?: CallOptions
   ): Promise<UpdateLogDeliveryConfigurationResponse> {
+    if (req.configId === undefined) {
+      throw new Error('path parameter "config_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/log-delivery/${req.configId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/log-delivery/${encodePathVariable(req.configId)}`;
     const body = marshalRequest(
       req,
       marshalUpdateLogDeliveryConfigurationRequestSchema

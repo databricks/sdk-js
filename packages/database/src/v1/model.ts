@@ -1037,9 +1037,9 @@ export interface UpdateDatabaseInstanceRequest {
 }
 
 export interface UpdateSyncedDatabaseTableRequest {
-  /** Note that updating a synced database table is not yet supported. */
+  /** The synced database table and requested spec values. */
   syncedTable?: SyncedDatabaseTable | undefined;
-  /** The list of fields to update. Setting this field is not yet supported. */
+  /** The list of fields to update. Updatable paths include spec.accelerated_sync and *. */
   updateMask?: FieldMask<SyncedDatabaseTable> | undefined;
 }
 
@@ -1561,6 +1561,52 @@ export const unmarshalSyncedTableTriggeredUpdateStatusSchema: z.ZodType<SyncedTa
       triggeredUpdateProgress: d.triggered_update_progress,
     }));
 
+export const marshalCreateDatabaseCatalogRequestSchema: z.ZodType = z
+  .object({
+    catalog: z.lazy(() => marshalDatabaseCatalogSchema).optional(),
+  })
+  .transform(d => ({
+    catalog: d.catalog,
+  }));
+
+export const marshalCreateDatabaseInstanceRequestSchema: z.ZodType = z
+  .object({
+    databaseInstance: z.lazy(() => marshalDatabaseInstanceSchema).optional(),
+  })
+  .transform(d => ({
+    database_instance: d.databaseInstance,
+  }));
+
+export const marshalCreateDatabaseInstanceRoleRequestSchema: z.ZodType = z
+  .object({
+    instanceName: z.string().optional(),
+    databaseInstanceRole: z
+      .lazy(() => marshalDatabaseInstanceRoleSchema)
+      .optional(),
+    databaseInstanceName: z.string().optional(),
+  })
+  .transform(d => ({
+    instance_name: d.instanceName,
+    database_instance_role: d.databaseInstanceRole,
+    database_instance_name: d.databaseInstanceName,
+  }));
+
+export const marshalCreateDatabaseTableRequestSchema: z.ZodType = z
+  .object({
+    table: z.lazy(() => marshalDatabaseTableSchema).optional(),
+  })
+  .transform(d => ({
+    table: d.table,
+  }));
+
+export const marshalCreateSyncedDatabaseTableRequestSchema: z.ZodType = z
+  .object({
+    syncedTable: z.lazy(() => marshalSyncedDatabaseTableSchema).optional(),
+  })
+  .transform(d => ({
+    synced_table: d.syncedTable,
+  }));
+
 export const marshalCustomTagSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
@@ -1585,6 +1631,19 @@ export const marshalDatabaseCatalogSchema: z.ZodType = z
     database_name: d.databaseName,
     uid: d.uid,
     create_database_if_not_exists: d.createDatabaseIfNotExists,
+  }));
+
+export const marshalDatabaseCredentialSchema: z.ZodType = z
+  .object({
+    token: z.string().optional(),
+    expirationTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    token: d.token,
+    expiration_time: d.expirationTime,
   }));
 
 export const marshalDatabaseInstanceSchema: z.ZodType = z
@@ -1720,6 +1779,58 @@ export const marshalDatabaseTableSchema: z.ZodType = z
     logical_database_name: d.logicalDatabaseName,
   }));
 
+export const marshalDeleteDatabaseCatalogRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteDatabaseInstanceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    force: z.boolean().optional(),
+    purge: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    force: d.force,
+    purge: d.purge,
+  }));
+
+export const marshalDeleteDatabaseInstanceRoleRequestSchema: z.ZodType = z
+  .object({
+    instanceName: z.string().optional(),
+    name: z.string().optional(),
+    reassignOwnedTo: z.string().optional(),
+    allowMissing: z.boolean().optional(),
+  })
+  .transform(d => ({
+    instance_name: d.instanceName,
+    name: d.name,
+    reassign_owned_to: d.reassignOwnedTo,
+    allow_missing: d.allowMissing,
+  }));
+
+export const marshalDeleteDatabaseTableRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteSyncedDatabaseTableRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    purgeData: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    purge_data: d.purgeData,
+  }));
+
 export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
   .object({
     deltaCommitVersion: z.bigint().optional(),
@@ -1731,6 +1842,14 @@ export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
   .transform(d => ({
     delta_commit_version: d.deltaCommitVersion,
     delta_commit_timestamp: d.deltaCommitTimestamp,
+  }));
+
+export const marshalFindDatabaseInstanceByUidRequestSchema: z.ZodType = z
+  .object({
+    uid: z.string().optional(),
+  })
+  .transform(d => ({
+    uid: d.uid,
   }));
 
 export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
@@ -1745,6 +1864,142 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
     claims: d.claims,
   }));
 
+export const marshalGetDatabaseCatalogRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetDatabaseInstanceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetDatabaseInstanceRoleRequestSchema: z.ZodType = z
+  .object({
+    instanceName: z.string().optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    instance_name: d.instanceName,
+    name: d.name,
+  }));
+
+export const marshalGetDatabaseTableRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetSyncedDatabaseTableRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalListDatabaseCatalogsRequestSchema: z.ZodType = z
+  .object({
+    instanceName: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    instance_name: d.instanceName,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListDatabaseCatalogsResponseSchema: z.ZodType = z
+  .object({
+    databaseCatalogs: z
+      .array(z.lazy(() => marshalDatabaseCatalogSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    database_catalogs: d.databaseCatalogs,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListDatabaseInstanceRolesRequestSchema: z.ZodType = z
+  .object({
+    instanceName: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    instance_name: d.instanceName,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListDatabaseInstanceRolesResponseSchema: z.ZodType = z
+  .object({
+    databaseInstanceRoles: z
+      .array(z.lazy(() => marshalDatabaseInstanceRoleSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    database_instance_roles: d.databaseInstanceRoles,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListDatabaseInstancesRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListDatabaseInstancesResponseSchema: z.ZodType = z
+  .object({
+    databaseInstances: z
+      .array(z.lazy(() => marshalDatabaseInstanceSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    database_instances: d.databaseInstances,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSyncedDatabaseTablesRequestSchema: z.ZodType = z
+  .object({
+    instanceName: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    instance_name: d.instanceName,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListSyncedDatabaseTablesResponseSchema: z.ZodType = z
+  .object({
+    syncedTables: z
+      .array(z.lazy(() => marshalSyncedDatabaseTableSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    synced_tables: d.syncedTables,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalNewPipelineSpecSchema: z.ZodType = z
   .object({
     storageCatalog: z.string().optional(),
@@ -1756,6 +2011,8 @@ export const marshalNewPipelineSpecSchema: z.ZodType = z
     storage_schema: d.storageSchema,
     budget_policy_id: d.budgetPolicyId,
   }));
+
+export const marshalProvisioningInfoSchema: z.ZodType = z.object({});
 
 export const marshalRequestedClaimsSchema: z.ZodType = z
   .object({
@@ -2003,6 +2260,45 @@ export const marshalSyncedTableTriggeredUpdateStatusSchema: z.ZodType = z
     last_processed_commit_version: d.lastProcessedCommitVersion,
     timestamp: d.timestamp,
     triggered_update_progress: d.triggeredUpdateProgress,
+  }));
+
+export const marshalUpdateDatabaseCatalogRequestSchema: z.ZodType = z
+  .object({
+    databaseCatalog: z.lazy(() => marshalDatabaseCatalogSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    database_catalog: d.databaseCatalog,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateDatabaseInstanceRequestSchema: z.ZodType = z
+  .object({
+    databaseInstance: z.lazy(() => marshalDatabaseInstanceSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    database_instance: d.databaseInstance,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateSyncedDatabaseTableRequestSchema: z.ZodType = z
+  .object({
+    syncedTable: z.lazy(() => marshalSyncedDatabaseTableSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    synced_table: d.syncedTable,
+    update_mask: d.updateMask,
   }));
 
 const databaseCatalogFieldMaskSchema: FieldMaskSchema = {

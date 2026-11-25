@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -76,7 +77,10 @@ export class GenieAgentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.genieAgent, marshalGenieAgentSchema);
+    const body =
+      req.genieAgent === undefined
+        ? 'null'
+        : marshalRequest(req.genieAgent, marshalGenieAgentSchema);
     let resp: GenieAgent | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -109,8 +113,11 @@ export class GenieAgentsClient {
     req: DeleteGenieAgentRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/genie/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
       params.append('etag', req.etag);
@@ -137,8 +144,11 @@ export class GenieAgentsClient {
     req: GetGenieAgentRequest,
     options?: CallOptions
   ): Promise<GenieAgent> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/genie/${encodePathVariable(req.name)}`;
     let resp: GenieAgent | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -226,7 +236,7 @@ export class GenieAgentsClient {
     options?: CallOptions
   ): Promise<GenieAgent> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/genie/${req.genieAgent?.name ?? ''}`;
+    const url = `${host}/api/2.0/genie/${encodePathVariable(req.genieAgent?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -236,7 +246,10 @@ export class GenieAgentsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.genieAgent, marshalGenieAgentSchema);
+    const body =
+      req.genieAgent === undefined
+        ? 'null'
+        : marshalRequest(req.genieAgent, marshalGenieAgentSchema);
     let resp: GenieAgent | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

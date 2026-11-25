@@ -780,6 +780,14 @@ export const marshalComputePolicySchema: z.ZodType = z
     can_manage: d.canManage,
   }));
 
+export const marshalCreateComputePolicyRequestSchema: z.ZodType = z
+  .object({
+    computePolicy: z.lazy(() => marshalComputePolicySchema).optional(),
+  })
+  .transform(d => ({
+    compute_policy: d.computePolicy,
+  }));
+
 export const marshalCreatePolicyRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -800,6 +808,22 @@ export const marshalCreatePolicyRequestSchema: z.ZodType = z
     libraries: d.libraries,
   }));
 
+export const marshalCreatePolicyResponseSchema: z.ZodType = z
+  .object({
+    policyId: z.string().optional(),
+  })
+  .transform(d => ({
+    policy_id: d.policyId,
+  }));
+
+export const marshalDeleteComputePolicyRequestSchema: z.ZodType = z
+  .object({
+    computePolicyId: z.string().optional(),
+  })
+  .transform(d => ({
+    compute_policy_id: d.computePolicyId,
+  }));
+
 export const marshalDeletePolicyRequestSchema: z.ZodType = z
   .object({
     policyId: z.string().optional(),
@@ -807,6 +831,8 @@ export const marshalDeletePolicyRequestSchema: z.ZodType = z
   .transform(d => ({
     policy_id: d.policyId,
   }));
+
+export const marshalDeletePolicyResponseSchema: z.ZodType = z.object({});
 
 export const marshalEditPolicyRequestSchema: z.ZodType = z
   .object({
@@ -828,6 +854,24 @@ export const marshalEditPolicyRequestSchema: z.ZodType = z
     policy_family_definition_overrides: d.policyFamilyDefinitionOverrides,
     max_clusters_per_user: d.maxClustersPerUser,
     libraries: d.libraries,
+  }));
+
+export const marshalEditPolicyResponseSchema: z.ZodType = z.object({});
+
+export const marshalGetComputePolicyRequestSchema: z.ZodType = z
+  .object({
+    computePolicyId: z.string().optional(),
+  })
+  .transform(d => ({
+    compute_policy_id: d.computePolicyId,
+  }));
+
+export const marshalGetPolicyRequestSchema: z.ZodType = z
+  .object({
+    policyId: z.string().optional(),
+  })
+  .transform(d => ({
+    policy_id: d.policyId,
   }));
 
 export const marshalLakebaseConstraintsSchema: z.ZodType = z
@@ -873,6 +917,68 @@ export const marshalLibrarySchema: z.ZodType = z
     ...(d.lib?.$case === 'requirements' && {requirements: d.lib.requirements}),
   }));
 
+export const marshalListComputePoliciesRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListComputePoliciesResponseSchema: z.ZodType = z
+  .object({
+    computePolicies: z
+      .array(z.lazy(() => marshalComputePolicySchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    compute_policies: d.computePolicies,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListPoliciesRequestSchema: z.ZodType = z
+  .object({
+    sortOrder: z.string().optional(),
+    sortColumn: z.string().optional(),
+  })
+  .transform(d => ({
+    sort_order: d.sortOrder,
+    sort_column: d.sortColumn,
+  }));
+
+export const marshalListPoliciesResponseSchema: z.ZodType = z
+  .object({
+    policies: z.array(z.lazy(() => marshalPolicySchema)).optional(),
+  })
+  .transform(d => ({
+    policies: d.policies,
+  }));
+
+export const marshalListServerlessComputesRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListServerlessComputesResponseSchema: z.ZodType = z
+  .object({
+    serverlessComputes: z
+      .array(z.lazy(() => marshalServerlessComputeSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    serverless_computes: d.serverlessComputes,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalMavenLibrarySchema: z.ZodType = z
   .object({
     coordinates: z.string().optional(),
@@ -883,6 +989,34 @@ export const marshalMavenLibrarySchema: z.ZodType = z
     coordinates: d.coordinates,
     repo: d.repo,
     exclusions: d.exclusions,
+  }));
+
+export const marshalPolicySchema: z.ZodType = z
+  .object({
+    policyId: z.string().optional(),
+    creatorUserName: z.string().optional(),
+    createdAtTimestamp: z.bigint().optional(),
+    isDefault: z.boolean().optional(),
+    name: z.string().optional(),
+    definition: z.string().optional(),
+    description: z.string().optional(),
+    policyFamilyId: z.string().optional(),
+    policyFamilyDefinitionOverrides: z.string().optional(),
+    maxClustersPerUser: z.bigint().optional(),
+    libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
+  })
+  .transform(d => ({
+    policy_id: d.policyId,
+    creator_user_name: d.creatorUserName,
+    created_at_timestamp: d.createdAtTimestamp,
+    is_default: d.isDefault,
+    name: d.name,
+    definition: d.definition,
+    description: d.description,
+    policy_family_id: d.policyFamilyId,
+    policy_family_definition_overrides: d.policyFamilyDefinitionOverrides,
+    max_clusters_per_user: d.maxClustersPerUser,
+    libraries: d.libraries,
   }));
 
 export const marshalPythonPyPiLibrarySchema: z.ZodType = z
@@ -913,6 +1047,40 @@ export const marshalRateLimitConfigSchema: z.ZodType = z
   .transform(d => ({
     t_shirt_size: d.tShirtSize,
     t_shirt_size_name: d.tShirtSizeName,
+  }));
+
+export const marshalServerlessComputeSchema: z.ZodType = z
+  .object({
+    serverlessComputeId: z.string().optional(),
+    name: z.string().optional(),
+    isDefault: z.boolean().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    canUse: z.boolean().optional(),
+    canManage: z.boolean().optional(),
+  })
+  .transform(d => ({
+    serverless_compute_id: d.serverlessComputeId,
+    name: d.name,
+    is_default: d.isDefault,
+    create_time: d.createTime,
+    can_use: d.canUse,
+    can_manage: d.canManage,
+  }));
+
+export const marshalUpdateComputePolicyRequestSchema: z.ZodType = z
+  .object({
+    computePolicy: z.lazy(() => marshalComputePolicySchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    compute_policy: d.computePolicy,
+    update_mask: d.updateMask,
   }));
 
 const allowedComputeProductsFieldMaskSchema: FieldMaskSchema = {

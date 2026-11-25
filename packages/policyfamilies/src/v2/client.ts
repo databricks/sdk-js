@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   parseResponse,
@@ -63,8 +64,11 @@ export class PolicyFamiliesClient {
     req: GetPolicyFamilyRequest,
     options?: CallOptions
   ): Promise<PolicyFamily> {
+    if (req.policyFamilyId === undefined) {
+      throw new Error('path parameter "policy_family_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/policy-families/${req.policyFamilyId ?? ''}`;
+    const url = `${host}/api/2.0/policy-families/${encodePathVariable(req.policyFamilyId)}`;
     const params = new URLSearchParams();
     if (req.version !== undefined) {
       params.append('version', String(req.version));

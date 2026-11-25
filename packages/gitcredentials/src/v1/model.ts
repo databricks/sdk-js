@@ -315,6 +315,98 @@ export const marshalCreateCredentialsRequestSchema: z.ZodType = z
     git_email: d.gitEmail,
   }));
 
+export const marshalCreateCredentialsResponseSchema: z.ZodType = z
+  .object({
+    credentialId: z.bigint().optional(),
+    gitProvider: z.string().optional(),
+    gitUsername: z.string().optional(),
+    name: z.string().optional(),
+    isDefaultForProvider: z.boolean().optional(),
+    gitEmail: z.string().optional(),
+  })
+  .transform(d => ({
+    credential_id: d.credentialId,
+    git_provider: d.gitProvider,
+    git_username: d.gitUsername,
+    name: d.name,
+    is_default_for_provider: d.isDefaultForProvider,
+    git_email: d.gitEmail,
+  }));
+
+export const marshalCredentialSchema: z.ZodType = z
+  .object({
+    credentialId: z.bigint().optional(),
+    gitProvider: z.string().optional(),
+    gitUsername: z.string().optional(),
+    name: z.string().optional(),
+    isDefaultForProvider: z.boolean().optional(),
+    gitEmail: z.string().optional(),
+  })
+  .transform(d => ({
+    credential_id: d.credentialId,
+    git_provider: d.gitProvider,
+    git_username: d.gitUsername,
+    name: d.name,
+    is_default_for_provider: d.isDefaultForProvider,
+    git_email: d.gitEmail,
+  }));
+
+export const marshalDeleteCredentialsRequestSchema: z.ZodType = z
+  .object({
+    id: z.bigint().optional(),
+    principalId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    principal_id: d.principalId,
+  }));
+
+export const marshalDeleteCredentialsResponseSchema: z.ZodType = z.object({});
+
+export const marshalGetCredentialsRequestSchema: z.ZodType = z
+  .object({
+    id: z.bigint().optional(),
+    principalId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    principal_id: d.principalId,
+  }));
+
+export const marshalGetCredentialsResponseSchema: z.ZodType = z
+  .object({
+    credentialId: z.bigint().optional(),
+    gitProvider: z.string().optional(),
+    gitUsername: z.string().optional(),
+    name: z.string().optional(),
+    isDefaultForProvider: z.boolean().optional(),
+    gitEmail: z.string().optional(),
+  })
+  .transform(d => ({
+    credential_id: d.credentialId,
+    git_provider: d.gitProvider,
+    git_username: d.gitUsername,
+    name: d.name,
+    is_default_for_provider: d.isDefaultForProvider,
+    git_email: d.gitEmail,
+  }));
+
+export const marshalListCredentialsRequestSchema: z.ZodType = z
+  .object({
+    principalId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    principal_id: d.principalId,
+  }));
+
+export const marshalListCredentialsResponseSchema: z.ZodType = z
+  .object({
+    credentials: z.array(z.lazy(() => marshalCredentialSchema)).optional(),
+  })
+  .transform(d => ({
+    credentials: d.credentials,
+  }));
+
 export const marshalUpdateCredentialsRequestSchema: z.ZodType = z
   .object({
     id: z.bigint().optional(),
@@ -336,3 +428,5 @@ export const marshalUpdateCredentialsRequestSchema: z.ZodType = z
     is_default_for_provider: d.isDefaultForProvider,
     git_email: d.gitEmail,
   }));
+
+export const marshalUpdateCredentialsResponseSchema: z.ZodType = z.object({});

@@ -259,6 +259,26 @@ export const unmarshalListDomainsResponseSchema: z.ZodType<ListDomainsResponse> 
       nextPageToken: d.next_page_token,
     }));
 
+export const marshalCreateDomainRequestSchema: z.ZodType = z
+  .object({
+    domain: z.lazy(() => marshalDomainSchema).optional(),
+    domainId: z.string().optional(),
+  })
+  .transform(d => ({
+    domain: d.domain,
+    domain_id: d.domainId,
+  }));
+
+export const marshalDeleteDomainRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    force: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    force: d.force,
+  }));
+
 export const marshalDomainSchema: z.ZodType = z
   .object({
     domainId: z.string().optional(),
@@ -305,6 +325,49 @@ export const marshalDomainIconSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     color: d.color,
+  }));
+
+export const marshalGetDomainRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalListDomainsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    parentDomainId: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    parent_domain_id: d.parentDomainId,
+  }));
+
+export const marshalListDomainsResponseSchema: z.ZodType = z
+  .object({
+    domains: z.array(z.lazy(() => marshalDomainSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    domains: d.domains,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalUpdateDomainRequestSchema: z.ZodType = z
+  .object({
+    domain: z.lazy(() => marshalDomainSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    domain: d.domain,
+    update_mask: d.updateMask,
   }));
 
 const domainFieldMaskSchema: FieldMaskSchema = {

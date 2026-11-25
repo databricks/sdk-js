@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -68,7 +69,7 @@ export class ArtifactAllowlistsClient {
     options?: CallOptions
   ): Promise<ArtifactAllowlistInfo> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/artifact-allowlists/${req.artifactType ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/artifact-allowlists/${encodePathVariable(req.artifactType ?? '')}`;
     let resp: ArtifactAllowlistInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -101,7 +102,7 @@ export class ArtifactAllowlistsClient {
     options?: CallOptions
   ): Promise<ArtifactAllowlistInfo> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/artifact-allowlists/${req.artifactType ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/artifact-allowlists/${encodePathVariable(req.artifactType ?? '')}`;
     const body = marshalRequest(req, marshalSetArtifactAllowlistRequestSchema);
     let resp: ArtifactAllowlistInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

@@ -549,6 +549,60 @@ export const unmarshalListKnowledgeSourcesResponseSchema: z.ZodType<ListKnowledg
       nextPageToken: d.next_page_token,
     }));
 
+export const marshalCreateExampleRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    example: z.lazy(() => marshalExampleSchema).optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    example: d.example,
+  }));
+
+export const marshalCreateKnowledgeAssistantRequestSchema: z.ZodType = z
+  .object({
+    knowledgeAssistant: z
+      .lazy(() => marshalKnowledgeAssistantSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    knowledge_assistant: d.knowledgeAssistant,
+  }));
+
+export const marshalCreateKnowledgeSourceRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    knowledgeSource: z.lazy(() => marshalKnowledgeSourceSchema).optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    knowledge_source: d.knowledgeSource,
+  }));
+
+export const marshalDeleteExampleRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteKnowledgeAssistantRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteKnowledgeSourceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalExampleSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -589,6 +643,30 @@ export const marshalFilesSpecSchema: z.ZodType = z
   })
   .transform(d => ({
     path: d.path,
+  }));
+
+export const marshalGetExampleRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetKnowledgeAssistantRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetKnowledgeSourceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalIndexSpecSchema: z.ZodType = z
@@ -681,12 +759,125 @@ export const marshalKnowledgeSourceSchema: z.ZodType = z
     create_time: d.createTime,
   }));
 
+export const marshalListExamplesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListExamplesResponseSchema: z.ZodType = z
+  .object({
+    examples: z.array(z.lazy(() => marshalExampleSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    examples: d.examples,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListKnowledgeAssistantsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListKnowledgeAssistantsResponseSchema: z.ZodType = z
+  .object({
+    knowledgeAssistants: z
+      .array(z.lazy(() => marshalKnowledgeAssistantSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    knowledge_assistants: d.knowledgeAssistants,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListKnowledgeSourcesRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListKnowledgeSourcesResponseSchema: z.ZodType = z
+  .object({
+    knowledgeSources: z
+      .array(z.lazy(() => marshalKnowledgeSourceSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    knowledge_sources: d.knowledgeSources,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalSyncKnowledgeSourcesRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalUpdateExampleRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    example: z.lazy(() => marshalExampleSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    example: d.example,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateKnowledgeAssistantRequestSchema: z.ZodType = z
+  .object({
+    knowledgeAssistant: z
+      .lazy(() => marshalKnowledgeAssistantSchema)
+      .optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    knowledge_assistant: d.knowledgeAssistant,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateKnowledgeSourceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    knowledgeSource: z.lazy(() => marshalKnowledgeSourceSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    knowledge_source: d.knowledgeSource,
+    update_mask: d.updateMask,
   }));
 
 const exampleFieldMaskSchema: FieldMaskSchema = {

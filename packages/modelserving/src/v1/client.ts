@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   sendAndCheckError,
@@ -199,8 +200,11 @@ export class ModelServingClient {
     req: DeleteInferenceEndpointRequest,
     options?: CallOptions
   ): Promise<DeleteInferenceEndpointResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/serving-endpoints/${encodePathVariable(req.name)}`;
     let resp: DeleteInferenceEndpointResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -230,8 +234,11 @@ export class ModelServingClient {
     req: GetExportEndpointMetricsRequest,
     options?: CallOptions
   ): Promise<ExportMetricsResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/metrics`;
+    const url = `${host}/api/2.0/serving-endpoints/${encodePathVariable(req.name)}/metrics`;
     let resp: ExportMetricsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({Accept: 'text/plain'});
@@ -260,8 +267,11 @@ export class ModelServingClient {
     req: GetInferenceEndpointRequest,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/serving-endpoints/${encodePathVariable(req.name)}`;
     let resp: InferenceEndpointDetailed | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -288,8 +298,11 @@ export class ModelServingClient {
     req: GetInferenceEndpointSchemaRequest,
     options?: CallOptions
   ): Promise<GetOpenApiResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/openapi`;
+    const url = `${host}/api/2.0/serving-endpoints/${encodePathVariable(req.name)}/openapi`;
     let resp: GetOpenApiResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({Accept: 'text/plain'});
@@ -318,8 +331,11 @@ export class ModelServingClient {
     req: GetServedModelBuildLogsRequest,
     options?: CallOptions
   ): Promise<GetServedModelBuildLogsResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/served-models/${req.servedModelName ?? ''}/build-logs`;
+    const url = `${host}/api/2.0/serving-endpoints/${encodePathVariable(req.name)}/served-models/${encodePathVariable(req.servedModelName ?? '')}/build-logs`;
     let resp: GetServedModelBuildLogsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -349,8 +365,11 @@ export class ModelServingClient {
     req: GetServedModelLogsRequest,
     options?: CallOptions
   ): Promise<GetServedModelLogsResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/served-models/${req.servedModelName ?? ''}/logs`;
+    const url = `${host}/api/2.0/serving-endpoints/${encodePathVariable(req.name)}/served-models/${encodePathVariable(req.servedModelName ?? '')}/logs`;
     let resp: GetServedModelLogsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -408,8 +427,11 @@ export class ModelServingClient {
     req: PatchInferenceEndpointTagsRequest,
     options?: CallOptions
   ): Promise<PatchInferenceEndpointTagsResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/tags`;
+    const url = `${host}/api/2.0/serving-endpoints/${encodePathVariable(req.name)}/tags`;
     const body = marshalRequest(
       req,
       marshalPatchInferenceEndpointTagsRequestSchema
@@ -443,8 +465,11 @@ export class ModelServingClient {
     req: PatchInferenceEndpointTelemetryConfigRequest,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/telemetry-config`;
+    const url = `${host}/api/2.0/serving-endpoints/${encodePathVariable(req.name)}/telemetry-config`;
     const body = marshalRequest(
       req,
       marshalPatchInferenceEndpointTelemetryConfigRequestSchema
@@ -475,8 +500,11 @@ export class ModelServingClient {
     req: PutInferenceEndpointAiGatewayRequest,
     options?: CallOptions
   ): Promise<PutInferenceEndpointAiGatewayResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/ai-gateway`;
+    const url = `${host}/api/2.0/serving-endpoints/${encodePathVariable(req.name)}/ai-gateway`;
     const body = marshalRequest(
       req,
       marshalPutInferenceEndpointAiGatewayRequestSchema
@@ -510,8 +538,11 @@ export class ModelServingClient {
     req: PutInferenceEndpointConfigRequest,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/config`;
+    const url = `${host}/api/2.0/serving-endpoints/${encodePathVariable(req.name)}/config`;
     const body = marshalRequest(
       req,
       marshalPutInferenceEndpointConfigRequestSchema
@@ -554,8 +585,11 @@ export class ModelServingClient {
     req: PutInferenceEndpointRateLimitsRequest,
     options?: CallOptions
   ): Promise<PutInferenceEndpointRateLimitsResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/rate-limits`;
+    const url = `${host}/api/2.0/serving-endpoints/${encodePathVariable(req.name)}/rate-limits`;
     const body = marshalRequest(
       req,
       marshalPutInferenceEndpointRateLimitsRequestSchema
@@ -589,8 +623,11 @@ export class ModelServingClient {
     req: PutPtEndpointConfigRequest,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/pt/${req.name ?? ''}/config`;
+    const url = `${host}/api/2.0/serving-endpoints/pt/${encodePathVariable(req.name)}/config`;
     const body = marshalRequest(req, marshalPutPtEndpointConfigRequestSchema);
     let resp: InferenceEndpointDetailed | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -636,8 +673,11 @@ export class ModelServingClient {
     req: UpdateInferenceEndpointNotificationsRequest,
     options?: CallOptions
   ): Promise<UpdateInferenceEndpointNotificationsResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/serving-endpoints/${req.name ?? ''}/notifications`;
+    const url = `${host}/api/2.0/serving-endpoints/${encodePathVariable(req.name)}/notifications`;
     const body = marshalRequest(
       req,
       marshalUpdateInferenceEndpointNotificationsRequestSchema

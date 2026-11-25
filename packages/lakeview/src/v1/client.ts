@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -119,7 +120,10 @@ export class LakeviewClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.dashboard, marshalDashboardCreateSchema);
+    const body =
+      req.dashboard === undefined
+        ? 'null'
+        : marshalRequest(req.dashboard, marshalDashboardCreateSchema);
     let resp: Dashboard | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -159,8 +163,11 @@ export class LakeviewClient {
     options?: CallOptions
   ): Promise<Schedule> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.schedule?.dashboardId ?? ''}/schedules`;
-    const body = marshalRequest(req.schedule, marshalScheduleCreateSchema);
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.schedule?.dashboardId ?? '')}/schedules`;
+    const body =
+      req.schedule === undefined
+        ? 'null'
+        : marshalRequest(req.schedule, marshalScheduleCreateSchema);
     let resp: Schedule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -202,11 +209,11 @@ export class LakeviewClient {
     options?: CallOptions
   ): Promise<Subscription> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.subscription?.dashboardId ?? ''}/schedules/${req.subscription?.scheduleId ?? ''}/subscriptions`;
-    const body = marshalRequest(
-      req.subscription,
-      marshalSubscriptionCreateSchema
-    );
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.subscription?.dashboardId ?? '')}/schedules/${encodePathVariable(req.subscription?.scheduleId ?? '')}/subscriptions`;
+    const body =
+      req.subscription === undefined
+        ? 'null'
+        : marshalRequest(req.subscription, marshalSubscriptionCreateSchema);
     let resp: Subscription | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -238,8 +245,14 @@ export class LakeviewClient {
     req: DeleteScheduleRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
+    if (req.scheduleId === undefined) {
+      throw new Error('path parameter "schedule_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}/schedules/${encodePathVariable(req.scheduleId)}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
       params.append('etag', req.etag);
@@ -277,8 +290,17 @@ export class LakeviewClient {
     req: DeleteSubscriptionRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
+    if (req.scheduleId === undefined) {
+      throw new Error('path parameter "schedule_id" is required');
+    }
+    if (req.subscriptionId === undefined) {
+      throw new Error('path parameter "subscription_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}/subscriptions/${req.subscriptionId ?? ''}`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}/schedules/${encodePathVariable(req.scheduleId)}/subscriptions/${encodePathVariable(req.subscriptionId)}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
       params.append('etag', req.etag);
@@ -305,8 +327,11 @@ export class LakeviewClient {
     req: GetDashboardRequest,
     options?: CallOptions
   ): Promise<Dashboard> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}`;
     let resp: Dashboard | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -342,8 +367,11 @@ export class LakeviewClient {
     req: GetPublishedDashboardRequest,
     options?: CallOptions
   ): Promise<PublishedDashboard> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}/published`;
     let resp: PublishedDashboard | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -382,8 +410,11 @@ export class LakeviewClient {
     req: GetPublishedDashboardTokenInfoRequest,
     options?: CallOptions
   ): Promise<GetPublishedDashboardTokenInfoResponse> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published/tokeninfo`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}/published/tokeninfo`;
     const params = new URLSearchParams();
     if (req.externalValue !== undefined) {
       params.append('external_value', req.externalValue);
@@ -431,8 +462,14 @@ export class LakeviewClient {
     req: GetScheduleRequest,
     options?: CallOptions
   ): Promise<Schedule> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
+    if (req.scheduleId === undefined) {
+      throw new Error('path parameter "schedule_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}/schedules/${encodePathVariable(req.scheduleId)}`;
     let resp: Schedule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -468,8 +505,17 @@ export class LakeviewClient {
     req: GetSubscriptionRequest,
     options?: CallOptions
   ): Promise<Subscription> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
+    if (req.scheduleId === undefined) {
+      throw new Error('path parameter "schedule_id" is required');
+    }
+    if (req.subscriptionId === undefined) {
+      throw new Error('path parameter "subscription_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}/subscriptions/${req.subscriptionId ?? ''}`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}/schedules/${encodePathVariable(req.scheduleId)}/subscriptions/${encodePathVariable(req.subscriptionId)}`;
     let resp: Subscription | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -568,8 +614,11 @@ export class LakeviewClient {
     req: ListSchedulesRequest,
     options?: CallOptions
   ): Promise<ListSchedulesResponse> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}/schedules`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -631,8 +680,14 @@ export class LakeviewClient {
     req: ListSubscriptionsRequest,
     options?: CallOptions
   ): Promise<ListSubscriptionsResponse> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
+    if (req.scheduleId === undefined) {
+      throw new Error('path parameter "schedule_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}/subscriptions`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}/schedules/${encodePathVariable(req.scheduleId)}/subscriptions`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -717,8 +772,11 @@ export class LakeviewClient {
     req: PublishDashboardRequest,
     options?: CallOptions
   ): Promise<PublishedDashboard> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}/published`;
     const body = marshalRequest(req, marshalPublishDashboardRequestSchema);
     let resp: PublishedDashboard | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -751,8 +809,11 @@ export class LakeviewClient {
     req: RevertDashboardRequest,
     options?: CallOptions
   ): Promise<RevertDashboardResponse> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/revert`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}/revert`;
     const body = marshalRequest(req, marshalRevertDashboardRequestSchema);
     let resp: RevertDashboardResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -780,8 +841,11 @@ export class LakeviewClient {
     req: TrashDashboardRequest,
     options?: CallOptions
   ): Promise<TrashDashboardResponse> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}`;
     let resp: TrashDashboardResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -812,8 +876,11 @@ export class LakeviewClient {
     req: UnpublishDashboardRequest,
     options?: CallOptions
   ): Promise<UnpublishDashboardResponse> {
+    if (req.dashboardId === undefined) {
+      throw new Error('path parameter "dashboard_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboardId)}/published`;
     let resp: UnpublishDashboardResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -841,7 +908,7 @@ export class LakeviewClient {
     options?: CallOptions
   ): Promise<Dashboard> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.dashboard?.dashboardId ?? ''}`;
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.dashboard?.dashboardId ?? '')}`;
     const params = new URLSearchParams();
     if (req.datasetCatalog !== undefined) {
       params.append('dataset_catalog', req.datasetCatalog);
@@ -851,7 +918,10 @@ export class LakeviewClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.dashboard, marshalDashboardSchema);
+    const body =
+      req.dashboard === undefined
+        ? 'null'
+        : marshalRequest(req.dashboard, marshalDashboardSchema);
     let resp: Dashboard | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -891,8 +961,11 @@ export class LakeviewClient {
     options?: CallOptions
   ): Promise<Schedule> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/lakeview/dashboards/${req.schedule?.dashboardId ?? ''}/schedules/${req.schedule?.scheduleId ?? ''}`;
-    const body = marshalRequest(req.schedule, marshalScheduleSchema);
+    const url = `${host}/api/2.0/lakeview/dashboards/${encodePathVariable(req.schedule?.dashboardId ?? '')}/schedules/${encodePathVariable(req.schedule?.scheduleId ?? '')}`;
+    const body =
+      req.schedule === undefined
+        ? 'null'
+        : marshalRequest(req.schedule, marshalScheduleSchema);
     let resp: Schedule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

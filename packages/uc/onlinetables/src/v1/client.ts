@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -70,7 +71,10 @@ export class OnlineTablesClient {
   ): Promise<OnlineTable> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/online-tables`;
-    const body = marshalRequest(req.table, marshalOnlineTableSchema);
+    const body =
+      req.table === undefined
+        ? 'null'
+        : marshalRequest(req.table, marshalOnlineTableSchema);
     let resp: OnlineTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -114,7 +118,7 @@ export class OnlineTablesClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/online-tables/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/online-tables/${encodePathVariable(req.name ?? '')}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -136,7 +140,7 @@ export class OnlineTablesClient {
     options?: CallOptions
   ): Promise<OnlineTable> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/online-tables/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/online-tables/${encodePathVariable(req.name ?? '')}`;
     let resp: OnlineTable | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();

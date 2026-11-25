@@ -921,6 +921,30 @@ export const marshalCancelRefreshRequestSchema: z.ZodType = z
     refresh_id: d.refreshId,
   }));
 
+export const marshalCancelRefreshResponseSchema: z.ZodType = z
+  .object({
+    refresh: z.lazy(() => marshalRefreshSchema).optional(),
+  })
+  .transform(d => ({
+    refresh: d.refresh,
+  }));
+
+export const marshalCreateMonitorRequestSchema: z.ZodType = z
+  .object({
+    monitor: z.lazy(() => marshalMonitorSchema).optional(),
+  })
+  .transform(d => ({
+    monitor: d.monitor,
+  }));
+
+export const marshalCreateRefreshRequestSchema: z.ZodType = z
+  .object({
+    refresh: z.lazy(() => marshalRefreshSchema).optional(),
+  })
+  .transform(d => ({
+    refresh: d.refresh,
+  }));
+
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronExpression: z.string().optional(),
@@ -1018,6 +1042,50 @@ export const marshalDataProfilingCustomMetricSchema: z.ZodType = z
     type: d.type,
   }));
 
+export const marshalDeleteMonitorRequestSchema: z.ZodType = z
+  .object({
+    objectType: z.string().optional(),
+    objectId: z.string().optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    object_id: d.objectId,
+  }));
+
+export const marshalDeleteRefreshRequestSchema: z.ZodType = z
+  .object({
+    objectType: z.string().optional(),
+    objectId: z.string().optional(),
+    refreshId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    object_id: d.objectId,
+    refresh_id: d.refreshId,
+  }));
+
+export const marshalGetMonitorRequestSchema: z.ZodType = z
+  .object({
+    objectType: z.string().optional(),
+    objectId: z.string().optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    object_id: d.objectId,
+  }));
+
+export const marshalGetRefreshRequestSchema: z.ZodType = z
+  .object({
+    objectType: z.string().optional(),
+    objectId: z.string().optional(),
+    refreshId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    object_id: d.objectId,
+    refresh_id: d.refreshId,
+  }));
+
 export const marshalInferenceLogConfigSchema: z.ZodType = z
   .object({
     problemType: z.string().optional(),
@@ -1034,6 +1102,50 @@ export const marshalInferenceLogConfigSchema: z.ZodType = z
     prediction_column: d.predictionColumn,
     label_column: d.labelColumn,
     model_id_column: d.modelIdColumn,
+  }));
+
+export const marshalListMonitorRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListMonitorResponseSchema: z.ZodType = z
+  .object({
+    monitors: z.array(z.lazy(() => marshalMonitorSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    monitors: d.monitors,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListRefreshRequestSchema: z.ZodType = z
+  .object({
+    objectType: z.string().optional(),
+    objectId: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    object_id: d.objectId,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListRefreshResponseSchema: z.ZodType = z
+  .object({
+    refreshes: z.array(z.lazy(() => marshalRefreshSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    refreshes: d.refreshes,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalMonitorSchema: z.ZodType = z
@@ -1110,6 +1222,42 @@ export const marshalTimeSeriesConfigSchema: z.ZodType = z
   .transform(d => ({
     timestamp_column: d.timestampColumn,
     granularities: d.granularities,
+  }));
+
+export const marshalUpdateMonitorRequestSchema: z.ZodType = z
+  .object({
+    objectType: z.string().optional(),
+    objectId: z.string().optional(),
+    monitor: z.lazy(() => marshalMonitorSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    object_id: d.objectId,
+    monitor: d.monitor,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateRefreshRequestSchema: z.ZodType = z
+  .object({
+    objectType: z.string().optional(),
+    objectId: z.string().optional(),
+    refreshId: z.bigint().optional(),
+    refresh: z.lazy(() => marshalRefreshSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    object_id: d.objectId,
+    refresh_id: d.refreshId,
+    refresh: d.refresh,
+    update_mask: d.updateMask,
   }));
 
 const anomalyDetectionConfigFieldMaskSchema: FieldMaskSchema = {

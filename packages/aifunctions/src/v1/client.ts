@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -86,8 +87,11 @@ export class AiFunctionsClient {
     req: CancelBatchRequest,
     options?: CallOptions
   ): Promise<CancelBatchResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-functions/batches/${req.name ?? ''}/cancel`;
+    const url = `${host}/api/2.0/ai-functions/batches/${encodePathVariable(req.name)}/cancel`;
     const body = marshalRequest(req, marshalCancelBatchRequestSchema);
     let resp: CancelBatchResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -117,7 +121,10 @@ export class AiFunctionsClient {
   ): Promise<Batch> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/ai-functions/batches`;
-    const body = marshalRequest(req.batch, marshalBatchSchema);
+    const body =
+      req.batch === undefined
+        ? 'null'
+        : marshalRequest(req.batch, marshalBatchSchema);
     let resp: Batch | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -141,8 +148,11 @@ export class AiFunctionsClient {
 
   /** Gets the latest status and progress of a batch. */
   async getBatch(req: GetBatchRequest, options?: CallOptions): Promise<Batch> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-functions/batches/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/ai-functions/batches/${encodePathVariable(req.name)}`;
     let resp: Batch | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -247,7 +257,14 @@ export class AiFunctionsClient {
     return resp;
   }
 
-  /** Turn text and structured data into decisions your application can use. Define questions and criteria to choose an option, estimate a probability, or assign a score given a provided state. The AI Decide REST API has a default rate limit of 1,200 requests per minute per workspace. Contact your account team to request a higher limit. */
+  /**
+   * Turn text and structured data into decisions your application can use. Define questions and criteria to choose an option, estimate a probability, or assign a score given a provided state. The AI Decide REST API has a default rate limit of 1,200 requests per minute per workspace. Contact your account team to request a higher limit.
+   *
+   * > **Note:** The v1 AI Decide syntax supporting strings and objects in `state` and objects
+   * and arrays in `instructions` will no longer be supported starting February 1, 2027. To use
+   * AI Decide, you must set `options.version` to `"2.0"`, pass an array of typed content objects
+   * to `state`, and a nonblank string to `instructions`.
+   */
   async aiDecide(
     req: AiDecideRequest,
     options?: CallOptions

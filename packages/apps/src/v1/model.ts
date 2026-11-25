@@ -994,7 +994,8 @@ export interface App {
   oauth2AppClientId?: string | undefined;
   /**
    * Size of the compute instances the app runs on. Defaults to MEDIUM. Larger sizes provide more
-   * CPU and memory at a higher hourly cost. See
+   * CPU and memory at a higher hourly cost. Leave unset for an app in a space: apps in a space always
+   * run on space compute and reject any other size. See
    * https://docs.databricks.com/aws/en/dev-tools/databricks-apps/compute-size.
    */
   computeSize?: ComputeSize | undefined;
@@ -1482,7 +1483,7 @@ export interface AsyncUpdateAppRequest {
   /**
    * Comma-separated names of the `app` fields to update, such as `description` or `resources`.
    * A field named in the mask but absent from `app` is cleared, except `compute_size`, which resets
-   * to `MEDIUM`.
+   * to `MEDIUM`. Sent in the request body together with `app`.
    */
   updateMask?: FieldMask<App> | undefined;
   /** The name of the app to update. */
@@ -1939,7 +1940,7 @@ export interface UpdateSpaceRequest {
   space?: Space | undefined;
   /**
    * Comma-separated names of the `space` fields to update, such as `description` or `resources`.
-   * A field named in the mask but absent from `space` is cleared.
+   * A field named in the mask but absent from `space` is cleared. Sent as a query parameter, not in the `space` body.
    */
   updateMask?: FieldMask<Space> | undefined;
 }
@@ -2899,6 +2900,20 @@ export const unmarshalUnityCatalogSchema: z.ZodType<UnityCatalog> = z
     tracesTable: d.traces_table,
   }));
 
+export const marshalApiErrorSchema: z.ZodType = z
+  .object({
+    errorCode: z.string().optional(),
+    message: z.string().optional(),
+    stackTrace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    error_code: d.errorCode,
+    message: d.message,
+    stack_trace: d.stackTrace,
+    details: d.details,
+  }));
+
 export const marshalAppSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -3441,6 +3456,49 @@ export const marshalAppThumbnailSchema: z.ZodType = z
     thumbnail: d.thumbnail,
   }));
 
+export const marshalAppUpdateSchema: z.ZodType = z
+  .object({
+    status: z.lazy(() => marshalAppUpdate_UpdateStatusSchema).optional(),
+    description: z.string().optional(),
+    budgetPolicyId: z.string().optional(),
+    resources: z.array(z.lazy(() => marshalAppResourceSchema)).optional(),
+    userApiScopes: z.array(z.string()).optional(),
+    computeSize: z.string().optional(),
+    usagePolicyId: z.string().optional(),
+    computeMinInstances: z.number().optional(),
+    computeMaxInstances: z.number().optional(),
+    gitRepository: z.lazy(() => marshalGitRepositorySchema).optional(),
+    telemetryExportDestinations: z
+      .array(z.lazy(() => marshalTelemetryExportDestinationSchema))
+      .optional(),
+    forwardUserAccessToken: z.boolean().optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+    description: d.description,
+    budget_policy_id: d.budgetPolicyId,
+    resources: d.resources,
+    user_api_scopes: d.userApiScopes,
+    compute_size: d.computeSize,
+    usage_policy_id: d.usagePolicyId,
+    compute_min_instances: d.computeMinInstances,
+    compute_max_instances: d.computeMaxInstances,
+    git_repository: d.gitRepository,
+    telemetry_export_destinations: d.telemetryExportDestinations,
+    forward_user_access_token: d.forwardUserAccessToken,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalAppUpdate_UpdateStatusSchema: z.ZodType = z
+  .object({
+    state: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+    message: d.message,
+  }));
+
 export const marshalApplicationStatusSchema: z.ZodType = z
   .object({
     state: z.string().optional(),
@@ -3480,6 +3538,42 @@ export const marshalComputeStatusSchema: z.ZodType = z
     active_instances: d.activeInstances,
   }));
 
+export const marshalCreateAppDeploymentRequestSchema: z.ZodType = z
+  .object({
+    appName: z.string().optional(),
+    appDeployment: z.lazy(() => marshalAppDeploymentSchema).optional(),
+  })
+  .transform(d => ({
+    app_name: d.appName,
+    app_deployment: d.appDeployment,
+  }));
+
+export const marshalCreateAppRequestSchema: z.ZodType = z
+  .object({
+    app: z.lazy(() => marshalAppSchema).optional(),
+    noCompute: z.boolean().optional(),
+  })
+  .transform(d => ({
+    app: d.app,
+    no_compute: d.noCompute,
+  }));
+
+export const marshalCreateCustomTemplateRequestSchema: z.ZodType = z
+  .object({
+    template: z.lazy(() => marshalCustomTemplateSchema).optional(),
+  })
+  .transform(d => ({
+    template: d.template,
+  }));
+
+export const marshalCreateSpaceRequestSchema: z.ZodType = z
+  .object({
+    space: z.lazy(() => marshalSpaceSchema).optional(),
+  })
+  .transform(d => ({
+    space: d.space,
+  }));
+
 export const marshalCustomTemplateSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -3500,6 +3594,38 @@ export const marshalCustomTemplateSchema: z.ZodType = z
     creator: d.creator,
   }));
 
+export const marshalDeleteAppRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteAppThumbnailRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteCustomTemplateRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteSpaceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalEnvVarSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -3514,6 +3640,64 @@ export const marshalEnvVarSchema: z.ZodType = z
     name: d.name,
     ...(d.source?.$case === 'value' && {value: d.source.value}),
     ...(d.source?.$case === 'valueFrom' && {value_from: d.source.valueFrom}),
+  }));
+
+export const marshalGetAppDeploymentRequestSchema: z.ZodType = z
+  .object({
+    appName: z.string().optional(),
+    deploymentId: z.string().optional(),
+  })
+  .transform(d => ({
+    app_name: d.appName,
+    deployment_id: d.deploymentId,
+  }));
+
+export const marshalGetAppDeploymentScanFindingRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetAppRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetAppUpdateRequestSchema: z.ZodType = z
+  .object({
+    appName: z.string().optional(),
+  })
+  .transform(d => ({
+    app_name: d.appName,
+  }));
+
+export const marshalGetCustomTemplateRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetOperationRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetSpaceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalGitRepositorySchema: z.ZodType = z
@@ -3550,6 +3734,142 @@ export const marshalGitSourceSchema: z.ZodType = z
     ...(d.reference?.$case === 'commit' && {commit: d.reference.commit}),
     source_code_path: d.sourceCodePath,
     resolved_commit: d.resolvedCommit,
+  }));
+
+export const marshalListAppDeploymentScanFindingsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListAppDeploymentScanFindingsResponseSchema: z.ZodType = z
+  .object({
+    appDeploymentScanFindings: z
+      .array(z.lazy(() => marshalAppDeploymentScanFindingSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    app_deployment_scan_findings: d.appDeploymentScanFindings,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListAppDeploymentsRequestSchema: z.ZodType = z
+  .object({
+    appName: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    app_name: d.appName,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListAppDeploymentsResponseSchema: z.ZodType = z
+  .object({
+    appDeployments: z
+      .array(z.lazy(() => marshalAppDeploymentSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    app_deployments: d.appDeployments,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListAppsRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+    space: z.string().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+    space: d.space,
+  }));
+
+export const marshalListAppsResponseSchema: z.ZodType = z
+  .object({
+    apps: z.array(z.lazy(() => marshalAppSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    apps: d.apps,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListCustomTemplatesRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListCustomTemplatesResponseSchema: z.ZodType = z
+  .object({
+    templates: z.array(z.lazy(() => marshalCustomTemplateSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    templates: d.templates,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListSpacesRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListSpacesResponseSchema: z.ZodType = z
+  .object({
+    spaces: z.array(z.lazy(() => marshalSpaceSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    spaces: d.spaces,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalOperationSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+    done: z.boolean().optional(),
+    result: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('error'),
+          error: z.lazy(() => marshalApiErrorSchema),
+        }),
+        z.object({
+          $case: z.literal('response'),
+          response: z.record(z.string(), z.unknown()),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    metadata: d.metadata,
+    done: d.done,
+    ...(d.result?.$case === 'error' && {error: d.result.error}),
+    ...(d.result?.$case === 'response' && {response: d.result.response}),
   }));
 
 export const marshalSpaceSchema: z.ZodType = z
@@ -3608,6 +3928,32 @@ export const marshalSpaceStatusSchema: z.ZodType = z
     message: d.message,
   }));
 
+export const marshalSpaceUpdateSchema: z.ZodType = z
+  .object({
+    status: z.lazy(() => marshalSpaceUpdateStatusSchema).optional(),
+    description: z.string().optional(),
+    resources: z.array(z.lazy(() => marshalAppResourceSchema)).optional(),
+    userApiScopes: z.array(z.string()).optional(),
+    usagePolicyId: z.string().optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+    description: d.description,
+    resources: d.resources,
+    user_api_scopes: d.userApiScopes,
+    usage_policy_id: d.usagePolicyId,
+  }));
+
+export const marshalSpaceUpdateStatusSchema: z.ZodType = z
+  .object({
+    state: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+    message: d.message,
+  }));
+
 export const marshalStartAppRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -3653,6 +3999,29 @@ export const marshalUnityCatalogSchema: z.ZodType = z
     traces_table: d.tracesTable,
   }));
 
+export const marshalUpdateAppDeploymentScanFindingRequestSchema: z.ZodType = z
+  .object({
+    appDeploymentScanFinding: z
+      .lazy(() => marshalAppDeploymentScanFindingSchema)
+      .optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    app_deployment_scan_finding: d.appDeploymentScanFinding,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateAppRequestSchema: z.ZodType = z
+  .object({
+    app: z.lazy(() => marshalAppSchema).optional(),
+  })
+  .transform(d => ({
+    app: d.app,
+  }));
+
 export const marshalUpdateAppThumbnailRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -3661,6 +4030,27 @@ export const marshalUpdateAppThumbnailRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     app_thumbnail: d.appThumbnail,
+  }));
+
+export const marshalUpdateCustomTemplateRequestSchema: z.ZodType = z
+  .object({
+    template: z.lazy(() => marshalCustomTemplateSchema).optional(),
+  })
+  .transform(d => ({
+    template: d.template,
+  }));
+
+export const marshalUpdateSpaceRequestSchema: z.ZodType = z
+  .object({
+    space: z.lazy(() => marshalSpaceSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    space: d.space,
+    update_mask: d.updateMask,
   }));
 
 const appFieldMaskSchema: FieldMaskSchema = {

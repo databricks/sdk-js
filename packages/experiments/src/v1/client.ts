@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -203,15 +204,21 @@ export class ExperimentsClient {
     req: CreateIssueRequest,
     options?: CallOptions
   ): Promise<Issue> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/mlflow/${req.parent ?? ''}/issues`;
+    const url = `${host}/api/2.0/mlflow/${encodePathVariable(req.parent)}/issues`;
     const params = new URLSearchParams();
     if (req.issueId !== undefined) {
       params.append('issue_id', req.issueId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.issue, marshalIssueSchema);
+    const body =
+      req.issue === undefined
+        ? 'null'
+        : marshalRequest(req.issue, marshalIssueSchema);
     let resp: Issue | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -241,8 +248,11 @@ export class ExperimentsClient {
 
   /** Gets an issue. */
   async getIssue(req: GetIssueRequest, options?: CallOptions): Promise<Issue> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/mlflow/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/mlflow/${encodePathVariable(req.name)}`;
     let resp: Issue | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -269,8 +279,11 @@ export class ExperimentsClient {
     req: SearchIssuesRequest,
     options?: CallOptions
   ): Promise<SearchIssuesResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/mlflow/${req.parent ?? ''}/issues:search`;
+    const url = `${host}/api/2.0/mlflow/${encodePathVariable(req.parent)}/issues:search`;
     const body = marshalRequest(req, marshalSearchIssuesRequestSchema);
     let resp: SearchIssuesResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -316,14 +329,17 @@ export class ExperimentsClient {
     options?: CallOptions
   ): Promise<Issue> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/mlflow/${req.issue?.name ?? ''}`;
+    const url = `${host}/api/2.0/mlflow/${encodePathVariable(req.issue?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.issue, marshalIssueSchema);
+    const body =
+      req.issue === undefined
+        ? 'null'
+        : marshalRequest(req.issue, marshalIssueSchema);
     let resp: Issue | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -420,8 +436,8 @@ export class ExperimentsClient {
 
   /**
    * Creates a new run within an experiment. A run is usually a single execution of a
-   * machine learning or data ETL pipeline. MLflow uses runs to track the `mlflowParam`,
-   * `mlflowMetric`, and `mlflowRunTag` associated with a single execution.
+   * machine learning or data ETL pipeline. MLflow uses runs to track the params, metrics,
+   * and tags associated with a single execution.
    */
   async createRun(
     req: CreateRunRequest,
@@ -489,8 +505,11 @@ export class ExperimentsClient {
     req: DeleteLoggedModelRequest,
     options?: CallOptions
   ): Promise<DeleteLoggedModelResponse> {
+    if (req.modelId === undefined) {
+      throw new Error('path parameter "model_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
+    const url = `${host}/api/2.0/mlflow/logged-models/${encodePathVariable(req.modelId)}`;
     let resp: DeleteLoggedModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -517,8 +536,14 @@ export class ExperimentsClient {
     req: DeleteLoggedModelTagRequest,
     options?: CallOptions
   ): Promise<DeleteLoggedModelTagResponse> {
+    if (req.modelId === undefined) {
+      throw new Error('path parameter "model_id" is required');
+    }
+    if (req.tagKey === undefined) {
+      throw new Error('path parameter "tag_key" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/tags/${req.tagKey ?? ''}`;
+    const url = `${host}/api/2.0/mlflow/logged-models/${encodePathVariable(req.modelId)}/tags/${encodePathVariable(req.tagKey)}`;
     let resp: DeleteLoggedModelTagResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -641,8 +666,11 @@ export class ExperimentsClient {
     req: FinalizeLoggedModelRequest,
     options?: CallOptions
   ): Promise<FinalizeLoggedModelResponse> {
+    if (req.modelId === undefined) {
+      throw new Error('path parameter "model_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
+    const url = `${host}/api/2.0/mlflow/logged-models/${encodePathVariable(req.modelId)}`;
     const body = marshalRequest(req, marshalFinalizeLoggedModelRequestSchema);
     let resp: FinalizeLoggedModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -752,8 +780,11 @@ export class ExperimentsClient {
     req: GetLoggedModelRequest,
     options?: CallOptions
   ): Promise<GetLoggedModelResponse> {
+    if (req.modelId === undefined) {
+      throw new Error('path parameter "model_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
+    const url = `${host}/api/2.0/mlflow/logged-models/${encodePathVariable(req.modelId)}`;
     let resp: GetLoggedModelResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1111,8 +1142,11 @@ export class ExperimentsClient {
     req: LogLoggedModelParamsRequest,
     options?: CallOptions
   ): Promise<LogLoggedModelParamsResponse> {
+    if (req.modelId === undefined) {
+      throw new Error('path parameter "model_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/params`;
+    const url = `${host}/api/2.0/mlflow/logged-models/${encodePathVariable(req.modelId)}/params`;
     const body = marshalRequest(req, marshalLogLoggedModelParamsRequestSchema);
     let resp: LogLoggedModelParamsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1446,7 +1480,7 @@ export class ExperimentsClient {
   /**
    * Searches for runs that satisfy expressions.
    *
-   * Search expressions can use `mlflowMetric` and `mlflowParam` keys.
+   * Search expressions can use metric, param, and tag keys.
    */
   async searchRuns(
     req: SearchRunsRequest,
@@ -1527,8 +1561,11 @@ export class ExperimentsClient {
     req: SetLoggedModelTagsRequest,
     options?: CallOptions
   ): Promise<SetLoggedModelTagsResponse> {
+    if (req.modelId === undefined) {
+      throw new Error('path parameter "model_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/tags`;
+    const url = `${host}/api/2.0/mlflow/logged-models/${encodePathVariable(req.modelId)}/tags`;
     const body = marshalRequest(req, marshalSetLoggedModelTagsRequestSchema);
     let resp: SetLoggedModelTagsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

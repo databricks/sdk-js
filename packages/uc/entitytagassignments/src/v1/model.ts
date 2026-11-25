@@ -124,6 +124,26 @@ export const unmarshalListEntityTagAssignmentsResponseSchema: z.ZodType<ListEnti
       nextPageToken: d.next_page_token,
     }));
 
+export const marshalCreateEntityTagAssignmentRequestSchema: z.ZodType = z
+  .object({
+    tagAssignment: z.lazy(() => marshalEntityTagAssignmentSchema).optional(),
+  })
+  .transform(d => ({
+    tag_assignment: d.tagAssignment,
+  }));
+
+export const marshalDeleteEntityTagAssignmentRequestSchema: z.ZodType = z
+  .object({
+    entityName: z.string().optional(),
+    tagKey: z.string().optional(),
+    entityType: z.string().optional(),
+  })
+  .transform(d => ({
+    entity_name: d.entityName,
+    tag_key: d.tagKey,
+    entity_type: d.entityType,
+  }));
+
 export const marshalEntityTagAssignmentSchema: z.ZodType = z
   .object({
     entityName: z.string().optional(),
@@ -145,6 +165,57 @@ export const marshalEntityTagAssignmentSchema: z.ZodType = z
     update_time: d.updateTime,
     updated_by: d.updatedBy,
     source_type: d.sourceType,
+  }));
+
+export const marshalGetEntityTagAssignmentRequestSchema: z.ZodType = z
+  .object({
+    entityName: z.string().optional(),
+    tagKey: z.string().optional(),
+    entityType: z.string().optional(),
+  })
+  .transform(d => ({
+    entity_name: d.entityName,
+    tag_key: d.tagKey,
+    entity_type: d.entityType,
+  }));
+
+export const marshalListEntityTagAssignmentsRequestSchema: z.ZodType = z
+  .object({
+    entityName: z.string().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+    entityType: z.string().optional(),
+  })
+  .transform(d => ({
+    entity_name: d.entityName,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+    entity_type: d.entityType,
+  }));
+
+export const marshalListEntityTagAssignmentsResponseSchema: z.ZodType = z
+  .object({
+    tagAssignments: z
+      .array(z.lazy(() => marshalEntityTagAssignmentSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    tag_assignments: d.tagAssignments,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalUpdateEntityTagAssignmentRequestSchema: z.ZodType = z
+  .object({
+    tagAssignment: z.lazy(() => marshalEntityTagAssignmentSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    tag_assignment: d.tagAssignment,
+    update_mask: d.updateMask,
   }));
 
 const entityTagAssignmentFieldMaskSchema: FieldMaskSchema = {

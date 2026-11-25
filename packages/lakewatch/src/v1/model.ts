@@ -3107,6 +3107,40 @@ export const marshalAutoLoaderSchema: z.ZodType = z
     effective_include_existing_files: d.effectiveIncludeExistingFiles,
   }));
 
+export const marshalBuiltinParserSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    parserId: z.string().optional(),
+    parserName: z.string().optional(),
+    tags: z.array(z.lazy(() => marshalParserTagSchema)).optional(),
+    latestVersion: z.bigint().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    parser_id: d.parserId,
+    parser_name: d.parserName,
+    tags: d.tags,
+    latest_version: d.latestVersion,
+  }));
+
+export const marshalBuiltinParserVersionSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    version: z.bigint().optional(),
+    spec: z.string().optional(),
+    parserName: z.string().optional(),
+    tags: z.array(z.lazy(() => marshalParserTagSchema)).optional(),
+    description: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+    spec: d.spec,
+    parser_name: d.parserName,
+    tags: d.tags,
+    description: d.description,
+  }));
+
 export const marshalCloudWatchLogsEnvelopeSchema: z.ZodType = z
   .object({
     headerRetention: z.boolean().optional(),
@@ -3144,6 +3178,40 @@ export const marshalContentPackReferenceSchema: z.ZodType = z
   .transform(d => ({
     uuid: d.uuid,
     version: d.version,
+  }));
+
+export const marshalCreateDatasourceRequestSchema: z.ZodType = z
+  .object({
+    datasource: z.lazy(() => marshalDatasourceSchema).optional(),
+  })
+  .transform(d => ({
+    datasource: d.datasource,
+  }));
+
+export const marshalCreateParserRequestSchema: z.ZodType = z
+  .object({
+    parser: z.lazy(() => marshalParserSchema).optional(),
+  })
+  .transform(d => ({
+    parser: d.parser,
+  }));
+
+export const marshalCreateParserVersionRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    parserVersion: z.lazy(() => marshalParserVersionSchema).optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    parser_version: d.parserVersion,
+  }));
+
+export const marshalCreateRuleRequestSchema: z.ZodType = z
+  .object({
+    rule: z.lazy(() => marshalRuleSchema).optional(),
+  })
+  .transform(d => ({
+    rule: d.rule,
   }));
 
 export const marshalDatasourceSchema: z.ZodType = z
@@ -3270,6 +3338,38 @@ export const marshalDatasourceStatusSchema: z.ZodType = z
     ingestion_pipeline: d.ingestionPipeline,
   }));
 
+export const marshalDeleteDatasourceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteParserRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteParserVersionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteRuleRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalEnvelopeSchema: z.ZodType = z
   .object({
     kind: z
@@ -3353,6 +3453,86 @@ export const marshalExportConfigSchema: z.ZodType = z
     workspace_id: d.workspaceId,
   }));
 
+export const marshalGetAlertConfigRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetBuiltinParserRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetBuiltinParserVersionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetCommonConfigRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetDatasourceConfigRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetDatasourceRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetParserRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetParserVersionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetRuleConfigRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetRuleRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalJiraExportConfigSchema: z.ZodType = z
   .object({
     instanceUrl: z.string().optional(),
@@ -3375,6 +3555,160 @@ export const marshalJsonArrayEnvelopeSchema: z.ZodType = z
   })
   .transform(d => ({
     path: d.path,
+  }));
+
+export const marshalListBuiltinParserVersionsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListBuiltinParserVersionsResponseSchema: z.ZodType = z
+  .object({
+    builtinParserVersions: z
+      .array(z.lazy(() => marshalBuiltinParserVersionSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    builtin_parser_versions: d.builtinParserVersions,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListBuiltinParsersRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    filter: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    filter: d.filter,
+  }));
+
+export const marshalListBuiltinParsersResponseSchema: z.ZodType = z
+  .object({
+    builtinParsers: z
+      .array(z.lazy(() => marshalBuiltinParserSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    builtin_parsers: d.builtinParsers,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListDatasourcesRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    filter: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    view: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    filter: d.filter,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    view: d.view,
+  }));
+
+export const marshalListDatasourcesResponseSchema: z.ZodType = z
+  .object({
+    datasources: z.array(z.lazy(() => marshalDatasourceSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    datasources: d.datasources,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListParserVersionsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListParserVersionsResponseSchema: z.ZodType = z
+  .object({
+    parserVersions: z
+      .array(z.lazy(() => marshalParserVersionSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parser_versions: d.parserVersions,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListParsersRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    filter: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    filter: d.filter,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+  }));
+
+export const marshalListParsersResponseSchema: z.ZodType = z
+  .object({
+    parsers: z.array(z.lazy(() => marshalParserSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parsers: d.parsers,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListRulesRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    filter: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    view: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    filter: d.filter,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    view: d.view,
+  }));
+
+export const marshalListRulesResponseSchema: z.ZodType = z
+  .object({
+    rules: z.array(z.lazy(() => marshalRuleSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    rules: d.rules,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalParserSchema: z.ZodType = z
@@ -3424,6 +3758,16 @@ export const marshalParserRefSchema: z.ZodType = z
     version: d.version,
     target_table: d.targetTable,
     effective_target_table: d.effectiveTargetTable,
+  }));
+
+export const marshalParserTagSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
   }));
 
 export const marshalParserVersionSchema: z.ZodType = z
@@ -3859,6 +4203,96 @@ export const marshalUnityCatalogConnectionSchema: z.ZodType = z
     configuration: d.configuration,
     start_time: d.startTime,
     effective_start_time: d.effectiveStartTime,
+  }));
+
+export const marshalUpdateAlertConfigRequestSchema: z.ZodType = z
+  .object({
+    alertConfig: z.lazy(() => marshalAlertConfigSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    alert_config: d.alertConfig,
+    update_mask: d.updateMask,
+    etag: d.etag,
+  }));
+
+export const marshalUpdateCommonConfigRequestSchema: z.ZodType = z
+  .object({
+    commonConfig: z.lazy(() => marshalCommonConfigSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    common_config: d.commonConfig,
+    update_mask: d.updateMask,
+    etag: d.etag,
+  }));
+
+export const marshalUpdateDatasourceConfigRequestSchema: z.ZodType = z
+  .object({
+    datasourceConfig: z.lazy(() => marshalDatasourceConfigSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    datasource_config: d.datasourceConfig,
+    update_mask: d.updateMask,
+    etag: d.etag,
+  }));
+
+export const marshalUpdateDatasourceRequestSchema: z.ZodType = z
+  .object({
+    datasource: z.lazy(() => marshalDatasourceSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    datasource: d.datasource,
+    update_mask: d.updateMask,
+    etag: d.etag,
+  }));
+
+export const marshalUpdateRuleConfigRequestSchema: z.ZodType = z
+  .object({
+    ruleConfig: z.lazy(() => marshalRuleConfigSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    rule_config: d.ruleConfig,
+    update_mask: d.updateMask,
+    etag: d.etag,
+  }));
+
+export const marshalUpdateRuleRequestSchema: z.ZodType = z
+  .object({
+    rule: z.lazy(() => marshalRuleSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    rule: d.rule,
+    update_mask: d.updateMask,
+    etag: d.etag,
   }));
 
 export const marshalWebhookExportConfigSchema: z.ZodType = z

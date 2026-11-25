@@ -1171,6 +1171,14 @@ export const marshalCreateInstancePoolRequestSchema: z.ZodType = z
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
   }));
 
+export const marshalCreateInstancePoolResponseSchema: z.ZodType = z
+  .object({
+    instancePoolId: z.string().optional(),
+  })
+  .transform(d => ({
+    instance_pool_id: d.instancePoolId,
+  }));
+
 export const marshalDeleteInstancePoolRequestSchema: z.ZodType = z
   .object({
     instancePoolId: z.string().optional(),
@@ -1178,6 +1186,8 @@ export const marshalDeleteInstancePoolRequestSchema: z.ZodType = z
   .transform(d => ({
     instance_pool_id: d.instancePoolId,
   }));
+
+export const marshalDeleteInstancePoolResponseSchema: z.ZodType = z.object({});
 
 export const marshalDiskSpecSchema: z.ZodType = z
   .object({
@@ -1298,6 +1308,132 @@ export const marshalEditInstancePoolRequestSchema: z.ZodType = z
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
   }));
 
+export const marshalEditInstancePoolResponseSchema: z.ZodType = z.object({});
+
+export const marshalGetInstancePoolRequestSchema: z.ZodType = z
+  .object({
+    instancePoolId: z.string().optional(),
+  })
+  .transform(d => ({
+    instance_pool_id: d.instancePoolId,
+  }));
+
+export const marshalGetInstancePoolResponseSchema: z.ZodType = z
+  .object({
+    stats: z.lazy(() => marshalInstancePoolStatsSchema).optional(),
+    status: z.lazy(() => marshalInstancePoolStatusSchema).optional(),
+    instancePoolId: z.string().optional(),
+    defaultTags: z.record(z.string(), z.string()).optional(),
+    state: z.string().optional(),
+    instancePoolName: z.string().optional(),
+    minIdleInstances: z.number().optional(),
+    maxCapacity: z.number().optional(),
+    awsAttributes: z
+      .lazy(() => marshalInstancePoolAwsAttributesSchema)
+      .optional(),
+    nodeTypeId: z.string().optional(),
+    customTags: z.record(z.string(), z.string()).optional(),
+    idleInstanceAutoterminationMinutes: z.number().optional(),
+    enableElasticDisk: z.boolean().optional(),
+    diskSpec: z.lazy(() => marshalDiskSpecSchema).optional(),
+    preloadedDockerImages: z
+      .array(z.lazy(() => marshalDockerImageSchema))
+      .optional(),
+    preloadedSparkVersions: z.array(z.string()).optional(),
+    azureAttributes: z
+      .lazy(() => marshalInstancePoolAzureAttributesSchema)
+      .optional(),
+    gcpAttributes: z
+      .lazy(() => marshalInstancePoolGcpAttributesSchema)
+      .optional(),
+    nodeTypeFlexibility: z
+      .lazy(() => marshalNodeTypeFlexibilitySchema)
+      .optional(),
+    remoteDiskThroughput: z.number().optional(),
+    totalInitialRemoteDiskSize: z.number().optional(),
+  })
+  .transform(d => ({
+    stats: d.stats,
+    status: d.status,
+    instance_pool_id: d.instancePoolId,
+    default_tags: d.defaultTags,
+    state: d.state,
+    instance_pool_name: d.instancePoolName,
+    min_idle_instances: d.minIdleInstances,
+    max_capacity: d.maxCapacity,
+    aws_attributes: d.awsAttributes,
+    node_type_id: d.nodeTypeId,
+    custom_tags: d.customTags,
+    idle_instance_autotermination_minutes: d.idleInstanceAutoterminationMinutes,
+    enable_elastic_disk: d.enableElasticDisk,
+    disk_spec: d.diskSpec,
+    preloaded_docker_images: d.preloadedDockerImages,
+    preloaded_spark_versions: d.preloadedSparkVersions,
+    azure_attributes: d.azureAttributes,
+    gcp_attributes: d.gcpAttributes,
+    node_type_flexibility: d.nodeTypeFlexibility,
+    remote_disk_throughput: d.remoteDiskThroughput,
+    total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+  }));
+
+export const marshalInstancePoolAndStatsSchema: z.ZodType = z
+  .object({
+    stats: z.lazy(() => marshalInstancePoolStatsSchema).optional(),
+    status: z.lazy(() => marshalInstancePoolStatusSchema).optional(),
+    instancePoolId: z.string().optional(),
+    defaultTags: z.record(z.string(), z.string()).optional(),
+    state: z.string().optional(),
+    instancePoolName: z.string().optional(),
+    minIdleInstances: z.number().optional(),
+    maxCapacity: z.number().optional(),
+    awsAttributes: z
+      .lazy(() => marshalInstancePoolAwsAttributesSchema)
+      .optional(),
+    nodeTypeId: z.string().optional(),
+    customTags: z.record(z.string(), z.string()).optional(),
+    idleInstanceAutoterminationMinutes: z.number().optional(),
+    enableElasticDisk: z.boolean().optional(),
+    diskSpec: z.lazy(() => marshalDiskSpecSchema).optional(),
+    preloadedDockerImages: z
+      .array(z.lazy(() => marshalDockerImageSchema))
+      .optional(),
+    preloadedSparkVersions: z.array(z.string()).optional(),
+    azureAttributes: z
+      .lazy(() => marshalInstancePoolAzureAttributesSchema)
+      .optional(),
+    gcpAttributes: z
+      .lazy(() => marshalInstancePoolGcpAttributesSchema)
+      .optional(),
+    nodeTypeFlexibility: z
+      .lazy(() => marshalNodeTypeFlexibilitySchema)
+      .optional(),
+    remoteDiskThroughput: z.number().optional(),
+    totalInitialRemoteDiskSize: z.number().optional(),
+  })
+  .transform(d => ({
+    stats: d.stats,
+    status: d.status,
+    instance_pool_id: d.instancePoolId,
+    default_tags: d.defaultTags,
+    state: d.state,
+    instance_pool_name: d.instancePoolName,
+    min_idle_instances: d.minIdleInstances,
+    max_capacity: d.maxCapacity,
+    aws_attributes: d.awsAttributes,
+    node_type_id: d.nodeTypeId,
+    custom_tags: d.customTags,
+    idle_instance_autotermination_minutes: d.idleInstanceAutoterminationMinutes,
+    enable_elastic_disk: d.enableElasticDisk,
+    disk_spec: d.diskSpec,
+    preloaded_docker_images: d.preloadedDockerImages,
+    preloaded_spark_versions: d.preloadedSparkVersions,
+    azure_attributes: d.azureAttributes,
+    gcp_attributes: d.gcpAttributes,
+    node_type_flexibility: d.nodeTypeFlexibility,
+    remote_disk_throughput: d.remoteDiskThroughput,
+    total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+  }));
+
 export const marshalInstancePoolAwsAttributesSchema: z.ZodType = z
   .object({
     availability: z.string().optional(),
@@ -1336,6 +1472,42 @@ export const marshalInstancePoolGcpAttributesSchema: z.ZodType = z
     zone_id: d.zoneId,
   }));
 
+export const marshalInstancePoolStatsSchema: z.ZodType = z
+  .object({
+    usedCount: z.number().optional(),
+    idleCount: z.number().optional(),
+    pendingUsedCount: z.number().optional(),
+    pendingIdleCount: z.number().optional(),
+  })
+  .transform(d => ({
+    used_count: d.usedCount,
+    idle_count: d.idleCount,
+    pending_used_count: d.pendingUsedCount,
+    pending_idle_count: d.pendingIdleCount,
+  }));
+
+export const marshalInstancePoolStatusSchema: z.ZodType = z
+  .object({
+    pendingInstanceErrors: z
+      .array(z.lazy(() => marshalPendingInstanceErrorSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    pending_instance_errors: d.pendingInstanceErrors,
+  }));
+
+export const marshalListInstancePoolsRequestSchema: z.ZodType = z.object({});
+
+export const marshalListInstancePoolsResponseSchema: z.ZodType = z
+  .object({
+    instancePools: z
+      .array(z.lazy(() => marshalInstancePoolAndStatsSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    instance_pools: d.instancePools,
+  }));
+
 export const marshalNodeTypeFlexibilitySchema: z.ZodType = z
   .object({
     alternateNodeTypeIds: z.array(z.string()).optional(),
@@ -1344,4 +1516,14 @@ export const marshalNodeTypeFlexibilitySchema: z.ZodType = z
   .transform(d => ({
     alternate_node_type_ids: d.alternateNodeTypeIds,
     aws_context_id: d.awsContextId,
+  }));
+
+export const marshalPendingInstanceErrorSchema: z.ZodType = z
+  .object({
+    instanceId: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    instance_id: d.instanceId,
+    message: d.message,
   }));

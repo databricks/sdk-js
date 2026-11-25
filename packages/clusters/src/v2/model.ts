@@ -5409,6 +5409,9 @@ export const marshalCancelPendingClusterEnforcementRequestSchema: z.ZodType = z
     allow_missing: d.allowMissing,
   }));
 
+export const marshalCancelPendingClusterEnforcementResponseSchema: z.ZodType =
+  z.object({});
+
 export const marshalChangeClusterOwnerRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
@@ -5419,12 +5422,343 @@ export const marshalChangeClusterOwnerRequestSchema: z.ZodType = z
     owner_username: d.ownerUsername,
   }));
 
+export const marshalChangeClusterOwnerResponseSchema: z.ZodType = z.object({});
+
 export const marshalCloneClusterSchema: z.ZodType = z
   .object({
     sourceClusterId: z.string().optional(),
   })
   .transform(d => ({
     source_cluster_id: d.sourceClusterId,
+  }));
+
+export const marshalCloudProviderNodeInfoSchema: z.ZodType = z
+  .object({
+    status: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+  }));
+
+export const marshalClusterAttributesSchema: z.ZodType = z
+  .object({
+    clusterName: z.string().optional(),
+    sparkVersion: z.string().optional(),
+    sparkConf: z.record(z.string(), z.string()).optional(),
+    awsAttributes: z.lazy(() => marshalAwsAttributesSchema).optional(),
+    azureAttributes: z.lazy(() => marshalAzureAttributesSchema).optional(),
+    gcpAttributes: z.lazy(() => marshalGcpAttributesSchema).optional(),
+    nodeTypeId: z.string().optional(),
+    driverNodeTypeId: z.string().optional(),
+    workerNodeTypeFlexibility: z
+      .lazy(() => marshalNodeTypeFlexibilitySchema)
+      .optional(),
+    driverNodeTypeFlexibility: z
+      .lazy(() => marshalNodeTypeFlexibilitySchema)
+      .optional(),
+    sshPublicKeys: z.array(z.string()).optional(),
+    customTags: z.record(z.string(), z.string()).optional(),
+    clusterLogConf: z.lazy(() => marshalClusterLogConfSchema).optional(),
+    sparkEnvVars: z.record(z.string(), z.string()).optional(),
+    autoterminationMinutes: z.number().optional(),
+    enableElasticDisk: z.boolean().optional(),
+    initScripts: z.array(z.lazy(() => marshalInitScriptInfoSchema)).optional(),
+    dockerImage: z.lazy(() => marshalDockerImageSchema).optional(),
+    instancePoolId: z.string().optional(),
+    singleUserName: z.string().optional(),
+    policyId: z.string().optional(),
+    enableLocalDiskEncryption: z.boolean().optional(),
+    driverInstancePoolId: z.string().optional(),
+    workloadType: z.lazy(() => marshalWorkloadTypeSchema).optional(),
+    dataSecurityMode: z.string().optional(),
+    runtimeEngine: z.string().optional(),
+    kind: z.string().optional(),
+    useMlRuntime: z.boolean().optional(),
+    isSingleNode: z.boolean().optional(),
+    remoteDiskThroughput: z.number().optional(),
+    totalInitialRemoteDiskSize: z.number().optional(),
+    dependencyMode: z.string().optional(),
+  })
+  .transform(d => ({
+    cluster_name: d.clusterName,
+    spark_version: d.sparkVersion,
+    spark_conf: d.sparkConf,
+    aws_attributes: d.awsAttributes,
+    azure_attributes: d.azureAttributes,
+    gcp_attributes: d.gcpAttributes,
+    node_type_id: d.nodeTypeId,
+    driver_node_type_id: d.driverNodeTypeId,
+    worker_node_type_flexibility: d.workerNodeTypeFlexibility,
+    driver_node_type_flexibility: d.driverNodeTypeFlexibility,
+    ssh_public_keys: d.sshPublicKeys,
+    custom_tags: d.customTags,
+    cluster_log_conf: d.clusterLogConf,
+    spark_env_vars: d.sparkEnvVars,
+    autotermination_minutes: d.autoterminationMinutes,
+    enable_elastic_disk: d.enableElasticDisk,
+    init_scripts: d.initScripts,
+    docker_image: d.dockerImage,
+    instance_pool_id: d.instancePoolId,
+    single_user_name: d.singleUserName,
+    policy_id: d.policyId,
+    enable_local_disk_encryption: d.enableLocalDiskEncryption,
+    driver_instance_pool_id: d.driverInstancePoolId,
+    workload_type: d.workloadType,
+    data_security_mode: d.dataSecurityMode,
+    runtime_engine: d.runtimeEngine,
+    kind: d.kind,
+    use_ml_runtime: d.useMlRuntime,
+    is_single_node: d.isSingleNode,
+    remote_disk_throughput: d.remoteDiskThroughput,
+    total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+    dependency_mode: d.dependencyMode,
+  }));
+
+export const marshalClusterComplianceSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+    isCompliant: z.boolean().optional(),
+    violations: z.record(z.string(), z.string()).optional(),
+    pendingEnforcement: z
+      .lazy(() => marshalPendingEnforcementSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    cluster_id: d.clusterId,
+    is_compliant: d.isCompliant,
+    violations: d.violations,
+    pending_enforcement: d.pendingEnforcement,
+  }));
+
+export const marshalClusterEventSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+    timestamp: z.bigint().optional(),
+    type: z.string().optional(),
+    details: z.lazy(() => marshalEventDetailsSchema).optional(),
+    dataPlaneEventDetails: z
+      .lazy(() => marshalDataPlaneEventDetailsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    cluster_id: d.clusterId,
+    timestamp: d.timestamp,
+    type: d.type,
+    details: d.details,
+    data_plane_event_details: d.dataPlaneEventDetails,
+  }));
+
+export const marshalClusterEventTypeSchema: z.ZodType = z.object({});
+
+export const marshalClusterInfoSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+    creatorUserName: z.string().optional(),
+    state: z.string().optional(),
+    stateMessage: z.string().optional(),
+    clusterMemoryMb: z.bigint().optional(),
+    clusterCores: z.number().optional(),
+    defaultTags: z.record(z.string(), z.string()).optional(),
+    clusterLogStatus: z.lazy(() => marshalLogSyncStatusSchema).optional(),
+    terminationReason: z.lazy(() => marshalTerminationReasonSchema).optional(),
+    spec: z.lazy(() => marshalClusterInfo_ComputeSpecSchema).optional(),
+    driver: z.lazy(() => marshalSparkInfo_SparkNodeSchema).optional(),
+    executors: z
+      .array(z.lazy(() => marshalSparkInfo_SparkNodeSchema))
+      .optional(),
+    sparkContextId: z.bigint().optional(),
+    jdbcPort: z.number().optional(),
+    clusterName: z.string().optional(),
+    sparkVersion: z.string().optional(),
+    sparkConf: z.record(z.string(), z.string()).optional(),
+    awsAttributes: z.lazy(() => marshalAwsAttributesSchema).optional(),
+    azureAttributes: z.lazy(() => marshalAzureAttributesSchema).optional(),
+    gcpAttributes: z.lazy(() => marshalGcpAttributesSchema).optional(),
+    nodeTypeId: z.string().optional(),
+    driverNodeTypeId: z.string().optional(),
+    workerNodeTypeFlexibility: z
+      .lazy(() => marshalNodeTypeFlexibilitySchema)
+      .optional(),
+    driverNodeTypeFlexibility: z
+      .lazy(() => marshalNodeTypeFlexibilitySchema)
+      .optional(),
+    sshPublicKeys: z.array(z.string()).optional(),
+    customTags: z.record(z.string(), z.string()).optional(),
+    clusterLogConf: z.lazy(() => marshalClusterLogConfSchema).optional(),
+    sparkEnvVars: z.record(z.string(), z.string()).optional(),
+    autoterminationMinutes: z.number().optional(),
+    enableElasticDisk: z.boolean().optional(),
+    initScripts: z.array(z.lazy(() => marshalInitScriptInfoSchema)).optional(),
+    dockerImage: z.lazy(() => marshalDockerImageSchema).optional(),
+    instancePoolId: z.string().optional(),
+    singleUserName: z.string().optional(),
+    policyId: z.string().optional(),
+    enableLocalDiskEncryption: z.boolean().optional(),
+    driverInstancePoolId: z.string().optional(),
+    workloadType: z.lazy(() => marshalWorkloadTypeSchema).optional(),
+    dataSecurityMode: z.string().optional(),
+    runtimeEngine: z.string().optional(),
+    kind: z.string().optional(),
+    useMlRuntime: z.boolean().optional(),
+    isSingleNode: z.boolean().optional(),
+    remoteDiskThroughput: z.number().optional(),
+    totalInitialRemoteDiskSize: z.number().optional(),
+    dependencyMode: z.string().optional(),
+    startTime: z.bigint().optional(),
+    terminatedTime: z.bigint().optional(),
+    lastStateLossTime: z.bigint().optional(),
+    lastRestartedTime: z.bigint().optional(),
+    size: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
+        z.object({
+          $case: z.literal('autoscale'),
+          autoscale: z.lazy(() => marshalAutoScaleSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    cluster_id: d.clusterId,
+    creator_user_name: d.creatorUserName,
+    state: d.state,
+    state_message: d.stateMessage,
+    cluster_memory_mb: d.clusterMemoryMb,
+    cluster_cores: d.clusterCores,
+    default_tags: d.defaultTags,
+    cluster_log_status: d.clusterLogStatus,
+    termination_reason: d.terminationReason,
+    spec: d.spec,
+    driver: d.driver,
+    executors: d.executors,
+    spark_context_id: d.sparkContextId,
+    jdbc_port: d.jdbcPort,
+    cluster_name: d.clusterName,
+    spark_version: d.sparkVersion,
+    spark_conf: d.sparkConf,
+    aws_attributes: d.awsAttributes,
+    azure_attributes: d.azureAttributes,
+    gcp_attributes: d.gcpAttributes,
+    node_type_id: d.nodeTypeId,
+    driver_node_type_id: d.driverNodeTypeId,
+    worker_node_type_flexibility: d.workerNodeTypeFlexibility,
+    driver_node_type_flexibility: d.driverNodeTypeFlexibility,
+    ssh_public_keys: d.sshPublicKeys,
+    custom_tags: d.customTags,
+    cluster_log_conf: d.clusterLogConf,
+    spark_env_vars: d.sparkEnvVars,
+    autotermination_minutes: d.autoterminationMinutes,
+    enable_elastic_disk: d.enableElasticDisk,
+    init_scripts: d.initScripts,
+    docker_image: d.dockerImage,
+    instance_pool_id: d.instancePoolId,
+    single_user_name: d.singleUserName,
+    policy_id: d.policyId,
+    enable_local_disk_encryption: d.enableLocalDiskEncryption,
+    driver_instance_pool_id: d.driverInstancePoolId,
+    workload_type: d.workloadType,
+    data_security_mode: d.dataSecurityMode,
+    runtime_engine: d.runtimeEngine,
+    kind: d.kind,
+    use_ml_runtime: d.useMlRuntime,
+    is_single_node: d.isSingleNode,
+    remote_disk_throughput: d.remoteDiskThroughput,
+    total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+    dependency_mode: d.dependencyMode,
+    start_time: d.startTime,
+    terminated_time: d.terminatedTime,
+    last_state_loss_time: d.lastStateLossTime,
+    last_restarted_time: d.lastRestartedTime,
+    ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
+    ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalClusterInfo_ComputeSpecSchema: z.ZodType = z
+  .object({
+    applyPolicyDefaultValues: z.boolean().optional(),
+    clusterName: z.string().optional(),
+    sparkVersion: z.string().optional(),
+    sparkConf: z.record(z.string(), z.string()).optional(),
+    awsAttributes: z.lazy(() => marshalAwsAttributesSchema).optional(),
+    azureAttributes: z.lazy(() => marshalAzureAttributesSchema).optional(),
+    gcpAttributes: z.lazy(() => marshalGcpAttributesSchema).optional(),
+    nodeTypeId: z.string().optional(),
+    driverNodeTypeId: z.string().optional(),
+    workerNodeTypeFlexibility: z
+      .lazy(() => marshalNodeTypeFlexibilitySchema)
+      .optional(),
+    driverNodeTypeFlexibility: z
+      .lazy(() => marshalNodeTypeFlexibilitySchema)
+      .optional(),
+    sshPublicKeys: z.array(z.string()).optional(),
+    customTags: z.record(z.string(), z.string()).optional(),
+    clusterLogConf: z.lazy(() => marshalClusterLogConfSchema).optional(),
+    sparkEnvVars: z.record(z.string(), z.string()).optional(),
+    autoterminationMinutes: z.number().optional(),
+    enableElasticDisk: z.boolean().optional(),
+    initScripts: z.array(z.lazy(() => marshalInitScriptInfoSchema)).optional(),
+    dockerImage: z.lazy(() => marshalDockerImageSchema).optional(),
+    instancePoolId: z.string().optional(),
+    singleUserName: z.string().optional(),
+    policyId: z.string().optional(),
+    enableLocalDiskEncryption: z.boolean().optional(),
+    driverInstancePoolId: z.string().optional(),
+    workloadType: z.lazy(() => marshalWorkloadTypeSchema).optional(),
+    dataSecurityMode: z.string().optional(),
+    runtimeEngine: z.string().optional(),
+    kind: z.string().optional(),
+    useMlRuntime: z.boolean().optional(),
+    isSingleNode: z.boolean().optional(),
+    remoteDiskThroughput: z.number().optional(),
+    totalInitialRemoteDiskSize: z.number().optional(),
+    dependencyMode: z.string().optional(),
+    size: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
+        z.object({
+          $case: z.literal('autoscale'),
+          autoscale: z.lazy(() => marshalAutoScaleSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    apply_policy_default_values: d.applyPolicyDefaultValues,
+    cluster_name: d.clusterName,
+    spark_version: d.sparkVersion,
+    spark_conf: d.sparkConf,
+    aws_attributes: d.awsAttributes,
+    azure_attributes: d.azureAttributes,
+    gcp_attributes: d.gcpAttributes,
+    node_type_id: d.nodeTypeId,
+    driver_node_type_id: d.driverNodeTypeId,
+    worker_node_type_flexibility: d.workerNodeTypeFlexibility,
+    driver_node_type_flexibility: d.driverNodeTypeFlexibility,
+    ssh_public_keys: d.sshPublicKeys,
+    custom_tags: d.customTags,
+    cluster_log_conf: d.clusterLogConf,
+    spark_env_vars: d.sparkEnvVars,
+    autotermination_minutes: d.autoterminationMinutes,
+    enable_elastic_disk: d.enableElasticDisk,
+    init_scripts: d.initScripts,
+    docker_image: d.dockerImage,
+    instance_pool_id: d.instancePoolId,
+    single_user_name: d.singleUserName,
+    policy_id: d.policyId,
+    enable_local_disk_encryption: d.enableLocalDiskEncryption,
+    driver_instance_pool_id: d.driverInstancePoolId,
+    workload_type: d.workloadType,
+    data_security_mode: d.dataSecurityMode,
+    runtime_engine: d.runtimeEngine,
+    kind: d.kind,
+    use_ml_runtime: d.useMlRuntime,
+    is_single_node: d.isSingleNode,
+    remote_disk_throughput: d.remoteDiskThroughput,
+    total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+    dependency_mode: d.dependencyMode,
+    ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
+    ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
   }));
 
 export const marshalClusterLogConfSchema: z.ZodType = z
@@ -5451,6 +5785,25 @@ export const marshalClusterLogConfSchema: z.ZodType = z
     ...(d.storageInfo?.$case === 's3' && {s3: d.storageInfo.s3}),
     ...(d.storageInfo?.$case === 'volumes' && {volumes: d.storageInfo.volumes}),
   }));
+
+export const marshalClusterSizeSchema: z.ZodType = z
+  .object({
+    size: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
+        z.object({
+          $case: z.literal('autoscale'),
+          autoscale: z.lazy(() => marshalAutoScaleSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
+    ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
+  }));
+
+export const marshalClusterStateSchema: z.ZodType = z.object({});
 
 export const marshalCreateClusterRequestSchema: z.ZodType = z
   .object({
@@ -5541,6 +5894,28 @@ export const marshalCreateClusterRequestSchema: z.ZodType = z
     dependency_mode: d.dependencyMode,
   }));
 
+export const marshalCreateClusterResponseSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+  })
+  .transform(d => ({
+    cluster_id: d.clusterId,
+  }));
+
+export const marshalDataPlaneEventDetailsSchema: z.ZodType = z
+  .object({
+    eventType: z.string().optional(),
+    timestamp: z.bigint().optional(),
+    hostId: z.string().optional(),
+    executorFailures: z.number().optional(),
+  })
+  .transform(d => ({
+    event_type: d.eventType,
+    timestamp: d.timestamp,
+    host_id: d.hostId,
+    executor_failures: d.executorFailures,
+  }));
+
 export const marshalDbfsStorageInfoSchema: z.ZodType = z
   .object({
     destination: z.string().optional(),
@@ -5556,6 +5931,8 @@ export const marshalDeleteClusterRequestSchema: z.ZodType = z
   .transform(d => ({
     cluster_id: d.clusterId,
   }));
+
+export const marshalDeleteClusterResponseSchema: z.ZodType = z.object({});
 
 export const marshalDockerBasicAuthSchema: z.ZodType = z
   .object({
@@ -5675,6 +6052,8 @@ export const marshalEditClusterRequestSchema: z.ZodType = z
     dependency_mode: d.dependencyMode,
   }));
 
+export const marshalEditClusterResponseSchema: z.ZodType = z.object({});
+
 export const marshalEnforcePolicyComplianceForClusterRequestSchema: z.ZodType =
   z
     .object({
@@ -5687,6 +6066,176 @@ export const marshalEnforcePolicyComplianceForClusterRequestSchema: z.ZodType =
       validate_only: d.validateOnly,
       enforce_mode: d.enforceMode,
     }));
+
+export const marshalEnforcePolicyComplianceForClusterResponseSchema: z.ZodType =
+  z
+    .object({
+      hasChanges: z.boolean().optional(),
+      changes: z
+        .array(
+          z.lazy(
+            () =>
+              marshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsChangeSchema
+          )
+        )
+        .optional(),
+      enforceResult: z.string().optional(),
+    })
+    .transform(d => ({
+      has_changes: d.hasChanges,
+      changes: d.changes,
+      enforce_result: d.enforceResult,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsSchema: z.ZodType =
+  z
+    .object({
+      clusterName: z.string().optional(),
+      sparkVersion: z.string().optional(),
+      sparkConf: z.record(z.string(), z.string()).optional(),
+      awsAttributes: z.lazy(() => marshalAwsAttributesSchema).optional(),
+      azureAttributes: z.lazy(() => marshalAzureAttributesSchema).optional(),
+      gcpAttributes: z.lazy(() => marshalGcpAttributesSchema).optional(),
+      nodeTypeId: z.string().optional(),
+      driverNodeTypeId: z.string().optional(),
+      workerNodeTypeFlexibility: z
+        .lazy(() => marshalNodeTypeFlexibilitySchema)
+        .optional(),
+      driverNodeTypeFlexibility: z
+        .lazy(() => marshalNodeTypeFlexibilitySchema)
+        .optional(),
+      sshPublicKeys: z.array(z.string()).optional(),
+      customTags: z.record(z.string(), z.string()).optional(),
+      clusterLogConf: z.lazy(() => marshalClusterLogConfSchema).optional(),
+      sparkEnvVars: z.record(z.string(), z.string()).optional(),
+      autoterminationMinutes: z.number().optional(),
+      enableElasticDisk: z.boolean().optional(),
+      initScripts: z
+        .array(z.lazy(() => marshalInitScriptInfoSchema))
+        .optional(),
+      dockerImage: z.lazy(() => marshalDockerImageSchema).optional(),
+      instancePoolId: z.string().optional(),
+      singleUserName: z.string().optional(),
+      policyId: z.string().optional(),
+      enableLocalDiskEncryption: z.boolean().optional(),
+      driverInstancePoolId: z.string().optional(),
+      workloadType: z.lazy(() => marshalWorkloadTypeSchema).optional(),
+      dataSecurityMode: z.string().optional(),
+      runtimeEngine: z.string().optional(),
+      kind: z.string().optional(),
+      useMlRuntime: z.boolean().optional(),
+      isSingleNode: z.boolean().optional(),
+      remoteDiskThroughput: z.number().optional(),
+      totalInitialRemoteDiskSize: z.number().optional(),
+      dependencyMode: z.string().optional(),
+      size: z
+        .discriminatedUnion('$case', [
+          z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
+          z.object({
+            $case: z.literal('autoscale'),
+            autoscale: z.lazy(() => marshalAutoScaleSchema),
+          }),
+        ])
+        .optional(),
+    })
+    .transform(d => ({
+      cluster_name: d.clusterName,
+      spark_version: d.sparkVersion,
+      spark_conf: d.sparkConf,
+      aws_attributes: d.awsAttributes,
+      azure_attributes: d.azureAttributes,
+      gcp_attributes: d.gcpAttributes,
+      node_type_id: d.nodeTypeId,
+      driver_node_type_id: d.driverNodeTypeId,
+      worker_node_type_flexibility: d.workerNodeTypeFlexibility,
+      driver_node_type_flexibility: d.driverNodeTypeFlexibility,
+      ssh_public_keys: d.sshPublicKeys,
+      custom_tags: d.customTags,
+      cluster_log_conf: d.clusterLogConf,
+      spark_env_vars: d.sparkEnvVars,
+      autotermination_minutes: d.autoterminationMinutes,
+      enable_elastic_disk: d.enableElasticDisk,
+      init_scripts: d.initScripts,
+      docker_image: d.dockerImage,
+      instance_pool_id: d.instancePoolId,
+      single_user_name: d.singleUserName,
+      policy_id: d.policyId,
+      enable_local_disk_encryption: d.enableLocalDiskEncryption,
+      driver_instance_pool_id: d.driverInstancePoolId,
+      workload_type: d.workloadType,
+      data_security_mode: d.dataSecurityMode,
+      runtime_engine: d.runtimeEngine,
+      kind: d.kind,
+      use_ml_runtime: d.useMlRuntime,
+      is_single_node: d.isSingleNode,
+      remote_disk_throughput: d.remoteDiskThroughput,
+      total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+      dependency_mode: d.dependencyMode,
+      ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
+      ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsChangeSchema: z.ZodType =
+  z
+    .object({
+      field: z.string().optional(),
+      previousValue: z.string().optional(),
+      newValue: z.string().optional(),
+    })
+    .transform(d => ({
+      field: d.field,
+      previous_value: d.previousValue,
+      new_value: d.newValue,
+    }));
+
+export const marshalEventDetailsSchema: z.ZodType = z
+  .object({
+    currentNumWorkers: z.number().optional(),
+    targetNumWorkers: z.number().optional(),
+    previousAttributes: z.lazy(() => marshalClusterAttributesSchema).optional(),
+    attributes: z.lazy(() => marshalClusterAttributesSchema).optional(),
+    previousClusterSize: z.lazy(() => marshalClusterSizeSchema).optional(),
+    clusterSize: z.lazy(() => marshalClusterSizeSchema).optional(),
+    cause: z.string().optional(),
+    reason: z.lazy(() => marshalTerminationReasonSchema).optional(),
+    user: z.string().optional(),
+    previousDiskSize: z.bigint().optional(),
+    diskSize: z.bigint().optional(),
+    freeSpace: z.bigint().optional(),
+    instanceId: z.string().optional(),
+    didNotExpandReason: z.string().optional(),
+    driverStateMessage: z.string().optional(),
+    jobRunName: z.string().optional(),
+    initScripts: z.lazy(() => marshalInitScriptEventDetailsSchema).optional(),
+    enableTerminationForNodeBlocklisted: z.boolean().optional(),
+    currentNumVcpus: z.number().optional(),
+    targetNumVcpus: z.number().optional(),
+  })
+  .transform(d => ({
+    current_num_workers: d.currentNumWorkers,
+    target_num_workers: d.targetNumWorkers,
+    previous_attributes: d.previousAttributes,
+    attributes: d.attributes,
+    previous_cluster_size: d.previousClusterSize,
+    cluster_size: d.clusterSize,
+    cause: d.cause,
+    reason: d.reason,
+    user: d.user,
+    previous_disk_size: d.previousDiskSize,
+    disk_size: d.diskSize,
+    free_space: d.freeSpace,
+    instance_id: d.instanceId,
+    did_not_expand_reason: d.didNotExpandReason,
+    driver_state_message: d.driverStateMessage,
+    job_run_name: d.jobRunName,
+    init_scripts: d.initScripts,
+    enable_termination_for_node_blocklisted:
+      d.enableTerminationForNodeBlocklisted,
+    current_num_vcpus: d.currentNumVcpus,
+    target_num_vcpus: d.targetNumVcpus,
+  }));
 
 export const marshalGcpAttributesSchema: z.ZodType = z
   .object({
@@ -5717,6 +6266,149 @@ export const marshalGcsStorageInfoSchema: z.ZodType = z
   .transform(d => ({
     destination: d.destination,
   }));
+
+export const marshalGetClusterRequestSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+  })
+  .transform(d => ({
+    cluster_id: d.clusterId,
+  }));
+
+export const marshalGetEventsResponseSchema: z.ZodType = z
+  .object({
+    events: z.array(z.lazy(() => marshalClusterEventSchema)).optional(),
+    nextPage: z.lazy(() => marshalListEventsRequestSchema).optional(),
+    totalCount: z.bigint().optional(),
+    nextPageToken: z.string().optional(),
+    prevPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    events: d.events,
+    next_page: d.nextPage,
+    total_count: d.totalCount,
+    next_page_token: d.nextPageToken,
+    prev_page_token: d.prevPageToken,
+  }));
+
+export const marshalGetPolicyComplianceForClusterRequestSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+  })
+  .transform(d => ({
+    cluster_id: d.clusterId,
+  }));
+
+export const marshalGetPolicyComplianceForClusterResponseSchema: z.ZodType = z
+  .object({
+    isCompliant: z.boolean().optional(),
+    violations: z.record(z.string(), z.string()).optional(),
+    pendingEnforcement: z
+      .lazy(() => marshalPendingEnforcementSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    is_compliant: d.isCompliant,
+    violations: d.violations,
+    pending_enforcement: d.pendingEnforcement,
+  }));
+
+export const marshalGetSparkVersionsRequestSchema: z.ZodType = z.object({});
+
+export const marshalGetSparkVersionsResponseSchema: z.ZodType = z
+  .object({
+    versions: z.array(z.lazy(() => marshalSparkVersionSchema)).optional(),
+  })
+  .transform(d => ({
+    versions: d.versions,
+  }));
+
+export const marshalInitScriptEventDetailsSchema: z.ZodType = z
+  .object({
+    reportedForNode: z.string().optional(),
+    global: z
+      .array(
+        z.lazy(
+          () =>
+            marshalInitScriptEventDetails_InitScriptInfoAndExecutionDetailsSchema
+        )
+      )
+      .optional(),
+    cluster: z
+      .array(
+        z.lazy(
+          () =>
+            marshalInitScriptEventDetails_InitScriptInfoAndExecutionDetailsSchema
+        )
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    reported_for_node: d.reportedForNode,
+    global: d.global,
+    cluster: d.cluster,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalInitScriptEventDetails_InitScriptInfoAndExecutionDetailsSchema: z.ZodType =
+  z
+    .object({
+      storageInfo: z
+        .discriminatedUnion('$case', [
+          z.object({
+            $case: z.literal('dbfs'),
+            dbfs: z.lazy(() => marshalDbfsStorageInfoSchema),
+          }),
+          z.object({
+            $case: z.literal('s3'),
+            s3: z.lazy(() => marshalS3StorageInfoSchema),
+          }),
+          z.object({
+            $case: z.literal('file'),
+            file: z.lazy(() => marshalLocalFileInfoSchema),
+          }),
+          z.object({
+            $case: z.literal('gcs'),
+            gcs: z.lazy(() => marshalGcsStorageInfoSchema),
+          }),
+          z.object({
+            $case: z.literal('abfss'),
+            abfss: z.lazy(() => marshalAdlsgen2InfoSchema),
+          }),
+          z.object({
+            $case: z.literal('workspace'),
+            workspace: z.lazy(() => marshalWorkspaceStorageInfoSchema),
+          }),
+          z.object({
+            $case: z.literal('volumes'),
+            volumes: z.lazy(() => marshalVolumesStorageInfoSchema),
+          }),
+        ])
+        .optional(),
+      status: z.string().optional(),
+      executionDurationSeconds: z.number().optional(),
+      errorMessage: z.string().optional(),
+      stderr: z.string().optional(),
+    })
+    .transform(d => ({
+      ...(d.storageInfo?.$case === 'dbfs' && {dbfs: d.storageInfo.dbfs}),
+      ...(d.storageInfo?.$case === 's3' && {s3: d.storageInfo.s3}),
+      ...(d.storageInfo?.$case === 'file' && {file: d.storageInfo.file}),
+      ...(d.storageInfo?.$case === 'gcs' && {gcs: d.storageInfo.gcs}),
+      ...(d.storageInfo?.$case === 'abfss' && {abfss: d.storageInfo.abfss}),
+      ...(d.storageInfo?.$case === 'workspace' && {
+        workspace: d.storageInfo.workspace,
+      }),
+      ...(d.storageInfo?.$case === 'volumes' && {
+        volumes: d.storageInfo.volumes,
+      }),
+      status: d.status,
+      execution_duration_seconds: d.executionDurationSeconds,
+      error_message: d.errorMessage,
+      stderr: d.stderr,
+    }));
+
+export const marshalInitScriptExecutionDetailsSchema: z.ZodType = z.object({});
 
 export const marshalInitScriptInfoSchema: z.ZodType = z
   .object({
@@ -5765,6 +6457,64 @@ export const marshalInitScriptInfoSchema: z.ZodType = z
     ...(d.storageInfo?.$case === 'volumes' && {volumes: d.storageInfo.volumes}),
   }));
 
+export const marshalListAvailableZonesRequestSchema: z.ZodType = z.object({});
+
+export const marshalListAvailableZonesResponseSchema: z.ZodType = z
+  .object({
+    zones: z.array(z.string()).optional(),
+    defaultZone: z.string().optional(),
+  })
+  .transform(d => ({
+    zones: d.zones,
+    default_zone: d.defaultZone,
+  }));
+
+export const marshalListClusterComplianceForPolicyRequestSchema: z.ZodType = z
+  .object({
+    policyId: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    policy_id: d.policyId,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListClusterComplianceForPolicyResponseSchema: z.ZodType = z
+  .object({
+    clusters: z.array(z.lazy(() => marshalClusterComplianceSchema)).optional(),
+    nextPageToken: z.string().optional(),
+    prevPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    clusters: d.clusters,
+    next_page_token: d.nextPageToken,
+    prev_page_token: d.prevPageToken,
+  }));
+
+export const marshalListClustersRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListClustersResponseSchema: z.ZodType = z
+  .object({
+    clusters: z.array(z.lazy(() => marshalClusterInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+    prevPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    clusters: d.clusters,
+    next_page_token: d.nextPageToken,
+    prev_page_token: d.prevPageToken,
+  }));
+
 export const marshalListEventsRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
@@ -5789,6 +6539,16 @@ export const marshalListEventsRequestSchema: z.ZodType = z
     page_size: d.pageSize,
   }));
 
+export const marshalListNodeTypesRequestSchema: z.ZodType = z.object({});
+
+export const marshalListNodeTypesResponseSchema: z.ZodType = z
+  .object({
+    nodeTypes: z.array(z.lazy(() => marshalNodeTypeSchema)).optional(),
+  })
+  .transform(d => ({
+    node_types: d.nodeTypes,
+  }));
+
 export const marshalLocalFileInfoSchema: z.ZodType = z
   .object({
     destination: z.string().optional(),
@@ -5807,6 +6567,78 @@ export const marshalLogAnalyticsInfoSchema: z.ZodType = z
     log_analytics_primary_key: d.logAnalyticsPrimaryKey,
   }));
 
+export const marshalLogSyncStatusSchema: z.ZodType = z
+  .object({
+    lastAttempted: z.bigint().optional(),
+    lastException: z.string().optional(),
+  })
+  .transform(d => ({
+    last_attempted: d.lastAttempted,
+    last_exception: d.lastException,
+  }));
+
+export const marshalNodeInstanceTypeSchema: z.ZodType = z
+  .object({
+    instanceTypeId: z.string().optional(),
+    localDisks: z.number().optional(),
+    localDiskSizeGb: z.number().optional(),
+    localNvmeDiskSizeGb: z.number().optional(),
+    localNvmeDisks: z.number().optional(),
+  })
+  .transform(d => ({
+    instance_type_id: d.instanceTypeId,
+    local_disks: d.localDisks,
+    local_disk_size_gb: d.localDiskSizeGb,
+    local_nvme_disk_size_gb: d.localNvmeDiskSizeGb,
+    local_nvme_disks: d.localNvmeDisks,
+  }));
+
+export const marshalNodeTypeSchema: z.ZodType = z
+  .object({
+    nodeTypeId: z.string().optional(),
+    memoryMb: z.number().optional(),
+    numCores: z.number().optional(),
+    description: z.string().optional(),
+    instanceTypeId: z.string().optional(),
+    isDeprecated: z.boolean().optional(),
+    category: z.string().optional(),
+    supportEbsVolumes: z.boolean().optional(),
+    supportClusterTags: z.boolean().optional(),
+    numGpus: z.number().optional(),
+    nodeInstanceType: z.lazy(() => marshalNodeInstanceTypeSchema).optional(),
+    isHidden: z.boolean().optional(),
+    supportPortForwarding: z.boolean().optional(),
+    displayOrder: z.number().optional(),
+    isIoCacheEnabled: z.boolean().optional(),
+    nodeInfo: z.lazy(() => marshalCloudProviderNodeInfoSchema).optional(),
+    photonWorkerCapable: z.boolean().optional(),
+    photonDriverCapable: z.boolean().optional(),
+    isEncryptedInTransit: z.boolean().optional(),
+    isGraviton: z.boolean().optional(),
+  })
+  .transform(d => ({
+    node_type_id: d.nodeTypeId,
+    memory_mb: d.memoryMb,
+    num_cores: d.numCores,
+    description: d.description,
+    instance_type_id: d.instanceTypeId,
+    is_deprecated: d.isDeprecated,
+    category: d.category,
+    support_ebs_volumes: d.supportEbsVolumes,
+    support_cluster_tags: d.supportClusterTags,
+    num_gpus: d.numGpus,
+    node_instance_type: d.nodeInstanceType,
+    is_hidden: d.isHidden,
+    support_port_forwarding: d.supportPortForwarding,
+    display_order: d.displayOrder,
+    is_io_cache_enabled: d.isIoCacheEnabled,
+    node_info: d.nodeInfo,
+    photon_worker_capable: d.photonWorkerCapable,
+    photon_driver_capable: d.photonDriverCapable,
+    is_encrypted_in_transit: d.isEncryptedInTransit,
+    is_graviton: d.isGraviton,
+  }));
+
 export const marshalNodeTypeFlexibilitySchema: z.ZodType = z
   .object({
     alternateNodeTypeIds: z.array(z.string()).optional(),
@@ -5817,6 +6649,37 @@ export const marshalNodeTypeFlexibilitySchema: z.ZodType = z
     aws_context_id: d.awsContextId,
   }));
 
+export const marshalPendingEnforcementSchema: z.ZodType = z
+  .object({
+    targetSpec: z
+      .lazy(
+        () =>
+          marshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsSchema
+      )
+      .optional(),
+    initiateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    enforcementStatus: z.string().optional(),
+    targetChanges: z
+      .array(
+        z.lazy(
+          () =>
+            marshalEnforcePolicyComplianceForClusterResponse_ClusterSettingsChangeSchema
+        )
+      )
+      .optional(),
+    initiatorUser: z.string().optional(),
+  })
+  .transform(d => ({
+    target_spec: d.targetSpec,
+    initiate_time: d.initiateTime,
+    enforcement_status: d.enforcementStatus,
+    target_changes: d.targetChanges,
+    initiator_user: d.initiatorUser,
+  }));
+
 export const marshalPermanentDeleteClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
@@ -5825,6 +6688,10 @@ export const marshalPermanentDeleteClusterRequestSchema: z.ZodType = z
     cluster_id: d.clusterId,
   }));
 
+export const marshalPermanentDeleteClusterResponseSchema: z.ZodType = z.object(
+  {}
+);
+
 export const marshalPinClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
@@ -5832,6 +6699,10 @@ export const marshalPinClusterRequestSchema: z.ZodType = z
   .transform(d => ({
     cluster_id: d.clusterId,
   }));
+
+export const marshalPinClusterResponseSchema: z.ZodType = z.object({});
+
+export const marshalResizeCauseSchema: z.ZodType = z.object({});
 
 export const marshalResizeClusterRequestSchema: z.ZodType = z
   .object({
@@ -5852,6 +6723,8 @@ export const marshalResizeClusterRequestSchema: z.ZodType = z
     ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
   }));
 
+export const marshalResizeClusterResponseSchema: z.ZodType = z.object({});
+
 export const marshalRestartClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
@@ -5861,6 +6734,8 @@ export const marshalRestartClusterRequestSchema: z.ZodType = z
     cluster_id: d.clusterId,
     restart_user: d.restartUser,
   }));
+
+export const marshalRestartClusterResponseSchema: z.ZodType = z.object({});
 
 export const marshalS3StorageInfoSchema: z.ZodType = z
   .object({
@@ -5882,12 +6757,71 @@ export const marshalS3StorageInfoSchema: z.ZodType = z
     canned_acl: d.cannedAcl,
   }));
 
+export const marshalSparkInfoSchema: z.ZodType = z.object({});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSparkInfo_SparkNodeSchema: z.ZodType = z
+  .object({
+    privateIp: z.string().optional(),
+    publicDns: z.string().optional(),
+    nodeId: z.string().optional(),
+    instanceId: z.string().optional(),
+    startTimestamp: z.bigint().optional(),
+    nodeAwsAttributes: z
+      .lazy(() => marshalSparkInfo_SparkNode_SparkNodeAwsAttributesSchema)
+      .optional(),
+    hostPrivateIp: z.string().optional(),
+  })
+  .transform(d => ({
+    private_ip: d.privateIp,
+    public_dns: d.publicDns,
+    node_id: d.nodeId,
+    instance_id: d.instanceId,
+    start_timestamp: d.startTimestamp,
+    node_aws_attributes: d.nodeAwsAttributes,
+    host_private_ip: d.hostPrivateIp,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSparkInfo_SparkNode_SparkNodeAwsAttributesSchema: z.ZodType =
+  z
+    .object({
+      isSpot: z.boolean().optional(),
+    })
+    .transform(d => ({
+      is_spot: d.isSpot,
+    }));
+
+export const marshalSparkVersionSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    name: d.name,
+  }));
+
 export const marshalStartClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
   })
   .transform(d => ({
     cluster_id: d.clusterId,
+  }));
+
+export const marshalStartClusterResponseSchema: z.ZodType = z.object({});
+
+export const marshalTerminationReasonSchema: z.ZodType = z
+  .object({
+    code: z.string().optional(),
+    type: z.string().optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    code: d.code,
+    type: d.type,
+    parameters: d.parameters,
   }));
 
 export const marshalUnpinClusterRequestSchema: z.ZodType = z
@@ -5897,6 +6831,8 @@ export const marshalUnpinClusterRequestSchema: z.ZodType = z
   .transform(d => ({
     cluster_id: d.clusterId,
   }));
+
+export const marshalUnpinClusterResponseSchema: z.ZodType = z.object({});
 
 export const marshalUpdateClusterRequestSchema: z.ZodType = z
   .object({
@@ -6003,6 +6939,8 @@ export const marshalUpdateClusterRequest_UpdateClusterResourceSchema: z.ZodType 
       total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
       dependency_mode: d.dependencyMode,
     }));
+
+export const marshalUpdateClusterResponseSchema: z.ZodType = z.object({});
 
 export const marshalVolumesStorageInfoSchema: z.ZodType = z
   .object({

@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-queries",
-  "version": "0.53.4",
+  "version": "0.53.5",
   "description": "",
   "type": "module",
   "exports": {

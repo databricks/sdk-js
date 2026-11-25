@@ -423,6 +423,35 @@ export const unmarshalServicePrincipalSecretSchema: z.ZodType<ServicePrincipalSe
       scopes: d.scopes,
     }));
 
+export const marshalCreateAccountFederationPolicyRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    servicePrincipalId: z.bigint().optional(),
+    policyId: z.string().optional(),
+    policy: z.lazy(() => marshalFederationPolicySchema).optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    service_principal_id: d.servicePrincipalId,
+    policy_id: d.policyId,
+    policy: d.policy,
+  }));
+
+export const marshalCreateServicePrincipalFederationPolicyRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      servicePrincipalId: z.bigint().optional(),
+      policyId: z.string().optional(),
+      policy: z.lazy(() => marshalFederationPolicySchema).optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      service_principal_id: d.servicePrincipalId,
+      policy_id: d.policyId,
+      policy: d.policy,
+    }));
+
 export const marshalCreateServicePrincipalSecretRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
@@ -439,6 +468,71 @@ export const marshalCreateServicePrincipalSecretRequestSchema: z.ZodType = z
     lifetime: d.lifetime,
     scopes: d.scopes,
   }));
+
+export const marshalCreateServicePrincipalSecretResponseSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    secret: z.string().optional(),
+    secretHash: z.string().optional(),
+    createTime: z.string().optional(),
+    updateTime: z.string().optional(),
+    status: z.string().optional(),
+    expireTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    scopes: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    secret: d.secret,
+    secret_hash: d.secretHash,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    status: d.status,
+    expire_time: d.expireTime,
+    scopes: d.scopes,
+  }));
+
+export const marshalDeleteAccountFederationPolicyRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    servicePrincipalId: z.bigint().optional(),
+    policyId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    service_principal_id: d.servicePrincipalId,
+    policy_id: d.policyId,
+  }));
+
+export const marshalDeleteServicePrincipalFederationPolicyRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      servicePrincipalId: z.bigint().optional(),
+      policyId: z.string().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      service_principal_id: d.servicePrincipalId,
+      policy_id: d.policyId,
+    }));
+
+export const marshalDeleteServicePrincipalSecretRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    servicePrincipal: z.string().optional(),
+    secretId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    service_principal: d.servicePrincipal,
+    secret_id: d.secretId,
+  }));
+
+export const marshalDeleteServicePrincipalSecretResponseSchema: z.ZodType =
+  z.object({});
 
 export const marshalFederationPolicySchema: z.ZodType = z
   .object({
@@ -475,6 +569,96 @@ export const marshalFederationPolicySchema: z.ZodType = z
     policy_id: d.policyId,
   }));
 
+export const marshalGetAccountFederationPolicyRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    servicePrincipalId: z.bigint().optional(),
+    policyId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    service_principal_id: d.servicePrincipalId,
+    policy_id: d.policyId,
+  }));
+
+export const marshalGetServicePrincipalFederationPolicyRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      servicePrincipalId: z.bigint().optional(),
+      policyId: z.string().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      service_principal_id: d.servicePrincipalId,
+      policy_id: d.policyId,
+    }));
+
+export const marshalListAccountFederationPoliciesRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    servicePrincipalId: z.bigint().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    service_principal_id: d.servicePrincipalId,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListFederationPoliciesResponseSchema: z.ZodType = z
+  .object({
+    policies: z.array(z.lazy(() => marshalFederationPolicySchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    policies: d.policies,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListServicePrincipalFederationPoliciesRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      servicePrincipalId: z.bigint().optional(),
+      pageSize: z.number().optional(),
+      pageToken: z.string().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      service_principal_id: d.servicePrincipalId,
+      page_size: d.pageSize,
+      page_token: d.pageToken,
+    }));
+
+export const marshalListServicePrincipalSecretsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    servicePrincipal: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    service_principal: d.servicePrincipal,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListServicePrincipalSecretsResponseSchema: z.ZodType = z
+  .object({
+    secrets: z
+      .array(z.lazy(() => marshalServicePrincipalSecretSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    secrets: d.secrets,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalOidcFederationPolicySchema: z.ZodType = z
   .object({
     issuer: z.string().optional(),
@@ -492,6 +676,70 @@ export const marshalOidcFederationPolicySchema: z.ZodType = z
     jwks_uri: d.jwksUri,
     jwks_json: d.jwksJson,
   }));
+
+export const marshalServicePrincipalSecretSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    secret: z.string().optional(),
+    secretHash: z.string().optional(),
+    createTime: z.string().optional(),
+    updateTime: z.string().optional(),
+    status: z.string().optional(),
+    expireTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    scopes: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    secret: d.secret,
+    secret_hash: d.secretHash,
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    status: d.status,
+    expire_time: d.expireTime,
+    scopes: d.scopes,
+  }));
+
+export const marshalUpdateAccountFederationPolicyRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    servicePrincipalId: z.bigint().optional(),
+    policyId: z.string().optional(),
+    policy: z.lazy(() => marshalFederationPolicySchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    service_principal_id: d.servicePrincipalId,
+    policy_id: d.policyId,
+    policy: d.policy,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateServicePrincipalFederationPolicyRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      servicePrincipalId: z.bigint().optional(),
+      policyId: z.string().optional(),
+      policy: z.lazy(() => marshalFederationPolicySchema).optional(),
+      updateMask: z
+        .any()
+        .transform((m: FieldMask) => m.toString())
+        .optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      service_principal_id: d.servicePrincipalId,
+      policy_id: d.policyId,
+      policy: d.policy,
+      update_mask: d.updateMask,
+    }));
 
 const federationPolicyFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},

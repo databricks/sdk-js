@@ -181,6 +181,27 @@ export function flattenQueryParams(
 }
 
 /**
+ * Encodes a single-segment path variable for use in a URL. "/" stays a path
+ * separator, unreserved characters and !$&'()*+,;=:@ stay unchanged, and every
+ * other character is percent-encoded as UTF-8 with upper-case hex digits.
+ */
+export function encodePathVariable(value: string): string {
+  // String() keeps a number from an untyped caller working, as template
+  // interpolation did. encodeURIComponent rejects a lone surrogate, so
+  // toWellFormed() replaces it with U+FFFD, as the URL parser does.
+  return String(value)
+    .toWellFormed()
+    .split('/')
+    .map(segment =>
+      encodeURIComponent(segment).replace(
+        /%(?:24|26|2B|2C|3A|3B|3D|40)/g,
+        encoded => decodeURIComponent(encoded)
+      )
+    )
+    .join('/');
+}
+
+/**
  * Sends an HTTP request and checks for API errors. On non-2xx responses the
  * body is buffered and parsed into an ApiError. On 2xx the raw HttpResponse
  * is returned with the body stream untouched.

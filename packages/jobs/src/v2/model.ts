@@ -1608,11 +1608,12 @@ export interface BaseRun {
   clusterSpec?: ClusterSpec | undefined;
   /** The cluster used for this run. If the run is specified to use a new cluster, this field is set once the Jobs service has requested a cluster for the run. */
   clusterInstance?: ClusterInstance | undefined;
-  /** Job-level parameters used in the run */
+  /** Job-level parameters used in the run. Each entry carries the parameter's name, its default, and the value used in this run. */
   jobParameters?: Run_JobLevelParameters[] | undefined;
   /** The parameters used for this run. */
   overridingParameters?: RunParameters | undefined;
   trigger?: TriggerType | undefined;
+  /** Additional details about the trigger that fired the run. The fields that are populated depend on the value of `trigger`. */
   triggerInfo?: RunTriggerInfo | undefined;
   /** An optional name for the run. The maximum length is 4096 bytes in UTF-8 encoding. */
   runName?: string | undefined;
@@ -1643,6 +1644,7 @@ export interface BaseRun {
   gitSource?: GitSource | undefined;
   /** The repair history of the run. */
   repairHistory?: Repair[] | undefined;
+  /** The current status of the run. Use this field instead of the deprecated `state` field. */
   status?: RunStatus | undefined;
   /**
    * ID of the job run that this run belongs to.
@@ -1719,7 +1721,7 @@ export interface CancelAllRunsRequest {
 export interface CancelAllRunsResponse {}
 
 export interface CancelRunRequest {
-  /** This field is required. */
+  /** The canonical identifier of the run to cancel. */
   runId?: bigint | undefined;
 }
 
@@ -3050,11 +3052,12 @@ export interface GetRunResponse {
   clusterSpec?: ClusterSpec | undefined;
   /** The cluster used for this run. If the run is specified to use a new cluster, this field is set once the Jobs service has requested a cluster for the run. */
   clusterInstance?: ClusterInstance | undefined;
-  /** Job-level parameters used in the run */
+  /** Job-level parameters used in the run. Each entry carries the parameter's name, its default, and the value used in this run. */
   jobParameters?: Run_JobLevelParameters[] | undefined;
   /** The parameters used for this run. */
   overridingParameters?: RunParameters | undefined;
   trigger?: TriggerType | undefined;
+  /** Additional details about the trigger that fired the run. The fields that are populated depend on the value of `trigger`. */
   triggerInfo?: RunTriggerInfo | undefined;
   /** An optional name for the run. The maximum length is 4096 bytes in UTF-8 encoding. */
   runName?: string | undefined;
@@ -3085,6 +3088,7 @@ export interface GetRunResponse {
   gitSource?: GitSource | undefined;
   /** The repair history of the run. */
   repairHistory?: Repair[] | undefined;
+  /** The current status of the run. Use this field instead of the deprecated `state` field. */
   status?: RunStatus | undefined;
   /**
    * ID of the job run that this run belongs to.
@@ -3311,6 +3315,7 @@ export interface JobCompletionTriggerConfiguration_MonitoredJob {
 
 /** Contains the immutable set of upstream completions that triggered the run, in configured jobs order */
 export interface JobCompletionTriggerRunInfoDetails {
+  /** The upstream job completions that fired the trigger, in the order in which the jobs are configured on the trigger. */
   completedJobs?: CompletedJob[] | undefined;
 }
 
@@ -3858,7 +3863,7 @@ export interface ListRunsRequest {
    */
   offset?: number | undefined;
   /**
-   * The number of runs to return. This value must be greater than 0 and less than 25.
+   * The number of runs to return. This value must be greater than 0 and at most 25.
    * The default value is 20. If a request specifies a limit of 0, the service instead
    * uses the maximum limit.
    */
@@ -4271,9 +4276,9 @@ export interface RCranLibrary {
 export interface Repair {
   /** The repair history item type. Indicates whether a run is the original run or a repair run. */
   type?: RepairType | undefined;
-  /** The start time of the (repaired) run. */
+  /** The start time of this repair history item in epoch milliseconds (milliseconds since 1/1/1970 UTC). */
   startTime?: bigint | undefined;
-  /** The end time of the (repaired) run. */
+  /** The end time of this repair history item in epoch milliseconds (milliseconds since 1/1/1970 UTC). */
   endTime?: bigint | undefined;
   /** Deprecated. Please use the `status` field instead. */
   state?: RunState | undefined;
@@ -4281,6 +4286,7 @@ export interface Repair {
   id?: bigint | undefined;
   /** The run IDs of the task runs that ran as part of this repair history item. */
   taskRunIds?: bigint[] | undefined;
+  /** The status of the run at the end of this repair history item, or its current status for the latest item. Use this field instead of the deprecated `state` field. */
   status?: RunStatus | undefined;
   /**
    * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
@@ -4299,7 +4305,7 @@ export interface RepairRunRequest {
   latestRepairId?: bigint | undefined;
   /** The task keys of the task runs to repair. */
   rerunTasks?: string[] | undefined;
-  /** Job-level parameters used in the run. for example `"param": "overriding_val"` */
+  /** Job-level parameters used in the run, for example `"param": "overriding_val"`. */
   jobParameters?: Record<string, string> | undefined;
   /** If true, repair all failed tasks. Only one of `rerun_tasks` or `rerun_all_failed_tasks` can be used. */
   rerunAllFailedTasks?: boolean | undefined;
@@ -4413,29 +4419,47 @@ export interface ResolvedValues {
   resolved?:
     | {
         $case: 'notebookTask';
+        /** Resolved parameters of a notebook task. */
         notebookTask: ResolvedValues_NotebookTaskResolvedValues;
       }
     | {
         $case: 'sparkJarTask';
+        /** Resolved parameters of a JAR task. */
         sparkJarTask: ResolvedValues_SparkJarTaskResolvedValues;
       }
     | {
         $case: 'sparkPythonTask';
+        /** Resolved parameters of a Python script task. */
         sparkPythonTask: ResolvedValues_SparkPythonTaskResolvedValues;
       }
     | {
         $case: 'sparkSubmitTask';
+        /** Resolved parameters of a spark-submit task. */
         sparkSubmitTask: ResolvedValues_SparkSubmitTaskResolvedValues;
       }
     | {
         $case: 'pythonWheelTask';
+        /** Resolved parameters of a Python wheel task. */
         pythonWheelTask: ResolvedValues_PythonWheelTaskResolvedValues;
       }
-    | {$case: 'dbtTask'; dbtTask: ResolvedValues_DbtTaskResolvedValues}
-    | {$case: 'sqlTask'; sqlTask: ResolvedValues_SqlTaskResolvedValues}
-    | {$case: 'runJobTask'; runJobTask: ResolvedValues_RunJobTaskResolvedValues}
+    | {
+        $case: 'dbtTask';
+        /** Resolved commands of a dbt task. */
+        dbtTask: ResolvedValues_DbtTaskResolvedValues;
+      }
+    | {
+        $case: 'sqlTask';
+        /** Resolved parameters of a SQL task. */
+        sqlTask: ResolvedValues_SqlTaskResolvedValues;
+      }
+    | {
+        $case: 'runJobTask';
+        /** Resolved parameters of a Run Job task. */
+        runJobTask: ResolvedValues_RunJobTaskResolvedValues;
+      }
     | {
         $case: 'conditionTask';
+        /** Resolved operands of a condition task. */
         conditionTask: ResolvedValues_ConditionTaskResolvedValues;
       }
     | {
@@ -4444,6 +4468,7 @@ export interface ResolvedValues {
       }
     | {
         $case: 'pipelineTask';
+        /** Resolved parameters of a pipeline task. */
         pipelineTask: ResolvedValues_PipelineTaskResolvedValues;
       }
     | {
@@ -4487,17 +4512,21 @@ export interface ResolvedValues_AiRuntimeTaskResolvedValues {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_ConditionTaskResolvedValues {
+  /** The left operand of the condition with dynamic value references replaced by their concrete values. */
   left?: string | undefined;
+  /** The right operand of the condition with dynamic value references replaced by their concrete values. */
   right?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_DbtTaskResolvedValues {
+  /** The dbt commands with dynamic value references replaced by their concrete values. */
   commands?: string[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_NotebookTaskResolvedValues {
+  /** The notebook parameters with dynamic value references replaced by their concrete values. */
   baseParameters?: Record<string, string> | undefined;
 }
 
@@ -4512,13 +4541,16 @@ export interface ResolvedValues_PipelineTaskResolvedValues {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_PythonWheelTaskResolvedValues {
+  /** The positional parameters with dynamic value references replaced by their concrete values. */
   parameters?: string[] | undefined;
+  /** The named parameters with dynamic value references replaced by their concrete values. */
   namedParameters?: Record<string, string> | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_RunJobTaskResolvedValues {
   parameters?: Record<string, string> | undefined;
+  /** The job-level parameters passed to the triggered job with dynamic value references replaced by their concrete values. */
   jobParameters?: Record<string, string> | undefined;
 }
 
@@ -4529,6 +4561,7 @@ export interface ResolvedValues_SimulationTaskResolvedValues {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_SparkJarTaskResolvedValues {
+  /** The parameters passed to the main class with dynamic value references replaced by their concrete values. */
   parameters?: string[] | undefined;
 }
 
@@ -4540,6 +4573,7 @@ export interface ResolvedValues_SparkSubmitTaskResolvedValues {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_SqlTaskResolvedValues {
+  /** The query parameters with dynamic value references replaced by their concrete values. */
   parameters?: Record<string, string> | undefined;
 }
 
@@ -4562,11 +4596,12 @@ export interface Run {
   clusterSpec?: ClusterSpec | undefined;
   /** The cluster used for this run. If the run is specified to use a new cluster, this field is set once the Jobs service has requested a cluster for the run. */
   clusterInstance?: ClusterInstance | undefined;
-  /** Job-level parameters used in the run */
+  /** Job-level parameters used in the run. Each entry carries the parameter's name, its default, and the value used in this run. */
   jobParameters?: Run_JobLevelParameters[] | undefined;
   /** The parameters used for this run. */
   overridingParameters?: RunParameters | undefined;
   trigger?: TriggerType | undefined;
+  /** Additional details about the trigger that fired the run. The fields that are populated depend on the value of `trigger`. */
   triggerInfo?: RunTriggerInfo | undefined;
   /** An optional name for the run. The maximum length is 4096 bytes in UTF-8 encoding. */
   runName?: string | undefined;
@@ -4597,6 +4632,7 @@ export interface Run {
   gitSource?: GitSource | undefined;
   /** The repair history of the run. */
   repairHistory?: Repair[] | undefined;
+  /** The current status of the run. Use this field instead of the deprecated `state` field. */
   status?: RunStatus | undefined;
   /**
    * ID of the job run that this run belongs to.
@@ -4974,6 +5010,7 @@ export interface RunTask {
   runId?: bigint | undefined;
   /** Deprecated. Please use the `status` field instead. */
   state?: RunState | undefined;
+  /** The URL to the detail page of the task run. */
   runPageUrl?: string | undefined;
   /** The cluster used for this run. If the run is specified to use a new cluster, this field is set once the Jobs service has requested a cluster for the run. */
   clusterInstance?: ClusterInstance | undefined;
@@ -4983,6 +5020,7 @@ export interface RunTask {
   gitSource?: GitSource | undefined;
   /** Parameter values including resolved references */
   resolvedValues?: ResolvedValues | undefined;
+  /** The current status of the task run. Use this field instead of the deprecated `state` field. */
   status?: RunStatus | undefined;
   /**
    * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
@@ -11213,6 +11251,25 @@ export const marshalAiFunctionTaskSchema: z.ZodType = z
     }),
   }));
 
+export const marshalAiFunctionTaskOutputSchema: z.ZodType = z
+  .object({
+    totalRowCount: z.bigint().optional(),
+    succeededRowCount: z.bigint().optional(),
+    failedRowCount: z.bigint().optional(),
+    estimatedTimeRemaining: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    outputTable: z.lazy(() => marshalQualifiedNameSchema).optional(),
+  })
+  .transform(d => ({
+    total_row_count: d.totalRowCount,
+    succeeded_row_count: d.succeededRowCount,
+    failed_row_count: d.failedRowCount,
+    estimated_time_remaining: d.estimatedTimeRemaining,
+    output_table: d.outputTable,
+  }));
+
 export const marshalAiParseDocumentFunctionSchema: z.ZodType = z
   .object({
     version: z.string().optional(),
@@ -11251,6 +11308,20 @@ export const marshalAiRuntimeTaskSchema: z.ZodType = z
     unity_catalog_image_path: d.unityCatalogImagePath,
   }));
 
+export const marshalAiRuntimeTaskOutputSchema: z.ZodType = z
+  .object({
+    mlflowExperimentId: z.string().optional(),
+    mlflowRunId: z.string().optional(),
+    statusMessage: z.string().optional(),
+  })
+  .transform(d => ({
+    mlflow_experiment_id: d.mlflowExperimentId,
+    mlflow_run_id: d.mlflowRunId,
+    status_message: d.statusMessage,
+  }));
+
+export const marshalAlertEvaluationStateSchema: z.ZodType = z.object({});
+
 export const marshalAlertTaskSchema: z.ZodType = z
   .object({
     alertId: z.string().optional(),
@@ -11267,6 +11338,14 @@ export const marshalAlertTaskSchema: z.ZodType = z
     workspace_path: d.workspacePath,
     subscribers: d.subscribers,
     parameters: d.parameters,
+  }));
+
+export const marshalAlertTaskOutputSchema: z.ZodType = z
+  .object({
+    alertState: z.string().optional(),
+  })
+  .transform(d => ({
+    alert_state: d.alertState,
   }));
 
 export const marshalAlertTaskSubscriberSchema: z.ZodType = z
@@ -11342,6 +11421,120 @@ export const marshalAzureAttributesSchema: z.ZodType = z
     capacity_reservation_group: d.capacityReservationGroup,
   }));
 
+export const marshalBaseJobSchema: z.ZodType = z
+  .object({
+    jobId: z.bigint().optional(),
+    creatorUserName: z.string().optional(),
+    runAsUserName: z.string().optional(),
+    settings: z.lazy(() => marshalJobSettingsSchema).optional(),
+    createdTime: z.bigint().optional(),
+    triggerState: z.lazy(() => marshalTriggerStateSchema).optional(),
+    hasMore: z.boolean().optional(),
+    effectiveBudgetPolicyId: z.string().optional(),
+    effectiveUsagePolicyId: z.string().optional(),
+    triggerDetails: z
+      .array(z.lazy(() => marshalTriggerDetailsSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    job_id: d.jobId,
+    creator_user_name: d.creatorUserName,
+    run_as_user_name: d.runAsUserName,
+    settings: d.settings,
+    created_time: d.createdTime,
+    trigger_state: d.triggerState,
+    has_more: d.hasMore,
+    effective_budget_policy_id: d.effectiveBudgetPolicyId,
+    effective_usage_policy_id: d.effectiveUsagePolicyId,
+    trigger_details: d.triggerDetails,
+  }));
+
+export const marshalBaseRunSchema: z.ZodType = z
+  .object({
+    jobId: z.bigint().optional(),
+    runId: z.bigint().optional(),
+    creatorUserName: z.string().optional(),
+    numberInJob: z.bigint().optional(),
+    originalAttemptRunId: z.bigint().optional(),
+    state: z.lazy(() => marshalRunStateSchema).optional(),
+    schedule: z.lazy(() => marshalCronScheduleSchema).optional(),
+    clusterSpec: z.lazy(() => marshalClusterSpecSchema).optional(),
+    clusterInstance: z.lazy(() => marshalClusterInstanceSchema).optional(),
+    jobParameters: z
+      .array(z.lazy(() => marshalRun_JobLevelParametersSchema))
+      .optional(),
+    overridingParameters: z.lazy(() => marshalRunParametersSchema).optional(),
+    trigger: z.string().optional(),
+    triggerInfo: z.lazy(() => marshalRunTriggerInfoSchema).optional(),
+    runName: z.string().optional(),
+    runPageUrl: z.string().optional(),
+    runType: z.string().optional(),
+    tasks: z.array(z.lazy(() => marshalRunTaskSchema)).optional(),
+    description: z.string().optional(),
+    attemptNumber: z.number().optional(),
+    jobClusters: z.array(z.lazy(() => marshalJobClusterSchema)).optional(),
+    gitSource: z.lazy(() => marshalGitSourceSchema).optional(),
+    repairHistory: z.array(z.lazy(() => marshalRepairSchema)).optional(),
+    status: z.lazy(() => marshalRunStatusSchema).optional(),
+    jobRunId: z.bigint().optional(),
+    hasMore: z.boolean().optional(),
+    effectivePerformanceTarget: z.string().optional(),
+    durationTarget: z.string().optional(),
+    effectiveUsagePolicyId: z.string().optional(),
+    environmentVariables: z
+      .array(z.lazy(() => marshalJobEnvironmentVariablesSchema))
+      .optional(),
+    deploymentId: z.string().optional(),
+    versionId: z.string().optional(),
+    startTime: z.bigint().optional(),
+    setupDuration: z.bigint().optional(),
+    executionDuration: z.bigint().optional(),
+    cleanupDuration: z.bigint().optional(),
+    endTime: z.bigint().optional(),
+    runDuration: z.bigint().optional(),
+    queueDuration: z.bigint().optional(),
+  })
+  .transform(d => ({
+    job_id: d.jobId,
+    run_id: d.runId,
+    creator_user_name: d.creatorUserName,
+    number_in_job: d.numberInJob,
+    original_attempt_run_id: d.originalAttemptRunId,
+    state: d.state,
+    schedule: d.schedule,
+    cluster_spec: d.clusterSpec,
+    cluster_instance: d.clusterInstance,
+    job_parameters: d.jobParameters,
+    overriding_parameters: d.overridingParameters,
+    trigger: d.trigger,
+    trigger_info: d.triggerInfo,
+    run_name: d.runName,
+    run_page_url: d.runPageUrl,
+    run_type: d.runType,
+    tasks: d.tasks,
+    description: d.description,
+    attempt_number: d.attemptNumber,
+    job_clusters: d.jobClusters,
+    git_source: d.gitSource,
+    repair_history: d.repairHistory,
+    status: d.status,
+    job_run_id: d.jobRunId,
+    has_more: d.hasMore,
+    effective_performance_target: d.effectivePerformanceTarget,
+    duration_target: d.durationTarget,
+    effective_usage_policy_id: d.effectiveUsagePolicyId,
+    environment_variables: d.environmentVariables,
+    deployment_id: d.deploymentId,
+    version_id: d.versionId,
+    start_time: d.startTime,
+    setup_duration: d.setupDuration,
+    execution_duration: d.executionDuration,
+    cleanup_duration: d.cleanupDuration,
+    end_time: d.endTime,
+    run_duration: d.runDuration,
+    queue_duration: d.queueDuration,
+  }));
+
 export const marshalCancelAllRunsRequestSchema: z.ZodType = z
   .object({
     jobId: z.bigint().optional(),
@@ -11352,12 +11545,32 @@ export const marshalCancelAllRunsRequestSchema: z.ZodType = z
     all_queued_runs: d.allQueuedRuns,
   }));
 
+export const marshalCancelAllRunsResponseSchema: z.ZodType = z.object({});
+
 export const marshalCancelRunRequestSchema: z.ZodType = z
   .object({
     runId: z.bigint().optional(),
   })
   .transform(d => ({
     run_id: d.runId,
+  }));
+
+export const marshalCancelRunResponseSchema: z.ZodType = z.object({});
+
+export const marshalCleanRoomTaskRunLifeCycleStateSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalCleanRoomTaskRunResultStateSchema: z.ZodType = z.object({});
+
+export const marshalCleanRoomTaskRunStateSchema: z.ZodType = z
+  .object({
+    lifeCycleState: z.string().optional(),
+    resultState: z.string().optional(),
+  })
+  .transform(d => ({
+    life_cycle_state: d.lifeCycleState,
+    result_state: d.resultState,
   }));
 
 export const marshalCleanRoomsNotebookTaskSchema: z.ZodType = z
@@ -11372,6 +11585,34 @@ export const marshalCleanRoomsNotebookTaskSchema: z.ZodType = z
     notebook_name: d.notebookName,
     etag: d.etag,
     notebook_base_parameters: d.notebookBaseParameters,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalCleanRoomsNotebookTask_CleanRoomsNotebookTaskOutputSchema: z.ZodType =
+  z
+    .object({
+      cleanRoomJobRunState: z
+        .lazy(() => marshalCleanRoomTaskRunStateSchema)
+        .optional(),
+      notebookOutput: z
+        .lazy(() => marshalNotebookTask_NotebookOutputSchema)
+        .optional(),
+      outputSchemaInfo: z.lazy(() => marshalOutputSchemaInfoSchema).optional(),
+    })
+    .transform(d => ({
+      clean_room_job_run_state: d.cleanRoomJobRunState,
+      notebook_output: d.notebookOutput,
+      output_schema_info: d.outputSchemaInfo,
+    }));
+
+export const marshalClusterInstanceSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+    sparkContextId: z.string().optional(),
+  })
+  .transform(d => ({
+    cluster_id: d.clusterId,
+    spark_context_id: d.sparkContextId,
   }));
 
 export const marshalClusterLogConfSchema: z.ZodType = z
@@ -11397,6 +11638,37 @@ export const marshalClusterLogConfSchema: z.ZodType = z
     ...(d.storageInfo?.$case === 'dbfs' && {dbfs: d.storageInfo.dbfs}),
     ...(d.storageInfo?.$case === 's3' && {s3: d.storageInfo.s3}),
     ...(d.storageInfo?.$case === 'volumes' && {volumes: d.storageInfo.volumes}),
+  }));
+
+export const marshalClusterSpecSchema: z.ZodType = z
+  .object({
+    spec: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('existingClusterId'),
+          existingClusterId: z.string(),
+        }),
+        z.object({
+          $case: z.literal('newCluster'),
+          newCluster: z.lazy(() => marshalClusterSpec_NewClusterSchema),
+        }),
+        z.object({
+          $case: z.literal('jobClusterKey'),
+          jobClusterKey: z.string(),
+        }),
+      ])
+      .optional(),
+    libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
+  })
+  .transform(d => ({
+    ...(d.spec?.$case === 'existingClusterId' && {
+      existing_cluster_id: d.spec.existingClusterId,
+    }),
+    ...(d.spec?.$case === 'newCluster' && {new_cluster: d.spec.newCluster}),
+    ...(d.spec?.$case === 'jobClusterKey' && {
+      job_cluster_key: d.spec.jobClusterKey,
+    }),
+    libraries: d.libraries,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -11487,6 +11759,25 @@ export const marshalClusterSpec_NewClusterSchema: z.ZodType = z
     ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
   }));
 
+export const marshalCompletedJobSchema: z.ZodType = z
+  .object({
+    workspaceId: z.string().optional(),
+    jobId: z.string().optional(),
+    runId: z.string().optional(),
+    terminationCode: z.string().optional(),
+    completionTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    workspace_id: d.workspaceId,
+    job_id: d.jobId,
+    run_id: d.runId,
+    termination_code: d.terminationCode,
+    completion_time: d.completionTime,
+  }));
+
 export const marshalComputeSchema: z.ZodType = z
   .object({
     hardwareAccelerator: z.string().optional(),
@@ -11553,6 +11844,18 @@ export const marshalContinuousTriggerConfigurationSchema: z.ZodType = z
   .transform(d => ({
     task_retry_mode: d.taskRetryMode,
     maintenance_window: d.maintenanceWindow,
+  }));
+
+export const marshalContinuousTriggerStateSchema: z.ZodType = z
+  .object({
+    consecutiveFailures: z.number().optional(),
+    nextAttemptMs: z.bigint().optional(),
+    isBackingOff: z.boolean().optional(),
+  })
+  .transform(d => ({
+    consecutive_failures: d.consecutiveFailures,
+    next_attempt_ms: d.nextAttemptMs,
+    is_backing_off: d.isBackingOff,
   }));
 
 export const marshalCreateJobRequestSchema: z.ZodType = z
@@ -11643,6 +11946,14 @@ export const marshalCreateJobRequestSchema: z.ZodType = z
     disable_auto_optimization: d.disableAutoOptimization,
   }));
 
+export const marshalCreateJobResponseSchema: z.ZodType = z
+  .object({
+    jobId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    job_id: d.jobId,
+  }));
+
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronExpression: z.string().optional(),
@@ -11669,6 +11980,18 @@ export const marshalCronTriggerConfigurationSchema: z.ZodType = z
     timezone_id: d.timezoneId,
   }));
 
+export const marshalDashboardPageSnapshotSchema: z.ZodType = z
+  .object({
+    pageDisplayName: z.string().optional(),
+    widgetErrorDetails: z
+      .array(z.lazy(() => marshalWidgetErrorDetailSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    page_display_name: d.pageDisplayName,
+    widget_error_details: d.widgetErrorDetails,
+  }));
+
 export const marshalDashboardTaskSchema: z.ZodType = z
   .object({
     subscription: z.lazy(() => marshalSubscriptionSchema).optional(),
@@ -11683,12 +12006,36 @@ export const marshalDashboardTaskSchema: z.ZodType = z
     filters: d.filters,
   }));
 
+export const marshalDashboardTaskOutputSchema: z.ZodType = z
+  .object({
+    pageSnapshots: z
+      .array(z.lazy(() => marshalDashboardPageSnapshotSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    page_snapshots: d.pageSnapshots,
+  }));
+
 export const marshalDbfsStorageInfoSchema: z.ZodType = z
   .object({
     destination: z.string().optional(),
   })
   .transform(d => ({
     destination: d.destination,
+  }));
+
+export const marshalDbtCloudJobRunStepSchema: z.ZodType = z
+  .object({
+    index: z.number().optional(),
+    name: z.string().optional(),
+    status: z.string().optional(),
+    logs: z.string().optional(),
+  })
+  .transform(d => ({
+    index: d.index,
+    name: d.name,
+    status: d.status,
+    logs: d.logs,
   }));
 
 export const marshalDbtCloudTaskSchema: z.ZodType = z
@@ -11701,6 +12048,38 @@ export const marshalDbtCloudTaskSchema: z.ZodType = z
     connection_resource_name: d.connectionResourceName,
   }));
 
+export const marshalDbtCloudTaskOutputSchema: z.ZodType = z
+  .object({
+    dbtCloudJobRunId: z.bigint().optional(),
+    dbtCloudJobRunUrl: z.string().optional(),
+    dbtCloudJobRunOutput: z
+      .array(z.lazy(() => marshalDbtCloudJobRunStepSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    dbt_cloud_job_run_id: d.dbtCloudJobRunId,
+    dbt_cloud_job_run_url: d.dbtCloudJobRunUrl,
+    dbt_cloud_job_run_output: d.dbtCloudJobRunOutput,
+  }));
+
+export const marshalDbtPlatformJobRunStepSchema: z.ZodType = z
+  .object({
+    index: z.number().optional(),
+    name: z.string().optional(),
+    status: z.string().optional(),
+    logs: z.string().optional(),
+    nameTruncated: z.boolean().optional(),
+    logsTruncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    index: d.index,
+    name: d.name,
+    status: d.status,
+    logs: d.logs,
+    name_truncated: d.nameTruncated,
+    logs_truncated: d.logsTruncated,
+  }));
+
 export const marshalDbtPlatformTaskSchema: z.ZodType = z
   .object({
     dbtPlatformJobId: z.string().optional(),
@@ -11709,6 +12088,22 @@ export const marshalDbtPlatformTaskSchema: z.ZodType = z
   .transform(d => ({
     dbt_platform_job_id: d.dbtPlatformJobId,
     connection_resource_name: d.connectionResourceName,
+  }));
+
+export const marshalDbtPlatformTaskOutputSchema: z.ZodType = z
+  .object({
+    dbtPlatformJobRunId: z.string().optional(),
+    dbtPlatformJobRunUrl: z.string().optional(),
+    dbtPlatformJobRunOutput: z
+      .array(z.lazy(() => marshalDbtPlatformJobRunStepSchema))
+      .optional(),
+    stepsTruncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    dbt_platform_job_run_id: d.dbtPlatformJobRunId,
+    dbt_platform_job_run_url: d.dbtPlatformJobRunUrl,
+    dbt_platform_job_run_output: d.dbtPlatformJobRunOutput,
+    steps_truncated: d.stepsTruncated,
   }));
 
 export const marshalDbtTaskSchema: z.ZodType = z
@@ -11731,6 +12126,17 @@ export const marshalDbtTaskSchema: z.ZodType = z
     source: d.source,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDbtTask_DbtTaskOutputSchema: z.ZodType = z
+  .object({
+    artifactsLink: z.string().optional(),
+    artifactsHeaders: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    artifacts_link: d.artifactsLink,
+    artifacts_headers: d.artifactsHeaders,
+  }));
+
 export const marshalDeleteJobRequestSchema: z.ZodType = z
   .object({
     jobId: z.bigint().optional(),
@@ -11739,6 +12145,8 @@ export const marshalDeleteJobRequestSchema: z.ZodType = z
     job_id: d.jobId,
   }));
 
+export const marshalDeleteJobResponseSchema: z.ZodType = z.object({});
+
 export const marshalDeleteRunRequestSchema: z.ZodType = z
   .object({
     runId: z.bigint().optional(),
@@ -11746,6 +12154,8 @@ export const marshalDeleteRunRequestSchema: z.ZodType = z
   .transform(d => ({
     run_id: d.runId,
   }));
+
+export const marshalDeleteRunResponseSchema: z.ZodType = z.object({});
 
 export const marshalDeltaTableSourceSchema: z.ZodType = z
   .object({
@@ -11810,6 +12220,39 @@ export const marshalEnforcePolicyComplianceForJobSchema: z.ZodType = z
     validate_only: d.validateOnly,
   }));
 
+export const marshalEnforcePolicyComplianceResponseSchema: z.ZodType = z
+  .object({
+    hasChanges: z.boolean().optional(),
+    jobClusterChanges: z
+      .array(
+        z.lazy(
+          () =>
+            marshalEnforcePolicyComplianceResponse_JobClusterSettingsChangeSchema
+        )
+      )
+      .optional(),
+    settings: z.lazy(() => marshalJobSettingsSchema).optional(),
+  })
+  .transform(d => ({
+    has_changes: d.hasChanges,
+    job_cluster_changes: d.jobClusterChanges,
+    settings: d.settings,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalEnforcePolicyComplianceResponse_JobClusterSettingsChangeSchema: z.ZodType =
+  z
+    .object({
+      field: z.string().optional(),
+      previousValue: z.string().optional(),
+      newValue: z.string().optional(),
+    })
+    .transform(d => ({
+      field: d.field,
+      previous_value: d.previousValue,
+      new_value: d.newValue,
+    }));
+
 export const marshalEnvironmentSchema: z.ZodType = z
   .object({
     client: z.string().optional(),
@@ -11830,6 +12273,24 @@ export const marshalEnvironmentSchema: z.ZodType = z
     image_uri: d.imageUri,
   }));
 
+export const marshalExportRunRequestSchema: z.ZodType = z
+  .object({
+    runId: z.bigint().optional(),
+    viewsToExport: z.string().optional(),
+  })
+  .transform(d => ({
+    run_id: d.runId,
+    views_to_export: d.viewsToExport,
+  }));
+
+export const marshalExportRunResponseSchema: z.ZodType = z
+  .object({
+    views: z.array(z.lazy(() => marshalViewItemSchema)).optional(),
+  })
+  .transform(d => ({
+    views: d.views,
+  }));
+
 export const marshalFileArrivalTriggerConfigurationSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
@@ -11840,6 +12301,14 @@ export const marshalFileArrivalTriggerConfigurationSchema: z.ZodType = z
     url: d.url,
     min_time_between_triggers_seconds: d.minTimeBetweenTriggersSeconds,
     wait_after_last_change_seconds: d.waitAfterLastChangeSeconds,
+  }));
+
+export const marshalFileArrivalTriggerStateSchema: z.ZodType = z
+  .object({
+    usingFileEvents: z.boolean().optional(),
+  })
+  .transform(d => ({
+    using_file_events: d.usingFileEvents,
   }));
 
 export const marshalForEachTaskSchema: z.ZodType = z
@@ -11904,6 +12373,276 @@ export const marshalGenAiComputeTaskSchema: z.ZodType = z
     yaml_parameters_file_path: d.yamlParametersFilePath,
     yaml_parameters: d.yamlParameters,
     mlflow_experiment_name: d.mlflowExperimentName,
+  }));
+
+export const marshalGetJobRequestSchema: z.ZodType = z
+  .object({
+    jobId: z.bigint().optional(),
+    includeTriggerState: z.boolean().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    job_id: d.jobId,
+    include_trigger_state: d.includeTriggerState,
+    page_token: d.pageToken,
+  }));
+
+export const marshalGetJobResponseSchema: z.ZodType = z
+  .object({
+    nextPageToken: z.string().optional(),
+    jobId: z.bigint().optional(),
+    creatorUserName: z.string().optional(),
+    runAsUserName: z.string().optional(),
+    settings: z.lazy(() => marshalJobSettingsSchema).optional(),
+    createdTime: z.bigint().optional(),
+    triggerState: z.lazy(() => marshalTriggerStateSchema).optional(),
+    hasMore: z.boolean().optional(),
+    effectiveBudgetPolicyId: z.string().optional(),
+    effectiveUsagePolicyId: z.string().optional(),
+    triggerDetails: z
+      .array(z.lazy(() => marshalTriggerDetailsSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    next_page_token: d.nextPageToken,
+    job_id: d.jobId,
+    creator_user_name: d.creatorUserName,
+    run_as_user_name: d.runAsUserName,
+    settings: d.settings,
+    created_time: d.createdTime,
+    trigger_state: d.triggerState,
+    has_more: d.hasMore,
+    effective_budget_policy_id: d.effectiveBudgetPolicyId,
+    effective_usage_policy_id: d.effectiveUsagePolicyId,
+    trigger_details: d.triggerDetails,
+  }));
+
+export const marshalGetPolicyComplianceForJobRequestSchema: z.ZodType = z
+  .object({
+    jobId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    job_id: d.jobId,
+  }));
+
+export const marshalGetPolicyComplianceForJobResponseSchema: z.ZodType = z
+  .object({
+    isCompliant: z.boolean().optional(),
+    violations: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    is_compliant: d.isCompliant,
+    violations: d.violations,
+  }));
+
+export const marshalGetRunOutputRequestSchema: z.ZodType = z
+  .object({
+    runId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    run_id: d.runId,
+  }));
+
+export const marshalGetRunOutputResponseSchema: z.ZodType = z
+  .object({
+    metadata: z.lazy(() => marshalRunSchema).optional(),
+    error: z.string().optional(),
+    info: z.string().optional(),
+    result: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('notebookOutput'),
+          notebookOutput: z.lazy(
+            () => marshalNotebookTask_NotebookOutputSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('sqlOutput'),
+          sqlOutput: z.lazy(() => marshalSqlTask_SqlOutputSchema),
+        }),
+        z.object({
+          $case: z.literal('dbtOutput'),
+          dbtOutput: z.lazy(() => marshalDbtTask_DbtTaskOutputSchema),
+        }),
+        z.object({
+          $case: z.literal('runJobOutput'),
+          runJobOutput: z.lazy(() => marshalRunJobTask_RunJobTaskOutputSchema),
+        }),
+        z.object({
+          $case: z.literal('cleanRoomsNotebookOutput'),
+          cleanRoomsNotebookOutput: z.lazy(
+            () =>
+              marshalCleanRoomsNotebookTask_CleanRoomsNotebookTaskOutputSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('dashboardOutput'),
+          dashboardOutput: z.lazy(() => marshalDashboardTaskOutputSchema),
+        }),
+        z.object({
+          $case: z.literal('dbtCloudOutput'),
+          dbtCloudOutput: z.lazy(() => marshalDbtCloudTaskOutputSchema),
+        }),
+        z.object({
+          $case: z.literal('dbtPlatformOutput'),
+          dbtPlatformOutput: z.lazy(() => marshalDbtPlatformTaskOutputSchema),
+        }),
+        z.object({
+          $case: z.literal('alertOutput'),
+          alertOutput: z.lazy(() => marshalAlertTaskOutputSchema),
+        }),
+        z.object({
+          $case: z.literal('aiRuntimeTaskOutput'),
+          aiRuntimeTaskOutput: z.lazy(() => marshalAiRuntimeTaskOutputSchema),
+        }),
+        z.object({
+          $case: z.literal('aiFunctionTaskOutput'),
+          aiFunctionTaskOutput: z.lazy(() => marshalAiFunctionTaskOutputSchema),
+        }),
+      ])
+      .optional(),
+    logs: z.string().optional(),
+    logsTruncated: z.boolean().optional(),
+    errorTrace: z.string().optional(),
+  })
+  .transform(d => ({
+    metadata: d.metadata,
+    error: d.error,
+    info: d.info,
+    ...(d.result?.$case === 'notebookOutput' && {
+      notebook_output: d.result.notebookOutput,
+    }),
+    ...(d.result?.$case === 'sqlOutput' && {sql_output: d.result.sqlOutput}),
+    ...(d.result?.$case === 'dbtOutput' && {dbt_output: d.result.dbtOutput}),
+    ...(d.result?.$case === 'runJobOutput' && {
+      run_job_output: d.result.runJobOutput,
+    }),
+    ...(d.result?.$case === 'cleanRoomsNotebookOutput' && {
+      clean_rooms_notebook_output: d.result.cleanRoomsNotebookOutput,
+    }),
+    ...(d.result?.$case === 'dashboardOutput' && {
+      dashboard_output: d.result.dashboardOutput,
+    }),
+    ...(d.result?.$case === 'dbtCloudOutput' && {
+      dbt_cloud_output: d.result.dbtCloudOutput,
+    }),
+    ...(d.result?.$case === 'dbtPlatformOutput' && {
+      dbt_platform_output: d.result.dbtPlatformOutput,
+    }),
+    ...(d.result?.$case === 'alertOutput' && {
+      alert_output: d.result.alertOutput,
+    }),
+    ...(d.result?.$case === 'aiRuntimeTaskOutput' && {
+      ai_runtime_task_output: d.result.aiRuntimeTaskOutput,
+    }),
+    ...(d.result?.$case === 'aiFunctionTaskOutput' && {
+      ai_function_task_output: d.result.aiFunctionTaskOutput,
+    }),
+    logs: d.logs,
+    logs_truncated: d.logsTruncated,
+    error_trace: d.errorTrace,
+  }));
+
+export const marshalGetRunRequestSchema: z.ZodType = z
+  .object({
+    runId: z.bigint().optional(),
+    includeHistory: z.boolean().optional(),
+    includeResolvedValues: z.boolean().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    run_id: d.runId,
+    include_history: d.includeHistory,
+    include_resolved_values: d.includeResolvedValues,
+    page_token: d.pageToken,
+  }));
+
+export const marshalGetRunResponseSchema: z.ZodType = z
+  .object({
+    nextPageToken: z.string().optional(),
+    jobId: z.bigint().optional(),
+    runId: z.bigint().optional(),
+    creatorUserName: z.string().optional(),
+    numberInJob: z.bigint().optional(),
+    originalAttemptRunId: z.bigint().optional(),
+    state: z.lazy(() => marshalRunStateSchema).optional(),
+    schedule: z.lazy(() => marshalCronScheduleSchema).optional(),
+    clusterSpec: z.lazy(() => marshalClusterSpecSchema).optional(),
+    clusterInstance: z.lazy(() => marshalClusterInstanceSchema).optional(),
+    jobParameters: z
+      .array(z.lazy(() => marshalRun_JobLevelParametersSchema))
+      .optional(),
+    overridingParameters: z.lazy(() => marshalRunParametersSchema).optional(),
+    trigger: z.string().optional(),
+    triggerInfo: z.lazy(() => marshalRunTriggerInfoSchema).optional(),
+    runName: z.string().optional(),
+    runPageUrl: z.string().optional(),
+    runType: z.string().optional(),
+    tasks: z.array(z.lazy(() => marshalRunTaskSchema)).optional(),
+    description: z.string().optional(),
+    attemptNumber: z.number().optional(),
+    jobClusters: z.array(z.lazy(() => marshalJobClusterSchema)).optional(),
+    gitSource: z.lazy(() => marshalGitSourceSchema).optional(),
+    repairHistory: z.array(z.lazy(() => marshalRepairSchema)).optional(),
+    status: z.lazy(() => marshalRunStatusSchema).optional(),
+    jobRunId: z.bigint().optional(),
+    hasMore: z.boolean().optional(),
+    effectivePerformanceTarget: z.string().optional(),
+    durationTarget: z.string().optional(),
+    effectiveUsagePolicyId: z.string().optional(),
+    environmentVariables: z
+      .array(z.lazy(() => marshalJobEnvironmentVariablesSchema))
+      .optional(),
+    deploymentId: z.string().optional(),
+    versionId: z.string().optional(),
+    startTime: z.bigint().optional(),
+    setupDuration: z.bigint().optional(),
+    executionDuration: z.bigint().optional(),
+    cleanupDuration: z.bigint().optional(),
+    endTime: z.bigint().optional(),
+    runDuration: z.bigint().optional(),
+    queueDuration: z.bigint().optional(),
+  })
+  .transform(d => ({
+    next_page_token: d.nextPageToken,
+    job_id: d.jobId,
+    run_id: d.runId,
+    creator_user_name: d.creatorUserName,
+    number_in_job: d.numberInJob,
+    original_attempt_run_id: d.originalAttemptRunId,
+    state: d.state,
+    schedule: d.schedule,
+    cluster_spec: d.clusterSpec,
+    cluster_instance: d.clusterInstance,
+    job_parameters: d.jobParameters,
+    overriding_parameters: d.overridingParameters,
+    trigger: d.trigger,
+    trigger_info: d.triggerInfo,
+    run_name: d.runName,
+    run_page_url: d.runPageUrl,
+    run_type: d.runType,
+    tasks: d.tasks,
+    description: d.description,
+    attempt_number: d.attemptNumber,
+    job_clusters: d.jobClusters,
+    git_source: d.gitSource,
+    repair_history: d.repairHistory,
+    status: d.status,
+    job_run_id: d.jobRunId,
+    has_more: d.hasMore,
+    effective_performance_target: d.effectivePerformanceTarget,
+    duration_target: d.durationTarget,
+    effective_usage_policy_id: d.effectiveUsagePolicyId,
+    environment_variables: d.environmentVariables,
+    deployment_id: d.deploymentId,
+    version_id: d.versionId,
+    start_time: d.startTime,
+    setup_duration: d.setupDuration,
+    execution_duration: d.executionDuration,
+    cleanup_duration: d.cleanupDuration,
+    end_time: d.endTime,
+    run_duration: d.runDuration,
+    queue_duration: d.queueDuration,
   }));
 
 export const marshalGitMetadataSnapshotSchema: z.ZodType = z
@@ -12042,6 +12781,53 @@ export const marshalJobCompletionTriggerConfiguration_MonitoredJobSchema: z.ZodT
     .transform(d => ({
       workspace_id: d.workspaceId,
       job_id: d.jobId,
+    }));
+
+export const marshalJobCompletionTriggerRunInfoDetailsSchema: z.ZodType = z
+  .object({
+    completedJobs: z.array(z.lazy(() => marshalCompletedJobSchema)).optional(),
+  })
+  .transform(d => ({
+    completed_jobs: d.completedJobs,
+  }));
+
+export const marshalJobCompletionTriggerStateSchema: z.ZodType = z
+  .object({
+    monitoredJobStates: z
+      .array(
+        z.lazy(() => marshalJobCompletionTriggerState_MonitoredJobStateSchema)
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    monitored_job_states: d.monitoredJobStates,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalJobCompletionTriggerState_MonitoredJobStateSchema: z.ZodType =
+  z
+    .object({
+      workspaceId: z.string().optional(),
+      jobId: z.string().optional(),
+      lastSeenCompletionTime: z
+        .any()
+        .transform((d: Temporal.Instant) => d.toString())
+        .optional(),
+      lastSeenRunId: z.string().optional(),
+      hasSeenCompletion: z.boolean().optional(),
+      lastSeenResult: z.string().optional(),
+      isDeleted: z.boolean().optional(),
+      latestNonMatchingResult: z.string().optional(),
+    })
+    .transform(d => ({
+      workspace_id: d.workspaceId,
+      job_id: d.jobId,
+      last_seen_completion_time: d.lastSeenCompletionTime,
+      last_seen_run_id: d.lastSeenRunId,
+      has_seen_completion: d.hasSeenCompletion,
+      last_seen_result: d.lastSeenResult,
+      is_deleted: d.isDeleted,
+      latest_non_matching_result: d.latestNonMatchingResult,
     }));
 
 export const marshalJobDeploymentSchema: z.ZodType = z
@@ -12302,6 +13088,129 @@ export const marshalLibrarySchema: z.ZodType = z
     ...(d.lib?.$case === 'requirements' && {requirements: d.lib.requirements}),
   }));
 
+export const marshalListJobComplianceForPolicySchema: z.ZodType = z
+  .object({
+    policyId: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    policy_id: d.policyId,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalListJobComplianceForPolicy_JobComplianceSchema: z.ZodType =
+  z
+    .object({
+      jobId: z.bigint().optional(),
+      isCompliant: z.boolean().optional(),
+      violations: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      job_id: d.jobId,
+      is_compliant: d.isCompliant,
+      violations: d.violations,
+    }));
+
+export const marshalListJobComplianceResponseSchema: z.ZodType = z
+  .object({
+    jobs: z
+      .array(
+        z.lazy(() => marshalListJobComplianceForPolicy_JobComplianceSchema)
+      )
+      .optional(),
+    nextPageToken: z.string().optional(),
+    prevPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    jobs: d.jobs,
+    next_page_token: d.nextPageToken,
+    prev_page_token: d.prevPageToken,
+  }));
+
+export const marshalListJobsRequestSchema: z.ZodType = z
+  .object({
+    offset: z.number().optional(),
+    limit: z.number().optional(),
+    expandTasks: z.boolean().optional(),
+    name: z.string().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    offset: d.offset,
+    limit: d.limit,
+    expand_tasks: d.expandTasks,
+    name: d.name,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListJobsResponseSchema: z.ZodType = z
+  .object({
+    jobs: z.array(z.lazy(() => marshalBaseJobSchema)).optional(),
+    hasMore: z.boolean().optional(),
+    nextPageToken: z.string().optional(),
+    prevPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    jobs: d.jobs,
+    has_more: d.hasMore,
+    next_page_token: d.nextPageToken,
+    prev_page_token: d.prevPageToken,
+  }));
+
+export const marshalListRunsRequestSchema: z.ZodType = z
+  .object({
+    jobId: z.bigint().optional(),
+    stateConstraint: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('activeOnly'), activeOnly: z.boolean()}),
+        z.object({
+          $case: z.literal('completedOnly'),
+          completedOnly: z.boolean(),
+        }),
+      ])
+      .optional(),
+    offset: z.number().optional(),
+    limit: z.number().optional(),
+    runType: z.string().optional(),
+    expandTasks: z.boolean().optional(),
+    startTimeFrom: z.bigint().optional(),
+    startTimeTo: z.bigint().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    job_id: d.jobId,
+    ...(d.stateConstraint?.$case === 'activeOnly' && {
+      active_only: d.stateConstraint.activeOnly,
+    }),
+    ...(d.stateConstraint?.$case === 'completedOnly' && {
+      completed_only: d.stateConstraint.completedOnly,
+    }),
+    offset: d.offset,
+    limit: d.limit,
+    run_type: d.runType,
+    expand_tasks: d.expandTasks,
+    start_time_from: d.startTimeFrom,
+    start_time_to: d.startTimeTo,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListRunsResponseSchema: z.ZodType = z
+  .object({
+    runs: z.array(z.lazy(() => marshalBaseRunSchema)).optional(),
+    hasMore: z.boolean().optional(),
+    nextPageToken: z.string().optional(),
+    prevPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    runs: d.runs,
+    has_more: d.hasMore,
+    next_page_token: d.nextPageToken,
+    prev_page_token: d.prevPageToken,
+  }));
+
 export const marshalLocalFileInfoSchema: z.ZodType = z
   .object({
     destination: z.string().optional(),
@@ -12360,6 +13269,8 @@ export const marshalModelTriggerConfigurationSchema: z.ZodType = z
     wait_after_last_change_seconds: d.waitAfterLastChangeSeconds,
   }));
 
+export const marshalModelTriggerStateSchema: z.ZodType = z.object({});
+
 export const marshalNodeTypeFlexibilitySchema: z.ZodType = z
   .object({
     alternateNodeTypeIds: z.array(z.string()).optional(),
@@ -12384,6 +13295,17 @@ export const marshalNotebookTaskSchema: z.ZodType = z
     warehouse_id: d.warehouseId,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalNotebookTask_NotebookOutputSchema: z.ZodType = z
+  .object({
+    result: z.string().optional(),
+    truncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    result: d.result,
+    truncated: d.truncated,
+  }));
+
 export const marshalNotificationSettingsSchema: z.ZodType = z
   .object({
     noAlertForSkippedRuns: z.boolean().optional(),
@@ -12396,6 +13318,81 @@ export const marshalNotificationSettingsSchema: z.ZodType = z
     alert_on_last_attempt: d.alertOnLastAttempt,
   }));
 
+export const marshalOutputSchemaInfoSchema: z.ZodType = z
+  .object({
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    expirationTime: z.bigint().optional(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    expiration_time: d.expirationTime,
+  }));
+
+export const marshalPerTriggerStateSchema: z.ZodType = z
+  .object({
+    triggerType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('periodic'),
+          periodic: z.lazy(() => marshalPeriodicTriggerStateSchema),
+        }),
+        z.object({
+          $case: z.literal('schedule'),
+          schedule: z.lazy(() => marshalScheduleTriggerStateSchema),
+        }),
+        z.object({
+          $case: z.literal('continuous'),
+          continuous: z.lazy(() => marshalContinuousTriggerStateSchema),
+        }),
+        z.object({
+          $case: z.literal('fileArrival'),
+          fileArrival: z.lazy(() => marshalFileArrivalTriggerStateSchema),
+        }),
+        z.object({
+          $case: z.literal('tableUpdate'),
+          tableUpdate: z.lazy(() => marshalTableTriggerStateSchema),
+        }),
+        z.object({
+          $case: z.literal('model'),
+          model: z.lazy(() => marshalModelTriggerStateSchema),
+        }),
+        z.object({
+          $case: z.literal('jobCompletion'),
+          jobCompletion: z.lazy(() => marshalJobCompletionTriggerStateSchema),
+        }),
+      ])
+      .optional(),
+    sqlCondition: z.lazy(() => marshalSqlConditionStateSchema).optional(),
+    pauseStatus: z.string().optional(),
+  })
+  .transform(d => ({
+    ...(d.triggerType?.$case === 'periodic' && {
+      periodic: d.triggerType.periodic,
+    }),
+    ...(d.triggerType?.$case === 'schedule' && {
+      schedule: d.triggerType.schedule,
+    }),
+    ...(d.triggerType?.$case === 'continuous' && {
+      continuous: d.triggerType.continuous,
+    }),
+    ...(d.triggerType?.$case === 'fileArrival' && {
+      file_arrival: d.triggerType.fileArrival,
+    }),
+    ...(d.triggerType?.$case === 'tableUpdate' && {
+      table_update: d.triggerType.tableUpdate,
+    }),
+    ...(d.triggerType?.$case === 'model' && {model: d.triggerType.model}),
+    ...(d.triggerType?.$case === 'jobCompletion' && {
+      job_completion: d.triggerType.jobCompletion,
+    }),
+    sql_condition: d.sqlCondition,
+    pause_status: d.pauseStatus,
+  }));
+
+export const marshalPerformanceTargetSchema: z.ZodType = z.object({});
+
 export const marshalPeriodicTriggerConfigurationSchema: z.ZodType = z
   .object({
     interval: z.number().optional(),
@@ -12404,6 +13401,14 @@ export const marshalPeriodicTriggerConfigurationSchema: z.ZodType = z
   .transform(d => ({
     interval: d.interval,
     unit: d.unit,
+  }));
+
+export const marshalPeriodicTriggerStateSchema: z.ZodType = z
+  .object({
+    nextRunTime: z.bigint().optional(),
+  })
+  .transform(d => ({
+    next_run_time: d.nextRunTime,
   }));
 
 export const marshalPipelineParametersSchema: z.ZodType = z
@@ -12547,6 +13552,18 @@ export const marshalQualifiedNameSchema: z.ZodType = z
     table: d.table,
   }));
 
+export const marshalQueueDetailsSchema: z.ZodType = z
+  .object({
+    code: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    code: d.code,
+    message: d.message,
+  }));
+
+export const marshalQueueDetailsCodeSchema: z.ZodType = z.object({});
+
 export const marshalQueueSettingsSchema: z.ZodType = z
   .object({
     enabled: z.boolean().optional(),
@@ -12563,6 +13580,28 @@ export const marshalRCranLibrarySchema: z.ZodType = z
   .transform(d => ({
     package: d.package,
     repo: d.repo,
+  }));
+
+export const marshalRepairSchema: z.ZodType = z
+  .object({
+    type: z.string().optional(),
+    startTime: z.bigint().optional(),
+    endTime: z.bigint().optional(),
+    state: z.lazy(() => marshalRunStateSchema).optional(),
+    id: z.bigint().optional(),
+    taskRunIds: z.array(z.bigint()).optional(),
+    status: z.lazy(() => marshalRunStatusSchema).optional(),
+    effectivePerformanceTarget: z.string().optional(),
+  })
+  .transform(d => ({
+    type: d.type,
+    start_time: d.startTime,
+    end_time: d.endTime,
+    state: d.state,
+    id: d.id,
+    task_run_ids: d.taskRunIds,
+    status: d.status,
+    effective_performance_target: d.effectivePerformanceTarget,
   }));
 
 export const marshalRepairRunRequestSchema: z.ZodType = z
@@ -12603,6 +13642,14 @@ export const marshalRepairRunRequestSchema: z.ZodType = z
     dbt_commands: d.dbtCommands,
   }));
 
+export const marshalRepairRunResponseSchema: z.ZodType = z
+  .object({
+    repairId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    repair_id: d.repairId,
+  }));
+
 export const marshalResetJobRequestSchema: z.ZodType = z
   .object({
     jobId: z.bigint().optional(),
@@ -12611,6 +13658,345 @@ export const marshalResetJobRequestSchema: z.ZodType = z
   .transform(d => ({
     job_id: d.jobId,
     new_settings: d.newSettings,
+  }));
+
+export const marshalResetJobResponseSchema: z.ZodType = z.object({});
+
+export const marshalResolvedValuesSchema: z.ZodType = z
+  .object({
+    resolved: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('notebookTask'),
+          notebookTask: z.lazy(
+            () => marshalResolvedValues_NotebookTaskResolvedValuesSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('sparkJarTask'),
+          sparkJarTask: z.lazy(
+            () => marshalResolvedValues_SparkJarTaskResolvedValuesSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('sparkPythonTask'),
+          sparkPythonTask: z.lazy(
+            () => marshalResolvedValues_SparkPythonTaskResolvedValuesSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('sparkSubmitTask'),
+          sparkSubmitTask: z.lazy(
+            () => marshalResolvedValues_SparkSubmitTaskResolvedValuesSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('pythonWheelTask'),
+          pythonWheelTask: z.lazy(
+            () => marshalResolvedValues_PythonWheelTaskResolvedValuesSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('dbtTask'),
+          dbtTask: z.lazy(
+            () => marshalResolvedValues_DbtTaskResolvedValuesSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('sqlTask'),
+          sqlTask: z.lazy(
+            () => marshalResolvedValues_SqlTaskResolvedValuesSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('runJobTask'),
+          runJobTask: z.lazy(
+            () => marshalResolvedValues_RunJobTaskResolvedValuesSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('conditionTask'),
+          conditionTask: z.lazy(
+            () => marshalResolvedValues_ConditionTaskResolvedValuesSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('simulationTask'),
+          simulationTask: z.lazy(
+            () => marshalResolvedValues_SimulationTaskResolvedValuesSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('pipelineTask'),
+          pipelineTask: z.lazy(
+            () => marshalResolvedValues_PipelineTaskResolvedValuesSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('aiRuntimeTask'),
+          aiRuntimeTask: z.lazy(
+            () => marshalResolvedValues_AiRuntimeTaskResolvedValuesSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('aiFunctionTask'),
+          aiFunctionTask: z.lazy(
+            () => marshalResolvedValues_AiFunctionTaskResolvedValuesSchema
+          ),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.resolved?.$case === 'notebookTask' && {
+      notebook_task: d.resolved.notebookTask,
+    }),
+    ...(d.resolved?.$case === 'sparkJarTask' && {
+      spark_jar_task: d.resolved.sparkJarTask,
+    }),
+    ...(d.resolved?.$case === 'sparkPythonTask' && {
+      spark_python_task: d.resolved.sparkPythonTask,
+    }),
+    ...(d.resolved?.$case === 'sparkSubmitTask' && {
+      spark_submit_task: d.resolved.sparkSubmitTask,
+    }),
+    ...(d.resolved?.$case === 'pythonWheelTask' && {
+      python_wheel_task: d.resolved.pythonWheelTask,
+    }),
+    ...(d.resolved?.$case === 'dbtTask' && {dbt_task: d.resolved.dbtTask}),
+    ...(d.resolved?.$case === 'sqlTask' && {sql_task: d.resolved.sqlTask}),
+    ...(d.resolved?.$case === 'runJobTask' && {
+      run_job_task: d.resolved.runJobTask,
+    }),
+    ...(d.resolved?.$case === 'conditionTask' && {
+      condition_task: d.resolved.conditionTask,
+    }),
+    ...(d.resolved?.$case === 'simulationTask' && {
+      simulation_task: d.resolved.simulationTask,
+    }),
+    ...(d.resolved?.$case === 'pipelineTask' && {
+      pipeline_task: d.resolved.pipelineTask,
+    }),
+    ...(d.resolved?.$case === 'aiRuntimeTask' && {
+      ai_runtime_task: d.resolved.aiRuntimeTask,
+    }),
+    ...(d.resolved?.$case === 'aiFunctionTask' && {
+      ai_function_task: d.resolved.aiFunctionTask,
+    }),
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_AiFunctionTaskResolvedValuesSchema: z.ZodType =
+  z
+    .object({
+      deltaTable: z.lazy(() => marshalDeltaTableSourceSchema).optional(),
+    })
+    .transform(d => ({
+      delta_table: d.deltaTable,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_AiRuntimeTaskResolvedValuesSchema: z.ZodType =
+  z.object({});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_ConditionTaskResolvedValuesSchema: z.ZodType =
+  z
+    .object({
+      left: z.string().optional(),
+      right: z.string().optional(),
+    })
+    .transform(d => ({
+      left: d.left,
+      right: d.right,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_DbtTaskResolvedValuesSchema: z.ZodType = z
+  .object({
+    commands: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    commands: d.commands,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_NotebookTaskResolvedValuesSchema: z.ZodType =
+  z
+    .object({
+      baseParameters: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      base_parameters: d.baseParameters,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_PipelineTaskResolvedValuesSchema: z.ZodType =
+  z
+    .object({
+      pipelineTaskParameters: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      parameters: d.pipelineTaskParameters,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_PythonWheelTaskResolvedValuesSchema: z.ZodType =
+  z
+    .object({
+      parameters: z.array(z.string()).optional(),
+      namedParameters: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      parameters: d.parameters,
+      named_parameters: d.namedParameters,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_RunJobTaskResolvedValuesSchema: z.ZodType = z
+  .object({
+    parameters: z.record(z.string(), z.string()).optional(),
+    jobParameters: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    parameters: d.parameters,
+    job_parameters: d.jobParameters,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_SimulationTaskResolvedValuesSchema: z.ZodType =
+  z
+    .object({
+      parameters: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      parameters: d.parameters,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_SparkJarTaskResolvedValuesSchema: z.ZodType =
+  z
+    .object({
+      parameters: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      parameters: d.parameters,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_SparkPythonTaskResolvedValuesSchema: z.ZodType =
+  z.object({});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_SparkSubmitTaskResolvedValuesSchema: z.ZodType =
+  z.object({});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalResolvedValues_SqlTaskResolvedValuesSchema: z.ZodType = z
+  .object({
+    parameters: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    parameters: d.parameters,
+  }));
+
+export const marshalRunSchema: z.ZodType = z
+  .object({
+    jobId: z.bigint().optional(),
+    runId: z.bigint().optional(),
+    creatorUserName: z.string().optional(),
+    numberInJob: z.bigint().optional(),
+    originalAttemptRunId: z.bigint().optional(),
+    state: z.lazy(() => marshalRunStateSchema).optional(),
+    schedule: z.lazy(() => marshalCronScheduleSchema).optional(),
+    clusterSpec: z.lazy(() => marshalClusterSpecSchema).optional(),
+    clusterInstance: z.lazy(() => marshalClusterInstanceSchema).optional(),
+    jobParameters: z
+      .array(z.lazy(() => marshalRun_JobLevelParametersSchema))
+      .optional(),
+    overridingParameters: z.lazy(() => marshalRunParametersSchema).optional(),
+    trigger: z.string().optional(),
+    triggerInfo: z.lazy(() => marshalRunTriggerInfoSchema).optional(),
+    runName: z.string().optional(),
+    runPageUrl: z.string().optional(),
+    runType: z.string().optional(),
+    tasks: z.array(z.lazy(() => marshalRunTaskSchema)).optional(),
+    description: z.string().optional(),
+    attemptNumber: z.number().optional(),
+    jobClusters: z.array(z.lazy(() => marshalJobClusterSchema)).optional(),
+    gitSource: z.lazy(() => marshalGitSourceSchema).optional(),
+    repairHistory: z.array(z.lazy(() => marshalRepairSchema)).optional(),
+    status: z.lazy(() => marshalRunStatusSchema).optional(),
+    jobRunId: z.bigint().optional(),
+    hasMore: z.boolean().optional(),
+    effectivePerformanceTarget: z.string().optional(),
+    durationTarget: z.string().optional(),
+    effectiveUsagePolicyId: z.string().optional(),
+    environmentVariables: z
+      .array(z.lazy(() => marshalJobEnvironmentVariablesSchema))
+      .optional(),
+    deploymentId: z.string().optional(),
+    versionId: z.string().optional(),
+    startTime: z.bigint().optional(),
+    setupDuration: z.bigint().optional(),
+    executionDuration: z.bigint().optional(),
+    cleanupDuration: z.bigint().optional(),
+    endTime: z.bigint().optional(),
+    runDuration: z.bigint().optional(),
+    queueDuration: z.bigint().optional(),
+  })
+  .transform(d => ({
+    job_id: d.jobId,
+    run_id: d.runId,
+    creator_user_name: d.creatorUserName,
+    number_in_job: d.numberInJob,
+    original_attempt_run_id: d.originalAttemptRunId,
+    state: d.state,
+    schedule: d.schedule,
+    cluster_spec: d.clusterSpec,
+    cluster_instance: d.clusterInstance,
+    job_parameters: d.jobParameters,
+    overriding_parameters: d.overridingParameters,
+    trigger: d.trigger,
+    trigger_info: d.triggerInfo,
+    run_name: d.runName,
+    run_page_url: d.runPageUrl,
+    run_type: d.runType,
+    tasks: d.tasks,
+    description: d.description,
+    attempt_number: d.attemptNumber,
+    job_clusters: d.jobClusters,
+    git_source: d.gitSource,
+    repair_history: d.repairHistory,
+    status: d.status,
+    job_run_id: d.jobRunId,
+    has_more: d.hasMore,
+    effective_performance_target: d.effectivePerformanceTarget,
+    duration_target: d.durationTarget,
+    effective_usage_policy_id: d.effectiveUsagePolicyId,
+    environment_variables: d.environmentVariables,
+    deployment_id: d.deploymentId,
+    version_id: d.versionId,
+    start_time: d.startTime,
+    setup_duration: d.setupDuration,
+    execution_duration: d.executionDuration,
+    cleanup_duration: d.cleanupDuration,
+    end_time: d.endTime,
+    run_duration: d.runDuration,
+    queue_duration: d.queueDuration,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalRun_JobLevelParametersSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    default: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    default: d.default,
+    value: d.value,
   }));
 
 export const marshalRunJobTaskSchema: z.ZodType = z
@@ -12638,6 +14024,19 @@ export const marshalRunJobTaskSchema: z.ZodType = z
     sql_params: d.sqlParams,
     dbt_commands: d.dbtCommands,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalRunJobTask_RunJobTaskOutputSchema: z.ZodType = z
+  .object({
+    runId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    run_id: d.runId,
+  }));
+
+export const marshalRunLifeCycleStateSchema: z.ZodType = z.object({});
+
+export const marshalRunLifecycleStateV2Schema: z.ZodType = z.object({});
 
 export const marshalRunNowRequestSchema: z.ZodType = z
   .object({
@@ -12673,6 +14072,323 @@ export const marshalRunNowRequestSchema: z.ZodType = z
     python_named_params: d.pythonNamedParams,
     sql_params: d.sqlParams,
     dbt_commands: d.dbtCommands,
+  }));
+
+export const marshalRunNowResponseSchema: z.ZodType = z
+  .object({
+    runId: z.bigint().optional(),
+    numberInJob: z.bigint().optional(),
+  })
+  .transform(d => ({
+    run_id: d.runId,
+    number_in_job: d.numberInJob,
+  }));
+
+export const marshalRunParametersSchema: z.ZodType = z
+  .object({
+    pipelineParams: z.lazy(() => marshalPipelineParametersSchema).optional(),
+    jarParams: z.array(z.string()).optional(),
+    notebookParams: z.record(z.string(), z.string()).optional(),
+    pythonParams: z.array(z.string()).optional(),
+    sparkSubmitParams: z.array(z.string()).optional(),
+    pythonNamedParams: z.record(z.string(), z.string()).optional(),
+    sqlParams: z.record(z.string(), z.string()).optional(),
+    dbtCommands: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    pipeline_params: d.pipelineParams,
+    jar_params: d.jarParams,
+    notebook_params: d.notebookParams,
+    python_params: d.pythonParams,
+    spark_submit_params: d.sparkSubmitParams,
+    python_named_params: d.pythonNamedParams,
+    sql_params: d.sqlParams,
+    dbt_commands: d.dbtCommands,
+  }));
+
+export const marshalRunResultStateSchema: z.ZodType = z.object({});
+
+export const marshalRunStateSchema: z.ZodType = z
+  .object({
+    lifeCycleState: z.string().optional(),
+    resultState: z.string().optional(),
+    stateMessage: z.string().optional(),
+    userCancelledOrTimedout: z.boolean().optional(),
+    queueReason: z.string().optional(),
+  })
+  .transform(d => ({
+    life_cycle_state: d.lifeCycleState,
+    result_state: d.resultState,
+    state_message: d.stateMessage,
+    user_cancelled_or_timedout: d.userCancelledOrTimedout,
+    queue_reason: d.queueReason,
+  }));
+
+export const marshalRunStatusSchema: z.ZodType = z
+  .object({
+    state: z.string().optional(),
+    terminationDetails: z
+      .lazy(() => marshalTerminationDetailsSchema)
+      .optional(),
+    queueDetails: z.lazy(() => marshalQueueDetailsSchema).optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+    termination_details: d.terminationDetails,
+    queue_details: d.queueDetails,
+  }));
+
+export const marshalRunTaskSchema: z.ZodType = z
+  .object({
+    runId: z.bigint().optional(),
+    state: z.lazy(() => marshalRunStateSchema).optional(),
+    runPageUrl: z.string().optional(),
+    clusterInstance: z.lazy(() => marshalClusterInstanceSchema).optional(),
+    attemptNumber: z.number().optional(),
+    gitSource: z.lazy(() => marshalGitSourceSchema).optional(),
+    resolvedValues: z.lazy(() => marshalResolvedValuesSchema).optional(),
+    status: z.lazy(() => marshalRunStatusSchema).optional(),
+    effectivePerformanceTarget: z.string().optional(),
+    taskKey: z.string().optional(),
+    description: z.string().optional(),
+    dependsOn: z.array(z.lazy(() => marshalTaskDependencySchema)).optional(),
+    runIf: z.string().optional(),
+    timeoutSeconds: z.number().optional(),
+    emailNotifications: z
+      .lazy(() => marshalJobEmailNotificationsSchema)
+      .optional(),
+    health: z.lazy(() => marshalJobsHealthRulesSchema).optional(),
+    notificationSettings: z
+      .lazy(() => marshalNotificationSettingsSchema)
+      .optional(),
+    webhookNotifications: z
+      .lazy(() => marshalWebhookNotificationsSchema)
+      .optional(),
+    environmentRef: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('environmentKey'),
+          environmentKey: z.string(),
+        }),
+      ])
+      .optional(),
+    disabled: z.boolean().optional(),
+    compute: z.lazy(() => marshalComputeSchema).optional(),
+    environmentVariablesKey: z.string().optional(),
+    task: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('notebookTask'),
+          notebookTask: z.lazy(() => marshalNotebookTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('sparkJarTask'),
+          sparkJarTask: z.lazy(() => marshalSparkJarTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('sparkPythonTask'),
+          sparkPythonTask: z.lazy(() => marshalSparkPythonTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('sparkSubmitTask'),
+          sparkSubmitTask: z.lazy(() => marshalSparkSubmitTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('pipelineTask'),
+          pipelineTask: z.lazy(() => marshalPipelineTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('pythonWheelTask'),
+          pythonWheelTask: z.lazy(() => marshalPythonWheelTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('dbtTask'),
+          dbtTask: z.lazy(() => marshalDbtTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('sqlTask'),
+          sqlTask: z.lazy(() => marshalSqlTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('runJobTask'),
+          runJobTask: z.lazy(() => marshalRunJobTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('conditionTask'),
+          conditionTask: z.lazy(() => marshalConditionTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('forEachTask'),
+          forEachTask: z.lazy(() => marshalForEachTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('cleanRoomsNotebookTask'),
+          cleanRoomsNotebookTask: z.lazy(
+            () => marshalCleanRoomsNotebookTaskSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('genAiComputeTask'),
+          genAiComputeTask: z.lazy(() => marshalGenAiComputeTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('alertTask'),
+          alertTask: z.lazy(() => marshalAlertTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('powerBiTask'),
+          powerBiTask: z.lazy(() => marshalPowerBiTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('dashboardTask'),
+          dashboardTask: z.lazy(() => marshalDashboardTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('dbtCloudTask'),
+          dbtCloudTask: z.lazy(() => marshalDbtCloudTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('dbtPlatformTask'),
+          dbtPlatformTask: z.lazy(() => marshalDbtPlatformTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('pythonOperatorTask'),
+          pythonOperatorTask: z.lazy(() => marshalPythonOperatorTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('aiRuntimeTask'),
+          aiRuntimeTask: z.lazy(() => marshalAiRuntimeTaskSchema),
+        }),
+        z.object({
+          $case: z.literal('aiFunctionTask'),
+          aiFunctionTask: z.lazy(() => marshalAiFunctionTaskSchema),
+        }),
+      ])
+      .optional(),
+    spec: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('existingClusterId'),
+          existingClusterId: z.string(),
+        }),
+        z.object({
+          $case: z.literal('newCluster'),
+          newCluster: z.lazy(() => marshalClusterSpec_NewClusterSchema),
+        }),
+        z.object({
+          $case: z.literal('jobClusterKey'),
+          jobClusterKey: z.string(),
+        }),
+      ])
+      .optional(),
+    libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
+    maxRetries: z.number().optional(),
+    minRetryIntervalMillis: z.number().optional(),
+    retryOnTimeout: z.boolean().optional(),
+    disableAutoOptimization: z.boolean().optional(),
+    startTime: z.bigint().optional(),
+    setupDuration: z.bigint().optional(),
+    executionDuration: z.bigint().optional(),
+    cleanupDuration: z.bigint().optional(),
+    endTime: z.bigint().optional(),
+    runDuration: z.bigint().optional(),
+    queueDuration: z.bigint().optional(),
+  })
+  .transform(d => ({
+    run_id: d.runId,
+    state: d.state,
+    run_page_url: d.runPageUrl,
+    cluster_instance: d.clusterInstance,
+    attempt_number: d.attemptNumber,
+    git_source: d.gitSource,
+    resolved_values: d.resolvedValues,
+    status: d.status,
+    effective_performance_target: d.effectivePerformanceTarget,
+    task_key: d.taskKey,
+    description: d.description,
+    depends_on: d.dependsOn,
+    run_if: d.runIf,
+    timeout_seconds: d.timeoutSeconds,
+    email_notifications: d.emailNotifications,
+    health: d.health,
+    notification_settings: d.notificationSettings,
+    webhook_notifications: d.webhookNotifications,
+    ...(d.environmentRef?.$case === 'environmentKey' && {
+      environment_key: d.environmentRef.environmentKey,
+    }),
+    disabled: d.disabled,
+    compute: d.compute,
+    environment_variables_key: d.environmentVariablesKey,
+    ...(d.task?.$case === 'notebookTask' && {
+      notebook_task: d.task.notebookTask,
+    }),
+    ...(d.task?.$case === 'sparkJarTask' && {
+      spark_jar_task: d.task.sparkJarTask,
+    }),
+    ...(d.task?.$case === 'sparkPythonTask' && {
+      spark_python_task: d.task.sparkPythonTask,
+    }),
+    ...(d.task?.$case === 'sparkSubmitTask' && {
+      spark_submit_task: d.task.sparkSubmitTask,
+    }),
+    ...(d.task?.$case === 'pipelineTask' && {
+      pipeline_task: d.task.pipelineTask,
+    }),
+    ...(d.task?.$case === 'pythonWheelTask' && {
+      python_wheel_task: d.task.pythonWheelTask,
+    }),
+    ...(d.task?.$case === 'dbtTask' && {dbt_task: d.task.dbtTask}),
+    ...(d.task?.$case === 'sqlTask' && {sql_task: d.task.sqlTask}),
+    ...(d.task?.$case === 'runJobTask' && {run_job_task: d.task.runJobTask}),
+    ...(d.task?.$case === 'conditionTask' && {
+      condition_task: d.task.conditionTask,
+    }),
+    ...(d.task?.$case === 'forEachTask' && {for_each_task: d.task.forEachTask}),
+    ...(d.task?.$case === 'cleanRoomsNotebookTask' && {
+      clean_rooms_notebook_task: d.task.cleanRoomsNotebookTask,
+    }),
+    ...(d.task?.$case === 'genAiComputeTask' && {
+      gen_ai_compute_task: d.task.genAiComputeTask,
+    }),
+    ...(d.task?.$case === 'alertTask' && {alert_task: d.task.alertTask}),
+    ...(d.task?.$case === 'powerBiTask' && {power_bi_task: d.task.powerBiTask}),
+    ...(d.task?.$case === 'dashboardTask' && {
+      dashboard_task: d.task.dashboardTask,
+    }),
+    ...(d.task?.$case === 'dbtCloudTask' && {
+      dbt_cloud_task: d.task.dbtCloudTask,
+    }),
+    ...(d.task?.$case === 'dbtPlatformTask' && {
+      dbt_platform_task: d.task.dbtPlatformTask,
+    }),
+    ...(d.task?.$case === 'pythonOperatorTask' && {
+      python_operator_task: d.task.pythonOperatorTask,
+    }),
+    ...(d.task?.$case === 'aiRuntimeTask' && {
+      ai_runtime_task: d.task.aiRuntimeTask,
+    }),
+    ...(d.task?.$case === 'aiFunctionTask' && {
+      ai_function_task: d.task.aiFunctionTask,
+    }),
+    ...(d.spec?.$case === 'existingClusterId' && {
+      existing_cluster_id: d.spec.existingClusterId,
+    }),
+    ...(d.spec?.$case === 'newCluster' && {new_cluster: d.spec.newCluster}),
+    ...(d.spec?.$case === 'jobClusterKey' && {
+      job_cluster_key: d.spec.jobClusterKey,
+    }),
+    libraries: d.libraries,
+    max_retries: d.maxRetries,
+    min_retry_interval_millis: d.minRetryIntervalMillis,
+    retry_on_timeout: d.retryOnTimeout,
+    disable_auto_optimization: d.disableAutoOptimization,
+    start_time: d.startTime,
+    setup_duration: d.setupDuration,
+    execution_duration: d.executionDuration,
+    cleanup_duration: d.cleanupDuration,
+    end_time: d.endTime,
+    run_duration: d.runDuration,
+    queue_duration: d.queueDuration,
   }));
 
 export const marshalRunTaskSettingsSchema: z.ZodType = z
@@ -12896,6 +14612,22 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
     disable_auto_optimization: d.disableAutoOptimization,
   }));
 
+export const marshalRunTriggerInfoSchema: z.ZodType = z
+  .object({
+    sqlCondition: z
+      .lazy(() => marshalSqlConditionRunInfoDetailsSchema)
+      .optional(),
+    jobCompletion: z
+      .lazy(() => marshalJobCompletionTriggerRunInfoDetailsSchema)
+      .optional(),
+    runId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    sql_condition: d.sqlCondition,
+    job_completion: d.jobCompletion,
+    run_id: d.runId,
+  }));
+
 export const marshalS3StorageInfoSchema: z.ZodType = z
   .object({
     destination: z.string().optional(),
@@ -12915,6 +14647,8 @@ export const marshalS3StorageInfoSchema: z.ZodType = z
     kms_key: d.kmsKey,
     canned_acl: d.cannedAcl,
   }));
+
+export const marshalScheduleTriggerStateSchema: z.ZodType = z.object({});
 
 export const marshalSparkJarTaskSchema: z.ZodType = z
   .object({
@@ -12958,6 +14692,8 @@ export const marshalSparseCheckoutSchema: z.ZodType = z
     patterns: d.patterns,
   }));
 
+export const marshalSqlAlertStateSchema: z.ZodType = z.object({});
+
 export const marshalSqlConditionConfigurationSchema: z.ZodType = z
   .object({
     sqlQueryId: z.string().optional(),
@@ -12968,6 +14704,77 @@ export const marshalSqlConditionConfigurationSchema: z.ZodType = z
     sql_query_id: d.sqlQueryId,
     warehouse_id: d.warehouseId,
     trigger_mode: d.triggerMode,
+  }));
+
+export const marshalSqlConditionRunInfoDetailsSchema: z.ZodType = z
+  .object({
+    conditionEvaluationSqlStatementId: z.string().optional(),
+    conditionEvaluationSatisfied: z.boolean().optional(),
+    conditionEvaluationSqlSessionId: z.string().optional(),
+  })
+  .transform(d => ({
+    condition_evaluation_sql_statement_id: d.conditionEvaluationSqlStatementId,
+    condition_evaluation_satisfied: d.conditionEvaluationSatisfied,
+    condition_evaluation_sql_session_id: d.conditionEvaluationSqlSessionId,
+  }));
+
+export const marshalSqlConditionStateSchema: z.ZodType = z
+  .object({
+    latestConditionEvaluationSqlStatementId: z.string().optional(),
+    latestConditionEvaluationSatisfied: z.boolean().optional(),
+    latestConditionEvaluationSqlSessionId: z.string().optional(),
+  })
+  .transform(d => ({
+    latest_condition_evaluation_sql_statement_id:
+      d.latestConditionEvaluationSqlStatementId,
+    latest_condition_evaluation_satisfied: d.latestConditionEvaluationSatisfied,
+    latest_condition_evaluation_sql_session_id:
+      d.latestConditionEvaluationSqlSessionId,
+  }));
+
+export const marshalSqlStatementQueryResultSchema: z.ZodType = z
+  .object({
+    columns: z
+      .array(z.lazy(() => marshalSqlStatementQueryResult_ColumnSchema))
+      .optional(),
+    rows: z
+      .array(z.lazy(() => marshalSqlStatementQueryResult_RowSchema))
+      .optional(),
+    truncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    columns: d.columns,
+    rows: d.rows,
+    truncated: d.truncated,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSqlStatementQueryResult_ColumnSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSqlStatementQueryResult_RowSchema: z.ZodType = z
+  .object({
+    values: z
+      .array(z.lazy(() => marshalSqlStatementQueryResult_Row_RowValueSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    values: d.values,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSqlStatementQueryResult_Row_RowValueSchema: z.ZodType = z
+  .object({
+    stringValue: z.string().optional(),
+  })
+  .transform(d => ({
+    string_value: d.stringValue,
   }));
 
 export const marshalSqlTaskSchema: z.ZodType = z
@@ -13004,6 +14811,154 @@ export const marshalSqlTaskSchema: z.ZodType = z
     ...(d.sqlTaskType?.$case === 'alert' && {alert: d.sqlTaskType.alert}),
     ...(d.sqlTaskType?.$case === 'file' && {file: d.sqlTaskType.file}),
     warehouse_id: d.warehouseId,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSqlTask_SqlAlertOutputSchema: z.ZodType = z
+  .object({
+    queryText: z.string().optional(),
+    sqlStatements: z
+      .array(z.lazy(() => marshalSqlTask_SqlStatementOutputSchema))
+      .optional(),
+    outputLink: z.string().optional(),
+    warehouseId: z.string().optional(),
+    alertState: z.string().optional(),
+  })
+  .transform(d => ({
+    query_text: d.queryText,
+    sql_statements: d.sqlStatements,
+    output_link: d.outputLink,
+    warehouse_id: d.warehouseId,
+    alert_state: d.alertState,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSqlTask_SqlDashboardOutputSchema: z.ZodType = z
+  .object({
+    widgets: z
+      .array(z.lazy(() => marshalSqlTask_SqlDashboardWidgetOutputSchema))
+      .optional(),
+    warehouseId: z.string().optional(),
+  })
+  .transform(d => ({
+    widgets: d.widgets,
+    warehouse_id: d.warehouseId,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSqlTask_SqlDashboardWidgetOutputSchema: z.ZodType = z
+  .object({
+    widgetId: z.string().optional(),
+    widgetTitle: z.string().optional(),
+    outputLink: z.string().optional(),
+    status: z.string().optional(),
+    error: z.lazy(() => marshalSqlTask_SqlOutputErrorSchema).optional(),
+    startTime: z.bigint().optional(),
+    endTime: z.bigint().optional(),
+  })
+  .transform(d => ({
+    widget_id: d.widgetId,
+    widget_title: d.widgetTitle,
+    output_link: d.outputLink,
+    status: d.status,
+    error: d.error,
+    start_time: d.startTime,
+    end_time: d.endTime,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSqlTask_SqlFileOutputSchema: z.ZodType = z
+  .object({
+    queryText: z.string().optional(),
+    sqlStatements: z
+      .array(z.lazy(() => marshalSqlTask_SqlStatementOutputSchema))
+      .optional(),
+    queryResult: z.lazy(() => marshalSqlStatementQueryResultSchema).optional(),
+    warehouseId: z.string().optional(),
+  })
+  .transform(d => ({
+    query_text: d.queryText,
+    sql_statements: d.sqlStatements,
+    query_result: d.queryResult,
+    warehouse_id: d.warehouseId,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSqlTask_SqlOutputSchema: z.ZodType = z
+  .object({
+    sqlOutputType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('queryOutput'),
+          queryOutput: z.lazy(() => marshalSqlTask_SqlQueryOutputSchema),
+        }),
+        z.object({
+          $case: z.literal('dashboardOutput'),
+          dashboardOutput: z.lazy(
+            () => marshalSqlTask_SqlDashboardOutputSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('alertOutput'),
+          alertOutput: z.lazy(() => marshalSqlTask_SqlAlertOutputSchema),
+        }),
+        z.object({
+          $case: z.literal('fileOutput'),
+          fileOutput: z.lazy(() => marshalSqlTask_SqlFileOutputSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.sqlOutputType?.$case === 'queryOutput' && {
+      query_output: d.sqlOutputType.queryOutput,
+    }),
+    ...(d.sqlOutputType?.$case === 'dashboardOutput' && {
+      dashboard_output: d.sqlOutputType.dashboardOutput,
+    }),
+    ...(d.sqlOutputType?.$case === 'alertOutput' && {
+      alert_output: d.sqlOutputType.alertOutput,
+    }),
+    ...(d.sqlOutputType?.$case === 'fileOutput' && {
+      file_output: d.sqlOutputType.fileOutput,
+    }),
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSqlTask_SqlOutputErrorSchema: z.ZodType = z
+  .object({
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    message: d.message,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSqlTask_SqlQueryOutputSchema: z.ZodType = z
+  .object({
+    queryText: z.string().optional(),
+    endpointId: z.string().optional(),
+    sqlStatements: z
+      .array(z.lazy(() => marshalSqlTask_SqlStatementOutputSchema))
+      .optional(),
+    outputLink: z.string().optional(),
+    warehouseId: z.string().optional(),
+  })
+  .transform(d => ({
+    query_text: d.queryText,
+    endpoint_id: d.endpointId,
+    sql_statements: d.sqlStatements,
+    output_link: d.outputLink,
+    warehouse_id: d.warehouseId,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalSqlTask_SqlStatementOutputSchema: z.ZodType = z
+  .object({
+    lookupKey: z.string().optional(),
+  })
+  .transform(d => ({
+    lookup_key: d.lookupKey,
   }));
 
 export const marshalSqlTaskAlertSchema: z.ZodType = z
@@ -13131,6 +15086,14 @@ export const marshalSubmitRunRequestSchema: z.ZodType = z
     duration_target: d.durationTarget,
   }));
 
+export const marshalSubmitRunResponseSchema: z.ZodType = z
+  .object({
+    runId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    run_id: d.runId,
+  }));
+
 export const marshalSubscriptionSchema: z.ZodType = z
   .object({
     subscribers: z
@@ -13224,6 +15187,16 @@ export const marshalSubscription_SubscriberSchema: z.ZodType = z
     }),
   }));
 
+export const marshalTableStateSchema: z.ZodType = z
+  .object({
+    tableName: z.string().optional(),
+    hasSeenUpdates: z.boolean().optional(),
+  })
+  .transform(d => ({
+    table_name: d.tableName,
+    has_seen_updates: d.hasSeenUpdates,
+  }));
+
 export const marshalTableTriggerConfigurationSchema: z.ZodType = z
   .object({
     tableNames: z.array(z.string()).optional(),
@@ -13236,6 +15209,18 @@ export const marshalTableTriggerConfigurationSchema: z.ZodType = z
     min_time_between_triggers_seconds: d.minTimeBetweenTriggersSeconds,
     wait_after_last_change_seconds: d.waitAfterLastChangeSeconds,
     condition: d.condition,
+  }));
+
+export const marshalTableTriggerStateSchema: z.ZodType = z
+  .object({
+    lastSeenTableStates: z
+      .array(z.lazy(() => marshalTableStateSchema))
+      .optional(),
+    usingScalableMonitoring: z.boolean().optional(),
+  })
+  .transform(d => ({
+    last_seen_table_states: d.lastSeenTableStates,
+    using_scalable_monitoring: d.usingScalableMonitoring,
   }));
 
 export const marshalTaskDependencySchema: z.ZodType = z
@@ -13469,6 +15454,22 @@ export const marshalTaskSettingsSchema: z.ZodType = z
     disable_auto_optimization: d.disableAutoOptimization,
   }));
 
+export const marshalTerminationCodeSchema: z.ZodType = z.object({});
+
+export const marshalTerminationDetailsSchema: z.ZodType = z
+  .object({
+    code: z.string().optional(),
+    type: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    code: d.code,
+    type: d.type,
+    message: d.message,
+  }));
+
+export const marshalTerminationTypeSchema: z.ZodType = z.object({});
+
 export const marshalTriggerConfigurationSchema: z.ZodType = z
   .object({
     pauseStatus: z.string().optional(),
@@ -13503,6 +15504,40 @@ export const marshalTriggerConfigurationSchema: z.ZodType = z
     model: d.model,
     job_completion: d.jobCompletion,
     sql_condition: d.sqlCondition,
+  }));
+
+export const marshalTriggerDetailsSchema: z.ZodType = z
+  .object({
+    state: z.lazy(() => marshalPerTriggerStateSchema).optional(),
+    history: z.lazy(() => marshalTriggerHistorySchema).optional(),
+  })
+  .transform(d => ({
+    state: d.state,
+    history: d.history,
+  }));
+
+export const marshalTriggerEvaluationSchema: z.ZodType = z
+  .object({
+    timestamp: z.bigint().optional(),
+    description: z.string().optional(),
+    runId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    timestamp: d.timestamp,
+    description: d.description,
+    run_id: d.runId,
+  }));
+
+export const marshalTriggerHistorySchema: z.ZodType = z
+  .object({
+    lastTriggered: z.lazy(() => marshalTriggerEvaluationSchema).optional(),
+    lastNotTriggered: z.lazy(() => marshalTriggerEvaluationSchema).optional(),
+    lastFailed: z.lazy(() => marshalTriggerEvaluationSchema).optional(),
+  })
+  .transform(d => ({
+    last_triggered: d.lastTriggered,
+    last_not_triggered: d.lastNotTriggered,
+    last_failed: d.lastFailed,
   }));
 
 export const marshalTriggerSettingsSchema: z.ZodType = z
@@ -13558,6 +15593,39 @@ export const marshalTriggerSettingsSchema: z.ZodType = z
     sql_condition: d.sqlCondition,
   }));
 
+export const marshalTriggerStateSchema: z.ZodType = z
+  .object({
+    triggerType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('table'),
+          table: z.lazy(() => marshalTableTriggerStateSchema),
+        }),
+        z.object({
+          $case: z.literal('fileArrival'),
+          fileArrival: z.lazy(() => marshalFileArrivalTriggerStateSchema),
+        }),
+        z.object({
+          $case: z.literal('jobCompletion'),
+          jobCompletion: z.lazy(() => marshalJobCompletionTriggerStateSchema),
+        }),
+      ])
+      .optional(),
+    sqlCondition: z.lazy(() => marshalSqlConditionStateSchema).optional(),
+    pauseStatus: z.string().optional(),
+  })
+  .transform(d => ({
+    ...(d.triggerType?.$case === 'table' && {table: d.triggerType.table}),
+    ...(d.triggerType?.$case === 'fileArrival' && {
+      file_arrival: d.triggerType.fileArrival,
+    }),
+    ...(d.triggerType?.$case === 'jobCompletion' && {
+      job_completion: d.triggerType.jobCompletion,
+    }),
+    sql_condition: d.sqlCondition,
+    pause_status: d.pauseStatus,
+  }));
+
 export const marshalUpdateJobRequestSchema: z.ZodType = z
   .object({
     jobId: z.bigint().optional(),
@@ -13568,6 +15636,20 @@ export const marshalUpdateJobRequestSchema: z.ZodType = z
     job_id: d.jobId,
     new_settings: d.newSettings,
     fields_to_remove: d.fieldsToRemove,
+  }));
+
+export const marshalUpdateJobResponseSchema: z.ZodType = z.object({});
+
+export const marshalViewItemSchema: z.ZodType = z
+  .object({
+    content: z.string().optional(),
+    name: z.string().optional(),
+    type: z.string().optional(),
+  })
+  .transform(d => ({
+    content: d.content,
+    name: d.name,
+    type: d.type,
   }));
 
 export const marshalVolumeSourceSchema: z.ZodType = z
@@ -13619,6 +15701,14 @@ export const marshalWebhookNotificationsSchema: z.ZodType = z
     on_streaming_backlog_exceeded: d.onStreamingBacklogExceeded,
     on_maintenance_start: d.onMaintenanceStart,
     on_maintenance_complete: d.onMaintenanceComplete,
+  }));
+
+export const marshalWidgetErrorDetailSchema: z.ZodType = z
+  .object({
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    message: d.message,
   }));
 
 export const marshalWorkloadTypeSchema: z.ZodType = z

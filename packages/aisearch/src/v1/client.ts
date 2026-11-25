@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -100,15 +101,21 @@ export class AiSearchClient {
     req: CreateIndexRequest,
     options?: CallOptions
   ): Promise<Index> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.parent ?? ''}/indexes`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.parent)}/indexes`;
     const params = new URLSearchParams();
     if (req.indexId !== undefined) {
       params.append('index_id', req.indexId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.index, marshalIndexSchema);
+    const body =
+      req.index === undefined
+        ? 'null'
+        : marshalRequest(req.index, marshalIndexSchema);
     let resp: Index | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -141,8 +148,11 @@ export class AiSearchClient {
     req: DeleteIndexRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -160,8 +170,11 @@ export class AiSearchClient {
 
   /** Get details for a single AI Search index. */
   async getIndex(req: GetIndexRequest, options?: CallOptions): Promise<Index> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.name)}`;
     let resp: Index | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -188,8 +201,11 @@ export class AiSearchClient {
     req: ListIndexesRequest,
     options?: CallOptions
   ): Promise<ListIndexesResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.parent ?? ''}/indexes`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.parent)}/indexes`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -242,8 +258,11 @@ export class AiSearchClient {
     req: QueryIndexRequest,
     options?: CallOptions
   ): Promise<QueryIndexResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.name ?? ''}:query`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.name)}:query`;
     const body = marshalRequest(req, marshalQueryIndexRequestSchema);
     let resp: QueryIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -271,8 +290,11 @@ export class AiSearchClient {
     req: RemoveDataRequest,
     options?: CallOptions
   ): Promise<RemoveDataResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.name ?? ''}:removeData`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.name)}:removeData`;
     const body = marshalRequest(req, marshalRemoveDataRequestSchema);
     let resp: RemoveDataResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -300,8 +322,11 @@ export class AiSearchClient {
     req: ScanIndexRequest,
     options?: CallOptions
   ): Promise<ScanIndexResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.name ?? ''}:scan`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.name)}:scan`;
     const body = marshalRequest(req, marshalScanIndexRequestSchema);
     let resp: ScanIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -333,8 +358,11 @@ export class AiSearchClient {
     req: SyncIndexRequest,
     options?: CallOptions
   ): Promise<SyncIndexResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.name ?? ''}:sync`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.name)}:sync`;
     const body = marshalRequest(req, marshalSyncIndexRequestSchema);
     let resp: SyncIndexResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -362,8 +390,11 @@ export class AiSearchClient {
     req: UpsertDataRequest,
     options?: CallOptions
   ): Promise<UpsertDataResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.name ?? ''}:upsertData`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.name)}:upsertData`;
     const body = marshalRequest(req, marshalUpsertDataRequestSchema);
     let resp: UpsertDataResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -391,15 +422,21 @@ export class AiSearchClient {
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.parent ?? ''}/endpoints`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.parent)}/endpoints`;
     const params = new URLSearchParams();
     if (req.endpointId !== undefined) {
       params.append('endpoint_id', req.endpointId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.endpoint, marshalEndpointSchema);
+    const body =
+      req.endpoint === undefined
+        ? 'null'
+        : marshalRequest(req.endpoint, marshalEndpointSchema);
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -432,8 +469,11 @@ export class AiSearchClient {
     req: DeleteEndpointRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -454,8 +494,11 @@ export class AiSearchClient {
     req: GetEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.name)}`;
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -482,8 +525,11 @@ export class AiSearchClient {
     req: ListEndpointsRequest,
     options?: CallOptions
   ): Promise<ListEndpointsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.parent ?? ''}/endpoints`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.parent)}/endpoints`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -542,14 +588,17 @@ export class AiSearchClient {
     options?: CallOptions
   ): Promise<Endpoint> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ai-search/${req.endpoint?.name ?? ''}`;
+    const url = `${host}/api/2.0/ai-search/${encodePathVariable(req.endpoint?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.endpoint, marshalEndpointSchema);
+    const body =
+      req.endpoint === undefined
+        ? 'null'
+        : marshalRequest(req.endpoint, marshalEndpointSchema);
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -131,7 +132,7 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<AppUpdate> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps/${req.appName ?? ''}/update`;
+    const url = `${host}/api/2.0/apps/${encodePathVariable(req.appName ?? '')}/update`;
     const body = marshalRequest(req, marshalAsyncUpdateAppRequestSchema);
     let resp: AppUpdate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -179,7 +180,10 @@ export class AppsClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.app, marshalAppSchema);
+    const body =
+      req.app === undefined
+        ? 'null'
+        : marshalRequest(req.app, marshalAppSchema);
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -230,8 +234,11 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<AppDeployment> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps/${req.appName ?? ''}/deployments`;
-    const body = marshalRequest(req.appDeployment, marshalAppDeploymentSchema);
+    const url = `${host}/api/2.0/apps/${encodePathVariable(req.appName ?? '')}/deployments`;
+    const body =
+      req.appDeployment === undefined
+        ? 'null'
+        : marshalRequest(req.appDeployment, marshalAppDeploymentSchema);
     let resp: AppDeployment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -282,7 +289,10 @@ export class AppsClient {
   ): Promise<CustomTemplate> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/apps-settings/templates`;
-    const body = marshalRequest(req.template, marshalCustomTemplateSchema);
+    const body =
+      req.template === undefined
+        ? 'null'
+        : marshalRequest(req.template, marshalCustomTemplateSchema);
     let resp: CustomTemplate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -311,7 +321,10 @@ export class AppsClient {
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/app-spaces`;
-    const body = marshalRequest(req.space, marshalSpaceSchema);
+    const body =
+      req.space === undefined
+        ? 'null'
+        : marshalRequest(req.space, marshalSpaceSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -350,7 +363,7 @@ export class AppsClient {
   /** Deletes an app and the dedicated service principal created for it. */
   async deleteApp(req: DeleteAppRequest, options?: CallOptions): Promise<App> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/apps/${encodePathVariable(req.name ?? '')}`;
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -378,7 +391,7 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps/${req.name ?? ''}/thumbnail`;
+    const url = `${host}/api/2.0/apps/${encodePathVariable(req.name ?? '')}/thumbnail`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -399,8 +412,11 @@ export class AppsClient {
     req: DeleteCustomTemplateRequest,
     options?: CallOptions
   ): Promise<CustomTemplate> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps-settings/templates/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/apps-settings/templates/${encodePathVariable(req.name)}`;
     let resp: CustomTemplate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -422,13 +438,16 @@ export class AppsClient {
     return resp;
   }
 
-  /** Deletes an app space. */
+  /** Deletes the app space with the supplied name. Spaces are identified by name, not by id. The workspace's default space can't be deleted. */
   private async deleteSpaceBase(
     req: DeleteSpaceRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/app-spaces/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/app-spaces/${encodePathVariable(req.name)}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -450,7 +469,7 @@ export class AppsClient {
     return resp;
   }
 
-  /** Deletes an app space. */
+  /** Deletes the app space with the supplied name. Spaces are identified by name, not by id. The workspace's default space can't be deleted. */
   async deleteSpace(
     req: DeleteSpaceRequest,
     options?: CallOptions
@@ -467,7 +486,7 @@ export class AppsClient {
   /** Retrieves information for the app with the supplied name. */
   async getApp(req: GetAppRequest, options?: CallOptions): Promise<App> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/apps/${encodePathVariable(req.name ?? '')}`;
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -495,7 +514,7 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<AppDeployment> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps/${req.appName ?? ''}/deployments/${req.deploymentId ?? ''}`;
+    const url = `${host}/api/2.0/apps/${encodePathVariable(req.appName ?? '')}/deployments/${encodePathVariable(req.deploymentId ?? '')}`;
     let resp: AppDeployment | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -522,8 +541,11 @@ export class AppsClient {
     req: GetAppDeploymentScanFindingRequest,
     options?: CallOptions
   ): Promise<AppDeploymentScanFinding> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/${encodePathVariable(req.name)}`;
     let resp: AppDeploymentScanFinding | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -551,7 +573,7 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<AppUpdate> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps/${req.appName ?? ''}/update`;
+    const url = `${host}/api/2.0/apps/${encodePathVariable(req.appName ?? '')}/update`;
     let resp: AppUpdate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -578,8 +600,11 @@ export class AppsClient {
     req: GetCustomTemplateRequest,
     options?: CallOptions
   ): Promise<CustomTemplate> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps-settings/templates/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/apps-settings/templates/${encodePathVariable(req.name)}`;
     let resp: CustomTemplate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -601,10 +626,10 @@ export class AppsClient {
     return resp;
   }
 
-  /** Retrieves information for the app space with the supplied name. */
+  /** Retrieves information for the app space with the supplied name. Spaces are identified by name, not by id. */
   async getSpace(req: GetSpaceRequest, options?: CallOptions): Promise<Space> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/app-spaces/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/app-spaces/${encodePathVariable(req.name ?? '')}`;
     let resp: Space | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -632,7 +657,7 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/app-spaces/${req.name ?? ''}/operation`;
+    const url = `${host}/api/2.0/app-spaces/${encodePathVariable(req.name ?? '')}/operation`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -659,8 +684,11 @@ export class AppsClient {
     req: ListAppDeploymentScanFindingsRequest,
     options?: CallOptions
   ): Promise<ListAppDeploymentScanFindingsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/${req.parent ?? ''}/scanFindings`;
+    const url = `${host}/api/2.0/${encodePathVariable(req.parent)}/scanFindings`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -720,7 +748,7 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<ListAppDeploymentsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps/${req.appName ?? ''}/deployments`;
+    const url = `${host}/api/2.0/apps/${encodePathVariable(req.appName ?? '')}/deployments`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -942,7 +970,7 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<App> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps/${req.name ?? ''}/start`;
+    const url = `${host}/api/2.0/apps/${encodePathVariable(req.name ?? '')}/start`;
     const body = marshalRequest(req, marshalStartAppRequestSchema);
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -983,7 +1011,7 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<App> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps/${req.name ?? ''}/stop`;
+    const url = `${host}/api/2.0/apps/${encodePathVariable(req.name ?? '')}/stop`;
     const body = marshalRequest(req, marshalStopAppRequestSchema);
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1020,9 +1048,15 @@ export class AppsClient {
 
   /** Updates the app with the supplied name. This is a full replacement: fields omitted from the request are cleared, so send the complete app. */
   async updateApp(req: UpdateAppRequest, options?: CallOptions): Promise<App> {
+    if (req.app?.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps/${req.app?.name ?? ''}`;
-    const body = marshalRequest(req.app, marshalAppSchema);
+    const url = `${host}/api/2.0/apps/${encodePathVariable(req.app?.name)}`;
+    const body =
+      req.app === undefined
+        ? 'null'
+        : marshalRequest(req.app, marshalAppSchema);
     let resp: App | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1049,18 +1083,24 @@ export class AppsClient {
     req: UpdateAppDeploymentScanFindingRequest,
     options?: CallOptions
   ): Promise<AppDeploymentScanFinding> {
+    if (req.appDeploymentScanFinding?.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/${req.appDeploymentScanFinding?.name ?? ''}`;
+    const url = `${host}/api/2.0/${encodePathVariable(req.appDeploymentScanFinding?.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.appDeploymentScanFinding,
-      marshalAppDeploymentScanFindingSchema
-    );
+    const body =
+      req.appDeploymentScanFinding === undefined
+        ? 'null'
+        : marshalRequest(
+            req.appDeploymentScanFinding,
+            marshalAppDeploymentScanFindingSchema
+          );
     let resp: AppDeploymentScanFinding | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1094,7 +1134,7 @@ export class AppsClient {
     options?: CallOptions
   ): Promise<AppThumbnail> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps/${req.name ?? ''}/thumbnail`;
+    const url = `${host}/api/2.0/apps/${encodePathVariable(req.name ?? '')}/thumbnail`;
     const body = marshalRequest(req, marshalUpdateAppThumbnailRequestSchema);
     let resp: AppThumbnail | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1122,9 +1162,15 @@ export class AppsClient {
     req: UpdateCustomTemplateRequest,
     options?: CallOptions
   ): Promise<CustomTemplate> {
+    if (req.template?.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/apps-settings/templates/${req.template?.name ?? ''}`;
-    const body = marshalRequest(req.template, marshalCustomTemplateSchema);
+    const url = `${host}/api/2.0/apps-settings/templates/${encodePathVariable(req.template?.name)}`;
+    const body =
+      req.template === undefined
+        ? 'null'
+        : marshalRequest(req.template, marshalCustomTemplateSchema);
     let resp: CustomTemplate | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1146,20 +1192,29 @@ export class AppsClient {
     return resp;
   }
 
-  /** Updates an app space. The update process is asynchronous and the status of the update can be checked with the GetSpaceOperation method. */
+  /**
+   * Updates the app space with the supplied name. Spaces are identified by name, not by id. The workspace's default space can't be updated.
+   * The update process is asynchronous and the status of the update can be checked with the GetSpaceOperation method.
+   */
   private async updateSpaceBase(
     req: UpdateSpaceRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.space?.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/app-spaces/${req.space?.name ?? ''}`;
+    const url = `${host}/api/2.0/app-spaces/${encodePathVariable(req.space?.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.space, marshalSpaceSchema);
+    const body =
+      req.space === undefined
+        ? 'null'
+        : marshalRequest(req.space, marshalSpaceSchema);
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1187,7 +1242,10 @@ export class AppsClient {
     return resp;
   }
 
-  /** Updates an app space. The update process is asynchronous and the status of the update can be checked with the GetSpaceOperation method. */
+  /**
+   * Updates the app space with the supplied name. Spaces are identified by name, not by id. The workspace's default space can't be updated.
+   * The update process is asynchronous and the status of the update can be checked with the GetSpaceOperation method.
+   */
   async updateSpace(
     req: UpdateSpaceRequest,
     options?: CallOptions

@@ -790,6 +790,14 @@ export const marshalAlertSubscriptionSchema: z.ZodType = z
     }),
   }));
 
+export const marshalCreateAlertRequestSchema: z.ZodType = z
+  .object({
+    alert: z.lazy(() => marshalAlertSchema).optional(),
+  })
+  .transform(d => ({
+    alert: d.alert,
+  }));
+
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronSchedule: z.string().optional(),
@@ -800,6 +808,59 @@ export const marshalCronScheduleSchema: z.ZodType = z
     quartz_cron_schedule: d.quartzCronSchedule,
     timezone_id: d.timezoneId,
     pause_status: d.pauseStatus,
+  }));
+
+export const marshalEmptySchema: z.ZodType = z.object({});
+
+export const marshalGetAlertRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalListAlertsRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListAlertsResponseSchema: z.ZodType = z
+  .object({
+    alerts: z.array(z.lazy(() => marshalAlertSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    alerts: d.alerts,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalTrashAlertRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    purge: z.boolean().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    purge: d.purge,
+  }));
+
+export const marshalUpdateAlertRequestSchema: z.ZodType = z
+  .object({
+    alert: z.lazy(() => marshalAlertSchema).optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    alert: d.alert,
+    update_mask: d.updateMask,
   }));
 
 const alertFieldMaskSchema: FieldMaskSchema = {

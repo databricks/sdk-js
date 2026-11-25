@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -72,7 +73,10 @@ export class AlertsClient {
   ): Promise<Alert> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/alerts`;
-    const body = marshalRequest(req.alert, marshalAlertSchema);
+    const body =
+      req.alert === undefined
+        ? 'null'
+        : marshalRequest(req.alert, marshalAlertSchema);
     let resp: Alert | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -97,7 +101,7 @@ export class AlertsClient {
   /** Gets an alert. */
   async getAlert(req: GetAlertRequest, options?: CallOptions): Promise<Alert> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/alerts/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/alerts/${encodePathVariable(req.id ?? '')}`;
     let resp: Alert | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -179,7 +183,7 @@ export class AlertsClient {
     options?: CallOptions
   ): Promise<Empty> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/alerts/${req.id ?? ''}`;
+    const url = `${host}/api/2.0/alerts/${encodePathVariable(req.id ?? '')}`;
     const params = new URLSearchParams();
     if (req.purge !== undefined) {
       params.append('purge', String(req.purge));
@@ -213,14 +217,17 @@ export class AlertsClient {
     options?: CallOptions
   ): Promise<Alert> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/alerts/${req.alert?.id ?? ''}`;
+    const url = `${host}/api/2.0/alerts/${encodePathVariable(req.alert?.id ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.alert, marshalAlertSchema);
+    const body =
+      req.alert === undefined
+        ? 'null'
+        : marshalRequest(req.alert, marshalAlertSchema);
     let resp: Alert | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

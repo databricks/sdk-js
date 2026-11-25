@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -78,8 +79,11 @@ export class SoftwareArtifactsClient {
     req: DeleteSoftwareArtifactRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -106,8 +110,11 @@ export class SoftwareArtifactsClient {
     req: DeleteSoftwareArtifactVersionRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -131,8 +138,11 @@ export class SoftwareArtifactsClient {
     req: GetSoftwareArtifactRequest,
     options?: CallOptions
   ): Promise<SoftwareArtifact> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}`;
     let resp: SoftwareArtifact | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -162,8 +172,11 @@ export class SoftwareArtifactsClient {
     req: GetSoftwareArtifactVersionRequest,
     options?: CallOptions
   ): Promise<SoftwareArtifactVersion> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}`;
     let resp: SoftwareArtifactVersion | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -190,8 +203,11 @@ export class SoftwareArtifactsClient {
     req: ListSoftwareArtifactVersionsRequest,
     options?: CallOptions
   ): Promise<ListSoftwareArtifactVersionsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.parent ?? ''}/versions`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.parent)}/versions`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -310,8 +326,11 @@ export class SoftwareArtifactsClient {
     req: ResolveSoftwareArtifactVersionRequest,
     options?: CallOptions
   ): Promise<ResolveSoftwareArtifactVersionResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.parent ?? ''}/versions:resolve`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.parent)}/versions:resolve`;
     const body = marshalRequest(
       req,
       marshalResolveSoftwareArtifactVersionRequestSchema
@@ -350,17 +369,17 @@ export class SoftwareArtifactsClient {
     options?: CallOptions
   ): Promise<SoftwareArtifact> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.softwareArtifact?.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.softwareArtifact?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.softwareArtifact,
-      marshalSoftwareArtifactSchema
-    );
+    const body =
+      req.softwareArtifact === undefined
+        ? 'null'
+        : marshalRequest(req.softwareArtifact, marshalSoftwareArtifactSchema);
     let resp: SoftwareArtifact | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

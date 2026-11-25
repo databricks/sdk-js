@@ -17,6 +17,10 @@ export const AssetType = {
   ASSET_TYPE_PARTNER_INTEGRATION: 'ASSET_TYPE_PARTNER_INTEGRATION',
   ASSET_TYPE_APP: 'ASSET_TYPE_APP',
   ASSET_TYPE_MCP: 'ASSET_TYPE_MCP',
+  /** A listing containing Unity Catalog metric views. */
+  ASSET_TYPE_METRIC_VIEW: 'ASSET_TYPE_METRIC_VIEW',
+  /** A listing containing Unity Catalog agent skills. */
+  ASSET_TYPE_AGENT_SKILL: 'ASSET_TYPE_AGENT_SKILL',
 } as const;
 export type AssetType =
   | (typeof AssetType)[keyof typeof AssetType]
@@ -2287,12 +2291,66 @@ export const marshalAddExchangeForListingRequestSchema: z.ZodType = z
     exchange_id: d.exchangeId,
   }));
 
+export const marshalAddExchangeForListingResponseSchema: z.ZodType = z
+  .object({
+    exchangeForListing: z.lazy(() => marshalExchangeListingSchema).optional(),
+  })
+  .transform(d => ({
+    exchange_for_listing: d.exchangeForListing,
+  }));
+
+export const marshalBatchGetListingsRequestSchema: z.ZodType = z
+  .object({
+    ids: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    ids: d.ids,
+  }));
+
+export const marshalBatchGetListingsResponseSchema: z.ZodType = z
+  .object({
+    listings: z.array(z.lazy(() => marshalListingSchema)).optional(),
+  })
+  .transform(d => ({
+    listings: d.listings,
+  }));
+
+export const marshalBatchGetProvidersRequestSchema: z.ZodType = z
+  .object({
+    ids: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    ids: d.ids,
+  }));
+
+export const marshalBatchGetProvidersResponseSchema: z.ZodType = z
+  .object({
+    providers: z.array(z.lazy(() => marshalProviderInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    providers: d.providers,
+  }));
+
 export const marshalConsumerTermsSchema: z.ZodType = z
   .object({
     version: z.string().optional(),
   })
   .transform(d => ({
     version: d.version,
+  }));
+
+export const marshalContactInfoSchema: z.ZodType = z
+  .object({
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    email: z.string().optional(),
+    company: z.string().optional(),
+  })
+  .transform(d => ({
+    first_name: d.firstName,
+    last_name: d.lastName,
+    email: d.email,
+    company: d.company,
   }));
 
 export const marshalCreateExchangeFilterRequestSchema: z.ZodType = z
@@ -2303,12 +2361,28 @@ export const marshalCreateExchangeFilterRequestSchema: z.ZodType = z
     filter: d.filter,
   }));
 
+export const marshalCreateExchangeFilterResponseSchema: z.ZodType = z
+  .object({
+    filterId: z.string().optional(),
+  })
+  .transform(d => ({
+    filter_id: d.filterId,
+  }));
+
 export const marshalCreateExchangeRequestSchema: z.ZodType = z
   .object({
     exchange: z.lazy(() => marshalExchangeSchema).optional(),
   })
   .transform(d => ({
     exchange: d.exchange,
+  }));
+
+export const marshalCreateExchangeResponseSchema: z.ZodType = z
+  .object({
+    exchangeId: z.string().optional(),
+  })
+  .transform(d => ({
+    exchange_id: d.exchangeId,
   }));
 
 export const marshalCreateFileRequestSchema: z.ZodType = z
@@ -2323,6 +2397,16 @@ export const marshalCreateFileRequestSchema: z.ZodType = z
     marketplace_file_type: d.marketplaceFileType,
     mime_type: d.mimeType,
     display_name: d.displayName,
+  }));
+
+export const marshalCreateFileResponseSchema: z.ZodType = z
+  .object({
+    uploadUrl: z.string().optional(),
+    fileInfo: z.lazy(() => marshalFileInfoSchema).optional(),
+  })
+  .transform(d => ({
+    upload_url: d.uploadUrl,
+    file_info: d.fileInfo,
   }));
 
 export const marshalCreateInstallationRequestSchema: z.ZodType = z
@@ -2343,12 +2427,28 @@ export const marshalCreateInstallationRequestSchema: z.ZodType = z
     accepted_consumer_terms: d.acceptedConsumerTerms,
   }));
 
+export const marshalCreateInstallationResponseSchema: z.ZodType = z
+  .object({
+    installation: z.lazy(() => marshalInstallationDetailSchema).optional(),
+  })
+  .transform(d => ({
+    installation: d.installation,
+  }));
+
 export const marshalCreateListingRequestSchema: z.ZodType = z
   .object({
     listing: z.lazy(() => marshalListingSchema).optional(),
   })
   .transform(d => ({
     listing: d.listing,
+  }));
+
+export const marshalCreateListingResponseSchema: z.ZodType = z
+  .object({
+    listingId: z.string().optional(),
+  })
+  .transform(d => ({
+    listing_id: d.listingId,
   }));
 
 export const marshalCreatePersonalizationRequestSchema: z.ZodType = z
@@ -2375,8 +2475,25 @@ export const marshalCreatePersonalizationRequestSchema: z.ZodType = z
     accepted_consumer_terms: d.acceptedConsumerTerms,
   }));
 
+export const marshalCreatePersonalizationResponseSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
 export const marshalCreateProviderAnalyticsDashboardRequestSchema: z.ZodType =
   z.object({});
+
+export const marshalCreateProviderAnalyticsDashboardResponseSchema: z.ZodType =
+  z
+    .object({
+      id: z.string().optional(),
+    })
+    .transform(d => ({
+      id: d.id,
+    }));
 
 export const marshalCreateProviderRequestSchema: z.ZodType = z
   .object({
@@ -2384,6 +2501,14 @@ export const marshalCreateProviderRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     provider: d.provider,
+  }));
+
+export const marshalCreateProviderResponseSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
   }));
 
 export const marshalDataRefreshInfoSchema: z.ZodType = z
@@ -2395,6 +2520,70 @@ export const marshalDataRefreshInfoSchema: z.ZodType = z
     interval: d.interval,
     unit: d.unit,
   }));
+
+export const marshalDeleteExchangeFilterRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalDeleteExchangeFilterResponseSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalDeleteExchangeRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalDeleteExchangeResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteFileRequestSchema: z.ZodType = z
+  .object({
+    fileId: z.string().optional(),
+  })
+  .transform(d => ({
+    file_id: d.fileId,
+  }));
+
+export const marshalDeleteFileResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteInstallationRequestSchema: z.ZodType = z
+  .object({
+    listingId: z.string().optional(),
+    installationId: z.string().optional(),
+  })
+  .transform(d => ({
+    listing_id: d.listingId,
+    installation_id: d.installationId,
+  }));
+
+export const marshalDeleteInstallationResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteListingRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalDeleteListingResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteProviderRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalDeleteProviderResponseSchema: z.ZodType = z.object({});
 
 export const marshalExchangeSchema: z.ZodType = z
   .object({
@@ -2502,6 +2691,227 @@ export const marshalFileParentSchema: z.ZodType = z
     file_parent_type: d.fileParentType,
   }));
 
+export const marshalGetAllPersonalizationRequestsForConsumerResponseSchema: z.ZodType =
+  z
+    .object({
+      personalizationRequests: z
+        .array(z.lazy(() => marshalPersonalizationRequestSchema))
+        .optional(),
+      nextPageToken: z.string().optional(),
+    })
+    .transform(d => ({
+      personalization_requests: d.personalizationRequests,
+      next_page_token: d.nextPageToken,
+    }));
+
+export const marshalGetExchangeRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalGetExchangeResponseSchema: z.ZodType = z
+  .object({
+    exchange: z.lazy(() => marshalExchangeSchema).optional(),
+  })
+  .transform(d => ({
+    exchange: d.exchange,
+  }));
+
+export const marshalGetFileRequestSchema: z.ZodType = z
+  .object({
+    fileId: z.string().optional(),
+  })
+  .transform(d => ({
+    file_id: d.fileId,
+  }));
+
+export const marshalGetFileResponseSchema: z.ZodType = z
+  .object({
+    fileInfo: z.lazy(() => marshalFileInfoSchema).optional(),
+  })
+  .transform(d => ({
+    file_info: d.fileInfo,
+  }));
+
+export const marshalGetInstallationDetailsRequestSchema: z.ZodType = z
+  .object({
+    listingId: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    listing_id: d.listingId,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalGetLatestVersionProviderAnalyticsDashboardRequestSchema: z.ZodType =
+  z.object({});
+
+export const marshalGetLatestVersionProviderAnalyticsDashboardResponseSchema: z.ZodType =
+  z
+    .object({
+      version: z.bigint().optional(),
+    })
+    .transform(d => ({
+      version: d.version,
+    }));
+
+export const marshalGetListingContentMetadataRequestSchema: z.ZodType = z
+  .object({
+    listingId: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    listing_id: d.listingId,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalGetListingContentMetadataResponseSchema: z.ZodType = z
+  .object({
+    sharedDataObjects: z
+      .array(z.lazy(() => marshalSharedDataObjectSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    shared_data_objects: d.sharedDataObjects,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalGetListingRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalGetListingResponseSchema: z.ZodType = z
+  .object({
+    listing: z.lazy(() => marshalListingSchema).optional(),
+  })
+  .transform(d => ({
+    listing: d.listing,
+  }));
+
+export const marshalGetListingsResponseSchema: z.ZodType = z
+  .object({
+    listings: z.array(z.lazy(() => marshalListingSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    listings: d.listings,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalGetPersonalizationRequestsForConsumerRequestSchema: z.ZodType =
+  z
+    .object({
+      listingId: z.string().optional(),
+    })
+    .transform(d => ({
+      listing_id: d.listingId,
+    }));
+
+export const marshalGetPersonalizationRequestsForConsumerResponseSchema: z.ZodType =
+  z
+    .object({
+      personalizationRequests: z
+        .array(z.lazy(() => marshalPersonalizationRequestSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      personalization_requests: d.personalizationRequests,
+    }));
+
+export const marshalGetPersonalizationRequestsForProviderRequestSchema: z.ZodType =
+  z
+    .object({
+      pageToken: z.string().optional(),
+      pageSize: z.number().optional(),
+    })
+    .transform(d => ({
+      page_token: d.pageToken,
+      page_size: d.pageSize,
+    }));
+
+export const marshalGetPersonalizationRequestsForProviderResponseSchema: z.ZodType =
+  z
+    .object({
+      personalizationRequests: z
+        .array(z.lazy(() => marshalPersonalizationRequestSchema))
+        .optional(),
+      nextPageToken: z.string().optional(),
+    })
+    .transform(d => ({
+      personalization_requests: d.personalizationRequests,
+      next_page_token: d.nextPageToken,
+    }));
+
+export const marshalGetProviderRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalGetProviderResponseSchema: z.ZodType = z
+  .object({
+    provider: z.lazy(() => marshalProviderInfoSchema).optional(),
+  })
+  .transform(d => ({
+    provider: d.provider,
+  }));
+
+export const marshalGetPublishedListingForConsumerRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalGetPublishedListingForConsumerResponseSchema: z.ZodType = z
+  .object({
+    listing: z.lazy(() => marshalListingSchema).optional(),
+  })
+  .transform(d => ({
+    listing: d.listing,
+  }));
+
+export const marshalGetPublishedListingsForConsumerResponseSchema: z.ZodType = z
+  .object({
+    listings: z.array(z.lazy(() => marshalListingSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    listings: d.listings,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalGetPublishedProviderForConsumerRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalGetPublishedProviderForConsumerResponseSchema: z.ZodType = z
+  .object({
+    provider: z.lazy(() => marshalProviderInfoSchema).optional(),
+  })
+  .transform(d => ({
+    provider: d.provider,
+  }));
+
 export const marshalInstallationDetailSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
@@ -2533,6 +2943,280 @@ export const marshalInstallationDetailSchema: z.ZodType = z
     tokens: d.tokens,
     token_detail: d.tokenDetail,
   }));
+
+export const marshalListAllInstallationsResponseSchema: z.ZodType = z
+  .object({
+    installations: z
+      .array(z.lazy(() => marshalInstallationDetailSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    installations: d.installations,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListExchangeFiltersRequestSchema: z.ZodType = z
+  .object({
+    exchangeId: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    exchange_id: d.exchangeId,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListExchangeFiltersResponseSchema: z.ZodType = z
+  .object({
+    filters: z.array(z.lazy(() => marshalExchangeFilterSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    filters: d.filters,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListExchangesForListingRequestSchema: z.ZodType = z
+  .object({
+    listingId: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    listing_id: d.listingId,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListExchangesForListingResponseSchema: z.ZodType = z
+  .object({
+    exchangeListing: z
+      .array(z.lazy(() => marshalExchangeListingSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    exchange_listing: d.exchangeListing,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListExchangesRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListExchangesResponseSchema: z.ZodType = z
+  .object({
+    exchanges: z.array(z.lazy(() => marshalExchangeSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    exchanges: d.exchanges,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListFilesRequestSchema: z.ZodType = z
+  .object({
+    fileParent: z.lazy(() => marshalFileParentSchema).optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    file_parent: d.fileParent,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListFilesResponseSchema: z.ZodType = z
+  .object({
+    fileInfos: z.array(z.lazy(() => marshalFileInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    file_infos: d.fileInfos,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListFulfillmentsResponseSchema: z.ZodType = z
+  .object({
+    fulfillments: z
+      .array(z.lazy(() => marshalListingFulfillmentSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    fulfillments: d.fulfillments,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListInstallationsRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListInstallationsResponseSchema: z.ZodType = z
+  .object({
+    installations: z
+      .array(z.lazy(() => marshalInstallationDetailSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    installations: d.installations,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListListingFulfillmentsRequestSchema: z.ZodType = z
+  .object({
+    listingId: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    listing_id: d.listingId,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListListingsForExchangeRequestSchema: z.ZodType = z
+  .object({
+    exchangeId: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    exchange_id: d.exchangeId,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListListingsForExchangeResponseSchema: z.ZodType = z
+  .object({
+    exchangeListings: z
+      .array(z.lazy(() => marshalExchangeListingSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    exchange_listings: d.exchangeListings,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListListingsRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListPersonalizationRequestsForConsumerRequestSchema: z.ZodType =
+  z
+    .object({
+      pageToken: z.string().optional(),
+      pageSize: z.number().optional(),
+    })
+    .transform(d => ({
+      page_token: d.pageToken,
+      page_size: d.pageSize,
+    }));
+
+export const marshalListProviderAnalyticsDashboardRequestSchema: z.ZodType =
+  z.object({});
+
+export const marshalListProviderAnalyticsDashboardResponseSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    version: z.bigint().optional(),
+    dashboardId: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    version: d.version,
+    dashboard_id: d.dashboardId,
+  }));
+
+export const marshalListProvidersRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListProvidersResponseSchema: z.ZodType = z
+  .object({
+    providers: z.array(z.lazy(() => marshalProviderInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    providers: d.providers,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListPublishedListingsForConsumerRequestSchema: z.ZodType = z
+  .object({
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+    assets: z.array(z.string()).optional(),
+    categories: z.array(z.string()).optional(),
+    tags: z.lazy(() => marshalListingTagSchema).optional(),
+    isFree: z.boolean().optional(),
+    isPrivateExchange: z.boolean().optional(),
+    isStaffPick: z.boolean().optional(),
+    providerIds: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+    assets: d.assets,
+    categories: d.categories,
+    tags: d.tags,
+    is_free: d.isFree,
+    is_private_exchange: d.isPrivateExchange,
+    is_staff_pick: d.isStaffPick,
+    provider_ids: d.providerIds,
+  }));
+
+export const marshalListPublishedProvidersForConsumerRequestSchema: z.ZodType =
+  z
+    .object({
+      pageToken: z.string().optional(),
+      pageSize: z.number().optional(),
+      isFeatured: z.boolean().optional(),
+    })
+    .transform(d => ({
+      page_token: d.pageToken,
+      page_size: d.pageSize,
+      is_featured: d.isFeatured,
+    }));
+
+export const marshalListPublishedProvidersForConsumerResponseSchema: z.ZodType =
+  z
+    .object({
+      providers: z.array(z.lazy(() => marshalProviderInfoSchema)).optional(),
+      nextPageToken: z.string().optional(),
+    })
+    .transform(d => ({
+      providers: d.providers,
+      next_page_token: d.nextPageToken,
+    }));
 
 export const marshalListingSchema: z.ZodType = z
   .object({
@@ -2592,6 +3276,22 @@ export const marshalListingDetailSchema: z.ZodType = z
     assets: d.assets,
     license: d.license,
     tags: d.tags,
+  }));
+
+export const marshalListingFulfillmentSchema: z.ZodType = z
+  .object({
+    listingId: z.string().optional(),
+    fulfillmentType: z.string().optional(),
+    shareInfo: z.lazy(() => marshalShareInfoSchema).optional(),
+    repoInfo: z.lazy(() => marshalRepoInfoSchema).optional(),
+    recipientType: z.string().optional(),
+  })
+  .transform(d => ({
+    listing_id: d.listingId,
+    fulfillment_type: d.fulfillmentType,
+    share_info: d.shareInfo,
+    repo_info: d.repoInfo,
+    recipient_type: d.recipientType,
   }));
 
 export const marshalListingSettingSchema: z.ZodType = z
@@ -2656,6 +3356,44 @@ export const marshalListingTagSchema: z.ZodType = z
     tag_values: d.tagValues,
   }));
 
+export const marshalPersonalizationRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    consumerRegion: z.lazy(() => marshalRegionInfoSchema).optional(),
+    contactInfo: z.lazy(() => marshalContactInfoSchema).optional(),
+    comment: z.string().optional(),
+    intendedUse: z.string().optional(),
+    status: z.string().optional(),
+    statusMessage: z.string().optional(),
+    share: z.lazy(() => marshalShareInfoSchema).optional(),
+    createdAt: z.bigint().optional(),
+    listingId: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    metastoreId: z.string().optional(),
+    listingName: z.string().optional(),
+    isFromLighthouse: z.boolean().optional(),
+    providerId: z.string().optional(),
+    recipientType: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    consumer_region: d.consumerRegion,
+    contact_info: d.contactInfo,
+    comment: d.comment,
+    intended_use: d.intendedUse,
+    status: d.status,
+    status_message: d.statusMessage,
+    share: d.share,
+    created_at: d.createdAt,
+    listing_id: d.listingId,
+    updated_at: d.updatedAt,
+    metastore_id: d.metastoreId,
+    listing_name: d.listingName,
+    is_from_lighthouse: d.isFromLighthouse,
+    provider_id: d.providerId,
+    recipient_type: d.recipientType,
+  }));
+
 export const marshalProviderInfoSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
@@ -2700,6 +3438,17 @@ export const marshalRegionInfoSchema: z.ZodType = z
     region: d.region,
   }));
 
+export const marshalRemoveExchangeForListingRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalRemoveExchangeForListingResponseSchema: z.ZodType =
+  z.object({});
+
 export const marshalRepoInfoSchema: z.ZodType = z
   .object({
     gitRepoUrl: z.string().optional(),
@@ -2718,6 +3467,40 @@ export const marshalRepoInstallationSchema: z.ZodType = z
     repo_path: d.repoPath,
   }));
 
+export const marshalSearchPublishedListingsForConsumerRequestSchema: z.ZodType =
+  z
+    .object({
+      query: z.string().optional(),
+      isFree: z.boolean().optional(),
+      isPrivateExchange: z.boolean().optional(),
+      providerIds: z.array(z.string()).optional(),
+      categories: z.array(z.string()).optional(),
+      assets: z.array(z.string()).optional(),
+      pageToken: z.string().optional(),
+      pageSize: z.number().optional(),
+    })
+    .transform(d => ({
+      query: d.query,
+      is_free: d.isFree,
+      is_private_exchange: d.isPrivateExchange,
+      provider_ids: d.providerIds,
+      categories: d.categories,
+      assets: d.assets,
+      page_token: d.pageToken,
+      page_size: d.pageSize,
+    }));
+
+export const marshalSearchPublishedListingsForConsumerResponseSchema: z.ZodType =
+  z
+    .object({
+      listings: z.array(z.lazy(() => marshalListingSchema)).optional(),
+      nextPageToken: z.string().optional(),
+    })
+    .transform(d => ({
+      listings: d.listings,
+      next_page_token: d.nextPageToken,
+    }));
+
 export const marshalShareInfoSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -2726,6 +3509,16 @@ export const marshalShareInfoSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     type: d.type,
+  }));
+
+export const marshalSharedDataObjectSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    dataObjectType: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    data_object_type: d.dataObjectType,
   }));
 
 export const marshalTokenDetailSchema: z.ZodType = z
@@ -2772,6 +3565,14 @@ export const marshalUpdateExchangeFilterRequestSchema: z.ZodType = z
     filter: d.filter,
   }));
 
+export const marshalUpdateExchangeFilterResponseSchema: z.ZodType = z
+  .object({
+    filter: z.lazy(() => marshalExchangeFilterSchema).optional(),
+  })
+  .transform(d => ({
+    filter: d.filter,
+  }));
+
 export const marshalUpdateExchangeRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
@@ -2779,6 +3580,14 @@ export const marshalUpdateExchangeRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     id: d.id,
+    exchange: d.exchange,
+  }));
+
+export const marshalUpdateExchangeResponseSchema: z.ZodType = z
+  .object({
+    exchange: z.lazy(() => marshalExchangeSchema).optional(),
+  })
+  .transform(d => ({
     exchange: d.exchange,
   }));
 
@@ -2796,6 +3605,14 @@ export const marshalUpdateInstallationRequestSchema: z.ZodType = z
     rotate_token: d.rotateToken,
   }));
 
+export const marshalUpdateInstallationResponseSchema: z.ZodType = z
+  .object({
+    installation: z.lazy(() => marshalInstallationDetailSchema).optional(),
+  })
+  .transform(d => ({
+    installation: d.installation,
+  }));
+
 export const marshalUpdateListingRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
@@ -2803,6 +3620,14 @@ export const marshalUpdateListingRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     id: d.id,
+    listing: d.listing,
+  }));
+
+export const marshalUpdateListingResponseSchema: z.ZodType = z
+  .object({
+    listing: z.lazy(() => marshalListingSchema).optional(),
+  })
+  .transform(d => ({
     listing: d.listing,
   }));
 
@@ -2823,6 +3648,15 @@ export const marshalUpdatePersonalizationRequestStatusRequestSchema: z.ZodType =
       share: d.share,
     }));
 
+export const marshalUpdatePersonalizationRequestStatusResponseSchema: z.ZodType =
+  z
+    .object({
+      request: z.lazy(() => marshalPersonalizationRequestSchema).optional(),
+    })
+    .transform(d => ({
+      request: d.request,
+    }));
+
 export const marshalUpdateProviderAnalyticsDashboardRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
@@ -2833,6 +3667,19 @@ export const marshalUpdateProviderAnalyticsDashboardRequestSchema: z.ZodType = z
     version: d.version,
   }));
 
+export const marshalUpdateProviderAnalyticsDashboardResponseSchema: z.ZodType =
+  z
+    .object({
+      id: z.string().optional(),
+      version: z.bigint().optional(),
+      dashboardId: z.string().optional(),
+    })
+    .transform(d => ({
+      id: d.id,
+      version: d.version,
+      dashboard_id: d.dashboardId,
+    }));
+
 export const marshalUpdateProviderRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
@@ -2840,5 +3687,13 @@ export const marshalUpdateProviderRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     id: d.id,
+    provider: d.provider,
+  }));
+
+export const marshalUpdateProviderResponseSchema: z.ZodType = z
+  .object({
+    provider: z.lazy(() => marshalProviderInfoSchema).optional(),
+  })
+  .transform(d => ({
     provider: d.provider,
   }));

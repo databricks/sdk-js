@@ -1273,8 +1273,8 @@ export interface CreateVpcEndpointRequest {
 
 export interface CustomerFacingNetworkConnectivityConfigEgressConfig {
   /**
-   * The network connectivity rules that are applied by default without resource specific configurations.
-   * You can find the stable network information of your serverless compute resources here.
+   * Deprecated. This field is retained for compatibility with existing clients.
+   * Avoid using it in new integrations.
    */
   defaultRules?: NetworkConnectivityConfigEgressConfig_DefaultRule | undefined;
   /** The network connectivity rules that configured for each destinations. These rules override default rules. */
@@ -1286,10 +1286,11 @@ export interface CustomerFacingNetworkConnectivityConfigEgressConfig {
 /** Target rule controls the egress rules that are dedicated to specific resources. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRule {
+  /** Deprecated. This field is not supported anymore and kept purely for interface stability. */
   azurePrivateEndpointRules?:
     | NetworkConnectivityConfigAzurePrivateEndpointRule[]
     | undefined;
-  /** AWS private endpoint rule controls the AWS private endpoint based egress rules. */
+  /** Deprecated. This field is not supported anymore and kept purely for interface stability. */
   awsPrivateEndpointRules?:
     | NetworkConnectivityConfigAwsPrivateEndpointRule[]
     | undefined;
@@ -4615,6 +4616,34 @@ export const unmarshalWorkspaceNetworkOptionSchema: z.ZodType<WorkspaceNetworkOp
       workspaceId: d.workspace_id,
     }));
 
+export const marshalAccountIpAccessListSchema: z.ZodType = z
+  .object({
+    listId: z.string().optional(),
+    label: z.string().optional(),
+    ipAddresses: z.array(z.string()).optional(),
+    addressCount: z.number().optional(),
+    listType: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.bigint().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.bigint().optional(),
+    enabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    list_id: d.listId,
+    label: d.label,
+    ip_addresses: d.ipAddresses,
+    address_count: d.addressCount,
+    list_type: d.listType,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    enabled: d.enabled,
+  }));
+
+export const marshalAccountIpAccessListTypeSchema: z.ZodType = z.object({});
+
 export const marshalAccountNetworkPolicySchema: z.ZodType = z
   .object({
     networkPolicyId: z.string().optional(),
@@ -4629,6 +4658,20 @@ export const marshalAccountNetworkPolicySchema: z.ZodType = z
     egress: d.egress,
     ingress: d.ingress,
     ingress_dry_run: d.ingressDryRun,
+  }));
+
+export const marshalApiErrorSchema: z.ZodType = z
+  .object({
+    errorCode: z.string().optional(),
+    message: z.string().optional(),
+    stackTrace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    error_code: d.errorCode,
+    message: d.message,
+    stack_trace: d.stackTrace,
+    details: d.details,
   }));
 
 export const marshalAwsVpcEndpointInfoSchema: z.ZodType = z
@@ -4671,6 +4714,24 @@ export const marshalCreateAccountIpAccessListRequestSchema: z.ZodType = z
     ip_addresses: d.ipAddresses,
   }));
 
+export const marshalCreateAccountIpAccessListResponseSchema: z.ZodType = z
+  .object({
+    ipAccessList: z.lazy(() => marshalAccountIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ip_access_list: d.ipAccessList,
+  }));
+
+export const marshalCreateEndpointRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    endpoint: z.lazy(() => marshalEndpointSchema).optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    endpoint: d.endpoint,
+  }));
+
 export const marshalCreateIpAccessListRequestSchema: z.ZodType = z
   .object({
     label: z.string().optional(),
@@ -4681,6 +4742,40 @@ export const marshalCreateIpAccessListRequestSchema: z.ZodType = z
     label: d.label,
     list_type: d.listType,
     ip_addresses: d.ipAddresses,
+  }));
+
+export const marshalCreateIpAccessListResponseSchema: z.ZodType = z
+  .object({
+    ipAccessList: z.lazy(() => marshalIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ip_access_list: d.ipAccessList,
+  }));
+
+export const marshalCreateNccPrivateEndpointRuleRequestSchema: z.ZodType = z
+  .object({
+    networkConnectivityConfigId: z.string().optional(),
+    accountId: z.string().optional(),
+    privateEndpointRule: z
+      .lazy(() => marshalCreatePrivateEndpointRuleSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    network_connectivity_config_id: d.networkConnectivityConfigId,
+    account_id: d.accountId,
+    private_endpoint_rule: d.privateEndpointRule,
+  }));
+
+export const marshalCreateNetworkConnectivityConfigRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    networkConnectivityConfig: z
+      .lazy(() => marshalCreateNetworkConnectivityConfigurationSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    network_connectivity_config: d.networkConnectivityConfig,
   }));
 
 export const marshalCreateNetworkConnectivityConfigurationSchema: z.ZodType = z
@@ -4705,6 +4800,16 @@ export const marshalCreateNetworkConnectivityConfigurationSchema: z.ZodType = z
     egress_config: d.egressConfig,
     updated_time: d.updatedTime,
     creation_time: d.creationTime,
+  }));
+
+export const marshalCreateNetworkPolicyRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    networkPolicy: z.lazy(() => marshalAccountNetworkPolicySchema).optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    network_policy: d.networkPolicy,
   }));
 
 export const marshalCreateNetworkRequestSchema: z.ZodType = z
@@ -4796,6 +4901,20 @@ export const marshalCreatePrivateEndpointRuleSchema: z.ZodType = z
     }),
   }));
 
+export const marshalCreatePrivateNetworkGatewayRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    privateNetworkGateway: z
+      .lazy(() => marshalPrivateNetworkGatewaySchema)
+      .optional(),
+    requestId: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    private_network_gateway: d.privateNetworkGateway,
+    request_id: d.requestId,
+  }));
+
 export const marshalCreateVpcEndpointRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
@@ -4864,6 +4983,107 @@ export const marshalCustomerFacingNetworkConnectivityConfigEgressConfig_Customer
       azure_private_endpoint_rules: d.azurePrivateEndpointRules,
       aws_private_endpoint_rules: d.awsPrivateEndpointRules,
     }));
+
+export const marshalDeleteAccountIpAccessListRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    listId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    list_id: d.listId,
+  }));
+
+export const marshalDeleteAccountIpAccessListResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalDeleteEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteIpAccessListRequestSchema: z.ZodType = z
+  .object({
+    listId: z.string().optional(),
+  })
+  .transform(d => ({
+    list_id: d.listId,
+  }));
+
+export const marshalDeleteIpAccessListResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteNccPrivateEndpointRuleRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    networkConnectivityConfigId: z.string().optional(),
+    privateEndpointRuleId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    network_connectivity_config_id: d.networkConnectivityConfigId,
+    private_endpoint_rule_id: d.privateEndpointRuleId,
+  }));
+
+export const marshalDeleteNetworkConnectivityConfigRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    networkConnectivityConfigId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    network_connectivity_config_id: d.networkConnectivityConfigId,
+  }));
+
+export const marshalDeleteNetworkPolicyRequestSchema: z.ZodType = z
+  .object({
+    networkPolicyId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    network_policy_id: d.networkPolicyId,
+    account_id: d.accountId,
+  }));
+
+export const marshalDeleteNetworkRequestSchema: z.ZodType = z
+  .object({
+    networkId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    network_id: d.networkId,
+    account_id: d.accountId,
+  }));
+
+export const marshalDeletePrivateAccessSettingsRequestSchema: z.ZodType = z
+  .object({
+    privateAccessSettingsId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    private_access_settings_id: d.privateAccessSettingsId,
+    account_id: d.accountId,
+  }));
+
+export const marshalDeletePrivateNetworkGatewayRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteVpcEndpointRequestSchema: z.ZodType = z
+  .object({
+    vpcEndpointId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    vpc_endpoint_id: d.vpcEndpointId,
+    account_id: d.accountId,
+  }));
 
 export const marshalEgressNetworkPolicySchema: z.ZodType = z
   .object({
@@ -5031,6 +5251,8 @@ export const marshalEndpointSchema: z.ZodType = z
     create_time: d.createTime,
   }));
 
+export const marshalEndpointUseCaseSchema: z.ZodType = z.object({});
+
 export const marshalGcpEndpointSchema: z.ZodType = z
   .object({
     pscEndpointUri: z.string().optional(),
@@ -5112,6 +5334,136 @@ export const marshalGcpVpcEndpointInfoSchema: z.ZodType = z
     psc_endpoint_name: d.pscEndpointName,
     endpoint_region: d.endpointRegion,
     service_attachment_id: d.serviceAttachmentId,
+  }));
+
+export const marshalGetAccountIpAccessListRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    listId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    list_id: d.listId,
+  }));
+
+export const marshalGetAccountIpAccessListResponseSchema: z.ZodType = z
+  .object({
+    ipAccessList: z.lazy(() => marshalAccountIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ip_access_list: d.ipAccessList,
+  }));
+
+export const marshalGetEndpointRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetIpAccessListRequestSchema: z.ZodType = z
+  .object({
+    listId: z.string().optional(),
+  })
+  .transform(d => ({
+    list_id: d.listId,
+  }));
+
+export const marshalGetIpAccessListResponseSchema: z.ZodType = z
+  .object({
+    ipAccessList: z.lazy(() => marshalIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ip_access_list: d.ipAccessList,
+  }));
+
+export const marshalGetNccPrivateEndpointRuleRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    networkConnectivityConfigId: z.string().optional(),
+    privateEndpointRuleId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    network_connectivity_config_id: d.networkConnectivityConfigId,
+    private_endpoint_rule_id: d.privateEndpointRuleId,
+  }));
+
+export const marshalGetNetworkConnectivityConfigRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    networkConnectivityConfigId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    network_connectivity_config_id: d.networkConnectivityConfigId,
+  }));
+
+export const marshalGetNetworkPolicyRequestSchema: z.ZodType = z
+  .object({
+    networkPolicyId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    network_policy_id: d.networkPolicyId,
+    account_id: d.accountId,
+  }));
+
+export const marshalGetNetworkRequestSchema: z.ZodType = z
+  .object({
+    networkId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    network_id: d.networkId,
+    account_id: d.accountId,
+  }));
+
+export const marshalGetOperationRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetPrivateAccessSettingsRequestSchema: z.ZodType = z
+  .object({
+    privateAccessSettingsId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    private_access_settings_id: d.privateAccessSettingsId,
+    account_id: d.accountId,
+  }));
+
+export const marshalGetPrivateNetworkGatewayRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetVpcEndpointRequestSchema: z.ZodType = z
+  .object({
+    vpcEndpointId: z.string().optional(),
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    vpc_endpoint_id: d.vpcEndpointId,
+    account_id: d.accountId,
+  }));
+
+export const marshalGetWorkspaceNetworkOptionRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    workspaceId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    workspace_id: d.workspaceId,
   }));
 
 export const marshalGoogleApiEndpointsSchema: z.ZodType = z
@@ -5537,6 +5889,314 @@ export const marshalIngressNetworkPolicy_WorkspaceUiDestinationSchema: z.ZodType
       all_destinations: d.allDestinations,
     }));
 
+export const marshalIpAccessListSchema: z.ZodType = z
+  .object({
+    listId: z.string().optional(),
+    label: z.string().optional(),
+    ipAddresses: z.array(z.string()).optional(),
+    addressCount: z.number().optional(),
+    listType: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.bigint().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.bigint().optional(),
+    enabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    list_id: d.listId,
+    label: d.label,
+    ip_addresses: d.ipAddresses,
+    address_count: d.addressCount,
+    list_type: d.listType,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    enabled: d.enabled,
+  }));
+
+export const marshalListAccountIpAccessListsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+  }));
+
+export const marshalListAccountIpAccessListsResponseSchema: z.ZodType = z
+  .object({
+    ipAccessLists: z
+      .array(z.lazy(() => marshalAccountIpAccessListSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    ip_access_lists: d.ipAccessLists,
+  }));
+
+export const marshalListEndpointsRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
+  }));
+
+export const marshalListEndpointsResponseSchema: z.ZodType = z
+  .object({
+    items: z.array(z.lazy(() => marshalEndpointSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    items: d.items,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListIpAccessListsSchema: z.ZodType = z.object({});
+
+export const marshalListIpAccessListsResponseSchema: z.ZodType = z
+  .object({
+    ipAccessLists: z.array(z.lazy(() => marshalIpAccessListSchema)).optional(),
+  })
+  .transform(d => ({
+    ip_access_lists: d.ipAccessLists,
+  }));
+
+export const marshalListNccPrivateEndpointRulesRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    networkConnectivityConfigId: z.string().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    network_connectivity_config_id: d.networkConnectivityConfigId,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListNccPrivateEndpointRulesResponseSchema: z.ZodType = z
+  .object({
+    items: z
+      .array(z.lazy(() => marshalNccPrivateEndpointRuleSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    items: d.items,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListNetworkConnectivityConfigsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListNetworkConnectivityConfigsResponseSchema: z.ZodType = z
+  .object({
+    items: z
+      .array(z.lazy(() => marshalNetworkConnectivityConfigSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    items: d.items,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListNetworkPoliciesRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListNetworkPoliciesResponseSchema: z.ZodType = z
+  .object({
+    items: z.array(z.lazy(() => marshalAccountNetworkPolicySchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    items: d.items,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListNetworkRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+  }));
+
+export const marshalListNetworkResponseSchema: z.ZodType = z
+  .object({
+    networks: z.array(z.lazy(() => marshalNetworkSchema)).optional(),
+  })
+  .transform(d => ({
+    networks: d.networks,
+  }));
+
+export const marshalListPrivateAccessSettingsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+  }));
+
+export const marshalListPrivateAccessSettingsResponseSchema: z.ZodType = z
+  .object({
+    privateAccessSettings: z
+      .array(z.lazy(() => marshalPrivateAccessSettingsSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    private_access_settings: d.privateAccessSettings,
+  }));
+
+export const marshalListPrivateNetworkGatewaysRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListPrivateNetworkGatewaysResponseSchema: z.ZodType = z
+  .object({
+    privateNetworkGateways: z
+      .array(z.lazy(() => marshalPrivateNetworkGatewaySchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    private_network_gateways: d.privateNetworkGateways,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListVpcEndpointRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+  }));
+
+export const marshalListVpcEndpointResponseSchema: z.ZodType = z
+  .object({
+    vpcEndpoints: z.array(z.lazy(() => marshalVpcEndpointSchema)).optional(),
+  })
+  .transform(d => ({
+    vpc_endpoints: d.vpcEndpoints,
+  }));
+
+export const marshalNccPrivateEndpointRuleSchema: z.ZodType = z
+  .object({
+    ruleId: z.string().optional(),
+    networkConnectivityConfigId: z.string().optional(),
+    connectionState: z.string().optional(),
+    domainNames: z.array(z.string()).optional(),
+    creationTime: z.bigint().optional(),
+    updatedTime: z.bigint().optional(),
+    deactivated: z.boolean().optional(),
+    deactivatedAt: z.bigint().optional(),
+    errorMessage: z.string().optional(),
+    resourceId: z.string().optional(),
+    groupId: z.string().optional(),
+    endpointName: z.string().optional(),
+    accountId: z.string().optional(),
+    endpointService: z.string().optional(),
+    resourceNames: z.array(z.string()).optional(),
+    vpcEndpointId: z.string().optional(),
+    enabled: z.boolean().optional(),
+    endpoint: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('gcpEndpoint'),
+          gcpEndpoint: z.lazy(() => marshalGcpEndpointSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    rule_id: d.ruleId,
+    network_connectivity_config_id: d.networkConnectivityConfigId,
+    connection_state: d.connectionState,
+    domain_names: d.domainNames,
+    creation_time: d.creationTime,
+    updated_time: d.updatedTime,
+    deactivated: d.deactivated,
+    deactivated_at: d.deactivatedAt,
+    error_message: d.errorMessage,
+    resource_id: d.resourceId,
+    group_id: d.groupId,
+    endpoint_name: d.endpointName,
+    account_id: d.accountId,
+    endpoint_service: d.endpointService,
+    resource_names: d.resourceNames,
+    vpc_endpoint_id: d.vpcEndpointId,
+    enabled: d.enabled,
+    ...(d.endpoint?.$case === 'gcpEndpoint' && {
+      gcp_endpoint: d.endpoint.gcpEndpoint,
+    }),
+  }));
+
+export const marshalNetworkSchema: z.ZodType = z
+  .object({
+    networkId: z.string().optional(),
+    accountId: z.string().optional(),
+    workspaceId: z.bigint().optional(),
+    vpcId: z.string().optional(),
+    subnetIds: z.array(z.string()).optional(),
+    securityGroupIds: z.array(z.string()).optional(),
+    vpcStatus: z.string().optional(),
+    errorMessages: z.array(z.lazy(() => marshalNetworkHealthSchema)).optional(),
+    networkName: z.string().optional(),
+    creationTime: z.bigint().optional(),
+    warningMessages: z
+      .array(z.lazy(() => marshalNetworkWarningSchema))
+      .optional(),
+    vpcEndpoints: z.lazy(() => marshalNetworkVpcEndpointsSchema).optional(),
+    networkInfo: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('gcpNetworkInfo'),
+          gcpNetworkInfo: z.lazy(() => marshalGcpNetworkInfoSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    network_id: d.networkId,
+    account_id: d.accountId,
+    workspace_id: d.workspaceId,
+    vpc_id: d.vpcId,
+    subnet_ids: d.subnetIds,
+    security_group_ids: d.securityGroupIds,
+    vpc_status: d.vpcStatus,
+    error_messages: d.errorMessages,
+    network_name: d.networkName,
+    creation_time: d.creationTime,
+    warning_messages: d.warningMessages,
+    vpc_endpoints: d.vpcEndpoints,
+    ...(d.networkInfo?.$case === 'gcpNetworkInfo' && {
+      gcp_network_info: d.networkInfo.gcpNetworkInfo,
+    }),
+  }));
+
 export const marshalNetworkConnectivityConfigSchema: z.ZodType = z
   .object({
     networkConnectivityConfigId: z.string().optional(),
@@ -5629,6 +6289,9 @@ export const marshalNetworkConnectivityConfigAzurePrivateEndpointRuleSchema: z.Z
       error_message: d.errorMessage,
     }));
 
+export const marshalNetworkConnectivityConfigEgressConfigSchema: z.ZodType =
+  z.object({});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema: z.ZodType =
   z
@@ -5675,6 +6338,16 @@ export const marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServi
       subnets: d.subnets,
     }));
 
+export const marshalNetworkHealthSchema: z.ZodType = z
+  .object({
+    errorType: z.string().optional(),
+    errorMessage: z.string().optional(),
+  })
+  .transform(d => ({
+    error_type: d.errorType,
+    error_message: d.errorMessage,
+  }));
+
 export const marshalNetworkVpcEndpointsSchema: z.ZodType = z
   .object({
     restApi: z.array(z.string()).optional(),
@@ -5683,6 +6356,42 @@ export const marshalNetworkVpcEndpointsSchema: z.ZodType = z
   .transform(d => ({
     rest_api: d.restApi,
     dataplane_relay: d.dataplaneRelay,
+  }));
+
+export const marshalNetworkWarningSchema: z.ZodType = z
+  .object({
+    warningType: z.string().optional(),
+    warningMessage: z.string().optional(),
+  })
+  .transform(d => ({
+    warning_type: d.warningType,
+    warning_message: d.warningMessage,
+  }));
+
+export const marshalOperationSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+    done: z.boolean().optional(),
+    result: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('error'),
+          error: z.lazy(() => marshalApiErrorSchema),
+        }),
+        z.object({
+          $case: z.literal('response'),
+          response: z.record(z.string(), z.unknown()),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    metadata: d.metadata,
+    done: d.done,
+    ...(d.result?.$case === 'error' && {error: d.result.error}),
+    ...(d.result?.$case === 'response' && {response: d.result.response}),
   }));
 
 export const marshalPrivateAccessSettingsSchema: z.ZodType = z
@@ -5859,6 +6568,14 @@ export const marshalPrivateNetworkGateway_PrivateDnsResolverSchema: z.ZodType =
       value: d.value,
     }));
 
+export const marshalPrivateNetworkGatewayOperationMetadataSchema: z.ZodType = z
+  .object({
+    operationType: z.string().optional(),
+  })
+  .transform(d => ({
+    operation_type: d.operationType,
+  }));
+
 export const marshalReplaceAccountIpAccessListRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
@@ -5877,6 +6594,14 @@ export const marshalReplaceAccountIpAccessListRequestSchema: z.ZodType = z
     enabled: d.enabled,
   }));
 
+export const marshalReplaceAccountIpAccessListResponseSchema: z.ZodType = z
+  .object({
+    ipAccessList: z.lazy(() => marshalAccountIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ip_access_list: d.ipAccessList,
+  }));
+
 export const marshalReplaceIpAccessListRequestSchema: z.ZodType = z
   .object({
     listId: z.string().optional(),
@@ -5891,6 +6616,14 @@ export const marshalReplaceIpAccessListRequestSchema: z.ZodType = z
     list_type: d.listType,
     ip_addresses: d.ipAddresses,
     enabled: d.enabled,
+  }));
+
+export const marshalReplaceIpAccessListResponseSchema: z.ZodType = z
+  .object({
+    ipAccessList: z.lazy(() => marshalIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ip_access_list: d.ipAccessList,
   }));
 
 export const marshalUpdateAccountIpAccessListRequestSchema: z.ZodType = z
@@ -5911,6 +6644,14 @@ export const marshalUpdateAccountIpAccessListRequestSchema: z.ZodType = z
     enabled: d.enabled,
   }));
 
+export const marshalUpdateAccountIpAccessListResponseSchema: z.ZodType = z
+  .object({
+    ipAccessList: z.lazy(() => marshalAccountIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ip_access_list: d.ipAccessList,
+  }));
+
 export const marshalUpdateIpAccessListRequestSchema: z.ZodType = z
   .object({
     listId: z.string().optional(),
@@ -5925,6 +6666,77 @@ export const marshalUpdateIpAccessListRequestSchema: z.ZodType = z
     list_type: d.listType,
     ip_addresses: d.ipAddresses,
     enabled: d.enabled,
+  }));
+
+export const marshalUpdateIpAccessListResponseSchema: z.ZodType = z
+  .object({
+    ipAccessList: z.lazy(() => marshalIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ip_access_list: d.ipAccessList,
+  }));
+
+export const marshalUpdateNccPrivateEndpointRuleRequestSchema: z.ZodType = z
+  .object({
+    networkConnectivityConfigId: z.string().optional(),
+    accountId: z.string().optional(),
+    privateEndpointRuleId: z.string().optional(),
+    privateEndpointRule: z
+      .lazy(() => marshalUpdatePrivateEndpointRuleSchema)
+      .optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    network_connectivity_config_id: d.networkConnectivityConfigId,
+    account_id: d.accountId,
+    private_endpoint_rule_id: d.privateEndpointRuleId,
+    private_endpoint_rule: d.privateEndpointRule,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateNetworkConnectivityConfigRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    networkConnectivityConfigId: z.string().optional(),
+    networkConnectivityConfig: z
+      .lazy(() => marshalNetworkConnectivityConfigSchema)
+      .optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    network_connectivity_config_id: d.networkConnectivityConfigId,
+    network_connectivity_config: d.networkConnectivityConfig,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateNetworkPolicyRequestSchema: z.ZodType = z
+  .object({
+    networkPolicyId: z.string().optional(),
+    accountId: z.string().optional(),
+    networkPolicy: z.lazy(() => marshalAccountNetworkPolicySchema).optional(),
+  })
+  .transform(d => ({
+    network_policy_id: d.networkPolicyId,
+    account_id: d.accountId,
+    network_policy: d.networkPolicy,
+  }));
+
+export const marshalUpdatePrivateAccessSettingsRequestSchema: z.ZodType = z
+  .object({
+    customerFacingPrivateAccessSettings: z
+      .lazy(() => marshalPrivateAccessSettingsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    customer_facing_private_access_settings:
+      d.customerFacingPrivateAccessSettings,
   }));
 
 export const marshalUpdatePrivateEndpointRuleSchema: z.ZodType = z
@@ -5975,6 +6787,70 @@ export const marshalUpdatePrivateEndpointRuleSchema: z.ZodType = z
     enabled: d.enabled,
     ...(d.endpoint?.$case === 'gcpEndpoint' && {
       gcp_endpoint: d.endpoint.gcpEndpoint,
+    }),
+  }));
+
+export const marshalUpdatePrivateNetworkGatewayRequestSchema: z.ZodType = z
+  .object({
+    privateNetworkGateway: z
+      .lazy(() => marshalPrivateNetworkGatewaySchema)
+      .optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
+  })
+  .transform(d => ({
+    private_network_gateway: d.privateNetworkGateway,
+    update_mask: d.updateMask,
+  }));
+
+export const marshalUpdateWorkspaceNetworkOptionRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    workspaceId: z.bigint().optional(),
+    workspaceNetworkOption: z
+      .lazy(() => marshalWorkspaceNetworkOptionSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    workspace_id: d.workspaceId,
+    workspace_network_option: d.workspaceNetworkOption,
+  }));
+
+export const marshalVpcEndpointSchema: z.ZodType = z
+  .object({
+    vpcEndpointId: z.string().optional(),
+    accountId: z.string().optional(),
+    vpcEndpointName: z.string().optional(),
+    awsVpcEndpointId: z.string().optional(),
+    awsEndpointServiceId: z.string().optional(),
+    useCase: z.string().optional(),
+    region: z.string().optional(),
+    awsAccountId: z.string().optional(),
+    state: z.string().optional(),
+    vpcEndpointInfo: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('gcpVpcEndpointInfo'),
+          gcpVpcEndpointInfo: z.lazy(() => marshalGcpVpcEndpointInfoSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    vpc_endpoint_id: d.vpcEndpointId,
+    account_id: d.accountId,
+    vpc_endpoint_name: d.vpcEndpointName,
+    aws_vpc_endpoint_id: d.awsVpcEndpointId,
+    aws_endpoint_service_id: d.awsEndpointServiceId,
+    use_case: d.useCase,
+    region: d.region,
+    aws_account_id: d.awsAccountId,
+    state: d.state,
+    ...(d.vpcEndpointInfo?.$case === 'gcpVpcEndpointInfo' && {
+      gcp_vpc_endpoint_info: d.vpcEndpointInfo.gcpVpcEndpointInfo,
     }),
   }));
 

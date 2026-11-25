@@ -103,3 +103,33 @@ export const marshalCreateBillingUsageDashboardRequestSchema: z.ZodType = z
     dashboard_type: d.dashboardType,
     major_version: d.majorVersion,
   }));
+
+export const marshalCreateBillingUsageDashboardResponseSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+  }));
+
+export const marshalGetBillingUsageDashboardRequestSchema: z.ZodType = z
+  .object({
+    workspaceId: z.bigint().optional(),
+    accountId: z.string().optional(),
+    dashboardType: z.string().optional(),
+  })
+  .transform(d => ({
+    workspace_id: d.workspaceId,
+    account_id: d.accountId,
+    dashboard_type: d.dashboardType,
+  }));
+
+export const marshalGetBillingUsageDashboardResponseSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+    dashboardUrl: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+    dashboard_url: d.dashboardUrl,
+  }));

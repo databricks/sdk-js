@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -90,9 +91,15 @@ export class KnowledgeAssistantsClient {
     req: CreateExampleRequest,
     options?: CallOptions
   ): Promise<Example> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.parent ?? ''}/examples`;
-    const body = marshalRequest(req.example, marshalExampleSchema);
+    const url = `${host}/api/2.1/${encodePathVariable(req.parent)}/examples`;
+    const body =
+      req.example === undefined
+        ? 'null'
+        : marshalRequest(req.example, marshalExampleSchema);
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -121,10 +128,13 @@ export class KnowledgeAssistantsClient {
   ): Promise<KnowledgeAssistant> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/knowledge-assistants`;
-    const body = marshalRequest(
-      req.knowledgeAssistant,
-      marshalKnowledgeAssistantSchema
-    );
+    const body =
+      req.knowledgeAssistant === undefined
+        ? 'null'
+        : marshalRequest(
+            req.knowledgeAssistant,
+            marshalKnowledgeAssistantSchema
+          );
     let resp: KnowledgeAssistant | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -151,12 +161,15 @@ export class KnowledgeAssistantsClient {
     req: CreateKnowledgeSourceRequest,
     options?: CallOptions
   ): Promise<KnowledgeSource> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.parent ?? ''}/knowledge-sources`;
-    const body = marshalRequest(
-      req.knowledgeSource,
-      marshalKnowledgeSourceSchema
-    );
+    const url = `${host}/api/2.1/${encodePathVariable(req.parent)}/knowledge-sources`;
+    const body =
+      req.knowledgeSource === undefined
+        ? 'null'
+        : marshalRequest(req.knowledgeSource, marshalKnowledgeSourceSchema);
     let resp: KnowledgeSource | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -183,8 +196,11 @@ export class KnowledgeAssistantsClient {
     req: DeleteExampleRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -205,8 +221,11 @@ export class KnowledgeAssistantsClient {
     req: DeleteKnowledgeAssistantRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -227,8 +246,11 @@ export class KnowledgeAssistantsClient {
     req: DeleteKnowledgeSourceRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -249,8 +271,11 @@ export class KnowledgeAssistantsClient {
     req: GetExampleRequest,
     options?: CallOptions
   ): Promise<Example> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -277,8 +302,11 @@ export class KnowledgeAssistantsClient {
     req: GetKnowledgeAssistantRequest,
     options?: CallOptions
   ): Promise<KnowledgeAssistant> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     let resp: KnowledgeAssistant | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -305,8 +333,11 @@ export class KnowledgeAssistantsClient {
     req: GetKnowledgeSourceRequest,
     options?: CallOptions
   ): Promise<KnowledgeSource> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     let resp: KnowledgeSource | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -333,8 +364,11 @@ export class KnowledgeAssistantsClient {
     req: ListExamplesRequest,
     options?: CallOptions
   ): Promise<ListExamplesResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.parent ?? ''}/examples`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.parent)}/examples`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -444,8 +478,11 @@ export class KnowledgeAssistantsClient {
     req: ListKnowledgeSourcesRequest,
     options?: CallOptions
   ): Promise<ListKnowledgeSourcesResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.parent ?? ''}/knowledge-sources`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.parent)}/knowledge-sources`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -501,8 +538,11 @@ export class KnowledgeAssistantsClient {
     req: SyncKnowledgeSourcesRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}/knowledge-sources:sync`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}/knowledge-sources:sync`;
     const body = marshalRequest(req, marshalSyncKnowledgeSourcesRequestSchema);
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -524,15 +564,21 @@ export class KnowledgeAssistantsClient {
     req: UpdateExampleRequest,
     options?: CallOptions
   ): Promise<Example> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.example, marshalExampleSchema);
+    const body =
+      req.example === undefined
+        ? 'null'
+        : marshalRequest(req.example, marshalExampleSchema);
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -566,17 +612,20 @@ export class KnowledgeAssistantsClient {
     options?: CallOptions
   ): Promise<KnowledgeAssistant> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.knowledgeAssistant?.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.knowledgeAssistant?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.knowledgeAssistant,
-      marshalKnowledgeAssistantSchema
-    );
+    const body =
+      req.knowledgeAssistant === undefined
+        ? 'null'
+        : marshalRequest(
+            req.knowledgeAssistant,
+            marshalKnowledgeAssistantSchema
+          );
     let resp: KnowledgeAssistant | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -609,18 +658,21 @@ export class KnowledgeAssistantsClient {
     req: UpdateKnowledgeSourceRequest,
     options?: CallOptions
   ): Promise<KnowledgeSource> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.knowledgeSource,
-      marshalKnowledgeSourceSchema
-    );
+    const body =
+      req.knowledgeSource === undefined
+        ? 'null'
+        : marshalRequest(req.knowledgeSource, marshalKnowledgeSourceSchema);
     let resp: KnowledgeSource | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -128,7 +129,10 @@ export class AiGatewayClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.mcpService, marshalMcpServiceSchema);
+    const body =
+      req.mcpService === undefined
+        ? 'null'
+        : marshalRequest(req.mcpService, marshalMcpServiceSchema);
     let resp: McpService | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -167,12 +171,18 @@ export class AiGatewayClient {
     req: CreateMcpServiceUserMappedCredentialRequest,
     options?: CallOptions
   ): Promise<McpServiceUserMappedCredential> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}/user-credentials`;
-    const body = marshalRequest(
-      req.login,
-      marshalMcpServiceUserMappedCredentialLoginSchema
-    );
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}/user-credentials`;
+    const body =
+      req.login === undefined
+        ? 'null'
+        : marshalRequest(
+            req.login,
+            marshalMcpServiceUserMappedCredentialLoginSchema
+          );
     let resp: McpServiceUserMappedCredential | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -225,10 +235,13 @@ export class AiGatewayClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.modelProviderService,
-      marshalModelProviderServiceSchema
-    );
+    const body =
+      req.modelProviderService === undefined
+        ? 'null'
+        : marshalRequest(
+            req.modelProviderService,
+            marshalModelProviderServiceSchema
+          );
     let resp: ModelProviderService | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -284,7 +297,10 @@ export class AiGatewayClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.modelService, marshalModelServiceSchema);
+    const body =
+      req.modelService === undefined
+        ? 'null'
+        : marshalRequest(req.modelService, marshalModelServiceSchema);
     let resp: ModelService | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -347,7 +363,10 @@ export class AiGatewayClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.skill, marshalSkillSchema);
+    const body =
+      req.skill === undefined
+        ? 'null'
+        : marshalRequest(req.skill, marshalSkillSchema);
     let resp: Skill | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -387,8 +406,11 @@ export class AiGatewayClient {
     req: DeleteMcpServiceRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
       params.append(
@@ -423,8 +445,11 @@ export class AiGatewayClient {
     req: DeleteMcpServiceUserMappedCredentialRequest,
     options?: CallOptions
   ): Promise<DeleteMcpServiceUserMappedCredentialResponse> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}/user-credentials`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}/user-credentials`;
     let resp: DeleteMcpServiceUserMappedCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -462,8 +487,11 @@ export class AiGatewayClient {
     req: DeleteModelProviderServiceRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
       params.append(
@@ -500,8 +528,11 @@ export class AiGatewayClient {
     req: DeleteModelServiceRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
       params.append(
@@ -539,8 +570,11 @@ export class AiGatewayClient {
     req: DeleteSkillRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
       params.append(
@@ -583,8 +617,11 @@ export class AiGatewayClient {
     req: FinalizeSkillRequest,
     options?: CallOptions
   ): Promise<Skill> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}/finalize`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}/finalize`;
     let resp: Skill | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -617,8 +654,11 @@ export class AiGatewayClient {
     req: GetMcpServiceRequest,
     options?: CallOptions
   ): Promise<McpService> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}`;
     let resp: McpService | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -654,8 +694,11 @@ export class AiGatewayClient {
     req: GetMcpServiceUserMappedCredentialRequest,
     options?: CallOptions
   ): Promise<McpServiceUserMappedCredential> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}/user-credentials`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}/user-credentials`;
     let resp: McpServiceUserMappedCredential | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -691,8 +734,11 @@ export class AiGatewayClient {
     req: GetModelProviderServiceRequest,
     options?: CallOptions
   ): Promise<ModelProviderService> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}`;
     let resp: ModelProviderService | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -725,8 +771,11 @@ export class AiGatewayClient {
     req: GetModelServiceRequest,
     options?: CallOptions
   ): Promise<ModelService> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}`;
     let resp: ModelService | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -756,8 +805,11 @@ export class AiGatewayClient {
    * `USE_SCHEMA` on the parent schema.
    */
   async getSkill(req: GetSkillRequest, options?: CallOptions): Promise<Skill> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.name)}`;
     let resp: Skill | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1067,7 +1119,7 @@ export class AiGatewayClient {
     options?: CallOptions
   ): Promise<McpService> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.mcpService?.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.mcpService?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -1080,7 +1132,10 @@ export class AiGatewayClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.mcpService, marshalMcpServiceSchema);
+    const body =
+      req.mcpService === undefined
+        ? 'null'
+        : marshalRequest(req.mcpService, marshalMcpServiceSchema);
     let resp: McpService | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1127,7 +1182,7 @@ export class AiGatewayClient {
     options?: CallOptions
   ): Promise<ModelProviderService> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.modelProviderService?.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.modelProviderService?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -1140,10 +1195,13 @@ export class AiGatewayClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.modelProviderService,
-      marshalModelProviderServiceSchema
-    );
+    const body =
+      req.modelProviderService === undefined
+        ? 'null'
+        : marshalRequest(
+            req.modelProviderService,
+            marshalModelProviderServiceSchema
+          );
     let resp: ModelProviderService | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1191,7 +1249,7 @@ export class AiGatewayClient {
     options?: CallOptions
   ): Promise<ModelService> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.modelService?.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.modelService?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -1204,7 +1262,10 @@ export class AiGatewayClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.modelService, marshalModelServiceSchema);
+    const body =
+      req.modelService === undefined
+        ? 'null'
+        : marshalRequest(req.modelService, marshalModelServiceSchema);
     let resp: ModelService | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1254,7 +1315,7 @@ export class AiGatewayClient {
     options?: CallOptions
   ): Promise<Skill> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/${req.skill?.name ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/${encodePathVariable(req.skill?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
@@ -1267,7 +1328,10 @@ export class AiGatewayClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.skill, marshalSkillSchema);
+    const body =
+      req.skill === undefined
+        ? 'null'
+        : marshalRequest(req.skill, marshalSkillSchema);
     let resp: Skill | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

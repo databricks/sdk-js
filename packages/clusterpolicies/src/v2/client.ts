@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -250,7 +251,10 @@ export class ClusterPoliciesClient {
   ): Promise<ComputePolicy> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/policies/compute`;
-    const body = marshalRequest(req.computePolicy, marshalComputePolicySchema);
+    const body =
+      req.computePolicy === undefined
+        ? 'null'
+        : marshalRequest(req.computePolicy, marshalComputePolicySchema);
     let resp: ComputePolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -280,8 +284,11 @@ export class ClusterPoliciesClient {
     req: DeleteComputePolicyRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.computePolicyId === undefined) {
+      throw new Error('path parameter "compute_policy_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/policies/compute/${req.computePolicyId ?? ''}`;
+    const url = `${host}/api/2.0/policies/compute/${encodePathVariable(req.computePolicyId)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -302,8 +309,11 @@ export class ClusterPoliciesClient {
     req: GetComputePolicyRequest,
     options?: CallOptions
   ): Promise<ComputePolicy> {
+    if (req.computePolicyId === undefined) {
+      throw new Error('path parameter "compute_policy_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/policies/compute/${req.computePolicyId ?? ''}`;
+    const url = `${host}/api/2.0/policies/compute/${encodePathVariable(req.computePolicyId)}`;
     let resp: ComputePolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -455,14 +465,17 @@ export class ClusterPoliciesClient {
     options?: CallOptions
   ): Promise<ComputePolicy> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/policies/compute/${req.computePolicy?.computePolicyId ?? ''}`;
+    const url = `${host}/api/2.0/policies/compute/${encodePathVariable(req.computePolicy?.computePolicyId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.computePolicy, marshalComputePolicySchema);
+    const body =
+      req.computePolicy === undefined
+        ? 'null'
+        : marshalRequest(req.computePolicy, marshalComputePolicySchema);
     let resp: ComputePolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

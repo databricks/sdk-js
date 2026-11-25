@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -79,9 +80,15 @@ export class KnowledgeClient {
     req: CreateAssetLinkRequest,
     options?: CallOptions
   ): Promise<AssetLink> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/knowledge/${req.parent ?? ''}/asset-links`;
-    const body = marshalRequest(req.assetLink, marshalAssetLinkSchema);
+    const url = `${host}/api/2.0/knowledge/${encodePathVariable(req.parent)}/asset-links`;
+    const body =
+      req.assetLink === undefined
+        ? 'null'
+        : marshalRequest(req.assetLink, marshalAssetLinkSchema);
     let resp: AssetLink | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -129,7 +136,10 @@ export class KnowledgeClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.page, marshalPageSchema);
+    const body =
+      req.page === undefined
+        ? 'null'
+        : marshalRequest(req.page, marshalPageSchema);
     let resp: Page | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -165,8 +175,11 @@ export class KnowledgeClient {
     req: DeleteAssetLinkRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/knowledge/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/knowledge/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -191,8 +204,11 @@ export class KnowledgeClient {
     req: DeletePageRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/knowledge/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/knowledge/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -219,8 +235,11 @@ export class KnowledgeClient {
     req: GetAssetLinkRequest,
     options?: CallOptions
   ): Promise<AssetLink> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/knowledge/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/knowledge/${encodePathVariable(req.name)}`;
     let resp: AssetLink | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -248,8 +267,11 @@ export class KnowledgeClient {
    * Returns `NOT_FOUND` if no page with the given `name` exists.
    */
   async getPage(req: GetPageRequest, options?: CallOptions): Promise<Page> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/knowledge/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/knowledge/${encodePathVariable(req.name)}`;
     let resp: Page | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -349,14 +371,17 @@ export class KnowledgeClient {
     options?: CallOptions
   ): Promise<Page> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/knowledge/${req.page?.name ?? ''}`;
+    const url = `${host}/api/2.0/knowledge/${encodePathVariable(req.page?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.page, marshalPageSchema);
+    const body =
+      req.page === undefined
+        ? 'null'
+        : marshalRequest(req.page, marshalPageSchema);
     let resp: Page | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

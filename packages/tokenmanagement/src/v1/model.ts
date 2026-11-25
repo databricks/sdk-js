@@ -270,6 +270,60 @@ export const marshalCreateOnBehalfOfTokenRequestSchema: z.ZodType = z
     autoscope_enabled: d.autoscopeEnabled,
   }));
 
+export const marshalCreateOnBehalfOfTokenResponseSchema: z.ZodType = z
+  .object({
+    tokenValue: z.string().optional(),
+    tokenInfo: z.lazy(() => marshalAdminTokenInfoSchema).optional(),
+  })
+  .transform(d => ({
+    token_value: d.tokenValue,
+    token_info: d.tokenInfo,
+  }));
+
+export const marshalGetTokenRequestSchema: z.ZodType = z
+  .object({
+    tokenId: z.string().optional(),
+  })
+  .transform(d => ({
+    token_id: d.tokenId,
+  }));
+
+export const marshalGetTokenResponseSchema: z.ZodType = z
+  .object({
+    tokenInfo: z.lazy(() => marshalAdminTokenInfoSchema).optional(),
+  })
+  .transform(d => ({
+    token_info: d.tokenInfo,
+  }));
+
+export const marshalListTokensRequestSchema: z.ZodType = z
+  .object({
+    createdById: z.bigint().optional(),
+    createdByUsername: z.string().optional(),
+  })
+  .transform(d => ({
+    created_by_id: d.createdById,
+    created_by_username: d.createdByUsername,
+  }));
+
+export const marshalListTokensResponseSchema: z.ZodType = z
+  .object({
+    tokenInfos: z.array(z.lazy(() => marshalAdminTokenInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    token_infos: d.tokenInfos,
+  }));
+
+export const marshalRevokeTokenRequestSchema: z.ZodType = z
+  .object({
+    tokenId: z.string().optional(),
+  })
+  .transform(d => ({
+    token_id: d.tokenId,
+  }));
+
+export const marshalRevokeTokenResponseSchema: z.ZodType = z.object({});
+
 export const marshalUpdateTokenRequestSchema: z.ZodType = z
   .object({
     token: z.lazy(() => marshalAdminTokenInfoSchema).optional(),

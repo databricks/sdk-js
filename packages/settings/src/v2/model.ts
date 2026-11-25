@@ -2174,6 +2174,36 @@ export const marshalDashboardTheme_SentimentColorsSchema: z.ZodType = z
     neutral: d.neutral,
   }));
 
+export const marshalGetPublicAccountSettingRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    name: d.name,
+  }));
+
+export const marshalGetPublicAccountUserPreferenceRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    userId: z.string().optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    user_id: d.userId,
+    name: d.name,
+  }));
+
+export const marshalGetPublicWorkspaceSettingRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalIntegerMessageSchema: z.ZodType = z
   .object({
     value: z.number().optional(),
@@ -2182,12 +2212,122 @@ export const marshalIntegerMessageSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalListAccountSettingsMetadataRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListAccountSettingsMetadataResponseSchema: z.ZodType = z
+  .object({
+    settingsMetadata: z
+      .array(z.lazy(() => marshalSettingsMetadataSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    settings_metadata: d.settingsMetadata,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListAccountUserPreferencesMetadataRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      userId: z.string().optional(),
+      pageSize: z.number().optional(),
+      pageToken: z.string().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      user_id: d.userId,
+      page_size: d.pageSize,
+      page_token: d.pageToken,
+    }));
+
+export const marshalListAccountUserPreferencesMetadataResponseSchema: z.ZodType =
+  z
+    .object({
+      settingsMetadata: z
+        .array(z.lazy(() => marshalSettingsMetadataSchema))
+        .optional(),
+      nextPageToken: z.string().optional(),
+    })
+    .transform(d => ({
+      settings_metadata: d.settingsMetadata,
+      next_page_token: d.nextPageToken,
+    }));
+
+export const marshalListWorkspaceSettingsMetadataRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListWorkspaceSettingsMetadataResponseSchema: z.ZodType = z
+  .object({
+    settingsMetadata: z
+      .array(z.lazy(() => marshalSettingsMetadataSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    settings_metadata: d.settingsMetadata,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalOperationalEmailCustomRecipientMessageSchema: z.ZodType = z
   .object({
     email: z.string().optional(),
   })
   .transform(d => ({
     email: d.email,
+  }));
+
+export const marshalPatchPublicAccountSettingRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    name: z.string().optional(),
+    setting: z.lazy(() => marshalSettingSchema).optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    name: d.name,
+    setting: d.setting,
+  }));
+
+export const marshalPatchPublicAccountUserPreferenceRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    userId: z.string().optional(),
+    name: z.string().optional(),
+    setting: z.lazy(() => marshalUserPreferenceSchema).optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    user_id: d.userId,
+    name: d.name,
+    setting: d.setting,
+  }));
+
+export const marshalPatchPublicWorkspaceSettingRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    setting: z.lazy(() => marshalSettingSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    setting: d.setting,
   }));
 
 export const marshalPersonalComputeMessageSchema: z.ZodType = z
@@ -2450,6 +2590,24 @@ export const marshalSettingSchema: z.ZodType = z
       effective_workspace_dashboard_theme:
         d.effectiveValue.effectiveWorkspaceDashboardTheme,
     }),
+  }));
+
+export const marshalSettingsMetadataSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    type: z.string().optional(),
+    docsLink: z.string().optional(),
+    previewPhase: z.string().optional(),
+    displayName: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    description: d.description,
+    type: d.type,
+    docs_link: d.docsLink,
+    preview_phase: d.previewPhase,
+    display_name: d.displayName,
   }));
 
 export const marshalStringMessageSchema: z.ZodType = z

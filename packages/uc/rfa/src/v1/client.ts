@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -118,7 +119,7 @@ export class RfaClient {
     options?: CallOptions
   ): Promise<AccessRequestDestinations> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/3.0/rfa/destinations/${req.securableType ?? ''}/${req.fullName ?? ''}`;
+    const url = `${host}/api/3.0/rfa/destinations/${encodePathVariable(req.securableType ?? '')}/${encodePathVariable(req.fullName ?? '')}`;
     let resp: AccessRequestDestinations | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -168,10 +169,13 @@ export class RfaClient {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.accessRequestDestinations,
-      marshalAccessRequestDestinationsSchema
-    );
+    const body =
+      req.accessRequestDestinations === undefined
+        ? 'null'
+        : marshalRequest(
+            req.accessRequestDestinations,
+            marshalAccessRequestDestinationsSchema
+          );
     let resp: AccessRequestDestinations | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

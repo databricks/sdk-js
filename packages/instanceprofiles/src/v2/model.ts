@@ -145,6 +145,8 @@ export const marshalAddInstanceProfileRequestSchema: z.ZodType = z
     iam_role_arn: d.iamRoleArn,
   }));
 
+export const marshalAddInstanceProfileResponseSchema: z.ZodType = z.object({});
+
 export const marshalEditInstanceProfileRequestSchema: z.ZodType = z
   .object({
     instanceProfileArn: z.string().optional(),
@@ -157,6 +159,32 @@ export const marshalEditInstanceProfileRequestSchema: z.ZodType = z
     iam_role_arn: d.iamRoleArn,
   }));
 
+export const marshalEditInstanceProfileResponseSchema: z.ZodType = z.object({});
+
+export const marshalInstanceProfileSchema: z.ZodType = z
+  .object({
+    instanceProfileArn: z.string().optional(),
+    isMetaInstanceProfile: z.boolean().optional(),
+    iamRoleArn: z.string().optional(),
+  })
+  .transform(d => ({
+    instance_profile_arn: d.instanceProfileArn,
+    is_meta_instance_profile: d.isMetaInstanceProfile,
+    iam_role_arn: d.iamRoleArn,
+  }));
+
+export const marshalListInstanceProfilesRequestSchema: z.ZodType = z.object({});
+
+export const marshalListInstanceProfilesResponseSchema: z.ZodType = z
+  .object({
+    instanceProfiles: z
+      .array(z.lazy(() => marshalInstanceProfileSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    instance_profiles: d.instanceProfiles,
+  }));
+
 export const marshalRemoveInstanceProfileRequestSchema: z.ZodType = z
   .object({
     instanceProfileArn: z.string().optional(),
@@ -164,3 +192,7 @@ export const marshalRemoveInstanceProfileRequestSchema: z.ZodType = z
   .transform(d => ({
     instance_profile_arn: d.instanceProfileArn,
   }));
+
+export const marshalRemoveInstanceProfileResponseSchema: z.ZodType = z.object(
+  {}
+);

@@ -213,6 +213,22 @@ export const marshalDatasetSchema: z.ZodType = z
     table: d.table,
   }));
 
+export const marshalDeleteCustomLlmRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalGetCustomLlmRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
 export const marshalStartCustomLlmOptimizationRunRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),

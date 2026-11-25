@@ -108,8 +108,11 @@ export class GitCredentialsClient {
     req: DeleteCredentialsRequest,
     options?: CallOptions
   ): Promise<DeleteCredentialsResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/git-credentials/${String(req.id ?? '')}`;
+    const url = `${host}/api/2.0/git-credentials/${String(req.id)}`;
     const params = new URLSearchParams();
     if (req.principalId !== undefined) {
       params.append('principal_id', String(req.principalId));
@@ -142,8 +145,11 @@ export class GitCredentialsClient {
     req: GetCredentialsRequest,
     options?: CallOptions
   ): Promise<GetCredentialsResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/git-credentials/${String(req.id ?? '')}`;
+    const url = `${host}/api/2.0/git-credentials/${String(req.id)}`;
     const params = new URLSearchParams();
     if (req.principalId !== undefined) {
       params.append('principal_id', String(req.principalId));
@@ -213,8 +219,11 @@ export class GitCredentialsClient {
     req: UpdateCredentialsRequest,
     options?: CallOptions
   ): Promise<UpdateCredentialsResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/git-credentials/${String(req.id ?? '')}`;
+    const url = `${host}/api/2.0/git-credentials/${String(req.id)}`;
     const body = marshalRequest(req, marshalUpdateCredentialsRequestSchema);
     let resp: UpdateCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

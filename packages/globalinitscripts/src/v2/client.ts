@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -110,8 +111,11 @@ export class GlobalInitScriptsClient {
     req: DeleteGlobalInitScriptRequest,
     options?: CallOptions
   ): Promise<DeleteGlobalInitScriptResponse> {
+    if (req.scriptId === undefined) {
+      throw new Error('path parameter "script_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/global-init-scripts/${req.scriptId ?? ''}`;
+    const url = `${host}/api/2.0/global-init-scripts/${encodePathVariable(req.scriptId)}`;
     let resp: DeleteGlobalInitScriptResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -141,8 +145,11 @@ export class GlobalInitScriptsClient {
     req: GetGlobalInitScriptRequest,
     options?: CallOptions
   ): Promise<GlobalInitScriptDetails> {
+    if (req.scriptId === undefined) {
+      throw new Error('path parameter "script_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/global-init-scripts/${req.scriptId ?? ''}`;
+    const url = `${host}/api/2.0/global-init-scripts/${encodePathVariable(req.scriptId)}`;
     let resp: GlobalInitScriptDetails | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -206,8 +213,11 @@ export class GlobalInitScriptsClient {
     req: UpdateGlobalInitScriptRequest,
     options?: CallOptions
   ): Promise<UpdateGlobalInitScriptResponse> {
+    if (req.scriptId === undefined) {
+      throw new Error('path parameter "script_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/global-init-scripts/${req.scriptId ?? ''}`;
+    const url = `${host}/api/2.0/global-init-scripts/${encodePathVariable(req.scriptId)}`;
     const body = marshalRequest(
       req,
       marshalUpdateGlobalInitScriptRequestSchema

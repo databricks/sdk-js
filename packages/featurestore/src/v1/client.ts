@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -75,7 +76,10 @@ export class FeatureStoreClient {
   ): Promise<OnlineStore> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.0/feature-store/online-stores`;
-    const body = marshalRequest(req.onlineStore, marshalOnlineStoreSchema);
+    const body =
+      req.onlineStore === undefined
+        ? 'null'
+        : marshalRequest(req.onlineStore, marshalOnlineStoreSchema);
     let resp: OnlineStore | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -102,8 +106,11 @@ export class FeatureStoreClient {
     req: DeleteOnlineStoreRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-store/online-stores/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/feature-store/online-stores/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -124,8 +131,11 @@ export class FeatureStoreClient {
     req: DeleteOnlineTableRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.onlineTableName === undefined) {
+      throw new Error('path parameter "online_table_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-store/online-tables/${req.onlineTableName ?? ''}`;
+    const url = `${host}/api/2.0/feature-store/online-tables/${encodePathVariable(req.onlineTableName)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -146,8 +156,11 @@ export class FeatureStoreClient {
     req: GetOnlineStoreRequest,
     options?: CallOptions
   ): Promise<OnlineStore> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-store/online-stores/${req.name ?? ''}`;
+    const url = `${host}/api/2.0/feature-store/online-stores/${encodePathVariable(req.name)}`;
     let resp: OnlineStore | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -228,8 +241,11 @@ export class FeatureStoreClient {
     req: PublishTableRequest,
     options?: CallOptions
   ): Promise<PublishTableResponse> {
+    if (req.sourceTableName === undefined) {
+      throw new Error('path parameter "source_table_name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-store/tables/${req.sourceTableName ?? ''}/publish`;
+    const url = `${host}/api/2.0/feature-store/tables/${encodePathVariable(req.sourceTableName)}/publish`;
     const body = marshalRequest(req, marshalPublishTableRequestSchema);
     let resp: PublishTableResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -263,15 +279,21 @@ export class FeatureStoreClient {
     req: UpdateOnlineStoreRequest,
     options?: CallOptions
   ): Promise<OnlineStore> {
+    if (req.onlineStore?.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/feature-store/online-stores/${req.onlineStore?.name ?? ''}`;
+    const url = `${host}/api/2.0/feature-store/online-stores/${encodePathVariable(req.onlineStore?.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.onlineStore, marshalOnlineStoreSchema);
+    const body =
+      req.onlineStore === undefined
+        ? 'null'
+        : marshalRequest(req.onlineStore, marshalOnlineStoreSchema);
     let resp: OnlineStore | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

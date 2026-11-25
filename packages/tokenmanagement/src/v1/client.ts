@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -108,7 +109,7 @@ export class TokenManagementClient {
     options?: CallOptions
   ): Promise<RevokeTokenResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/token-management/tokens/${req.tokenId ?? ''}`;
+    const url = `${host}/api/2.0/token-management/tokens/${encodePathVariable(req.tokenId ?? '')}`;
     let resp: RevokeTokenResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -136,7 +137,7 @@ export class TokenManagementClient {
     options?: CallOptions
   ): Promise<GetTokenResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/token-management/tokens/${req.tokenId ?? ''}`;
+    const url = `${host}/api/2.0/token-management/tokens/${encodePathVariable(req.tokenId ?? '')}`;
     let resp: GetTokenResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -201,7 +202,7 @@ export class TokenManagementClient {
     options?: CallOptions
   ): Promise<AdminTokenInfo> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/token-management/tokens/${req.token?.tokenId ?? ''}`;
+    const url = `${host}/api/2.0/token-management/tokens/${encodePathVariable(req.token?.tokenId ?? '')}`;
     const body = marshalRequest(req, marshalUpdateTokenRequestSchema);
     let resp: AdminTokenInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

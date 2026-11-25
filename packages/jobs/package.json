@@ -1,6 +1,6 @@
 {
   "name": "@databricks/sdk-jobs",
-  "version": "0.58.8",
+  "version": "0.58.9",
   "description": "",
   "type": "module",
   "exports": {

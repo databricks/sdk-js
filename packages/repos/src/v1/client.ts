@@ -112,8 +112,11 @@ export class ReposClient {
     req: DeleteRepoRequest,
     options?: CallOptions
   ): Promise<DeleteRepoResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/repos/${String(req.id ?? '')}`;
+    const url = `${host}/api/2.0/repos/${String(req.id)}`;
     let resp: DeleteRepoResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -140,8 +143,11 @@ export class ReposClient {
     req: GetRepoRequest,
     options?: CallOptions
   ): Promise<GetRepoResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/repos/${String(req.id ?? '')}`;
+    const url = `${host}/api/2.0/repos/${String(req.id)}`;
     let resp: GetRepoResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -234,8 +240,11 @@ export class ReposClient {
     req: UpdateRepoRequest,
     options?: CallOptions
   ): Promise<UpdateRepoResponse> {
+    if (req.id === undefined) {
+      throw new Error('path parameter "id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/repos/${String(req.id ?? '')}`;
+    const url = `${host}/api/2.0/repos/${String(req.id)}`;
     const body = marshalRequest(req, marshalUpdateRepoRequestSchema);
     let resp: UpdateRepoResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

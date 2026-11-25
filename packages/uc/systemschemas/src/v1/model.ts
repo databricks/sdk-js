@@ -98,6 +98,18 @@ export const unmarshalSystemSchemaInfoSchema: z.ZodType<SystemSchemaInfo> = z
     state: d.state,
   }));
 
+export const marshalDisableSystemSchemaRequestSchema: z.ZodType = z
+  .object({
+    schema: z.string().optional(),
+    metastoreId: z.string().optional(),
+  })
+  .transform(d => ({
+    schema: d.schema,
+    metastore_id: d.metastoreId,
+  }));
+
+export const marshalDisableSystemSchemaResponseSchema: z.ZodType = z.object({});
+
 export const marshalEnableSystemSchemaRequestSchema: z.ZodType = z
   .object({
     schema: z.string().optional(),
@@ -108,4 +120,38 @@ export const marshalEnableSystemSchemaRequestSchema: z.ZodType = z
     schema: d.schema,
     metastore_id: d.metastoreId,
     catalog_name: d.catalogName,
+  }));
+
+export const marshalEnableSystemSchemaResponseSchema: z.ZodType = z.object({});
+
+export const marshalListSystemSchemasRequestSchema: z.ZodType = z
+  .object({
+    metastoreId: z.string().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    metastore_id: d.metastoreId,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListSystemSchemasResponseSchema: z.ZodType = z
+  .object({
+    schemas: z.array(z.lazy(() => marshalSystemSchemaInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    schemas: d.schemas,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalSystemSchemaInfoSchema: z.ZodType = z
+  .object({
+    schema: z.string(),
+    state: z.string(),
+  })
+  .transform(d => ({
+    schema: d.schema,
+    state: d.state,
   }));

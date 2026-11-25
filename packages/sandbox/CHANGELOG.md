@@ -1,5 +1,11 @@
 # Version changelog
 
+## Release v0.3.0 (2026-11-25)
+
+### Bug Fixes
+* Send an unset request body field as JSON `null`, as the Go SDK does, so the server checks it, instead of failing before sending.
+* `uploadFile` now throws `retries are unsupported for client-side streaming methods` before it sends anything when its call sets `retrier`, as the Go and Java SDKs do. It used to ignore that retrier. Remove `retrier` from the options of `uploadFile` calls.
+
 ## Release v0.2.3 (2026-11-23)
 
 ### Internal Changes

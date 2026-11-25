@@ -840,6 +840,35 @@ export const marshalAccessControlRequestSchema: z.ZodType = z
     permission_level: d.permissionLevel,
   }));
 
+export const marshalAccessControlResponseSchema: z.ZodType = z
+  .object({
+    principalName: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('userName'), userName: z.string()}),
+        z.object({$case: z.literal('groupName'), groupName: z.string()}),
+        z.object({
+          $case: z.literal('servicePrincipalName'),
+          servicePrincipalName: z.string(),
+        }),
+      ])
+      .optional(),
+    displayName: z.string().optional(),
+    allPermissions: z.array(z.lazy(() => marshalPermissionSchema)).optional(),
+  })
+  .transform(d => ({
+    ...(d.principalName?.$case === 'userName' && {
+      user_name: d.principalName.userName,
+    }),
+    ...(d.principalName?.$case === 'groupName' && {
+      group_name: d.principalName.groupName,
+    }),
+    ...(d.principalName?.$case === 'servicePrincipalName' && {
+      service_principal_name: d.principalName.servicePrincipalName,
+    }),
+    display_name: d.displayName,
+    all_permissions: d.allPermissions,
+  }));
+
 export const marshalActorSchema: z.ZodType = z
   .object({
     kind: z
@@ -852,12 +881,106 @@ export const marshalActorSchema: z.ZodType = z
     ...(d.kind?.$case === 'actorId' && {actor_id: d.kind.actorId}),
   }));
 
+export const marshalCheckPolicyRequestSchema: z.ZodType = z
+  .object({
+    actor: z.lazy(() => marshalActorSchema).optional(),
+    permission: z.string().optional(),
+    resource: z.string().optional(),
+    consistencyToken: z.lazy(() => marshalConsistencyTokenSchema).optional(),
+    authzIdentity: z.string().optional(),
+    resourceInfo: z.lazy(() => marshalResourceInfoSchema).optional(),
+  })
+  .transform(d => ({
+    actor: d.actor,
+    permission: d.permission,
+    resource: d.resource,
+    consistency_token: d.consistencyToken,
+    authz_identity: d.authzIdentity,
+    resource_info: d.resourceInfo,
+  }));
+
+export const marshalCheckPolicyResponseSchema: z.ZodType = z
+  .object({
+    isPermitted: z.boolean().optional(),
+    consistencyToken: z.lazy(() => marshalConsistencyTokenSchema).optional(),
+  })
+  .transform(d => ({
+    is_permitted: d.isPermitted,
+    consistency_token: d.consistencyToken,
+  }));
+
 export const marshalConsistencyTokenSchema: z.ZodType = z
   .object({
     value: z.string().optional(),
   })
   .transform(d => ({
     value: d.value,
+  }));
+
+export const marshalCreateRestrictedSharingGroupRequestSchema: z.ZodType = z
+  .object({
+    restrictedSharingGroupId: z.string().optional(),
+    restrictedSharingGroup: z
+      .lazy(() => marshalRestrictedSharingGroupSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    restricted_sharing_group_id: d.restrictedSharingGroupId,
+    restricted_sharing_group: d.restrictedSharingGroup,
+  }));
+
+export const marshalDeleteRestrictedSharingGroupRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteWorkspacePermissionAssignmentRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      workspaceId: z.bigint().optional(),
+      principalId: z.bigint().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      workspace_id: d.workspaceId,
+      principal_id: d.principalId,
+    }));
+
+export const marshalDeleteWorkspacePermissionAssignmentResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalGetObjectPermissionsRequestSchema: z.ZodType = z
+  .object({
+    requestObjectType: z.string().optional(),
+    requestObjectId: z.string().optional(),
+  })
+  .transform(d => ({
+    request_object_type: d.requestObjectType,
+    request_object_id: d.requestObjectId,
+  }));
+
+export const marshalGetRestrictedSharingGroupRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetRuleSetRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    name: z.string().optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    name: d.name,
+    etag: d.etag,
   }));
 
 export const marshalGrantRuleSchema: z.ZodType = z
@@ -868,6 +991,108 @@ export const marshalGrantRuleSchema: z.ZodType = z
   .transform(d => ({
     principals: d.principals,
     role: d.role,
+  }));
+
+export const marshalListAssignableRolesForResourceRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    resource: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    resource: d.resource,
+  }));
+
+export const marshalListAssignableRolesForResourceResponseSchema: z.ZodType = z
+  .object({
+    roles: z.array(z.lazy(() => marshalRoleSchema)).optional(),
+  })
+  .transform(d => ({
+    roles: d.roles,
+  }));
+
+export const marshalListPermissionLevelsRequestSchema: z.ZodType = z
+  .object({
+    requestObjectType: z.string().optional(),
+    requestObjectId: z.string().optional(),
+  })
+  .transform(d => ({
+    request_object_type: d.requestObjectType,
+    request_object_id: d.requestObjectId,
+  }));
+
+export const marshalListPermissionLevelsResponseSchema: z.ZodType = z
+  .object({
+    permissionLevels: z
+      .array(z.lazy(() => marshalPermissionsDescriptionSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    permission_levels: d.permissionLevels,
+  }));
+
+export const marshalListRestrictedSharingGroupsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListRestrictedSharingGroupsResponseSchema: z.ZodType = z
+  .object({
+    restrictedSharingGroups: z
+      .array(z.lazy(() => marshalRestrictedSharingGroupSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    restricted_sharing_groups: d.restrictedSharingGroups,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListWorkspacePermissionAssignmentsRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      workspaceId: z.bigint().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      workspace_id: d.workspaceId,
+    }));
+
+export const marshalListWorkspacePermissionAssignmentsResponseSchema: z.ZodType =
+  z
+    .object({
+      permissionAssignments: z
+        .array(z.lazy(() => marshalWorkspacePermissionAssignmentOutputSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      permission_assignments: d.permissionAssignments,
+    }));
+
+export const marshalListWorkspacePermissionsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    workspaceId: z.bigint().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    workspace_id: d.workspaceId,
+  }));
+
+export const marshalListWorkspacePermissionsResponseSchema: z.ZodType = z
+  .object({
+    permissions: z
+      .array(z.lazy(() => marshalPermissionOutputSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    permissions: d.permissions,
   }));
 
 export const marshalMigratePermissionsRequestSchema: z.ZodType = z
@@ -882,6 +1107,89 @@ export const marshalMigratePermissionsRequestSchema: z.ZodType = z
     from_workspace_group_name: d.fromWorkspaceGroupName,
     to_account_group_name: d.toAccountGroupName,
     size: d.size,
+  }));
+
+export const marshalMigratePermissionsResponseSchema: z.ZodType = z
+  .object({
+    permissionsMigrated: z.number().optional(),
+  })
+  .transform(d => ({
+    permissions_migrated: d.permissionsMigrated,
+  }));
+
+export const marshalPermissionSchema: z.ZodType = z
+  .object({
+    permissionLevel: z.string().optional(),
+    inherited: z.boolean().optional(),
+    inheritedFromObject: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    permission_level: d.permissionLevel,
+    inherited: d.inherited,
+    inherited_from_object: d.inheritedFromObject,
+  }));
+
+export const marshalPermissionOutputSchema: z.ZodType = z
+  .object({
+    permissionLevel: z.string().optional(),
+    description: z.string().optional(),
+  })
+  .transform(d => ({
+    permission_level: d.permissionLevel,
+    description: d.description,
+  }));
+
+export const marshalPermissionsDescriptionSchema: z.ZodType = z
+  .object({
+    permissionLevel: z.string().optional(),
+    description: z.string().optional(),
+  })
+  .transform(d => ({
+    permission_level: d.permissionLevel,
+    description: d.description,
+  }));
+
+export const marshalPermissionsResponseSchema: z.ZodType = z
+  .object({
+    objectId: z.string().optional(),
+    objectType: z.string().optional(),
+    accessControlList: z
+      .array(z.lazy(() => marshalAccessControlResponseSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    object_id: d.objectId,
+    object_type: d.objectType,
+    access_control_list: d.accessControlList,
+  }));
+
+export const marshalPrincipalOutputSchema: z.ZodType = z
+  .object({
+    principalName: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('userName'), userName: z.string()}),
+        z.object({$case: z.literal('groupName'), groupName: z.string()}),
+        z.object({
+          $case: z.literal('servicePrincipalName'),
+          servicePrincipalName: z.string(),
+        }),
+      ])
+      .optional(),
+    principalId: z.bigint().optional(),
+    displayName: z.string().optional(),
+  })
+  .transform(d => ({
+    ...(d.principalName?.$case === 'userName' && {
+      user_name: d.principalName.userName,
+    }),
+    ...(d.principalName?.$case === 'groupName' && {
+      group_name: d.principalName.groupName,
+    }),
+    ...(d.principalName?.$case === 'servicePrincipalName' && {
+      service_principal_name: d.principalName.servicePrincipalName,
+    }),
+    principal_id: d.principalId,
+    display_name: d.displayName,
   }));
 
 export const marshalResourceInfoSchema: z.ZodType = z
@@ -906,6 +1214,26 @@ export const marshalRestrictedSharingGroupSchema: z.ZodType = z
     name: d.name,
     restricted_sharing_group_id: d.restrictedSharingGroupId,
     group_display_name: d.groupDisplayName,
+  }));
+
+export const marshalRoleSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalRuleSetSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    etag: z.string().optional(),
+    grantRules: z.array(z.lazy(() => marshalGrantRuleSchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    etag: d.etag,
+    grant_rules: d.grantRules,
   }));
 
 export const marshalRuleSetUpdateRequestSchema: z.ZodType = z
@@ -974,3 +1302,15 @@ export const marshalUpdateWorkspacePermissionAssignmentRequestSchema: z.ZodType 
       principal_id: d.principalId,
       permissions: d.permissions,
     }));
+
+export const marshalWorkspacePermissionAssignmentOutputSchema: z.ZodType = z
+  .object({
+    principal: z.lazy(() => marshalPrincipalOutputSchema).optional(),
+    permissions: z.array(z.string()).optional(),
+    error: z.string().optional(),
+  })
+  .transform(d => ({
+    principal: d.principal,
+    permissions: d.permissions,
+    error: d.error,
+  }));

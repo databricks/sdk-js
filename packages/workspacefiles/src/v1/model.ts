@@ -324,6 +324,51 @@ export const marshalDeleteRequestSchema: z.ZodType = z
     recursive: d.recursive,
   }));
 
+export const marshalDeleteResponseSchema: z.ZodType = z.object({});
+
+export const marshalDirectoryInfoSchema: z.ZodType = z
+  .object({
+    isGitFolder: z.boolean().optional(),
+  })
+  .transform(d => ({
+    is_git_folder: d.isGitFolder,
+  }));
+
+export const marshalExportRequestSchema: z.ZodType = z
+  .object({
+    path: z.string().optional(),
+    format: z.string().optional(),
+    directDownload: z.boolean().optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+    format: d.format,
+    direct_download: d.directDownload,
+  }));
+
+export const marshalExportResponseSchema: z.ZodType = z
+  .object({
+    content: z
+      .any()
+      .transform((d: Uint8Array) =>
+        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+      )
+      .optional(),
+    fileType: z.string().optional(),
+  })
+  .transform(d => ({
+    content: d.content,
+    file_type: d.fileType,
+  }));
+
+export const marshalGetStatusRequestSchema: z.ZodType = z
+  .object({
+    path: z.string().optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+  }));
+
 export const marshalImportRequestSchema: z.ZodType = z
   .object({
     path: z.string().optional(),
@@ -345,10 +390,56 @@ export const marshalImportRequestSchema: z.ZodType = z
     overwrite: d.overwrite,
   }));
 
+export const marshalImportResponseSchema: z.ZodType = z.object({});
+
+export const marshalListRequestSchema: z.ZodType = z
+  .object({
+    path: z.string().optional(),
+    notebooksModifiedAfter: z.bigint().optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+    notebooks_modified_after: d.notebooksModifiedAfter,
+  }));
+
+export const marshalListResponseSchema: z.ZodType = z
+  .object({
+    objects: z.array(z.lazy(() => marshalObjectInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    objects: d.objects,
+  }));
+
 export const marshalMkdirsRequestSchema: z.ZodType = z
   .object({
     path: z.string().optional(),
   })
   .transform(d => ({
     path: d.path,
+  }));
+
+export const marshalMkdirsResponseSchema: z.ZodType = z.object({});
+
+export const marshalObjectInfoSchema: z.ZodType = z
+  .object({
+    objectType: z.string().optional(),
+    path: z.string().optional(),
+    language: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    modifiedAt: z.bigint().optional(),
+    objectId: z.bigint().optional(),
+    size: z.bigint().optional(),
+    resourceId: z.string().optional(),
+    directoryInfo: z.lazy(() => marshalDirectoryInfoSchema).optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    path: d.path,
+    language: d.language,
+    created_at: d.createdAt,
+    modified_at: d.modifiedAt,
+    object_id: d.objectId,
+    size: d.size,
+    resource_id: d.resourceId,
+    directory_info: d.directoryInfo,
   }));

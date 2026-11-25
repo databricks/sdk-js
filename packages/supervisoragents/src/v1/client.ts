@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -88,9 +89,15 @@ export class SupervisorAgentsClient {
     req: CreateExampleRequest,
     options?: CallOptions
   ): Promise<Example> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.parent ?? ''}/examples`;
-    const body = marshalRequest(req.example, marshalExampleSchema);
+    const url = `${host}/api/2.1/${encodePathVariable(req.parent)}/examples`;
+    const body =
+      req.example === undefined
+        ? 'null'
+        : marshalRequest(req.example, marshalExampleSchema);
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -122,10 +129,10 @@ export class SupervisorAgentsClient {
   ): Promise<SupervisorAgent> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
     const url = `${host}/api/2.1/supervisor-agents`;
-    const body = marshalRequest(
-      req.supervisorAgent,
-      marshalSupervisorAgentSchema
-    );
+    const body =
+      req.supervisorAgent === undefined
+        ? 'null'
+        : marshalRequest(req.supervisorAgent, marshalSupervisorAgentSchema);
     let resp: SupervisorAgent | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -152,15 +159,21 @@ export class SupervisorAgentsClient {
     req: CreateToolRequest,
     options?: CallOptions
   ): Promise<Tool> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.parent ?? ''}/tools`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.parent)}/tools`;
     const params = new URLSearchParams();
     if (req.toolId !== undefined) {
       params.append('tool_id', req.toolId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.tool, marshalToolSchema);
+    const body =
+      req.tool === undefined
+        ? 'null'
+        : marshalRequest(req.tool, marshalToolSchema);
     let resp: Tool | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -193,8 +206,11 @@ export class SupervisorAgentsClient {
     req: DeleteExampleRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -218,8 +234,11 @@ export class SupervisorAgentsClient {
     req: DeleteSupervisorAgentRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -240,8 +259,11 @@ export class SupervisorAgentsClient {
     req: DeleteToolRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -262,8 +284,11 @@ export class SupervisorAgentsClient {
     req: GetExampleRequest,
     options?: CallOptions
   ): Promise<Example> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -290,8 +315,11 @@ export class SupervisorAgentsClient {
     req: GetSupervisorAgentRequest,
     options?: CallOptions
   ): Promise<SupervisorAgent> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     let resp: SupervisorAgent | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -315,8 +343,11 @@ export class SupervisorAgentsClient {
 
   /** Gets a Tool. */
   async getTool(req: GetToolRequest, options?: CallOptions): Promise<Tool> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     let resp: Tool | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -343,8 +374,11 @@ export class SupervisorAgentsClient {
     req: ListExamplesRequest,
     options?: CallOptions
   ): Promise<ListExamplesResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.parent ?? ''}/examples`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.parent)}/examples`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -454,8 +488,11 @@ export class SupervisorAgentsClient {
     req: ListToolsRequest,
     options?: CallOptions
   ): Promise<ListToolsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.parent ?? ''}/tools`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.parent)}/tools`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -508,15 +545,21 @@ export class SupervisorAgentsClient {
     req: UpdateExampleRequest,
     options?: CallOptions
   ): Promise<Example> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.name)}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.example, marshalExampleSchema);
+    const body =
+      req.example === undefined
+        ? 'null'
+        : marshalRequest(req.example, marshalExampleSchema);
     let resp: Example | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -553,17 +596,17 @@ export class SupervisorAgentsClient {
     options?: CallOptions
   ): Promise<SupervisorAgent> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.supervisorAgent?.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.supervisorAgent?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.supervisorAgent,
-      marshalSupervisorAgentSchema
-    );
+    const body =
+      req.supervisorAgent === undefined
+        ? 'null'
+        : marshalRequest(req.supervisorAgent, marshalSupervisorAgentSchema);
     let resp: SupervisorAgent | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -600,14 +643,17 @@ export class SupervisorAgentsClient {
     options?: CallOptions
   ): Promise<Tool> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/${req.tool?.name ?? ''}`;
+    const url = `${host}/api/2.1/${encodePathVariable(req.tool?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(req.tool, marshalToolSchema);
+    const body =
+      req.tool === undefined
+        ? 'null'
+        : marshalRequest(req.tool, marshalToolSchema);
     let resp: Tool | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

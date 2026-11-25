@@ -438,7 +438,10 @@ export class JobsClient {
     return resp;
   }
 
-  /** Export and retrieve the job run task. */
+  /**
+   * Export and retrieve the job run task. Only notebook task runs can be exported. For a multi-task job run,
+   * pass the `run_id` of the individual notebook task run rather than the ID of the job run.
+   */
   async exportRun(
     req: ExportRunRequest,
     options?: CallOptions

@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -73,8 +74,14 @@ export class StatementExecutionClient {
     req: CancelStatementRequest,
     options?: CallOptions
   ): Promise<CancelStatementResponse> {
+    if (req.warehouseId === undefined) {
+      throw new Error('path parameter "warehouse_id" is required');
+    }
+    if (req.statementId === undefined) {
+      throw new Error('path parameter "statement_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/warehouses/${req.warehouseId ?? ''}/statements/${req.statementId ?? ''}/cancel`;
+    const url = `${host}/api/2.0/sql/warehouses/${encodePathVariable(req.warehouseId)}/statements/${encodePathVariable(req.statementId)}/cancel`;
     const body = marshalRequest(req, marshalCancelStatementRequestSchema);
     let resp: CancelStatementResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -146,8 +153,11 @@ export class StatementExecutionClient {
     req: ExecuteStatementRequest,
     options?: CallOptions
   ): Promise<StatementResponse> {
+    if (req.warehouseId === undefined) {
+      throw new Error('path parameter "warehouse_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/warehouses/${req.warehouseId ?? ''}/statements`;
+    const url = `${host}/api/2.0/sql/warehouses/${encodePathVariable(req.warehouseId)}/statements`;
     const body = marshalRequest(req, marshalExecuteStatementRequestSchema);
     let resp: StatementResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -182,8 +192,17 @@ export class StatementExecutionClient {
     req: GetResultDataRequest,
     options?: CallOptions
   ): Promise<ResultData> {
+    if (req.warehouseId === undefined) {
+      throw new Error('path parameter "warehouse_id" is required');
+    }
+    if (req.statementId === undefined) {
+      throw new Error('path parameter "statement_id" is required');
+    }
+    if (req.chunkIndex === undefined) {
+      throw new Error('path parameter "chunk_index" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/warehouses/${req.warehouseId ?? ''}/statements/${req.statementId ?? ''}/result/chunks/${String(req.chunkIndex ?? '')}`;
+    const url = `${host}/api/2.0/sql/warehouses/${encodePathVariable(req.warehouseId)}/statements/${encodePathVariable(req.statementId)}/result/chunks/${String(req.chunkIndex)}`;
     let resp: ResultData | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -221,8 +240,14 @@ export class StatementExecutionClient {
     req: GetStatementResultRequest,
     options?: CallOptions
   ): Promise<StatementResponse> {
+    if (req.warehouseId === undefined) {
+      throw new Error('path parameter "warehouse_id" is required');
+    }
+    if (req.statementId === undefined) {
+      throw new Error('path parameter "statement_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/sql/warehouses/${req.warehouseId ?? ''}/statements/${req.statementId ?? ''}`;
+    const url = `${host}/api/2.0/sql/warehouses/${encodePathVariable(req.warehouseId)}/statements/${encodePathVariable(req.statementId)}`;
     let resp: StatementResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();

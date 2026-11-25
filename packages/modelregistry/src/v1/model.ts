@@ -1835,6 +1835,32 @@ export const unmarshalUpdateRegistryWebhookResponseSchema: z.ZodType<UpdateRegis
       webhook: d.webhook,
     }));
 
+export const marshalActivitySchema: z.ZodType = z
+  .object({
+    creationTimestamp: z.bigint().optional(),
+    userId: z.string().optional(),
+    activityType: z.string().optional(),
+    comment: z.string().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    fromStage: z.string().optional(),
+    toStage: z.string().optional(),
+    systemComment: z.string().optional(),
+    availableActions: z.array(z.string()).optional(),
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    creation_timestamp: d.creationTimestamp,
+    user_id: d.userId,
+    activity_type: d.activityType,
+    comment: d.comment,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    from_stage: d.fromStage,
+    to_stage: d.toStage,
+    system_comment: d.systemComment,
+    available_actions: d.availableActions,
+    id: d.id,
+  }));
+
 export const marshalApproveTransitionRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1851,6 +1877,40 @@ export const marshalApproveTransitionRequestSchema: z.ZodType = z
     comment: d.comment,
   }));
 
+export const marshalApproveTransitionResponseSchema: z.ZodType = z
+  .object({
+    activity: z.lazy(() => marshalActivitySchema).optional(),
+  })
+  .transform(d => ({
+    activity: d.activity,
+  }));
+
+export const marshalCommentObjectSchema: z.ZodType = z
+  .object({
+    creationTimestamp: z.bigint().optional(),
+    userId: z.string().optional(),
+    activityType: z.string().optional(),
+    comment: z.string().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    fromStage: z.string().optional(),
+    toStage: z.string().optional(),
+    systemComment: z.string().optional(),
+    availableActions: z.array(z.string()).optional(),
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    creation_timestamp: d.creationTimestamp,
+    user_id: d.userId,
+    activity_type: d.activityType,
+    comment: d.comment,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    from_stage: d.fromStage,
+    to_stage: d.toStage,
+    system_comment: d.systemComment,
+    available_actions: d.availableActions,
+    id: d.id,
+  }));
+
 export const marshalCreateCommentRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1860,6 +1920,14 @@ export const marshalCreateCommentRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     version: d.version,
+    comment: d.comment,
+  }));
+
+export const marshalCreateCommentResponseSchema: z.ZodType = z
+  .object({
+    comment: z.lazy(() => marshalCommentObjectSchema).optional(),
+  })
+  .transform(d => ({
     comment: d.comment,
   }));
 
@@ -1881,6 +1949,14 @@ export const marshalCreateModelVersionRequestSchema: z.ZodType = z
     description: d.description,
   }));
 
+export const marshalCreateModelVersionResponseSchema: z.ZodType = z
+  .object({
+    modelVersion: z.lazy(() => marshalModelVersionSchema).optional(),
+  })
+  .transform(d => ({
+    model_version: d.modelVersion,
+  }));
+
 export const marshalCreateRegisteredModelRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1891,6 +1967,14 @@ export const marshalCreateRegisteredModelRequestSchema: z.ZodType = z
     name: d.name,
     tags: d.tags,
     description: d.description,
+  }));
+
+export const marshalCreateRegisteredModelResponseSchema: z.ZodType = z
+  .object({
+    registeredModel: z.lazy(() => marshalRegisteredModelSchema).optional(),
+  })
+  .transform(d => ({
+    registered_model: d.registeredModel,
   }));
 
 export const marshalCreateRegistryWebhookRequestSchema: z.ZodType = z
@@ -1911,6 +1995,14 @@ export const marshalCreateRegistryWebhookRequestSchema: z.ZodType = z
     job_spec: d.jobSpec,
   }));
 
+export const marshalCreateRegistryWebhookResponseSchema: z.ZodType = z
+  .object({
+    webhook: z.lazy(() => marshalRegistryWebhookSchema).optional(),
+  })
+  .transform(d => ({
+    webhook: d.webhook,
+  }));
+
 export const marshalCreateTransitionRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1923,6 +2015,183 @@ export const marshalCreateTransitionRequestSchema: z.ZodType = z
     version: d.version,
     stage: d.stage,
     comment: d.comment,
+  }));
+
+export const marshalCreateTransitionResponseSchema: z.ZodType = z
+  .object({
+    request: z.lazy(() => marshalTransitionRequestSchema).optional(),
+  })
+  .transform(d => ({
+    request: d.request,
+  }));
+
+export const marshalDeleteCommentRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalDeleteCommentResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteModelVersionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    version: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+  }));
+
+export const marshalDeleteModelVersionResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteModelVersionTagRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    version: z.string().optional(),
+    key: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+    key: d.key,
+  }));
+
+export const marshalDeleteModelVersionTagResponseSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalDeleteRegisteredModelRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalDeleteRegisteredModelResponseSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalDeleteRegisteredModelTagRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    key: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    key: d.key,
+  }));
+
+export const marshalDeleteRegisteredModelTagResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalDeleteRegistryWebhookRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
+
+export const marshalDeleteRegistryWebhookResponseSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalDeleteTransitionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    version: z.string().optional(),
+    stage: z.string().optional(),
+    creator: z.string().optional(),
+    comment: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+    stage: d.stage,
+    creator: d.creator,
+    comment: d.comment,
+  }));
+
+export const marshalDeleteTransitionResponseSchema: z.ZodType = z
+  .object({
+    activity: z.lazy(() => marshalActivitySchema).optional(),
+  })
+  .transform(d => ({
+    activity: d.activity,
+  }));
+
+export const marshalFeatureListSchema: z.ZodType = z
+  .object({
+    features: z.array(z.lazy(() => marshalLinkedFeatureSchema)).optional(),
+  })
+  .transform(d => ({
+    features: d.features,
+  }));
+
+export const marshalGetLatestVersionsResponseSchema: z.ZodType = z
+  .object({
+    modelVersions: z.array(z.lazy(() => marshalModelVersionSchema)).optional(),
+  })
+  .transform(d => ({
+    model_versions: d.modelVersions,
+  }));
+
+export const marshalGetModelVersionDownloadUriRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    version: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+  }));
+
+export const marshalGetModelVersionDownloadUriResponseSchema: z.ZodType = z
+  .object({
+    artifactUri: z.string().optional(),
+  })
+  .transform(d => ({
+    artifact_uri: d.artifactUri,
+  }));
+
+export const marshalGetModelVersionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    version: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+  }));
+
+export const marshalGetModelVersionResponseSchema: z.ZodType = z
+  .object({
+    modelVersion: z.lazy(() => marshalModelVersionSchema).optional(),
+  })
+  .transform(d => ({
+    model_version: d.modelVersion,
+  }));
+
+export const marshalGetRegisteredModelDatabricksRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalGetRegisteredModelDatabricksResponseSchema: z.ZodType = z
+  .object({
+    registeredModelDatabricks: z
+      .lazy(() => marshalRegisteredModelDatabricksSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    registered_model_databricks: d.registeredModelDatabricks,
   }));
 
 export const marshalHttpUrlSpecSchema: z.ZodType = z
@@ -1951,6 +2220,18 @@ export const marshalJobSpecSchema: z.ZodType = z
     access_token: d.accessToken,
   }));
 
+export const marshalLinkedFeatureSchema: z.ZodType = z
+  .object({
+    featureTableName: z.string().optional(),
+    featureName: z.string().optional(),
+    featureTableId: z.string().optional(),
+  })
+  .transform(d => ({
+    feature_table_name: d.featureTableName,
+    feature_name: d.featureName,
+    feature_table_id: d.featureTableId,
+  }));
+
 export const marshalListLatestVersionsRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1959,6 +2240,142 @@ export const marshalListLatestVersionsRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     stages: d.stages,
+  }));
+
+export const marshalListRegisteredModelsRequestSchema: z.ZodType = z
+  .object({
+    maxResults: z.bigint().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListRegisteredModelsResponseSchema: z.ZodType = z
+  .object({
+    registeredModels: z
+      .array(z.lazy(() => marshalRegisteredModelSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    registered_models: d.registeredModels,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListRegistryWebhooksRequestSchema: z.ZodType = z
+  .object({
+    modelName: z.string().optional(),
+    events: z.array(z.string()).optional(),
+    pageToken: z.string().optional(),
+    maxResults: z.bigint().optional(),
+  })
+  .transform(d => ({
+    model_name: d.modelName,
+    events: d.events,
+    page_token: d.pageToken,
+    max_results: d.maxResults,
+  }));
+
+export const marshalListRegistryWebhooksResponseSchema: z.ZodType = z
+  .object({
+    webhooks: z.array(z.lazy(() => marshalRegistryWebhookSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    webhooks: d.webhooks,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListTransitionRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    version: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+  }));
+
+export const marshalListTransitionResponseSchema: z.ZodType = z
+  .object({
+    requests: z.array(z.lazy(() => marshalActivitySchema)).optional(),
+  })
+  .transform(d => ({
+    requests: d.requests,
+  }));
+
+export const marshalModelVersionSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    version: z.string().optional(),
+    creationTimestamp: z.bigint().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    userId: z.string().optional(),
+    currentStage: z.string().optional(),
+    description: z.string().optional(),
+    source: z.string().optional(),
+    runId: z.string().optional(),
+    status: z.string().optional(),
+    statusMessage: z.string().optional(),
+    tags: z.array(z.lazy(() => marshalModelVersionTagSchema)).optional(),
+    runLink: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+    creation_timestamp: d.creationTimestamp,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    user_id: d.userId,
+    current_stage: d.currentStage,
+    description: d.description,
+    source: d.source,
+    run_id: d.runId,
+    status: d.status,
+    status_message: d.statusMessage,
+    tags: d.tags,
+    run_link: d.runLink,
+  }));
+
+export const marshalModelVersionDatabricksSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    version: z.string().optional(),
+    creationTimestamp: z.bigint().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    userId: z.string().optional(),
+    currentStage: z.string().optional(),
+    description: z.string().optional(),
+    source: z.string().optional(),
+    runId: z.string().optional(),
+    status: z.string().optional(),
+    statusMessage: z.string().optional(),
+    openRequests: z.array(z.lazy(() => marshalActivitySchema)).optional(),
+    permissionLevel: z.string().optional(),
+    tags: z.array(z.lazy(() => marshalModelVersionTagSchema)).optional(),
+    runLink: z.string().optional(),
+    emailSubscriptionStatus: z.string().optional(),
+    featureList: z.lazy(() => marshalFeatureListSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+    creation_timestamp: d.creationTimestamp,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    user_id: d.userId,
+    current_stage: d.currentStage,
+    description: d.description,
+    source: d.source,
+    run_id: d.runId,
+    status: d.status,
+    status_message: d.statusMessage,
+    open_requests: d.openRequests,
+    permission_level: d.permissionLevel,
+    tags: d.tags,
+    run_link: d.runLink,
+    email_subscription_status: d.emailSubscriptionStatus,
+    feature_list: d.featureList,
   }));
 
 export const marshalModelVersionTagSchema: z.ZodType = z
@@ -1971,6 +2388,50 @@ export const marshalModelVersionTagSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalRegisteredModelSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    creationTimestamp: z.bigint().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    userId: z.string().optional(),
+    description: z.string().optional(),
+    latestVersions: z.array(z.lazy(() => marshalModelVersionSchema)).optional(),
+    tags: z.array(z.lazy(() => marshalRegisteredModelTagSchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    creation_timestamp: d.creationTimestamp,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    user_id: d.userId,
+    description: d.description,
+    latest_versions: d.latestVersions,
+    tags: d.tags,
+  }));
+
+export const marshalRegisteredModelDatabricksSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    creationTimestamp: z.bigint().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    userId: z.string().optional(),
+    description: z.string().optional(),
+    latestVersions: z.array(z.lazy(() => marshalModelVersionSchema)).optional(),
+    id: z.string().optional(),
+    permissionLevel: z.string().optional(),
+    tags: z.array(z.lazy(() => marshalRegisteredModelTagSchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    creation_timestamp: d.creationTimestamp,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    user_id: d.userId,
+    description: d.description,
+    latest_versions: d.latestVersions,
+    id: d.id,
+    permission_level: d.permissionLevel,
+    tags: d.tags,
+  }));
+
 export const marshalRegisteredModelTagSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
@@ -1979,6 +2440,30 @@ export const marshalRegisteredModelTagSchema: z.ZodType = z
   .transform(d => ({
     key: d.key,
     value: d.value,
+  }));
+
+export const marshalRegistryWebhookSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    events: z.array(z.string()).optional(),
+    creationTimestamp: z.bigint().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    description: z.string().optional(),
+    status: z.string().optional(),
+    httpUrlSpec: z.lazy(() => marshalHttpUrlSpecSchema).optional(),
+    jobSpec: z.lazy(() => marshalJobSpecSchema).optional(),
+    modelName: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    events: d.events,
+    creation_timestamp: d.creationTimestamp,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    description: d.description,
+    status: d.status,
+    http_url_spec: d.httpUrlSpec,
+    job_spec: d.jobSpec,
+    model_name: d.modelName,
   }));
 
 export const marshalRejectTransitionRequestSchema: z.ZodType = z
@@ -1995,6 +2480,14 @@ export const marshalRejectTransitionRequestSchema: z.ZodType = z
     comment: d.comment,
   }));
 
+export const marshalRejectTransitionResponseSchema: z.ZodType = z
+  .object({
+    activity: z.lazy(() => marshalActivitySchema).optional(),
+  })
+  .transform(d => ({
+    activity: d.activity,
+  }));
+
 export const marshalRenameRegisteredModelRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -2003,6 +2496,64 @@ export const marshalRenameRegisteredModelRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     new_name: d.newName,
+  }));
+
+export const marshalRenameRegisteredModelResponseSchema: z.ZodType = z
+  .object({
+    registeredModel: z.lazy(() => marshalRegisteredModelSchema).optional(),
+  })
+  .transform(d => ({
+    registered_model: d.registeredModel,
+  }));
+
+export const marshalSearchModelVersionsRequestSchema: z.ZodType = z
+  .object({
+    filter: z.string().optional(),
+    maxResults: z.bigint().optional(),
+    orderBy: z.array(z.string()).optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    filter: d.filter,
+    max_results: d.maxResults,
+    order_by: d.orderBy,
+    page_token: d.pageToken,
+  }));
+
+export const marshalSearchModelVersionsResponseSchema: z.ZodType = z
+  .object({
+    modelVersions: z.array(z.lazy(() => marshalModelVersionSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    model_versions: d.modelVersions,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalSearchRegisteredModelsRequestSchema: z.ZodType = z
+  .object({
+    filter: z.string().optional(),
+    maxResults: z.bigint().optional(),
+    orderBy: z.array(z.string()).optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    filter: d.filter,
+    max_results: d.maxResults,
+    order_by: d.orderBy,
+    page_token: d.pageToken,
+  }));
+
+export const marshalSearchRegisteredModelsResponseSchema: z.ZodType = z
+  .object({
+    registeredModels: z
+      .array(z.lazy(() => marshalRegisteredModelSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    registered_models: d.registeredModels,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalSetModelVersionTagRequestSchema: z.ZodType = z
@@ -2019,6 +2570,8 @@ export const marshalSetModelVersionTagRequestSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalSetModelVersionTagResponseSchema: z.ZodType = z.object({});
+
 export const marshalSetRegisteredModelTagRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -2031,6 +2584,10 @@ export const marshalSetRegisteredModelTagRequestSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalSetRegisteredModelTagResponseSchema: z.ZodType = z.object(
+  {}
+);
+
 export const marshalTestRegistryWebhookRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
@@ -2039,6 +2596,16 @@ export const marshalTestRegistryWebhookRequestSchema: z.ZodType = z
   .transform(d => ({
     id: d.id,
     event: d.event,
+  }));
+
+export const marshalTestRegistryWebhookResponseSchema: z.ZodType = z
+  .object({
+    statusCode: z.number().optional(),
+    body: z.string().optional(),
+  })
+  .transform(d => ({
+    status_code: d.statusCode,
+    body: d.body,
   }));
 
 export const marshalTransitionModelVersionStageDatabricksRequestSchema: z.ZodType =
@@ -2058,6 +2625,43 @@ export const marshalTransitionModelVersionStageDatabricksRequestSchema: z.ZodTyp
       comment: d.comment,
     }));
 
+export const marshalTransitionModelVersionStageDatabricksResponseSchema: z.ZodType =
+  z
+    .object({
+      modelVersionDatabricks: z
+        .lazy(() => marshalModelVersionDatabricksSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      model_version_databricks: d.modelVersionDatabricks,
+    }));
+
+export const marshalTransitionRequestSchema: z.ZodType = z
+  .object({
+    creationTimestamp: z.bigint().optional(),
+    userId: z.string().optional(),
+    activityType: z.string().optional(),
+    comment: z.string().optional(),
+    lastUpdatedTimestamp: z.bigint().optional(),
+    fromStage: z.string().optional(),
+    toStage: z.string().optional(),
+    systemComment: z.string().optional(),
+    availableActions: z.array(z.string()).optional(),
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    creation_timestamp: d.creationTimestamp,
+    user_id: d.userId,
+    activity_type: d.activityType,
+    comment: d.comment,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    from_stage: d.fromStage,
+    to_stage: d.toStage,
+    system_comment: d.systemComment,
+    available_actions: d.availableActions,
+    id: d.id,
+  }));
+
 export const marshalUpdateCommentRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
@@ -2065,6 +2669,14 @@ export const marshalUpdateCommentRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     id: d.id,
+    comment: d.comment,
+  }));
+
+export const marshalUpdateCommentResponseSchema: z.ZodType = z
+  .object({
+    comment: z.lazy(() => marshalCommentObjectSchema).optional(),
+  })
+  .transform(d => ({
     comment: d.comment,
   }));
 
@@ -2080,6 +2692,14 @@ export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
     description: d.description,
   }));
 
+export const marshalUpdateModelVersionResponseSchema: z.ZodType = z
+  .object({
+    modelVersion: z.lazy(() => marshalModelVersionSchema).optional(),
+  })
+  .transform(d => ({
+    model_version: d.modelVersion,
+  }));
+
 export const marshalUpdateRegisteredModelRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -2088,6 +2708,14 @@ export const marshalUpdateRegisteredModelRequestSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     description: d.description,
+  }));
+
+export const marshalUpdateRegisteredModelResponseSchema: z.ZodType = z
+  .object({
+    registeredModel: z.lazy(() => marshalRegisteredModelSchema).optional(),
+  })
+  .transform(d => ({
+    registered_model: d.registeredModel,
   }));
 
 export const marshalUpdateRegistryWebhookRequestSchema: z.ZodType = z
@@ -2106,4 +2734,12 @@ export const marshalUpdateRegistryWebhookRequestSchema: z.ZodType = z
     status: d.status,
     http_url_spec: d.httpUrlSpec,
     job_spec: d.jobSpec,
+  }));
+
+export const marshalUpdateRegistryWebhookResponseSchema: z.ZodType = z
+  .object({
+    webhook: z.lazy(() => marshalRegistryWebhookSchema).optional(),
+  })
+  .transform(d => ({
+    webhook: d.webhook,
   }));

@@ -424,6 +424,18 @@ export const marshalCreateSchemaRequestSchema: z.ZodType = z
     options: d.options,
   }));
 
+export const marshalDeleteSchemaRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    force: z.boolean().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    force: d.force,
+  }));
+
+export const marshalDeleteSchemaResponseSchema: z.ZodType = z.object({});
+
 export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
   .object({
     value: z.string().optional(),
@@ -434,6 +446,89 @@ export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
     value: d.value,
     inherited_from_type: d.inheritedFromType,
     inherited_from_name: d.inheritedFromName,
+  }));
+
+export const marshalGetSchemaRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    includeBrowse: z.boolean().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    include_browse: d.includeBrowse,
+  }));
+
+export const marshalListSchemasRequestSchema: z.ZodType = z
+  .object({
+    catalogName: z.string().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+    includeBrowse: z.boolean().optional(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+    include_browse: d.includeBrowse,
+  }));
+
+export const marshalListSchemasResponseSchema: z.ZodType = z
+  .object({
+    schemas: z.array(z.lazy(() => marshalSchemaInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    schemas: d.schemas,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalSchemaInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    catalogName: z.string().optional(),
+    owner: z.string().optional(),
+    comment: z.string().optional(),
+    storageRoot: z.string().optional(),
+    enablePredictiveOptimization: z.string().optional(),
+    metastoreId: z.string().optional(),
+    fullName: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    catalogType: z.string().optional(),
+    storageLocation: z.string().optional(),
+    effectivePredictiveOptimizationFlag: z
+      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
+      .optional(),
+    schemaId: z.string().optional(),
+    browseOnly: z.boolean().optional(),
+    customMaxRetentionHours: z.bigint().optional(),
+    properties: z.record(z.string(), z.string()).optional(),
+    options: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    catalog_name: d.catalogName,
+    owner: d.owner,
+    comment: d.comment,
+    storage_root: d.storageRoot,
+    enable_predictive_optimization: d.enablePredictiveOptimization,
+    metastore_id: d.metastoreId,
+    full_name: d.fullName,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    catalog_type: d.catalogType,
+    storage_location: d.storageLocation,
+    effective_predictive_optimization_flag:
+      d.effectivePredictiveOptimizationFlag,
+    schema_id: d.schemaId,
+    browse_only: d.browseOnly,
+    custom_max_retention_hours: d.customMaxRetentionHours,
+    properties: d.properties,
+    options: d.options,
   }));
 
 export const marshalUpdateSchemaRequestSchema: z.ZodType = z

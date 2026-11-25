@@ -607,6 +607,58 @@ export const marshalCancelMigrationRequestSchema: z.ZodType = z
     cancellation_reason: d.cancellationReason,
   }));
 
+export const marshalCreateMigrationRequestSchema: z.ZodType = z
+  .object({
+    migration: z.lazy(() => marshalMigrationSchema).optional(),
+    requestId: z.string().optional(),
+  })
+  .transform(d => ({
+    migration: d.migration,
+    request_id: d.requestId,
+  }));
+
+export const marshalDeleteMigrationRequestSchema: z.ZodType = z
+  .object({
+    migrationId: z.string().optional(),
+    etag: z.string().optional(),
+  })
+  .transform(d => ({
+    migration_id: d.migrationId,
+    etag: d.etag,
+  }));
+
+export const marshalGetMigrationRequestSchema: z.ZodType = z
+  .object({
+    migrationId: z.string().optional(),
+  })
+  .transform(d => ({
+    migration_id: d.migrationId,
+  }));
+
+export const marshalListMigrationsRequestSchema: z.ZodType = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+    assetType: z.string().optional(),
+    states: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+    asset_type: d.assetType,
+    states: d.states,
+  }));
+
+export const marshalListMigrationsResponseSchema: z.ZodType = z
+  .object({
+    migrations: z.array(z.lazy(() => marshalMigrationSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    migrations: d.migrations,
+    next_page_token: d.nextPageToken,
+  }));
+
 export const marshalMigrationSchema: z.ZodType = z
   .object({
     migrationId: z.string().optional(),

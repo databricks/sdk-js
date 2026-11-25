@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -111,7 +112,7 @@ export class PipelinesClient {
     options?: CallOptions
   ): Promise<ApplyEnvironmentResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/pipelines/${req.pipelineId ?? ''}/environment/apply`;
+    const url = `${host}/api/2.0/pipelines/${encodePathVariable(req.pipelineId ?? '')}/environment/apply`;
     const body = marshalRequest(req, marshalApplyEnvironmentRequestSchema);
     let resp: ApplyEnvironmentResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -144,7 +145,7 @@ export class PipelinesClient {
     options?: CallOptions
   ): Promise<ClonePipelineResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/pipelines/${req.pipelineId ?? ''}/clone`;
+    const url = `${host}/api/2.0/pipelines/${encodePathVariable(req.pipelineId ?? '')}/clone`;
     const body = marshalRequest(req, marshalClonePipelineRequestSchema);
     let resp: ClonePipelineResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -207,8 +208,11 @@ export class PipelinesClient {
     req: DeletePipelineRequest,
     options?: CallOptions
   ): Promise<DeletePipelineResponse> {
+    if (req.pipelineId === undefined) {
+      throw new Error('path parameter "pipeline_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/pipelines/${req.pipelineId ?? ''}`;
+    const url = `${host}/api/2.0/pipelines/${encodePathVariable(req.pipelineId)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -244,8 +248,11 @@ export class PipelinesClient {
     req: EditPipelineRequest,
     options?: CallOptions
   ): Promise<EditPipelineResponse> {
+    if (req.pipelineId === undefined) {
+      throw new Error('path parameter "pipeline_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/pipelines/${req.pipelineId ?? ''}`;
+    const url = `${host}/api/2.0/pipelines/${encodePathVariable(req.pipelineId)}`;
     const body = marshalRequest(req, marshalEditPipelineRequestSchema);
     let resp: EditPipelineResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -274,7 +281,7 @@ export class PipelinesClient {
     options?: CallOptions
   ): Promise<ListPipelineEventsResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/pipelines/${req.pipelineId ?? ''}/events`;
+    const url = `${host}/api/2.0/pipelines/${encodePathVariable(req.pipelineId ?? '')}/events`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -336,8 +343,11 @@ export class PipelinesClient {
     req: GetPipelineRequest,
     options?: CallOptions
   ): Promise<GetPipelineResponse> {
+    if (req.pipelineId === undefined) {
+      throw new Error('path parameter "pipeline_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/pipelines/${req.pipelineId ?? ''}`;
+    const url = `${host}/api/2.0/pipelines/${encodePathVariable(req.pipelineId)}`;
     let resp: GetPipelineResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -364,8 +374,14 @@ export class PipelinesClient {
     req: GetUpdateRequest,
     options?: CallOptions
   ): Promise<GetUpdateResponse> {
+    if (req.pipelineId === undefined) {
+      throw new Error('path parameter "pipeline_id" is required');
+    }
+    if (req.updateId === undefined) {
+      throw new Error('path parameter "update_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/pipelines/${req.pipelineId ?? ''}/updates/${req.updateId ?? ''}`;
+    const url = `${host}/api/2.0/pipelines/${encodePathVariable(req.pipelineId)}/updates/${encodePathVariable(req.updateId)}`;
     let resp: GetUpdateResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -452,8 +468,11 @@ export class PipelinesClient {
     req: ListUpdatesRequest,
     options?: CallOptions
   ): Promise<ListUpdatesResponse> {
+    if (req.pipelineId === undefined) {
+      throw new Error('path parameter "pipeline_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/pipelines/${req.pipelineId ?? ''}/updates`;
+    const url = `${host}/api/2.0/pipelines/${encodePathVariable(req.pipelineId)}/updates`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -492,8 +511,11 @@ export class PipelinesClient {
     req: StartUpdateRequest,
     options?: CallOptions
   ): Promise<StartUpdateResponse> {
+    if (req.pipelineId === undefined) {
+      throw new Error('path parameter "pipeline_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/pipelines/${req.pipelineId ?? ''}/updates`;
+    const url = `${host}/api/2.0/pipelines/${encodePathVariable(req.pipelineId)}/updates`;
     const body = marshalRequest(req, marshalStartUpdateRequestSchema);
     let resp: StartUpdateResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -521,8 +543,11 @@ export class PipelinesClient {
     req: StopPipelineRequest,
     options?: CallOptions
   ): Promise<StopPipelineResponse> {
+    if (req.pipelineId === undefined) {
+      throw new Error('path parameter "pipeline_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/pipelines/${req.pipelineId ?? ''}/stop`;
+    const url = `${host}/api/2.0/pipelines/${encodePathVariable(req.pipelineId)}/stop`;
     const body = marshalRequest(req, marshalStopPipelineRequestSchema);
     let resp: StopPipelineResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {

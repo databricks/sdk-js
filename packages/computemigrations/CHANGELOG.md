@@ -1,6 +1,11 @@
 # Version changelog
 
 
+## Release v0.0.4 (2026-11-25)
+
+### Bug Fixes
+* Send an unset request body field as JSON `null`, as the Go SDK does, so the server checks it, instead of failing before sending.
+
 ## Release v0.0.3 (2026-11-23)
 
 ### Internal Changes

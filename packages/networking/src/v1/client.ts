@@ -12,6 +12,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -207,7 +208,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<CreateAccountIpAccessListResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/ip-access-lists`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/ip-access-lists`;
     const body = marshalRequest(
       req,
       marshalCreateAccountIpAccessListRequestSchema
@@ -239,7 +240,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<DeleteAccountIpAccessListResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/ip-access-lists/${encodePathVariable(req.listId ?? '')}`;
     let resp: DeleteAccountIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -267,7 +268,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<GetAccountIpAccessListResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/ip-access-lists/${encodePathVariable(req.listId ?? '')}`;
     let resp: GetAccountIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -295,7 +296,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<ListAccountIpAccessListsResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/ip-access-lists`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/ip-access-lists`;
     let resp: ListAccountIpAccessListsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -335,7 +336,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<ReplaceAccountIpAccessListResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/ip-access-lists/${encodePathVariable(req.listId ?? '')}`;
     const body = marshalRequest(
       req,
       marshalReplaceAccountIpAccessListRequestSchema
@@ -381,8 +382,11 @@ export class NetworkingClient {
     req: UpdateAccountIpAccessListRequest,
     options?: CallOptions
   ): Promise<UpdateAccountIpAccessListResponse> {
+    if (req.listId === undefined) {
+      throw new Error('path parameter "list_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/ip-access-lists/${encodePathVariable(req.listId)}`;
     const body = marshalRequest(
       req,
       marshalUpdateAccountIpAccessListRequestSchema
@@ -422,9 +426,15 @@ export class NetworkingClient {
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/networking/v1/${req.parent ?? ''}/endpoints`;
-    const body = marshalRequest(req.endpoint, marshalEndpointSchema);
+    const url = `${host}/api/networking/v1/${encodePathVariable(req.parent)}/endpoints`;
+    const body =
+      req.endpoint === undefined
+        ? 'null'
+        : marshalRequest(req.endpoint, marshalEndpointSchema);
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -455,8 +465,11 @@ export class NetworkingClient {
     req: DeleteEndpointRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/networking/v1/${req.name ?? ''}`;
+    const url = `${host}/api/networking/v1/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -477,8 +490,11 @@ export class NetworkingClient {
     req: GetEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/networking/v1/${req.name ?? ''}`;
+    const url = `${host}/api/networking/v1/${encodePathVariable(req.name)}`;
     let resp: Endpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -505,8 +521,11 @@ export class NetworkingClient {
     req: ListEndpointsRequest,
     options?: CallOptions
   ): Promise<ListEndpointsResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/networking/v1/${req.parent ?? ''}/endpoints`;
+    const url = `${host}/api/networking/v1/${encodePathVariable(req.parent)}/endpoints`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -602,7 +621,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<DeleteIpAccessListResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
+    const url = `${host}/api/2.0/ip-access-lists/${encodePathVariable(req.listId ?? '')}`;
     let resp: DeleteIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -630,7 +649,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<GetIpAccessListResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
+    const url = `${host}/api/2.0/ip-access-lists/${encodePathVariable(req.listId ?? '')}`;
     let resp: GetIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -699,7 +718,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<ReplaceIpAccessListResponse> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
+    const url = `${host}/api/2.0/ip-access-lists/${encodePathVariable(req.listId ?? '')}`;
     const body = marshalRequest(req, marshalReplaceIpAccessListRequestSchema);
     let resp: ReplaceIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -744,8 +763,11 @@ export class NetworkingClient {
     req: UpdateIpAccessListRequest,
     options?: CallOptions
   ): Promise<UpdateIpAccessListResponse> {
+    if (req.listId === undefined) {
+      throw new Error('path parameter "list_id" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
+    const url = `${host}/api/2.0/ip-access-lists/${encodePathVariable(req.listId)}`;
     const body = marshalRequest(req, marshalUpdateIpAccessListRequestSchema);
     let resp: UpdateIpAccessListResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -784,11 +806,14 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<NetworkConnectivityConfig> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs`;
-    const body = marshalRequest(
-      req.networkConnectivityConfig,
-      marshalCreateNetworkConnectivityConfigurationSchema
-    );
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-connectivity-configs`;
+    const body =
+      req.networkConnectivityConfig === undefined
+        ? 'null'
+        : marshalRequest(
+            req.networkConnectivityConfig,
+            marshalCreateNetworkConnectivityConfigurationSchema
+          );
     let resp: NetworkConnectivityConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -813,7 +838,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<void> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-connectivity-configs/${encodePathVariable(req.networkConnectivityConfigId ?? '')}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -832,7 +857,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<NetworkConnectivityConfig> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-connectivity-configs/${encodePathVariable(req.networkConnectivityConfigId ?? '')}`;
     let resp: NetworkConnectivityConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -857,7 +882,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<ListNetworkConnectivityConfigsResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-connectivity-configs`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -911,17 +936,20 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<NetworkConnectivityConfig> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-connectivity-configs/${encodePathVariable(req.networkConnectivityConfigId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.networkConnectivityConfig,
-      marshalNetworkConnectivityConfigSchema
-    );
+    const body =
+      req.networkConnectivityConfig === undefined
+        ? 'null'
+        : marshalRequest(
+            req.networkConnectivityConfig,
+            marshalNetworkConnectivityConfigSchema
+          );
     let resp: NetworkConnectivityConfig | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -960,11 +988,14 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<NccPrivateEndpointRule> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}/private-endpoint-rules`;
-    const body = marshalRequest(
-      req.privateEndpointRule,
-      marshalCreatePrivateEndpointRuleSchema
-    );
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-connectivity-configs/${encodePathVariable(req.networkConnectivityConfigId ?? '')}/private-endpoint-rules`;
+    const body =
+      req.privateEndpointRule === undefined
+        ? 'null'
+        : marshalRequest(
+            req.privateEndpointRule,
+            marshalCreatePrivateEndpointRuleSchema
+          );
     let resp: NccPrivateEndpointRule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -995,7 +1026,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<NccPrivateEndpointRule> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}/private-endpoint-rules/${req.privateEndpointRuleId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-connectivity-configs/${encodePathVariable(req.networkConnectivityConfigId ?? '')}/private-endpoint-rules/${encodePathVariable(req.privateEndpointRuleId ?? '')}`;
     let resp: NccPrivateEndpointRule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1020,7 +1051,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<NccPrivateEndpointRule> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}/private-endpoint-rules/${req.privateEndpointRuleId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-connectivity-configs/${encodePathVariable(req.networkConnectivityConfigId ?? '')}/private-endpoint-rules/${encodePathVariable(req.privateEndpointRuleId ?? '')}`;
     let resp: NccPrivateEndpointRule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1045,7 +1076,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<ListNccPrivateEndpointRulesResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}/private-endpoint-rules`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-connectivity-configs/${encodePathVariable(req.networkConnectivityConfigId ?? '')}/private-endpoint-rules`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1096,17 +1127,20 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<NccPrivateEndpointRule> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}/private-endpoint-rules/${req.privateEndpointRuleId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-connectivity-configs/${encodePathVariable(req.networkConnectivityConfigId ?? '')}/private-endpoint-rules/${encodePathVariable(req.privateEndpointRuleId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.privateEndpointRule,
-      marshalUpdatePrivateEndpointRuleSchema
-    );
+    const body =
+      req.privateEndpointRule === undefined
+        ? 'null'
+        : marshalRequest(
+            req.privateEndpointRule,
+            marshalUpdatePrivateEndpointRuleSchema
+          );
     let resp: NccPrivateEndpointRule | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1140,11 +1174,11 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<AccountNetworkPolicy> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-policies`;
-    const body = marshalRequest(
-      req.networkPolicy,
-      marshalAccountNetworkPolicySchema
-    );
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-policies`;
+    const body =
+      req.networkPolicy === undefined
+        ? 'null'
+        : marshalRequest(req.networkPolicy, marshalAccountNetworkPolicySchema);
     let resp: AccountNetworkPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1168,8 +1202,11 @@ export class NetworkingClient {
     req: DeleteNetworkPolicyRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.networkPolicyId === undefined) {
+      throw new Error('path parameter "network_policy_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-policies/${req.networkPolicyId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-policies/${encodePathVariable(req.networkPolicyId)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
@@ -1187,8 +1224,11 @@ export class NetworkingClient {
     req: GetNetworkPolicyRequest,
     options?: CallOptions
   ): Promise<AccountNetworkPolicy> {
+    if (req.networkPolicyId === undefined) {
+      throw new Error('path parameter "network_policy_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-policies/${req.networkPolicyId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-policies/${encodePathVariable(req.networkPolicyId)}`;
     let resp: AccountNetworkPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1213,7 +1253,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<ListNetworkPoliciesResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-policies`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-policies`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1263,12 +1303,15 @@ export class NetworkingClient {
     req: UpdateNetworkPolicyRequest,
     options?: CallOptions
   ): Promise<AccountNetworkPolicy> {
+    if (req.networkPolicyId === undefined) {
+      throw new Error('path parameter "network_policy_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/network-policies/${req.networkPolicyId ?? ''}`;
-    const body = marshalRequest(
-      req.networkPolicy,
-      marshalAccountNetworkPolicySchema
-    );
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/network-policies/${encodePathVariable(req.networkPolicyId)}`;
+    const body =
+      req.networkPolicy === undefined
+        ? 'null'
+        : marshalRequest(req.networkPolicy, marshalAccountNetworkPolicySchema);
     let resp: AccountNetworkPolicy | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1292,18 +1335,24 @@ export class NetworkingClient {
     req: CreatePrivateNetworkGatewayRequest,
     options?: CallOptions
   ): Promise<Operation> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/networking/v1/${req.parent ?? ''}/private-network-gateways`;
+    const url = `${host}/api/networking/v1/${encodePathVariable(req.parent)}/private-network-gateways`;
     const params = new URLSearchParams();
     if (req.requestId !== undefined) {
       params.append('request_id', req.requestId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.privateNetworkGateway,
-      marshalPrivateNetworkGatewaySchema
-    );
+    const body =
+      req.privateNetworkGateway === undefined
+        ? 'null'
+        : marshalRequest(
+            req.privateNetworkGateway,
+            marshalPrivateNetworkGatewaySchema
+          );
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1350,8 +1399,11 @@ export class NetworkingClient {
     req: DeletePrivateNetworkGatewayRequest,
     options?: CallOptions
   ): Promise<void> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/networking/v1/${req.name ?? ''}`;
+    const url = `${host}/api/networking/v1/${encodePathVariable(req.name)}`;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       if (workspaceId !== undefined && workspaceId !== '') {
@@ -1372,8 +1424,11 @@ export class NetworkingClient {
     req: GetPrivateNetworkGatewayRequest,
     options?: CallOptions
   ): Promise<PrivateNetworkGateway> {
+    if (req.name === undefined) {
+      throw new Error('path parameter "name" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/networking/v1/${req.name ?? ''}`;
+    const url = `${host}/api/networking/v1/${encodePathVariable(req.name)}`;
     let resp: PrivateNetworkGateway | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1401,7 +1456,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<Operation> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/networking/v1/${req.name ?? ''}`;
+    const url = `${host}/api/networking/v1/${encodePathVariable(req.name ?? '')}`;
     let resp: Operation | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1428,8 +1483,11 @@ export class NetworkingClient {
     req: ListPrivateNetworkGatewaysRequest,
     options?: CallOptions
   ): Promise<ListPrivateNetworkGatewaysResponse> {
+    if (req.parent === undefined) {
+      throw new Error('path parameter "parent" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/networking/v1/${req.parent ?? ''}/private-network-gateways`;
+    const url = `${host}/api/networking/v1/${encodePathVariable(req.parent)}/private-network-gateways`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
@@ -1483,17 +1541,20 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<PrivateNetworkGateway> {
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/networking/v1/${req.privateNetworkGateway?.name ?? ''}`;
+    const url = `${host}/api/networking/v1/${encodePathVariable(req.privateNetworkGateway?.name ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.privateNetworkGateway,
-      marshalPrivateNetworkGatewaySchema
-    );
+    const body =
+      req.privateNetworkGateway === undefined
+        ? 'null'
+        : marshalRequest(
+            req.privateNetworkGateway,
+            marshalPrivateNetworkGatewaySchema
+          );
     let resp: PrivateNetworkGateway | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1527,7 +1588,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<Network> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/networks`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/networks`;
     const body = marshalRequest(req, marshalCreateNetworkRequestSchema);
     let resp: Network | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1558,7 +1619,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<PrivateAccessSettings> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/private-access-settings`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/private-access-settings`;
     const body = marshalRequest(
       req,
       marshalCreatePrivateAccessSettingsRequestSchema
@@ -1599,7 +1660,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<VpcEndpoint> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/vpc-endpoints`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/vpc-endpoints`;
     const body = marshalRequest(req, marshalCreateVpcEndpointRequestSchema);
     let resp: VpcEndpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1628,8 +1689,11 @@ export class NetworkingClient {
     req: DeleteNetworkRequest,
     options?: CallOptions
   ): Promise<Network> {
+    if (req.networkId === undefined) {
+      throw new Error('path parameter "network_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/networks/${req.networkId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/networks/${encodePathVariable(req.networkId)}`;
     let resp: Network | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1653,8 +1717,13 @@ export class NetworkingClient {
     req: DeletePrivateAccessSettingsRequest,
     options?: CallOptions
   ): Promise<PrivateAccessSettings> {
+    if (req.privateAccessSettingsId === undefined) {
+      throw new Error(
+        'path parameter "private_access_settings_id" is required'
+      );
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/private-access-settings/${req.privateAccessSettingsId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/private-access-settings/${encodePathVariable(req.privateAccessSettingsId)}`;
     let resp: PrivateAccessSettings | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1678,8 +1747,11 @@ export class NetworkingClient {
     req: DeleteVpcEndpointRequest,
     options?: CallOptions
   ): Promise<VpcEndpoint> {
+    if (req.vpcEndpointId === undefined) {
+      throw new Error('path parameter "vpc_endpoint_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/vpc-endpoints/${req.vpcEndpointId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/vpc-endpoints/${encodePathVariable(req.vpcEndpointId)}`;
     let resp: VpcEndpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1703,8 +1775,11 @@ export class NetworkingClient {
     req: GetNetworkRequest,
     options?: CallOptions
   ): Promise<Network> {
+    if (req.networkId === undefined) {
+      throw new Error('path parameter "network_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/networks/${req.networkId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/networks/${encodePathVariable(req.networkId)}`;
     let resp: Network | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1728,8 +1803,13 @@ export class NetworkingClient {
     req: GetPrivateAccessSettingsRequest,
     options?: CallOptions
   ): Promise<PrivateAccessSettings> {
+    if (req.privateAccessSettingsId === undefined) {
+      throw new Error(
+        'path parameter "private_access_settings_id" is required'
+      );
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/private-access-settings/${req.privateAccessSettingsId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/private-access-settings/${encodePathVariable(req.privateAccessSettingsId)}`;
     let resp: PrivateAccessSettings | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1758,8 +1838,11 @@ export class NetworkingClient {
     req: GetVpcEndpointRequest,
     options?: CallOptions
   ): Promise<VpcEndpoint> {
+    if (req.vpcEndpointId === undefined) {
+      throw new Error('path parameter "vpc_endpoint_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/vpc-endpoints/${req.vpcEndpointId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/vpc-endpoints/${encodePathVariable(req.vpcEndpointId)}`;
     let resp: VpcEndpoint | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1784,7 +1867,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<ListNetworkResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/networks`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/networks`;
     let resp: ListNetworkResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1814,7 +1897,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<ListPrivateAccessSettingsResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/private-access-settings`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/private-access-settings`;
     let resp: ListPrivateAccessSettingsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1844,7 +1927,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<ListVpcEndpointResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/vpc-endpoints`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/vpc-endpoints`;
     let resp: ListVpcEndpointResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1879,11 +1962,14 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<PrivateAccessSettings> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.customerFacingPrivateAccessSettings?.accountId ?? accountId ?? ''}/private-access-settings/${req.customerFacingPrivateAccessSettings?.privateAccessSettingsId ?? ''}`;
-    const body = marshalRequest(
-      req.customerFacingPrivateAccessSettings,
-      marshalPrivateAccessSettingsSchema
-    );
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.customerFacingPrivateAccessSettings?.accountId ?? accountId ?? '')}/private-access-settings/${encodePathVariable(req.customerFacingPrivateAccessSettings?.privateAccessSettingsId ?? '')}`;
+    const body =
+      req.customerFacingPrivateAccessSettings === undefined
+        ? 'null'
+        : marshalRequest(
+            req.customerFacingPrivateAccessSettings,
+            marshalPrivateAccessSettingsSchema
+          );
     let resp: PrivateAccessSettings | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1911,7 +1997,7 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<WorkspaceNetworkOption> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/network`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces/${String(req.workspaceId ?? '')}/network`;
     let resp: WorkspaceNetworkOption | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1939,11 +2025,14 @@ export class NetworkingClient {
     options?: CallOptions
   ): Promise<WorkspaceNetworkOption> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/network`;
-    const body = marshalRequest(
-      req.workspaceNetworkOption,
-      marshalWorkspaceNetworkOptionSchema
-    );
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/workspaces/${String(req.workspaceId ?? '')}/network`;
+    const body =
+      req.workspaceNetworkOption === undefined
+        ? 'null'
+        : marshalRequest(
+            req.workspaceNetworkOption,
+            marshalWorkspaceNetworkOptionSchema
+          );
     let resp: WorkspaceNetworkOption | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

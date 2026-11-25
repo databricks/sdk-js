@@ -450,6 +450,8 @@ export const marshalAddBlockRequestSchema: z.ZodType = z
     data: d.data,
   }));
 
+export const marshalAddBlockResponseSchema: z.ZodType = z.object({});
+
 export const marshalCloseRequestSchema: z.ZodType = z
   .object({
     handle: z.bigint().optional(),
@@ -457,6 +459,18 @@ export const marshalCloseRequestSchema: z.ZodType = z
   .transform(d => ({
     handle: d.handle,
   }));
+
+export const marshalCloseResponseSchema: z.ZodType = z.object({});
+
+export const marshalCreateDirectoryRequestSchema: z.ZodType = z
+  .object({
+    directoryPath: z.string().optional(),
+  })
+  .transform(d => ({
+    directory_path: d.directoryPath,
+  }));
+
+export const marshalCreateDirectoryResponseSchema: z.ZodType = z.object({});
 
 export const marshalCreateRequestSchema: z.ZodType = z
   .object({
@@ -468,6 +482,34 @@ export const marshalCreateRequestSchema: z.ZodType = z
     overwrite: d.overwrite,
   }));
 
+export const marshalCreateResponseSchema: z.ZodType = z
+  .object({
+    handle: z.bigint().optional(),
+  })
+  .transform(d => ({
+    handle: d.handle,
+  }));
+
+export const marshalDeleteDirectoryRequestSchema: z.ZodType = z
+  .object({
+    directoryPath: z.string().optional(),
+  })
+  .transform(d => ({
+    directory_path: d.directoryPath,
+  }));
+
+export const marshalDeleteDirectoryResponseSchema: z.ZodType = z.object({});
+
+export const marshalDeleteFileRequestSchema: z.ZodType = z
+  .object({
+    filePath: z.string().optional(),
+  })
+  .transform(d => ({
+    file_path: d.filePath,
+  }));
+
+export const marshalDeleteFileResponseSchema: z.ZodType = z.object({});
+
 export const marshalDeleteRequestSchema: z.ZodType = z
   .object({
     path: z.string().optional(),
@@ -478,6 +520,110 @@ export const marshalDeleteRequestSchema: z.ZodType = z
     recursive: d.recursive,
   }));
 
+export const marshalDeleteResponseSchema: z.ZodType = z.object({});
+
+export const marshalDirectoryEntrySchema: z.ZodType = z
+  .object({
+    fileSize: z.number().optional(),
+    isDirectory: z.boolean().optional(),
+    lastModified: z.number().optional(),
+    name: z.string().optional(),
+    path: z.string().optional(),
+  })
+  .transform(d => ({
+    file_size: d.fileSize,
+    is_directory: d.isDirectory,
+    last_modified: d.lastModified,
+    name: d.name,
+    path: d.path,
+  }));
+
+export const marshalFileInfoSchema: z.ZodType = z
+  .object({
+    path: z.string().optional(),
+    isDir: z.boolean().optional(),
+    fileSize: z.bigint().optional(),
+    modificationTime: z.bigint().optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+    is_dir: d.isDir,
+    file_size: d.fileSize,
+    modification_time: d.modificationTime,
+  }));
+
+export const marshalGetDirectoryMetadataRequestSchema: z.ZodType = z
+  .object({
+    directoryPath: z.string().optional(),
+  })
+  .transform(d => ({
+    directory_path: d.directoryPath,
+  }));
+
+export const marshalGetDirectoryMetadataResponseSchema: z.ZodType = z.object(
+  {}
+);
+
+export const marshalGetStatusRequestSchema: z.ZodType = z
+  .object({
+    path: z.string().optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+  }));
+
+export const marshalGetStatusResponseSchema: z.ZodType = z
+  .object({
+    path: z.string().optional(),
+    isDir: z.boolean().optional(),
+    fileSize: z.bigint().optional(),
+    modificationTime: z.bigint().optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+    is_dir: d.isDir,
+    file_size: d.fileSize,
+    modification_time: d.modificationTime,
+  }));
+
+export const marshalListDirectoryContentsRequestSchema: z.ZodType = z
+  .object({
+    directoryPath: z.string().optional(),
+    pageSize: z.bigint().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    directory_path: d.directoryPath,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListDirectoryResponseSchema: z.ZodType = z
+  .object({
+    contents: z.array(z.lazy(() => marshalDirectoryEntrySchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    contents: d.contents,
+    next_page_token: d.nextPageToken,
+  }));
+
+export const marshalListStatusRequestSchema: z.ZodType = z
+  .object({
+    path: z.string().optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+  }));
+
+export const marshalListStatusResponseSchema: z.ZodType = z
+  .object({
+    files: z.array(z.lazy(() => marshalFileInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    files: d.files,
+  }));
+
 export const marshalMkDirsRequestSchema: z.ZodType = z
   .object({
     path: z.string().optional(),
@@ -485,6 +631,8 @@ export const marshalMkDirsRequestSchema: z.ZodType = z
   .transform(d => ({
     path: d.path,
   }));
+
+export const marshalMkDirsResponseSchema: z.ZodType = z.object({});
 
 export const marshalMoveRequestSchema: z.ZodType = z
   .object({
@@ -495,6 +643,8 @@ export const marshalMoveRequestSchema: z.ZodType = z
     source_path: d.sourcePath,
     destination_path: d.destinationPath,
   }));
+
+export const marshalMoveResponseSchema: z.ZodType = z.object({});
 
 export const marshalPutRequestSchema: z.ZodType = z
   .object({
@@ -512,3 +662,34 @@ export const marshalPutRequestSchema: z.ZodType = z
     contents: d.contents,
     overwrite: d.overwrite,
   }));
+
+export const marshalPutResponseSchema: z.ZodType = z.object({});
+
+export const marshalReadRequestSchema: z.ZodType = z
+  .object({
+    path: z.string().optional(),
+    offset: z.bigint().optional(),
+    length: z.bigint().optional(),
+  })
+  .transform(d => ({
+    path: d.path,
+    offset: d.offset,
+    length: d.length,
+  }));
+
+export const marshalReadResponseSchema: z.ZodType = z
+  .object({
+    bytesRead: z.bigint().optional(),
+    data: z
+      .any()
+      .transform((d: Uint8Array) =>
+        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    bytes_read: d.bytesRead,
+    data: d.data,
+  }));
+
+export const marshalUploadFileResponseSchema: z.ZodType = z.object({});

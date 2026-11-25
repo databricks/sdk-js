@@ -368,6 +368,16 @@ export const marshalCreateVolumeRequestSchema: z.ZodType = z
     browse_only: d.browseOnly,
   }));
 
+export const marshalDeleteVolumeRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+  }));
+
+export const marshalDeleteVolumeResponseSchema: z.ZodType = z.object({});
+
 export const marshalEncryptionDetailsSchema: z.ZodType = z
   .object({
     encryptionDetailsType: z
@@ -383,6 +393,42 @@ export const marshalEncryptionDetailsSchema: z.ZodType = z
     ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && {
       sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails,
     }),
+  }));
+
+export const marshalGetVolumeRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    includeBrowse: z.boolean().optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    include_browse: d.includeBrowse,
+  }));
+
+export const marshalListVolumesRequestSchema: z.ZodType = z
+  .object({
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    includeBrowse: z.boolean().optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    include_browse: d.includeBrowse,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+  }));
+
+export const marshalListVolumesResponseSchema: z.ZodType = z
+  .object({
+    volumes: z.array(z.lazy(() => marshalVolumeInfoSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    volumes: d.volumes,
+    next_page_token: d.nextPageToken,
   }));
 
 export const marshalSseEncryptionDetailsSchema: z.ZodType = z
@@ -420,6 +466,46 @@ export const marshalUpdateVolumeRequestSchema: z.ZodType = z
   .transform(d => ({
     full_name_arg: d.fullNameArg,
     new_name: d.newName,
+    name: d.name,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    volume_type: d.volumeType,
+    storage_location: d.storageLocation,
+    owner: d.owner,
+    comment: d.comment,
+    full_name: d.fullName,
+    volume_id: d.volumeId,
+    metastore_id: d.metastoreId,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    access_point: d.accessPoint,
+    encryption_details: d.encryptionDetails,
+    browse_only: d.browseOnly,
+  }));
+
+export const marshalVolumeInfoSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    volumeType: z.string().optional(),
+    storageLocation: z.string().optional(),
+    owner: z.string().optional(),
+    comment: z.string().optional(),
+    fullName: z.string().optional(),
+    volumeId: z.string().optional(),
+    metastoreId: z.string().optional(),
+    createdAt: z.bigint().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.bigint().optional(),
+    updatedBy: z.string().optional(),
+    accessPoint: z.string().optional(),
+    encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
+    browseOnly: z.boolean().optional(),
+  })
+  .transform(d => ({
     name: d.name,
     catalog_name: d.catalogName,
     schema_name: d.schemaName,

@@ -11,6 +11,7 @@ import type {ResolvedClientConfig} from './transport';
 import {resolveClientConfig} from './transport';
 import {
   buildHttpRequest,
+  encodePathVariable,
   executeCall,
   executeHttpCall,
   marshalRequest,
@@ -140,8 +141,11 @@ export class CredentialsClient {
     req: AccountsCreateStorageCredentialRequest,
     options?: CallOptions
   ): Promise<AccountsCreateStorageCredentialResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/metastores/${encodePathVariable(req.metastoreId)}/storage-credentials`;
     const body = marshalRequest(
       req,
       marshalAccountsCreateStorageCredentialRequestSchema
@@ -172,8 +176,14 @@ export class CredentialsClient {
     req: AccountsDeleteStorageCredentialRequest,
     options?: CallOptions
   ): Promise<AccountsDeleteStorageCredentialResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/metastores/${encodePathVariable(req.metastoreId)}/storage-credentials/${encodePathVariable(req.nameArg)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -209,8 +219,14 @@ export class CredentialsClient {
     req: AccountsGetStorageCredentialRequest,
     options?: CallOptions
   ): Promise<AccountsGetStorageCredentialResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/metastores/${encodePathVariable(req.metastoreId)}/storage-credentials/${encodePathVariable(req.nameArg)}`;
     let resp: AccountsGetStorageCredentialResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -237,8 +253,11 @@ export class CredentialsClient {
     req: AccountsListStorageCredentialsRequest,
     options?: CallOptions
   ): Promise<AccountsListStorageCredentialsResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/metastores/${encodePathVariable(req.metastoreId)}/storage-credentials`;
     let resp: AccountsListStorageCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -268,8 +287,14 @@ export class CredentialsClient {
     req: AccountsUpdateStorageCredentialRequest,
     options?: CallOptions
   ): Promise<AccountsUpdateStorageCredentialResponse> {
+    if (req.metastoreId === undefined) {
+      throw new Error('path parameter "metastore_id" is required');
+    }
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/metastores/${encodePathVariable(req.metastoreId)}/storage-credentials/${encodePathVariable(req.nameArg)}`;
     const body = marshalRequest(
       req,
       marshalAccountsUpdateStorageCredentialRequestSchema
@@ -371,8 +396,11 @@ export class CredentialsClient {
     req: DeleteCredentialRequest,
     options?: CallOptions
   ): Promise<DeleteCredentialResponse> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/credentials/${encodePathVariable(req.nameArg)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -405,8 +433,11 @@ export class CredentialsClient {
     req: DeleteStorageCredentialRequest,
     options?: CallOptions
   ): Promise<DeleteStorageCredentialResponse> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/storage-credentials/${encodePathVariable(req.nameArg)}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
@@ -604,8 +635,11 @@ export class CredentialsClient {
     req: GetCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/credentials/${encodePathVariable(req.nameArg)}`;
     let resp: StorageCredentialInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -635,8 +669,11 @@ export class CredentialsClient {
     req: GetStorageCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/storage-credentials/${encodePathVariable(req.nameArg)}`;
     let resp: StorageCredentialInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -807,8 +844,11 @@ export class CredentialsClient {
     req: UpdateCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/credentials/${encodePathVariable(req.nameArg)}`;
     const body = marshalRequest(req, marshalUpdateCredentialRequestSchema);
     let resp: StorageCredentialInfo | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -841,8 +881,11 @@ export class CredentialsClient {
     req: UpdateStorageCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
+    if (req.nameArg === undefined) {
+      throw new Error('path parameter "name_arg" is required');
+    }
     const {host, workspaceId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
+    const url = `${host}/api/2.1/unity-catalog/storage-credentials/${encodePathVariable(req.nameArg)}`;
     const body = marshalRequest(
       req,
       marshalUpdateStorageCredentialRequestSchema
@@ -961,7 +1004,7 @@ export class CredentialsClient {
     options?: CallOptions
   ): Promise<Credentials> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/credentials`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/credentials`;
     const body = marshalRequest(req, marshalCreateCredentialsRequestSchema);
     let resp: Credentials | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -986,8 +1029,11 @@ export class CredentialsClient {
     req: DeleteCredentialsRequest,
     options?: CallOptions
   ): Promise<Credentials> {
+    if (req.credentialsId === undefined) {
+      throw new Error('path parameter "credentials_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/credentials/${req.credentialsId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/credentials/${encodePathVariable(req.credentialsId)}`;
     let resp: Credentials | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1011,8 +1057,11 @@ export class CredentialsClient {
     req: GetCredentialsRequest,
     options?: CallOptions
   ): Promise<Credentials> {
+    if (req.credentialsId === undefined) {
+      throw new Error('path parameter "credentials_id" is required');
+    }
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/credentials/${req.credentialsId ?? ''}`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/credentials/${encodePathVariable(req.credentialsId)}`;
     let resp: Credentials | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -1037,7 +1086,7 @@ export class CredentialsClient {
     options?: CallOptions
   ): Promise<ListCredentialsResponse> {
     const {host, accountId, httpClient} = await this.resolveConfig();
-    const url = `${host}/api/2.0/accounts/${req.accountId ?? accountId ?? ''}/credentials`;
+    const url = `${host}/api/2.0/accounts/${encodePathVariable(req.accountId ?? accountId ?? '')}/credentials`;
     let resp: ListCredentialsResponse | undefined;
     const call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
